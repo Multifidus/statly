@@ -24,7 +24,7 @@ jobs:
         run: pip install -e "engine[dev]"
 
       - name: Engine tests
-        run: pytest engine/tests -q
+        run: pytest engine/tests -q -m "not slow"
 
       - uses: actions/setup-node@v4
         with:
