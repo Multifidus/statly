@@ -38,6 +38,12 @@ jobs:
         working-directory: app
         run: npm run test
 
+      - name: Real-engine integration tests (wizard requests over stdio)
+        working-directory: app
+        env:
+          STATLY_ENGINE_PYTHON: python
+        run: npm run test:engine
+
       - name: Frontend build
         working-directory: app
         run: npm run build
@@ -140,7 +146,6 @@ jobs:
           python -m venv engine\.venv
           engine\.venv\Scripts\pip.exe install -e "engine[dev]"
           .\engine\build.ps1
-          Set-Location -Path $env:GITHUB_WORKSPACE
           .\scripts\stage-engine.ps1
 
       - name: Install app deps
