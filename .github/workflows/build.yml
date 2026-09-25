@@ -140,6 +140,7 @@ jobs:
           python -m venv engine\.venv
           engine\.venv\Scripts\pip.exe install -e "engine[dev]"
           .\engine\build.ps1
+          Set-Location -Path $env:GITHUB_WORKSPACE
           .\scripts\stage-engine.ps1
 
       - name: Install app deps

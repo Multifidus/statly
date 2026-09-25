@@ -32,7 +32,10 @@ GUI session (CI, SSH).
 ```powershell
 python -m venv engine\.venv
 engine\.venv\Scripts\pip.exe install -e "engine[dev]"
+# From the repo root. Note: build.ps1 changes the shell's cwd to engine\,
+# so cd back to repo root before staging.
 .\engine\build.ps1                # -> engine\dist\statly-engine\
+cd ..
 .\scripts\stage-engine.ps1        # -> app\src-tauri\resources\engine\
 cd app; npm ci
 npm run tauri build
