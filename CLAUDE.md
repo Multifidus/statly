@@ -1,0 +1,25 @@
+# Statly — project conventions
+
+Full spec: docs/SPEC.md (read the relevant section before working; do not paste it back).
+Sidecar IPC contract: docs/PROTOCOL.md.
+
+## Layout
+- app/       Tauri 2 shell (app/src-tauri) + React/TS/Vite frontend (app/src)
+- engine/    Python 3.12 stats engine, package `statly_engine`, venv at engine/.venv
+- contracts/ JSON Schemas shared by app and engine
+- content/   Learn pages (Markdown) + decision_tree.yaml
+- fixtures/  datasets + R-generated expected outputs
+- docs/      spec, protocol, install guide
+- scripts/   cross-platform build helpers
+
+## Toolchain (local dev, macOS arm64)
+- node 22 / npm (no pnpm). Rust via rustup at ~/.cargo/bin (add to PATH: `export PATH="$HOME/.cargo/bin:$PATH"`).
+- Python: `python3.12` → engine/.venv. Never use system python3 (3.13).
+- R is not installed locally yet; fixtures come later (Phase 3).
+
+## Rules
+- Engine functions are pure: (data, request) → result. No global state.
+- No network calls anywhere in shipped code. Strict Tauri CSP.
+- Statistical defaults follow SPEC §3 (Type III SS, sum-to-zero contrasts, two-tailed).
+- Tests: engine → pytest; frontend → vitest; e2e → playwright. Run before claiming done.
+- Commit messages: imperative, one line summary, body optional.

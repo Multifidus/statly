@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+target/
+.venv/
+__pycache__/
+*.pyc
+*.spec.bak
+app/src-tauri/resources/engine/
+app/src-tauri/gen/schemas/
+.DS_Store
+*.log
+.pytest_cache/
+.ruff_cache/
+coverage/
+playwright-report/
+test-results/
