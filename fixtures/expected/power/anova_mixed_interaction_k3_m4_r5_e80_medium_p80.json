@@ -1,0 +1,88 @@
+{
+  "analysis_id": "power.anova",
+  "case": "anova_mixed_interaction_k3_m4_r5_e80_medium_p80",
+  "dataset": null,
+  "request": {
+    "variables": {},
+    "options": {
+      "design": "mixed_interaction",
+      "groups": 3,
+      "measurements": 4,
+      "correlation": 0.5,
+      "epsilon": 0.8,
+      "effect_size": "medium",
+      "power": 0.8
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "statistics": [
+      {
+        "key": "n_required",
+        "value": 36,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_exact",
+        "value": 33.9998120191388,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_total",
+        "value": 36,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "achieved_power",
+        "value": 0.827354313449833,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "critical_value",
+        "value": 2.35721654480662,
+        "df": [
+          4.8,
+          79.2
+        ],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "ncp",
+        "value": 14.4,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_f",
+        "value": 0.25,
+        "ci_lower": null,
+        "ci_upper": null
+      }
+    ]
+  },
+  "pwr_solution": null,
+  "note": "hand R implementation of G*Power 3's univariate repeated-measures formulas (Faul et al., 2007, Table 3)",
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

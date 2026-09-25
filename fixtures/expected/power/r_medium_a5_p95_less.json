@@ -1,0 +1,75 @@
+{
+  "analysis_id": "power.correlation",
+  "case": "r_medium_a5_p95_less",
+  "dataset": null,
+  "request": {
+    "variables": {},
+    "options": {
+      "effect_size": "medium",
+      "power": 0.95
+    },
+    "tails": "less",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "statistics": [
+      {
+        "key": "n_required",
+        "value": 115,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_exact",
+        "value": 114.982894872789,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_total",
+        "value": 115,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "achieved_power",
+        "value": 0.950025681373941,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "critical_value",
+        "value": -0.154149131404758,
+        "df": [
+          113
+        ],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r",
+        "value": -0.3,
+        "ci_lower": null,
+        "ci_upper": null
+      }
+    ]
+  },
+  "pwr_solution": 114.982894934282,
+  "note": null,
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

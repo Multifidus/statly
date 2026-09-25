@@ -1,0 +1,83 @@
+{
+  "analysis_id": "power.t_test",
+  "case": "t_paired_small_a1_p80_two_sided",
+  "dataset": null,
+  "request": {
+    "variables": {},
+    "options": {
+      "design": "paired",
+      "effect_size": "small",
+      "power": 0.8
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.01
+  },
+  "expected": {
+    "statistics": [
+      {
+        "key": "n_required",
+        "value": 296,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_exact",
+        "value": 295.297273044498,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_total",
+        "value": 296,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "achieved_power",
+        "value": 0.801148672063493,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "critical_value",
+        "value": 2.59259756105675,
+        "df": [
+          295
+        ],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "ncp",
+        "value": 3.44093010681705,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "d_z",
+        "value": 0.2,
+        "ci_lower": null,
+        "ci_upper": null
+      }
+    ]
+  },
+  "pwr_solution": 295.297273179778,
+  "note": null,
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

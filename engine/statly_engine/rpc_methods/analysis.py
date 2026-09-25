@@ -2,7 +2,8 @@
 
 - `analysis.run`  params AnalysisRequest -> AnalysisResult. The request's snapshot_id must equal the
   dataset's current snapshot (else -32002 StaleOrUnknown); invalid variable choices -> -32003.
-- `analysis.list` params {} -> {"analyses": [{analysis_id, label, layouts: [{name, roles}], options}]}.
+  Dataset-free analyses (needs_data=false, e.g. power.*) skip the dataset lookup; ids may be null.
+- `analysis.list` params {} -> {"analyses": [{analysis_id, label, layouts: [{name, roles}], options, needs_data}]}.
 The analysis itself is pure: stats.registry.run(df, request, meta).
 """
 
@@ -18,6 +19,8 @@ from statly_engine.stats import registry
 @rpc_method(AnalysisRequest, AnalysisResult)
 def run(store: DatasetStore, params: dict) -> dict:
     request = AnalysisRequest.model_validate(params)
+    if not registry.get(request.analysis_id).needs_data:   # power.*: dataset_id/snapshot_id ignored
+        return registry.run(None, request)
     state = store.get(request.dataset_id)
     if request.snapshot_id != state.meta["snapshot_id"]:
         raise StaleOrUnknown("The data changed since this analysis was set up; please run it again.",

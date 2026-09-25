@@ -19,7 +19,7 @@ mkdir -p "$TS_OUT"
 import { compile } from "json-schema-to-typescript";
 import fs from "node:fs";
 const dir = process.env.CONTRACTS;
-const names = fs.readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5)).sort();
+const names = fs.readdirSync(dir).filter((f) => f.endsWith(".json") && /^[A-Z]/.test(f)).map((f) => f.slice(0, -5)).sort();
 // Synthetic root that references every contract (and every Rpc definition) so
 // all types land in one file exactly once.
 const rpc = JSON.parse(fs.readFileSync(`${dir}/Rpc.json`, "utf8"));
@@ -45,7 +45,7 @@ fs.writeFileSync(process.env.TS_FILE ?? "src/contracts/index.ts", ts);
 # Only top-level contracts/*.json are fed in (contracts/examples/ is excluded).
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-cp "$CONTRACTS"/*.json "$TMP"/
+cp "$CONTRACTS"/[A-Z]*.json "$TMP"/  # PascalCase = schema; lowercase (analysis_ids.json) = data
 rm -rf "$PY_OUT"
 mkdir -p "$PY_OUT"
 "$PY" -m datamodel_code_generator \
@@ -65,7 +65,7 @@ mkdir -p "$PY_OUT"
   echo "# $HEADER"
   echo '"""Pydantic v2 models for the shared Statly contracts (see contracts/README.md)."""'
   echo
-  for f in "$CONTRACTS"/*.json; do
+  for f in "$CONTRACTS"/[A-Z]*.json; do
     n="$(basename "$f" .json)"
     if [ "$n" = "Rpc" ]; then
       echo "from ._gen import Rpc  # noqa: F401  (Phase 1 RPC params/results, e.g. Rpc.DatasetRowsParams)"
@@ -75,4 +75,4 @@ mkdir -p "$PY_OUT"
   done
 } > "$PY_OUT/__init__.py"
 
-echo "contracts: generated $(ls "$CONTRACTS"/*.json | wc -l | tr -d ' ') schemas -> app/src/contracts/index.ts, engine/statly_engine/contracts/"
+echo "contracts: generated $(ls "$CONTRACTS"/[A-Z]*.json | wc -l | tr -d ' ') schemas -> app/src/contracts/index.ts, engine/statly_engine/contracts/"

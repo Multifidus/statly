@@ -49,6 +49,7 @@ class AnalysisSpec:
     fn: Callable
     layouts: tuple[Layout, ...]
     options: dict = field(default_factory=dict)   # option name -> description (for analysis.list)
+    needs_data: bool = True                        # False: dataset-free (power.*); fn(None, request, None)
 
     def match_layout(self, variables: dict[str, list[str]]) -> Layout:
         given = {k for k, v in variables.items() if v}
@@ -79,7 +80,7 @@ REGISTRY: dict[str, AnalysisSpec] = {}
 
 
 def register(analysis_id: str, *, label: str, roles: "list[Role] | dict[str, list[Role]]",
-             options: dict | None = None):
+             options: dict | None = None, needs_data: bool = True):
     """Decorator. `roles` is one list of Roles, or {layout_name: [Role, ...]} for alternatives."""
     layouts = (tuple(Layout(n, tuple(r)) for n, r in roles.items()) if isinstance(roles, dict)
                else (Layout("default", tuple(roles)),))
@@ -87,7 +88,7 @@ def register(analysis_id: str, *, label: str, roles: "list[Role] | dict[str, lis
     def deco(fn):
         if analysis_id in REGISTRY and REGISTRY[analysis_id].fn is not fn:
             raise ValueError(f"analysis id registered twice: {analysis_id}")
-        REGISTRY[analysis_id] = AnalysisSpec(analysis_id, label, fn, layouts, options or {})
+        REGISTRY[analysis_id] = AnalysisSpec(analysis_id, label, fn, layouts, options or {}, needs_data)
         return fn
     return deco
 
@@ -114,15 +115,22 @@ def describe_all() -> list[dict]:
         "layouts": [{"name": l.name, "roles": [{"role": r.name, "min": r.min, "max": r.max,
                                                 "description": r.description} for r in l.roles]}
                     for l in s.layouts],
-        "options": s.options,
+        "options": s.options, "needs_data": s.needs_data,
     } for s in sorted(REGISTRY.values(), key=lambda s: s.analysis_id)]
 
 
-def run(df: pd.DataFrame, request: "AnalysisRequest | dict", meta: dict | None = None) -> dict:
-    """Validate the request, apply its subset, and run the registered analysis (pure)."""
+def run(df: "pd.DataFrame | None", request: "AnalysisRequest | dict", meta: dict | None = None) -> dict:
+    """Validate the request, apply its subset, and run the registered analysis (pure).
+    Dataset-free analyses (needs_data=False) ignore `df`/`meta` and are called as fn(None, req, None)."""
     req = request if isinstance(request, AnalysisRequest) else AnalysisRequest.model_validate(request)
     spec = get(req.analysis_id)
     spec.match_layout(req.variables)
+    if not spec.needs_data:
+        if req.subset:
+            raise InvalidParams(f"{spec.label} doesn't use a dataset, so a row filter can't be applied.")
+        return spec.fn(None, req, None)
+    if df is None:
+        raise InvalidParams(f"{spec.label} needs a dataset; please open one first.")
     prep.require(df, [v for names in req.variables.values() for v in names])
     sub = prep.apply_subset(df, req.subset, meta)
     if len(sub) == 0:

@@ -363,8 +363,11 @@ class ResultInputs(BaseModel):
         extra='forbid',
     )
     request: AnalysisRequest
-    dataset_id: str
-    snapshot_id: str
+    dataset_id: str | None
+    """
+    null for dataset-free analyses (power.*).
+    """
+    snapshot_id: str | None
     n_used: conint(ge=0)
     """
     Rows (or matched participants for paired designs) actually analysed.

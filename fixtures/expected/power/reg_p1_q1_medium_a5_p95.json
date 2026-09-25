@@ -1,0 +1,85 @@
+{
+  "analysis_id": "power.regression",
+  "case": "reg_p1_q1_medium_a5_p95",
+  "dataset": null,
+  "request": {
+    "variables": {},
+    "options": {
+      "predictors": 1,
+      "tested_predictors": 1,
+      "effect_size": "medium",
+      "power": 0.95
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "statistics": [
+      {
+        "key": "n_required",
+        "value": 89,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_exact",
+        "value": 88.5995701746095,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_total",
+        "value": 89,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "achieved_power",
+        "value": 0.950852720680219,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "critical_value",
+        "value": 3.95058668104146,
+        "df": [
+          1,
+          87
+        ],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "ncp",
+        "value": 13.35,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_f2",
+        "value": 0.15,
+        "ci_lower": null,
+        "ci_upper": null
+      }
+    ]
+  },
+  "pwr_solution": 88.5995880106476,
+  "note": null,
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

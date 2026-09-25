@@ -1,0 +1,91 @@
+{
+  "analysis_id": "power.t_test",
+  "case": "t_independent_ratio20_medium_greater",
+  "dataset": null,
+  "request": {
+    "variables": {},
+    "options": {
+      "design": "independent",
+      "effect_size": 0.5,
+      "allocation_ratio": 2,
+      "power": 0.8
+    },
+    "tails": "greater",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "statistics": [
+      {
+        "key": "n_required",
+        "value": 38,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_exact",
+        "value": 37.5545241175084,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_total",
+        "value": 114,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n2_required",
+        "value": 76,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "achieved_power",
+        "value": 0.804141952976668,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "critical_value",
+        "value": 1.65857262878802,
+        "df": [
+          112
+        ],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "ncp",
+        "value": 2.51661147842358,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_d",
+        "value": 0.5,
+        "ci_lower": null,
+        "ci_upper": null
+      }
+    ]
+  },
+  "pwr_solution": null,
+  "note": "pwr.t2n.test power at (n1, ratio*n1); rounding n1 up, n2 = ceiling(ratio*n1)",
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

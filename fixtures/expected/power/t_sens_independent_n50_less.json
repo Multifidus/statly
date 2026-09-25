@@ -1,0 +1,77 @@
+{
+  "analysis_id": "power.t_test",
+  "case": "t_sens_independent_n50_less",
+  "dataset": null,
+  "request": {
+    "variables": {},
+    "options": {
+      "design": "independent",
+      "mode": "sensitivity",
+      "n": 50,
+      "power": 0.8
+    },
+    "tails": "less",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "statistics": [
+      {
+        "key": "detectable_effect",
+        "value": -0.500764105473841,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "power",
+        "value": 0.8,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_total",
+        "value": 100,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "critical_value",
+        "value": -1.66055121706573,
+        "df": [
+          98
+        ],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "ncp",
+        "value": -2.5038205273692,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_d",
+        "value": -0.500764105473841,
+        "ci_lower": null,
+        "ci_upper": null
+      }
+    ]
+  },
+  "pwr_solution": -0.500779272675517,
+  "note": null,
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

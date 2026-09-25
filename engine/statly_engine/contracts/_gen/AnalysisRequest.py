@@ -72,10 +72,13 @@ class AnalysisRequest(BaseModel):
     """
     Open enum of analysis identifiers, dotted snake_case (family.variant). The engine's registry is authoritative.
     """
-    dataset_id: str
-    snapshot_id: str
+    dataset_id: str | None
     """
-    DatasetMeta.snapshot_id the request was built against; the engine rejects a stale snapshot.
+    null for dataset-free analyses (e.g. power.*; analysis.list reports needs_data=false).
+    """
+    snapshot_id: str | None
+    """
+    DatasetMeta.snapshot_id the request was built against; the engine rejects a stale snapshot. null for dataset-free analyses.
     """
     variables: dict[constr(pattern=r'^[a-z][a-z0-9_]*$'), list[str]]
     """

@@ -1,0 +1,45 @@
+{
+  "analysis_id": "power.anova",
+  "case": "gpower_within_p181",
+  "dataset": null,
+  "kind": "gpower",
+  "request": {
+    "variables": {},
+    "options": {
+      "design": "rm_within",
+      "groups": 2,
+      "measurements": 10,
+      "correlation": 0.5,
+      "epsilon": 1
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "n": 20,
+  "effect_size": 0.25,
+  "printed": {
+    "power": 0.95
+  },
+  "printed_decimals": {
+    "power": 2
+  },
+  "source": "Faul et al. (2007), Behavior Research Methods, 39(2), p. 181 (Berti et al., 2006 example: N = 20, k = 2, m = 10, rho = .5, f = 0.25).",
+  "hand_r": {
+    "power": 0.951436799288761,
+    "critical_value": 1.93808328609261,
+    "ncp": 25,
+    "df1": 9,
+    "df2": 162
+  },
+  "expected": null,
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "analysis_id": "power.anova",
+  "case": "anova_rm_within_k1_m4_r3_e75_large_p80",
+  "dataset": null,
+  "request": {
+    "variables": {},
+    "options": {
+      "design": "rm_within",
+      "groups": 1,
+      "measurements": 4,
+      "correlation": 0.3,
+      "epsilon": 0.75,
+      "effect_size": "large",
+      "power": 0.8
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "statistics": [
+      {
+        "key": "n_required",
+        "value": 17,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_exact",
+        "value": 16.0382048958049,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "n_total",
+        "value": 17,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "achieved_power",
+        "value": 0.826529511152984,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "critical_value",
+        "value": 3.13705764340171,
+        "df": [
+          2.25,
+          36
+        ],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "ncp",
+        "value": 11.6571428571429,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_f",
+        "value": 0.4,
+        "ci_lower": null,
+        "ci_upper": null
+      }
+    ]
+  },
+  "pwr_solution": null,
+  "note": "hand R implementation of G*Power 3's univariate repeated-measures formulas (Faul et al., 2007, Table 3)",
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

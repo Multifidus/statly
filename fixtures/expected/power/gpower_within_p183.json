@@ -1,0 +1,53 @@
+{
+  "analysis_id": "power.anova",
+  "case": "gpower_within_p183",
+  "dataset": null,
+  "kind": "gpower",
+  "request": {
+    "variables": {},
+    "options": {
+      "design": "rm_within",
+      "groups": 3,
+      "measurements": 3,
+      "correlation": 0.3,
+      "epsilon": 1
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "n": 90,
+  "effect_size": 0.2572,
+  "printed": {
+    "power": 0.997,
+    "critical_value": 3.048,
+    "ncp": 25.52,
+    "df1": 2,
+    "df2": 174
+  },
+  "printed_decimals": {
+    "power": 3,
+    "critical_value": 3,
+    "ncp": 2,
+    "df1": 0,
+    "df2": 0
+  },
+  "source": "Faul, F., Erdfelder, E., Lang, A.-G., & Buchner, A. (2007). G*Power 3. Behavior Research Methods, 39(2), 175-191, p. 183 (3 x 3 example of Figure 4, matrix SR1: N = 90, k = 3, m = 3, rho = .3, eps = 1).",
+  "hand_r": {
+    "power": 0.996552626752691,
+    "critical_value": 3.04790648127302,
+    "ncp": 25.5157097142857,
+    "df1": 2,
+    "df2": 174
+  },
+  "expected": null,
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "pwr": "1.3.0",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

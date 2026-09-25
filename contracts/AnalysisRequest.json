@@ -19,8 +19,8 @@
         "friedman", "chi_square.independence", "fisher_exact", "correlation.pearson", "reliability.cronbach_alpha"
       ]
     },
-    "dataset_id": { "type": "string" },
-    "snapshot_id": { "type": "string", "description": "DatasetMeta.snapshot_id the request was built against; the engine rejects a stale snapshot." },
+    "dataset_id": { "type": ["string", "null"], "description": "null for dataset-free analyses (e.g. power.*; analysis.list reports needs_data=false)." },
+    "snapshot_id": { "type": ["string", "null"], "description": "DatasetMeta.snapshot_id the request was built against; the engine rejects a stale snapshot. null for dataset-free analyses." },
     "variables": {
       "type": "object",
       "description": "Analysis role -> variable names. Role keys are analysis-specific snake_case (outcome, group, time, subject_id, covariates, predictors, items, x, y, ...). Always arrays for uniform typing.",

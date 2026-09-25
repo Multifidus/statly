@@ -327,8 +327,8 @@
       "required": ["request", "dataset_id", "snapshot_id", "n_used", "n_excluded", "n_by_group"],
       "properties": {
         "request": { "$ref": "AnalysisRequest.json" },
-        "dataset_id": { "type": "string" },
-        "snapshot_id": { "type": "string" },
+        "dataset_id": { "type": ["string", "null"], "description": "null for dataset-free analyses (power.*)." },
+        "snapshot_id": { "type": ["string", "null"] },
         "n_used": { "type": "integer", "minimum": 0, "description": "Rows (or matched participants for paired designs) actually analysed." },
         "n_excluded": { "type": "integer", "minimum": 0, "description": "Rows in the subset excluded for missing data / unmatched IDs." },
         "n_by_group": { "type": "array", "items": { "$ref": "#/$defs/GroupCount" } }
