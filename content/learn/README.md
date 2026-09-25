@@ -1,7 +1,7 @@
 # Learn library: content format (SPEC §11.3)
 
 One Markdown file per topic, at `content/learn/<category>/<id>.md`.
-Categories: `tests`, `assumptions`, `effect_sizes`.
+Categories: `tests`, `assumptions`, `effect_sizes`, `posthoc`.
 
 ## File naming vs. front-matter `id`
 
@@ -18,6 +18,14 @@ when it checks that a page's `id` matches its filename. Ids without a dot
 exactly as before. `assumptions/*.md` and `effect_sizes/*.md` ids are not
 analysis ids and are never dotted, so this convention doesn't apply to them.
 
+`posthoc/*.md` pages follow the same dot-to-double-underscore rule as
+`tests/*.md`, since posthoc ids (e.g. `posthoc.tukey`) are also canonical
+analysis ids: the file is `posthoc/posthoc__tukey.md`. The one exception is
+the general `multiple_comparisons` page in `posthoc/`, which explains the
+false-positive problem and correction methods (Bonferroni, Holm,
+Benjamini-Hochberg) rather than one specific posthoc test; its id has no dot
+and isn't a canonical analysis id, so it's exempt from the canonical-id check.
+
 ## Front matter
 
 YAML front matter, these keys, in this order:
@@ -25,7 +33,7 @@ YAML front matter, these keys, in this order:
 ```yaml
 id: t_test.independent       # matches the analysis id used by the engine
 title: "Independent-samples t-test"
-category: tests              # tests | assumptions | effect_sizes
+category: tests              # tests | assumptions | effect_sizes | posthoc
 summary: "One sentence, plain language, what this page covers."
 related: [t_test.paired, mann_whitney, cohens_d, normality, homogeneity_of_variance]
 reading_level_target: "8-10"
@@ -76,6 +84,19 @@ Sections are H2 (`##`), in this exact order, exact headings:
 (Effect size pages add "Benchmarks (and why to be careful)" after the APA section,
 before "Common mistakes". Always note that education effects are often judged
 against field-specific norms, not just Cohen's generic labels.)
+
+### `posthoc/*.md`
+1. What it is
+2. When to use it
+3. An everyday analogy
+4. A worked example
+5. How to read the output
+6. How to report it (APA 7)
+7. Common mistakes
+
+(Same section order as `tests/*.md`. Posthoc pages cover one pairwise/follow-up
+procedure each, plus a general `multiple_comparisons` page on the false-positive
+problem and correction methods.)
 
 ## Worked examples
 

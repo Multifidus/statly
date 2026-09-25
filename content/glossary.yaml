@@ -482,3 +482,239 @@ independent_variable:
   short: "The factor you're comparing or manipulating, like group, time, or teaching method."
   long: "The independent variable (or predictor, or factor) is what you're comparing groups on or using to predict an outcome, such as which intervention a student received. It's called 'independent' because, in a designed study, it doesn't depend on the outcome."
   see_also: [dependent_variable]
+
+# --- Learn library batch 2 additions ---
+pillais_trace:
+  term: "Pillai's trace"
+  short: "Statly's default multivariate test statistic for MANOVA, checking group differences across combined outcomes."
+  long: "Pillai's trace is a test statistic used in MANOVA and MANCOVA to summarize how much groups differ across several outcome variables at once. Statly reports it by default because it stays accurate even when assumptions like equal covariance matrices are somewhat violated, making it a safer general-purpose choice than other multivariate test statistics."
+  see_also: [box_m_test, multivariate_normality]
+
+estimated_marginal_means:
+  term: "estimated marginal means"
+  short: "Group means adjusted to what they would be if every group started at the same covariate level."
+  long: "Estimated marginal means are the group averages ANCOVA reports after adjusting for a covariate, like a pretest score. Instead of comparing raw, unadjusted group averages, ANCOVA levels the playing field first, showing what each group's average would look like if every group had started at the same covariate value."
+  see_also: [covariate]
+
+homogeneity_of_regression_slopes:
+  term: "homogeneity of regression slopes"
+  short: "The ANCOVA assumption that the covariate-outcome relationship is the same slope in every group."
+  long: "This assumption checks whether a covariate, like a pretest score, predicts the outcome the same way in every group being compared. If the relationship's slope differs meaningfully across groups, ANCOVA's single shared adjustment no longer produces a fair, accurate comparison."
+  see_also: [covariate]
+
+box_m_test:
+  term: "Box's M test"
+  short: "Checks that groups share a similar covariance pattern across outcomes before trusting MANOVA or MANCOVA."
+  long: "Box's M test is an assumption check for MANOVA and MANCOVA. It tests whether every group has a similar pattern of variances and relationships among the outcome variables, called the covariance matrix. It's known for being overly sensitive with large or very unequal samples, so it's usually interpreted alongside other evidence."
+  see_also: [homogeneity_of_variance, pillais_trace]
+
+multivariate_normality:
+  term: "multivariate normality"
+  short: "The assumption that a combined set of outcome variables follows a bell-shaped pattern together, not just individually."
+  long: "Multivariate normality extends normality to two or more variables considered jointly. Each outcome can look normal on its own while the combined pattern still looks unusual. Tests like MANOVA and confirmatory factor analysis rely on this assumption, and it is often checked using a distance measure that flags unusual combined data points."
+  see_also: [normality, mahalanobis_distance]
+
+cohens_f:
+  term: "Cohen's f"
+  short: "An effect size for ANOVA-family tests, useful for both reporting results and planning sample size."
+  long: "Cohen's f measures how large a group effect is in an ANOVA, factorial ANOVA, or ANCOVA, on a scale built to plug directly into power analysis. It's closely related to eta squared but expressed differently so it can be used when planning how many participants a study needs."
+  see_also: [eta_squared]
+
+rank_transform:
+  term: "rank transform"
+  short: "Replacing raw scores with their ranks before analysis, used by several nonparametric tests."
+  long: "A rank transform converts raw data values into their ranks, from lowest to highest, before running a statistical test. This makes a test less sensitive to outliers and skewed data, since extreme values can only shift a rank by a limited amount, unlike raw scores."
+  see_also: [rank, nonparametric]
+
+art_procedure:
+  term: "aligned rank transform"
+  short: "A special ranking procedure that lets you test interactions in a factorial design nonparametrically."
+  long: "The aligned rank transform is a two-step procedure used before running a nonparametric factorial ANOVA. It first aligns the data to remove effects other than the one being tested, then ranks the aligned values, which allows interaction effects to be tested correctly, unlike a simple rank transform alone."
+  see_also: [rank_transform, interaction_effect]
+
+f_squared:
+  term: "f-squared"
+  short: "An effect size showing how much a predictor or set of predictors adds to a regression or ANCOVA model."
+  long: "f-squared measures the size of an effect in regression or ANCOVA, built from the change in R-squared when a predictor is added to a model. A larger f-squared means that predictor explains more unique variation in the outcome, beyond what the other predictors already explain."
+  see_also: [r_squared]
+
+generalized_eta_squared:
+  term: "generalized eta squared"
+  short: "An eta-squared variant built so effect sizes stay comparable across between-subjects, within-subjects, and mixed designs."
+  long: "Generalized eta squared adjusts the usual eta-squared calculation to account for a study's design, so effect sizes from repeated-measures, mixed, and between-subjects designs can be fairly compared to each other. It is increasingly the recommended effect size to report for repeated-measures and mixed ANOVA designs."
+  see_also: [eta_squared, within_subjects]
+
+regression_coefficient:
+  term: "regression coefficient"
+  short: "The number that says how much the outcome changes for each one-unit increase in a predictor."
+  long: "A regression coefficient (often called b) is the slope for one predictor in a regression model. A coefficient of 2 means the predicted outcome rises by 2 units for every one-unit increase in that predictor, holding other predictors constant. Its sign shows the direction of the relationship, positive or negative."
+  see_also: [intercept, r_squared]
+
+intercept:
+  term: "intercept"
+  short: "The predicted value of the outcome when every predictor in the model equals zero."
+  long: "The intercept is the starting point of a regression line, the predicted outcome score when all predictors are zero. It anchors the line so the coefficients can describe how the predicted outcome moves away from that starting point as predictors change."
+  see_also: [regression_coefficient]
+
+odds_ratio:
+  term: "odds ratio"
+  short: "How many times the odds of an outcome multiply for each one-unit increase in a predictor."
+  long: "An odds ratio compares the odds of an outcome happening at two different levels of a predictor. An odds ratio of 2 means the odds double for each one-unit increase in the predictor. An odds ratio of 1 means the predictor has no effect on the odds; below 1 means the odds decrease."
+  see_also: [logit]
+
+logit:
+  term: "logit"
+  short: "The scale logistic regression coefficients are estimated on, before converting to odds ratios."
+  long: "The logit is the natural log of the odds of an outcome. Logistic regression estimates its coefficients on this logit scale because it keeps predicted probabilities between 0 and 1. Logit coefficients are hard to interpret directly, so they are usually converted to odds ratios for reporting."
+  see_also: [odds_ratio]
+
+factor_loading:
+  term: "factor loading"
+  short: "A number showing how strongly a survey item connects to an underlying factor."
+  long: "A factor loading tells you how strongly an individual item relates to a broader underlying factor in a factor analysis. Loadings typically range from -1 to 1. Higher absolute values mean the item is a stronger, clearer indicator of that factor."
+  see_also: [kmo]
+
+kmo:
+  term: "KMO"
+  short: "A check of whether your items are correlated enough overall to make factor analysis worthwhile."
+  long: "The Kaiser-Meyer-Olkin (KMO) measure checks whether your set of items share enough common correlation to justify running a factor analysis. Values range from 0 to 1, and values above about .60 are generally considered acceptable for proceeding."
+  see_also: [bartletts_test, factor_loading]
+
+bartletts_test:
+  term: "Bartlett's test"
+  short: "A test checking whether your items are correlated with each other at all before running factor analysis."
+  long: "Bartlett's test of sphericity checks whether your correlation matrix differs meaningfully from one where all items are unrelated. A significant result means your items are correlated enough to proceed with factor analysis, alongside a good KMO value."
+  see_also: [kmo]
+
+scree_plot:
+  term: "scree plot"
+  short: "A chart of factor size ranked from largest to smallest, used to decide how many factors to keep."
+  long: "A scree plot lines up factors from most to least important and plots how much variance each one explains. Researchers often look for the point where the line flattens out, called the 'elbow,' as a guide for how many factors to retain."
+  see_also: [parallel_analysis]
+
+parallel_analysis:
+  term: "parallel analysis"
+  short: "A method comparing your factors against factors from random data, to decide how many are real."
+  long: "Parallel analysis simulates random data with the same number of items and respondents, then compares your real factors to the ones that show up by chance alone. Factors that explain more variance than their random counterparts are considered worth keeping."
+  see_also: [scree_plot]
+
+model_fit_indices:
+  term: "model fit indices"
+  short: "A set of numbers summarizing how well a proposed factor structure matches your actual data."
+  long: "Model fit indices, like CFI, RMSEA, and SRMR, each measure a different aspect of how closely a confirmatory factor analysis model reproduces the real pattern of correlations in your data. Researchers report several together since no single index tells the whole story."
+  see_also: [cfi_rmsea]
+
+cfi_rmsea:
+  term: "CFI and RMSEA"
+  short: "Two common fit indices; CFI is better closer to 1, RMSEA is better closer to 0."
+  long: "CFI (comparative fit index) and RMSEA (root mean square error of approximation) are widely reported fit indices for confirmatory factor analysis. A CFI above about .95 and an RMSEA below about .06 are commonly used, though not universal, signs of good fit."
+  see_also: [model_fit_indices]
+
+path_diagram:
+  term: "path diagram"
+  short: "A picture showing factors, items, and the arrows connecting them with their loading values."
+  long: "A path diagram is a visual map of a factor analysis model. Circles usually represent underlying factors, boxes represent observed items, and arrows show the loadings connecting them, making the structure easier to see at a glance than a table alone."
+  see_also: [factor_loading]
+
+variance_inflation_factor:
+  term: "variance inflation factor"
+  short: "A number showing how much a predictor overlaps with the other predictors in a regression model."
+  long: "The variance inflation factor (VIF) measures how much a predictor's relationship with the other predictors inflates the uncertainty around its coefficient. A VIF near 1 means little overlap. A VIF above about 5 to 10 signals a multicollinearity problem worth addressing."
+  see_also: [regression_coefficient]
+
+proportional_odds_assumption:
+  term: "proportional odds assumption"
+  short: "The assumption that a predictor's effect is the same across every category boundary in ordinal regression."
+  long: "The proportional odds assumption requires that a predictor's relationship with the outcome stays roughly the same no matter which pair of adjacent ordered categories you compare. If this assumption fails, a single coefficient per predictor can be misleading."
+  see_also: [odds_ratio]
+
+item_difficulty:
+  term: "item difficulty"
+  short: "The proportion of test-takers who answered a test item correctly."
+  long: "Item difficulty is simply the share of people who got a specific test question right, from 0 (nobody) to 1 (everybody). Despite the name, a higher number means an easier item. Test builders usually aim for items in a middle range, since items that are too easy or too hard don't help separate strong students from weak ones."
+  see_also: [item_discrimination, item_total_correlation]
+
+item_discrimination:
+  term: "item discrimination"
+  short: "How well a test item separates students who scored well overall from those who didn't."
+  long: "Item discrimination measures whether students who do well on a test item also tend to do well on the rest of the test. It's often calculated as a point-biserial correlation or by comparing high-scoring and low-scoring groups. A high positive value means the item tells strong and weak students apart well; a negative value is a red flag that the item may be flawed."
+  see_also: [item_difficulty, item_total_correlation]
+
+intraclass_correlation:
+  term: "intraclass correlation (ICC)"
+  short: "A measure of how closely raters or repeated measurements agree on a numeric or ordinal scale."
+  long: "The intraclass correlation compares how much scores vary between the people or items being rated to how much they vary because raters disagree. Unlike a plain correlation, it penalizes raters who consistently score higher or lower than each other, not just raters whose rankings differ. Values range from 0 (no agreement) to 1 (perfect agreement)."
+  see_also: [interrater_reliability, correlation]
+
+interrater_reliability:
+  term: "interrater reliability"
+  short: "How consistently different raters produce the same scores or classifications for the same items."
+  long: "Interrater reliability asks whether it matters who did the rating. If different raters give very different scores or classifications to the same people or items, the ratings aren't very trustworthy on their own. Statistics like ICC, Cohen's kappa, and Fleiss' kappa each quantify this kind of agreement, chosen based on whether the scale is numeric or categorical and how many raters are involved."
+  see_also: [intraclass_correlation, kappa_statistic]
+
+kappa_statistic:
+  term: "kappa"
+  short: "A measure of agreement between raters on categories, adjusted for the agreement expected by chance."
+  long: "Kappa compares how often raters actually agree on a categorical rating to how often they'd agree just by chance, given their overall tendencies. It ranges roughly from -1 to 1, where 0 means agreement no better than chance and 1 means perfect agreement. Cohen's kappa handles two raters, Fleiss' kappa handles three or more."
+  see_also: [interrater_reliability, categorical_variable]
+
+partial_correlation:
+  term: "partial correlation"
+  short: "A correlation between two variables with a third variable's shared influence removed."
+  long: "Partial correlation measures the relationship between two variables after statistically controlling for a third variable that might be influencing both. This helps you see whether two variables are really connected, or whether their apparent link was mostly driven by something else they both relate to."
+  see_also: [correlation, covariate]
+
+correlation_matrix:
+  term: "correlation matrix"
+  short: "A table showing the correlation between every pair of variables in a dataset at once."
+  long: "A correlation matrix lays out all pairwise correlations among a set of variables in one grid, so you can scan for strong and weak relationships across your whole dataset instead of computing each pair separately. Because it runs many comparisons at once, results are usually adjusted with a multiple comparisons correction."
+  see_also: [correlation, multiple_comparisons]
+
+benchmark_comparison:
+  term: "benchmark comparison"
+  short: "Checking a sample's typical value against a fixed target number rather than against another group."
+  long: "A benchmark comparison tests whether a sample's average or median differs from some fixed value you set ahead of time, like zero or a passing score, instead of comparing two groups to each other. One-sample tests, like the one-sample t-test or Wilcoxon one-sample test, are built for this kind of comparison."
+  see_also: [median, sample_size]
+
+power_analysis:
+  term: "power analysis"
+  short: "A calculation that connects sample size, effect size, alpha, and power to plan or evaluate a study."
+  long: "Power analysis ties together four numbers: how many participants you have, how big an effect you're looking for, your alpha level, and your statistical power. Give any three and you can solve for the fourth. It's most useful before data collection, to plan a sample size that gives your study a real chance of detecting a true effect."
+  see_also: [a_priori_power, sensitivity_analysis, power, sample_size]
+
+a_priori_power:
+  term: "a priori power analysis"
+  short: "Power analysis done before collecting data, to figure out how many participants you need."
+  long: "An a priori power analysis answers 'how many participants do I need?' before you gather any data. You specify the effect size you want to detect, your alpha level, and your target power, usually 80%, and the calculation solves for the sample size. This is the standard way to plan a study's sample size in advance."
+  see_also: [power_analysis, sensitivity_analysis, sample_size]
+
+sensitivity_analysis:
+  term: "sensitivity analysis"
+  short: "Power analysis done with a fixed sample size, to find the smallest effect you could reliably detect."
+  long: "A sensitivity analysis flips the usual power analysis question around. Instead of solving for sample size, you already know your N, maybe due to a fixed budget or class size, and you solve for the smallest effect size your study could reliably detect at your chosen power and alpha. It's useful when your sample size is locked in ahead of time."
+  see_also: [power_analysis, a_priori_power]
+
+post_hoc_power_fallacy:
+  term: "post hoc (observed) power"
+  short: "Power calculated after the fact from your own study's results; mathematically circular and considered misleading."
+  long: "Post hoc, or observed, power is calculated using the effect size and p-value your study actually produced. Because it's derived directly from your p-value, it doesn't add new information, a low p-value always implies high observed power and vice versa. Methods researchers widely consider it a meaningless or misleading practice, so Statly does not offer it."
+  see_also: [power_analysis, p_value, sensitivity_analysis]
+
+gain_score:
+  term: "gain score"
+  short: "A student's posttest score minus their pretest score, a simple measure of change."
+  long: "A gain score is calculated by subtracting a pretest score from a posttest score for the same person. It's a simple, easy-to-explain way to summarize change over time, but it doesn't account for how much room a student had left to improve, which is why normalized gain is sometimes used instead."
+  see_also: [normalized_gain, paired]
+
+normalized_gain:
+  term: "normalized gain"
+  short: "A student's actual gain divided by their maximum possible gain, adjusting for their starting score."
+  long: "Normalized gain, or Hake's g, divides a student's actual improvement by the most they could possibly have improved given their pretest score and a fixed maximum score. It corrects for the fact that students who start higher have less room to grow, making gains more comparable across students with different starting points."
+  see_also: [gain_score, ceiling_effect]
+
+ceiling_effect:
+  term: "ceiling effect"
+  short: "When scores bunch up near the highest possible value, limiting how much improvement can be measured."
+  long: "A ceiling effect happens when many scores cluster near the top of a scale, leaving little room for further improvement to be detected. Students who start near the maximum score can only show a small gain even with a large real improvement, which can distort simple gain scores and is part of why normalized gain is often preferred."
+  see_also: [normalized_gain, gain_score]
+

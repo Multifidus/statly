@@ -59,6 +59,15 @@ SECTIONS_BY_CATEGORY = {
         "Benchmarks (and why to be careful)",
         "Common mistakes",
     ],
+    "posthoc": [
+        "What it is",
+        "When to use it",
+        "An everyday analogy",
+        "A worked example",
+        "How to read the output",
+        "How to report it (APA 7)",
+        "Common mistakes",
+    ],
 }
 
 GRADE_TARGET = 10.5
@@ -244,15 +253,29 @@ def main():
             )
 
         if fm.get("id"):
-            # tests/*.md ids are canonical analysis ids and may be dotted
-            # (family.variant); the filename uses a double underscore in
-            # place of the dot (see content/learn/README.md). Other
-            # categories' ids are never dotted, so filename == id exactly.
-            expected_stem = id_to_filename_stem(fm["id"]) if dir_category == "tests" else fm["id"]
+            # tests/*.md and posthoc/*.md ids are canonical analysis ids and
+            # may be dotted (family.variant); the filename uses a double
+            # underscore in place of the dot (see content/learn/README.md).
+            # Other categories' ids are never dotted, so filename == id
+            # exactly. (id_to_filename_stem is a no-op for ids without a
+            # dot, so this is also safe for posthoc's non-canonical
+            # multiple_comparisons page.)
+            expected_stem = (
+                id_to_filename_stem(fm["id"]) if dir_category in ("tests", "posthoc") else fm["id"]
+            )
             if expected_stem != path.stem:
                 page_errors.append(f"id '{fm.get('id')}' does not match filename '{path.stem}'")
 
         if dir_category == "tests" and fm.get("id"):
+            if fm["id"] not in canonical_analysis_ids:
+                page_errors.append(
+                    f"id '{fm['id']}' is not a canonical analysis id in {ANALYSIS_IDS_PATH}"
+                )
+
+        if dir_category == "posthoc" and fm.get("id") and "." in fm["id"]:
+            # Dotted posthoc ids (posthoc.tukey, etc.) must be canonical.
+            # Non-dotted ids (e.g. the general multiple_comparisons page)
+            # aren't analysis ids and are exempt.
             if fm["id"] not in canonical_analysis_ids:
                 page_errors.append(
                     f"id '{fm['id']}' is not a canonical analysis id in {ANALYSIS_IDS_PATH}"
