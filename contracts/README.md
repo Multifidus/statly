@@ -108,3 +108,27 @@ Params/results are engine-side pydantic models (not yet in `Rpc.json`); see `doc
 | `dataset.history` / `dataset.restore_snapshot` | Snapshot history list and undo/redo by snapshot id |
 
 `.statly` zips also contain `history.json` (edit-history labels up to the current snapshot).
+
+## Analysis and Test Advisor RPC methods (Phases 3-4)
+Documented here because the app relies on them; params/results are not yet in `Rpc.json`.
+The app mirrors them in `app/src/lib/analysisRpc.ts`.
+
+| Method | Params | Result | Notes |
+|---|---|---|---|
+| `analysis.run` | `AnalysisRequest` | `AnalysisResult` | Pure on the dataset's current snapshot. `snapshot_id` != current -> `-32002`; variables that don't fit any layout, a design the test can't analyse (e.g. not two groups) or no rows after `subset` -> `-32003` with a plain-language `message` the app shows as is. |
+| `analysis.list` | `{}` | `{"analyses": [AnalysisInfo]}` | Registered analyses, sorted by id. Ids follow `analysis_ids.json`; ids not yet registered are simply absent (the app says "can't run this yet"). |
+| `advisor.start` / `advisor.answer` / `advisor.paths` | see `docs/PROTOCOL.md` "Test Advisor methods" | `AdvisorStep` / `{"paths"}` | Stateless: the app sends the full `answers` map and `dataset_context` each call. |
+
+`AnalysisInfo` = `{"analysis_id", "label", "layouts": [{"name", "roles": [{"role", "min",
+"max" (null = unbounded), "description"}]}], "options": {option_name: description}}`. A
+request's `variables` must match exactly one layout: every role within `min..max`, no roles
+outside the layout (empty arrays count as absent).
+
+App usage (SPEC §7.2, §9): the guided flow runs the recommended analysis once to get
+`assumptions[]` and `chart_data`, then runs the user's final choice (the same run when they keep
+the recommended test). Only the chosen run is appended to `ProjectFile.test_log` as a
+`TestLogEntry` with `family_id: null`, `correction_method: "none"`, `adjusted_p: null`.
+`result_path` is `null` for now: no RPC yet writes `results/<entry_id>.json` into the zip (the
+engine only carries results it loaded). The app keeps full results in memory for the session
+and reopens older entries by re-running `entry.request` when the snapshot is unchanged
+(analyses are pure), else shows the stored `result_summary`.

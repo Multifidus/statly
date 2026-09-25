@@ -24,6 +24,8 @@ export default defineConfig(() => ({
     host: host || false,
     hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
     watch: { ignored: ["**/src-tauri/**"] },
+    // Learn pages and the glossary are bundled from ../content (lib/content/learn.ts).
+    fs: { allow: [import.meta.dirname, path.resolve(import.meta.dirname, "../content")] },
   },
   test: process.env.STATLY_ENGINE_TESTS
     ? {

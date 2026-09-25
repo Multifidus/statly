@@ -2,9 +2,11 @@ import { cn } from "cn";
 import { useDatasetStore } from "@/stores/dataset";
 import { useNav, type View } from "@/stores/nav";
 
-const TABS: { view: View; title: string }[] = [
-  { view: "data", title: "Data" },
-  { view: "variables", title: "Variables" },
+const TABS: { view: View; title: string; also: View[] }[] = [
+  { view: "data", title: "Data", also: [] },
+  { view: "variables", title: "Variables", also: ["interview"] },
+  { view: "advisor", title: "Analyze", also: ["analysis"] },
+  { view: "analyses", title: "Analyses", also: ["results"] },
 ];
 
 /** Header navigation between the dataset screens (shown once a dataset is loaded). */
@@ -12,11 +14,11 @@ export function DatasetTabs() {
   const hasData = useDatasetStore((s) => !!s.meta);
   const view = useNav((s) => s.view);
   const go = useNav((s) => s.go);
-  if (!hasData || view === "home" || view === "import") return null;
+  if (!hasData || view === "home" || view === "import" || view === "learn") return null;
   return (
     <nav aria-label="Dataset" className="flex items-center gap-1">
       {TABS.map((t) => {
-        const active = view === t.view || (t.view === "variables" && view === "interview");
+        const active = view === t.view || t.also.includes(view);
         return (
           <button
             key={t.view}

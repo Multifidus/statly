@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { X } from "lucide-react";
+import { BookOpen, X } from "lucide-react";
 import { EngineStartup } from "@/components/EngineStartup";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,12 @@ import { VariablesScreen } from "@/screens/VariablesScreen";
 import { DatasetTabs } from "@/components/DatasetTabs";
 import { redoEdit, undoEdit } from "@/lib/variableEdits";
 import { Home } from "@/screens/Home";
+import { AdvisorScreen } from "@/screens/AdvisorScreen";
+import { AnalysesScreen } from "@/screens/AnalysesScreen";
+import { AnalysisScreen } from "@/screens/AnalysisScreen";
+import { LearnScreen } from "@/screens/LearnScreen";
+import { ResultsScreen } from "@/screens/ResultsScreen";
+import { openLearn } from "@/stores/learn";
 import { ImportWizard } from "@/screens/ImportWizard";
 import { useNav } from "@/stores/nav";
 import { useNotify } from "@/stores/notify";
@@ -123,7 +129,10 @@ export default function App() {
             Mock engine
           </span>
         )}
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => openLearn(null)} aria-current={view === "learn" ? "page" : undefined} data-testid="open-learn">
+            <BookOpen aria-hidden /> Learn
+          </Button>
           <ThemeSwitcher />
         </div>
       </header>
@@ -134,6 +143,11 @@ export default function App() {
           {view === "data" && <DataScreen />}
           {view === "interview" && <InterviewScreen />}
           {view === "variables" && <VariablesScreen />}
+          {view === "advisor" && <AdvisorScreen />}
+          {view === "analysis" && <AnalysisScreen />}
+          {view === "results" && <ResultsScreen />}
+          {view === "analyses" && <AnalysesScreen />}
+          {view === "learn" && <LearnScreen />}
         </EngineStartup>
       </main>
       <UnsavedChangesDialog />

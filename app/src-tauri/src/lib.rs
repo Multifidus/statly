@@ -9,6 +9,7 @@ pub fn run() {
         // scope by the dialog plugin; the capability grants no static fs scope.
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .setup(|app| {
             let bundled = app
                 .path()

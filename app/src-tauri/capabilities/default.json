@@ -1,14 +1,18 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Main window: core defaults, native open/save dialogs, window destroy (unsaved-changes guard), and fs read/write limited to paths the user picked in a dialog (no static fs scope).",
-  "windows": ["main"],
+  "description": "Main window: core defaults, native open/save dialogs, window destroy (unsaved-changes guard), and fs read/write limited to paths the user picked in a dialog (no static fs scope); clipboard write only (rich-text APA copy).",
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-destroy",
     "dialog:allow-open",
     "dialog:allow-save",
     "fs:allow-read-file",
-    "fs:allow-write-file"
+    "fs:allow-write-file",
+    "clipboard-manager:allow-write-html",
+    "clipboard-manager:allow-write-text"
   ]
 }

@@ -1,6 +1,7 @@
 /** User-level project commands shared by the Home screen, the Project menu and shortcuts. */
 import { autosaveDir, pickProjectToOpen, pickSavePath } from "@/lib/dialogs";
 import { describeRpcError } from "@/lib/rpc";
+import { resetAnalysisSession } from "@/lib/analysisSession";
 import { useImportFlow } from "@/stores/importFlow";
 import { useNav } from "@/stores/nav";
 import { useNotify } from "@/stores/notify";
@@ -19,6 +20,7 @@ export async function resolveUnsaved(reason: string): Promise<boolean> {
 export async function newProject(): Promise<void> {
   if (!(await resolveUnsaved("Start a new project"))) return;
   useImportFlow.getState().reset();
+  resetAnalysisSession();
   useProjectStore.getState().newProject();
   useNav.getState().go("import");
 }
@@ -30,6 +32,7 @@ export async function openProject(): Promise<void> {
   try {
     const p = await useProjectStore.getState().open(path);
     useImportFlow.getState().reset();
+    resetAnalysisSession();
     useNav.getState().go(p.dataset_meta ? "data" : "import");
   } catch (e) {
     notifyError(e);
@@ -70,6 +73,7 @@ export async function recoverAutosave(autosavePath: string): Promise<void> {
   if (!item) return;
   try {
     const p = await useProjectStore.getState().recover(item);
+    resetAnalysisSession();
     useNav.getState().go(p.dataset_meta ? "data" : "import");
     useNotify.getState().show("Recovered your unsaved work. Save it to keep it.");
   } catch (e) {

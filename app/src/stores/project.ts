@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ProjectFile, RecoverableAutosave } from "@/contracts";
+import type { ProjectFile, RecoverableAutosave, TestLogEntry } from "@/contracts";
 import { rpc } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
 import { useHistory } from "@/stores/history";
@@ -26,6 +26,8 @@ interface ProjectState {
 
   newProject: (name?: string) => ProjectFile;
   markDirty: () => void;
+  /** Append one analysis run to the project's Test Log (SPEC §9) and mark the project dirty. */
+  appendTestLog: (entry: TestLogEntry) => void;
   /** Build the ProjectFile to send with save/autosave (current dataset meta folded in). */
   snapshot: () => ProjectFile | null;
   saveTo: (path: string) => Promise<void>;
@@ -92,6 +94,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   markDirty: () => {
     if (get().project) set({ dirty: true });
+  },
+
+  appendTestLog: (entry) => {
+    const p = get().project;
+    if (!p) return;
+    set({ project: { ...p, test_log: [...p.test_log.filter((e) => e.id !== entry.id), entry] }, dirty: true });
   },
 
   snapshot: () => {

@@ -1,0 +1,1290 @@
+{
+  "schema_version": 1,
+  "analysis_id": "t_test.independent",
+  "statistics": [
+    {
+      "key": "welch_t",
+      "label": "Welch's t",
+      "symbol": "t",
+      "value": -3.3506534835376343,
+      "df": [
+        117.37157113980066
+      ],
+      "p": 0.001084953509289775,
+      "term": null
+    },
+    {
+      "key": "student_t",
+      "label": "Student's t",
+      "symbol": "t",
+      "value": -3.350653483537635,
+      "df": [
+        118
+      ],
+      "p": 0.0010833363820997304,
+      "term": null
+    }
+  ],
+  "effect_sizes": [
+    {
+      "key": "hedges_g",
+      "label": "Hedges' g",
+      "symbol": "g",
+      "value": -0.6078449990670548,
+      "ci": {
+        "level": 0.95,
+        "lower": -0.970514266229075,
+        "upper": -0.24271390364578102
+      },
+      "term": null,
+      "interpretation": {
+        "magnitude": "medium",
+        "benchmark": "Cohen (1988)",
+        "text": "By common benchmarks this is a medium-sized difference. These size labels are general rules of thumb. In education research, effects are usually judged against similar studies and programs, where even a \"small\" effect can be meaningful."
+      }
+    },
+    {
+      "key": "cohens_d",
+      "label": "Cohen's d",
+      "symbol": "d",
+      "value": -0.6117428317722756,
+      "ci": {
+        "level": 0.95,
+        "lower": -0.9767377315098574,
+        "upper": -0.24427031719379802
+      },
+      "term": null,
+      "interpretation": {
+        "magnitude": "medium",
+        "benchmark": "Cohen (1988)",
+        "text": "By common benchmarks this is a medium-sized difference. These size labels are general rules of thumb. In education research, effects are usually judged against similar studies and programs, where even a \"small\" effect can be meaningful."
+      }
+    },
+    {
+      "key": "glass_delta",
+      "label": "Glass's delta (SD of Post)",
+      "symbol": "Δ",
+      "value": -0.5905193940862417,
+      "ci": {
+        "level": 0.95,
+        "lower": -0.9496454784112005,
+        "upper": -0.22681346167099725
+      },
+      "term": null,
+      "interpretation": {
+        "magnitude": "medium",
+        "benchmark": "Cohen (1988)",
+        "text": "By common benchmarks this is a medium-sized difference. These size labels are general rules of thumb. In education research, effects are usually judged against similar studies and programs, where even a \"small\" effect can be meaningful."
+      }
+    },
+    {
+      "key": "r",
+      "label": "r (from t)",
+      "symbol": "r",
+      "value": -0.29546881445706985,
+      "ci": {
+        "level": 0.95,
+        "lower": -0.4427795379917354,
+        "upper": -0.122539017696191
+      },
+      "term": null,
+      "interpretation": {
+        "magnitude": "small",
+        "benchmark": "Cohen (1988)",
+        "text": "By common benchmarks this is a small association. These size labels are general rules of thumb. In education research, effects are usually judged against similar studies and programs, where even a \"small\" effect can be meaningful."
+      }
+    },
+    {
+      "key": "mean_difference",
+      "label": "Mean difference",
+      "symbol": "Mdiff",
+      "value": -0.5316666666666663,
+      "ci": {
+        "level": 0.95,
+        "lower": -0.8459048146848286,
+        "upper": -0.217428518648504
+      },
+      "term": null,
+      "interpretation": null
+    }
+  ],
+  "assumptions": [
+    {
+      "schema_version": 1,
+      "assumption": "normality",
+      "label": "Normality",
+      "test_used": {
+        "key": "shapiro_wilk",
+        "label": "Shapiro-Wilk"
+      },
+      "statistic": {
+        "symbol": "W",
+        "value": 0.9868149241105225,
+        "df": []
+      },
+      "p": 0.7636104028113133,
+      "verdict": "passed",
+      "explanation": "The Shapiro-Wilk test found no clear sign that the Pre group are far from a bell-shaped (normal) curve (p = .764), so this assumption looks reasonable.",
+      "applies_to": {
+        "kind": "group",
+        "label": "Pre",
+        "group": {
+          "Time": "Pre"
+        },
+        "n": 60
+      },
+      "chart_refs": [
+        {
+          "chart_type": "qq",
+          "title": "Q-Q plot: Pre",
+          "data_key": "qq_pre"
+        },
+        {
+          "chart_type": "histogram",
+          "title": "Histogram: Pre",
+          "data_key": "hist_pre"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "assumption": "normality",
+      "label": "Normality",
+      "test_used": {
+        "key": "shapiro_wilk",
+        "label": "Shapiro-Wilk"
+      },
+      "statistic": {
+        "symbol": "W",
+        "value": 0.9706786754591796,
+        "df": []
+      },
+      "p": 0.15750928709915746,
+      "verdict": "passed",
+      "explanation": "The Shapiro-Wilk test found no clear sign that the Post group are far from a bell-shaped (normal) curve (p = .158), so this assumption looks reasonable.",
+      "applies_to": {
+        "kind": "group",
+        "label": "Post",
+        "group": {
+          "Time": "Post"
+        },
+        "n": 60
+      },
+      "chart_refs": [
+        {
+          "chart_type": "qq",
+          "title": "Q-Q plot: Post",
+          "data_key": "qq_post"
+        },
+        {
+          "chart_type": "histogram",
+          "title": "Histogram: Post",
+          "data_key": "hist_post"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "assumption": "homogeneity_of_variance",
+      "label": "Equal spread (homogeneity of variance)",
+      "test_used": {
+        "key": "levene_brown_forsythe",
+        "label": "Levene's test (Brown-Forsythe)"
+      },
+      "statistic": {
+        "symbol": "F",
+        "value": 0.47231019063084584,
+        "df": [
+          1,
+          118
+        ]
+      },
+      "p": 0.49327481129021444,
+      "verdict": "passed",
+      "explanation": "The groups' scores are spread out by similar amounts (p = .493), so this assumption looks reasonable.",
+      "applies_to": {
+        "kind": "overall",
+        "label": "Pre vs Post",
+        "group": null,
+        "n": 120
+      },
+      "chart_refs": []
+    }
+  ],
+  "descriptives": {
+    "continuous": [
+      {
+        "variable": "Q3_score",
+        "group": {
+          "Time": "Pre"
+        },
+        "label": "Pre",
+        "n": 60,
+        "n_missing": 0,
+        "mean": 2.9600000000000004,
+        "sd": 0.8367005417771458,
+        "se": 0.10801757546885363,
+        "ci": {
+          "level": 0.95,
+          "lower": 2.7438573307345235,
+          "upper": 3.1761426692654773
+        },
+        "median": 2.95,
+        "q1": 2.475,
+        "q3": 3.3249999999999997,
+        "iqr": 0.8499999999999996,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.12351622202141829,
+        "kurtosis": 0.13057518876634644
+      },
+      {
+        "variable": "Q3_score",
+        "group": {
+          "Time": "Post"
+        },
+        "label": "Post",
+        "n": 60,
+        "n_missing": 0,
+        "mean": 3.4916666666666667,
+        "sd": 0.9003373504596864,
+        "se": 0.11623305214329586,
+        "ci": {
+          "level": 0.95,
+          "lower": 3.2590848665468393,
+          "upper": 3.724248466786494
+        },
+        "median": 3.5,
+        "q1": 2.9,
+        "q3": 4.2,
+        "iqr": 1.3000000000000003,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.5064694251174237,
+        "kurtosis": 0.2712821210153793
+      }
+    ],
+    "frequencies": []
+  },
+  "plain_language_summary": "The Post group scored higher on average (3.49) than the Pre group (2.96). This difference is unlikely to be due to chance alone (p = .001). The size of the difference was medium by common benchmarks.",
+  "apa_sentence": [
+    {
+      "text": "An independent-samples Welch ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "t",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " test showed that Q3 (average score) scores were significantly lower for Pre (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 2.96, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 0.84) than for Post (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 3.49, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 0.90), ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "t",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "(117.37) = -3.35, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "p",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = .001, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "g",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = -0.61, 95% CI [-0.97, -0.24].",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    }
+  ],
+  "apa_table": {
+    "number": 1,
+    "title": "Comparison of Q3 (average score) by Time point",
+    "columns": [
+      {
+        "key": "variable",
+        "header": [
+          {
+            "text": "Variable",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "left"
+      },
+      {
+        "key": "n1",
+        "header": [
+          {
+            "text": "n",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m1",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd1",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "n2",
+        "header": [
+          {
+            "text": "n",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m2",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd2",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "t",
+        "header": [
+          {
+            "text": "t",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "df",
+        "header": [
+          {
+            "text": "df",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "p",
+        "header": [
+          {
+            "text": "p",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "g",
+        "header": [
+          {
+            "text": "g",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "ci",
+        "header": [
+          {
+            "text": "95% CI",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      }
+    ],
+    "column_groups": [
+      {
+        "label": [
+          {
+            "text": "Pre",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "first_column": 1,
+        "span": 3
+      },
+      {
+        "label": [
+          {
+            "text": "Post",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "first_column": 4,
+        "span": 3
+      }
+    ],
+    "rows": [
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "Q3 (average score)",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 60,
+            "display": "60"
+          },
+          {
+            "type": "number",
+            "value": 2.9600000000000004,
+            "display": "2.96"
+          },
+          {
+            "type": "number",
+            "value": 0.8367005417771458,
+            "display": "0.84"
+          },
+          {
+            "type": "number",
+            "value": 60,
+            "display": "60"
+          },
+          {
+            "type": "number",
+            "value": 3.4916666666666667,
+            "display": "3.49"
+          },
+          {
+            "type": "number",
+            "value": 0.9003373504596864,
+            "display": "0.90"
+          },
+          {
+            "type": "number",
+            "value": -3.3506534835376343,
+            "display": "-3.35"
+          },
+          {
+            "type": "number",
+            "value": 117.37157113980066,
+            "display": "117.37"
+          },
+          {
+            "type": "p_value",
+            "value": 0.001084953509289775,
+            "display": ".001"
+          },
+          {
+            "type": "number",
+            "value": -0.6078449990670548,
+            "display": "-0.61"
+          },
+          {
+            "type": "interval",
+            "lower": -0.970514266229075,
+            "upper": -0.24271390364578102,
+            "display": "[-0.97, -0.24]"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      }
+    ],
+    "notes": {
+      "general": [
+        {
+          "text": "Welch's t test (equal variances not assumed). ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "g",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = Hedges' g; CI = confidence interval for ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "g",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": ". Student's t test: ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "t",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "(118) = -3.35, ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "p",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = .001.",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        }
+      ],
+      "specific": [],
+      "probability": []
+    }
+  },
+  "additional_tables": [],
+  "warnings": [],
+  "chart_data": {
+    "qq_pre": [
+      {
+        "theoretical": -2.3939797998185095,
+        "sample": 1
+      },
+      {
+        "theoretical": -1.9599639845400545,
+        "sample": 1.5
+      },
+      {
+        "theoretical": -1.7316643961222453,
+        "sample": 1.5
+      },
+      {
+        "theoretical": -1.5689196324989267,
+        "sample": 1.5
+      },
+      {
+        "theoretical": -1.4395314709384563,
+        "sample": 1.6
+      },
+      {
+        "theoretical": -1.330561513178897,
+        "sample": 1.8
+      },
+      {
+        "theoretical": -1.2354403415612516,
+        "sample": 1.9
+      },
+      {
+        "theoretical": -1.1503493803760079,
+        "sample": 1.9
+      },
+      {
+        "theoretical": -1.0728613416500032,
+        "sample": 2.1
+      },
+      {
+        "theoretical": -1.001331297525693,
+        "sample": 2.2
+      },
+      {
+        "theoretical": -0.9345892910734802,
+        "sample": 2.2
+      },
+      {
+        "theoretical": -0.8717709721899588,
+        "sample": 2.3
+      },
+      {
+        "theoretical": -0.8122178014999129,
+        "sample": 2.4
+      },
+      {
+        "theoretical": -0.7554150263604693,
+        "sample": 2.4
+      },
+      {
+        "theoretical": -0.7009514195842119,
+        "sample": 2.4
+      },
+      {
+        "theoretical": -0.6484921805928572,
+        "sample": 2.5
+      },
+      {
+        "theoretical": -0.5977601260424784,
+        "sample": 2.5
+      },
+      {
+        "theoretical": -0.5485222826980979,
+        "sample": 2.5
+      },
+      {
+        "theoretical": -0.5005801054667398,
+        "sample": 2.7
+      },
+      {
+        "theoretical": -0.45376219016987945,
+        "sample": 2.7
+      },
+      {
+        "theoretical": -0.4079187409450348,
+        "sample": 2.7
+      },
+      {
+        "theoretical": -0.36291729513935617,
+        "sample": 2.7
+      },
+      {
+        "theoretical": -0.31863936396437514,
+        "sample": 2.8
+      },
+      {
+        "theoretical": -0.27497774896900473,
+        "sample": 2.8
+      },
+      {
+        "theoretical": -0.23183436245300987,
+        "sample": 2.8
+      },
+      {
+        "theoretical": -0.18911842627279252,
+        "sample": 2.8
+      },
+      {
+        "theoretical": -0.1467449554865486,
+        "sample": 2.8
+      },
+      {
+        "theoretical": -0.1046334556140754,
+        "sample": 2.9
+      },
+      {
+        "theoretical": -0.06270677794321385,
+        "sample": 2.9
+      },
+      {
+        "theoretical": -0.020890088246888563,
+        "sample": 2.9
+      },
+      {
+        "theoretical": 0.020890088246888424,
+        "sample": 3
+      },
+      {
+        "theoretical": 0.06270677794321385,
+        "sample": 3
+      },
+      {
+        "theoretical": 0.10463345561407526,
+        "sample": 3.1
+      },
+      {
+        "theoretical": 0.1467449554865486,
+        "sample": 3.1
+      },
+      {
+        "theoretical": 0.18911842627279238,
+        "sample": 3.1
+      },
+      {
+        "theoretical": 0.23183436245300987,
+        "sample": 3.1
+      },
+      {
+        "theoretical": 0.2749777489690046,
+        "sample": 3.1
+      },
+      {
+        "theoretical": 0.31863936396437514,
+        "sample": 3.1
+      },
+      {
+        "theoretical": 0.3629172951393563,
+        "sample": 3.2
+      },
+      {
+        "theoretical": 0.4079187409450348,
+        "sample": 3.2
+      },
+      {
+        "theoretical": 0.45376219016987956,
+        "sample": 3.2
+      },
+      {
+        "theoretical": 0.5005801054667398,
+        "sample": 3.3
+      },
+      {
+        "theoretical": 0.5485222826980981,
+        "sample": 3.3
+      },
+      {
+        "theoretical": 0.5977601260424784,
+        "sample": 3.3
+      },
+      {
+        "theoretical": 0.6484921805928574,
+        "sample": 3.3
+      },
+      {
+        "theoretical": 0.7009514195842119,
+        "sample": 3.4
+      },
+      {
+        "theoretical": 0.7554150263604693,
+        "sample": 3.5
+      },
+      {
+        "theoretical": 0.8122178014999129,
+        "sample": 3.6
+      },
+      {
+        "theoretical": 0.8717709721899588,
+        "sample": 3.6
+      },
+      {
+        "theoretical": 0.9345892910734801,
+        "sample": 3.7
+      },
+      {
+        "theoretical": 1.001331297525693,
+        "sample": 3.7
+      },
+      {
+        "theoretical": 1.0728613416500028,
+        "sample": 3.8
+      },
+      {
+        "theoretical": 1.1503493803760079,
+        "sample": 4
+      },
+      {
+        "theoretical": 1.235440341561252,
+        "sample": 4.1
+      },
+      {
+        "theoretical": 1.330561513178897,
+        "sample": 4.2
+      },
+      {
+        "theoretical": 1.4395314709384563,
+        "sample": 4.2
+      },
+      {
+        "theoretical": 1.5689196324989263,
+        "sample": 4.4
+      },
+      {
+        "theoretical": 1.7316643961222453,
+        "sample": 4.5
+      },
+      {
+        "theoretical": 1.959963984540054,
+        "sample": 4.8
+      },
+      {
+        "theoretical": 2.3939797998185104,
+        "sample": 5
+      }
+    ],
+    "hist_pre": [
+      {
+        "bin_start": 1,
+        "bin_end": 1.5714285714285714,
+        "count": 4
+      },
+      {
+        "bin_start": 1.5714285714285714,
+        "bin_end": 2.142857142857143,
+        "count": 5
+      },
+      {
+        "bin_start": 2.142857142857143,
+        "bin_end": 2.7142857142857144,
+        "count": 13
+      },
+      {
+        "bin_start": 2.7142857142857144,
+        "bin_end": 3.2857142857142856,
+        "count": 19
+      },
+      {
+        "bin_start": 3.2857142857142856,
+        "bin_end": 3.8571428571428568,
+        "count": 11
+      },
+      {
+        "bin_start": 3.8571428571428568,
+        "bin_end": 4.428571428571429,
+        "count": 5
+      },
+      {
+        "bin_start": 4.428571428571429,
+        "bin_end": 5,
+        "count": 3
+      }
+    ],
+    "qq_post": [
+      {
+        "theoretical": -2.3939797998185095,
+        "sample": 1
+      },
+      {
+        "theoretical": -1.9599639845400545,
+        "sample": 1.1
+      },
+      {
+        "theoretical": -1.7316643961222453,
+        "sample": 1.9
+      },
+      {
+        "theoretical": -1.5689196324989267,
+        "sample": 2.1
+      },
+      {
+        "theoretical": -1.4395314709384563,
+        "sample": 2.2
+      },
+      {
+        "theoretical": -1.330561513178897,
+        "sample": 2.4
+      },
+      {
+        "theoretical": -1.2354403415612516,
+        "sample": 2.4
+      },
+      {
+        "theoretical": -1.1503493803760079,
+        "sample": 2.5
+      },
+      {
+        "theoretical": -1.0728613416500032,
+        "sample": 2.5
+      },
+      {
+        "theoretical": -1.001331297525693,
+        "sample": 2.7
+      },
+      {
+        "theoretical": -0.9345892910734802,
+        "sample": 2.7
+      },
+      {
+        "theoretical": -0.8717709721899588,
+        "sample": 2.8
+      },
+      {
+        "theoretical": -0.8122178014999129,
+        "sample": 2.8
+      },
+      {
+        "theoretical": -0.7554150263604693,
+        "sample": 2.9
+      },
+      {
+        "theoretical": -0.7009514195842119,
+        "sample": 2.9
+      },
+      {
+        "theoretical": -0.6484921805928572,
+        "sample": 2.9
+      },
+      {
+        "theoretical": -0.5977601260424784,
+        "sample": 3
+      },
+      {
+        "theoretical": -0.5485222826980979,
+        "sample": 3.1
+      },
+      {
+        "theoretical": -0.5005801054667398,
+        "sample": 3.1
+      },
+      {
+        "theoretical": -0.45376219016987945,
+        "sample": 3.2
+      },
+      {
+        "theoretical": -0.4079187409450348,
+        "sample": 3.2
+      },
+      {
+        "theoretical": -0.36291729513935617,
+        "sample": 3.2
+      },
+      {
+        "theoretical": -0.31863936396437514,
+        "sample": 3.3
+      },
+      {
+        "theoretical": -0.27497774896900473,
+        "sample": 3.3
+      },
+      {
+        "theoretical": -0.23183436245300987,
+        "sample": 3.3
+      },
+      {
+        "theoretical": -0.18911842627279252,
+        "sample": 3.3
+      },
+      {
+        "theoretical": -0.1467449554865486,
+        "sample": 3.4
+      },
+      {
+        "theoretical": -0.1046334556140754,
+        "sample": 3.4
+      },
+      {
+        "theoretical": -0.06270677794321385,
+        "sample": 3.5
+      },
+      {
+        "theoretical": -0.020890088246888563,
+        "sample": 3.5
+      },
+      {
+        "theoretical": 0.020890088246888424,
+        "sample": 3.5
+      },
+      {
+        "theoretical": 0.06270677794321385,
+        "sample": 3.6
+      },
+      {
+        "theoretical": 0.10463345561407526,
+        "sample": 3.6
+      },
+      {
+        "theoretical": 0.1467449554865486,
+        "sample": 3.6
+      },
+      {
+        "theoretical": 0.18911842627279238,
+        "sample": 3.6
+      },
+      {
+        "theoretical": 0.23183436245300987,
+        "sample": 3.7
+      },
+      {
+        "theoretical": 0.2749777489690046,
+        "sample": 3.7
+      },
+      {
+        "theoretical": 0.31863936396437514,
+        "sample": 3.8
+      },
+      {
+        "theoretical": 0.3629172951393563,
+        "sample": 3.8
+      },
+      {
+        "theoretical": 0.4079187409450348,
+        "sample": 3.8
+      },
+      {
+        "theoretical": 0.45376219016987956,
+        "sample": 3.9
+      },
+      {
+        "theoretical": 0.5005801054667398,
+        "sample": 4
+      },
+      {
+        "theoretical": 0.5485222826980981,
+        "sample": 4.1
+      },
+      {
+        "theoretical": 0.5977601260424784,
+        "sample": 4.1
+      },
+      {
+        "theoretical": 0.6484921805928574,
+        "sample": 4.2
+      },
+      {
+        "theoretical": 0.7009514195842119,
+        "sample": 4.2
+      },
+      {
+        "theoretical": 0.7554150263604693,
+        "sample": 4.2
+      },
+      {
+        "theoretical": 0.8122178014999129,
+        "sample": 4.4
+      },
+      {
+        "theoretical": 0.8717709721899588,
+        "sample": 4.4
+      },
+      {
+        "theoretical": 0.9345892910734801,
+        "sample": 4.4
+      },
+      {
+        "theoretical": 1.001331297525693,
+        "sample": 4.5
+      },
+      {
+        "theoretical": 1.0728613416500028,
+        "sample": 4.5
+      },
+      {
+        "theoretical": 1.1503493803760079,
+        "sample": 4.6
+      },
+      {
+        "theoretical": 1.235440341561252,
+        "sample": 4.7
+      },
+      {
+        "theoretical": 1.330561513178897,
+        "sample": 4.7
+      },
+      {
+        "theoretical": 1.4395314709384563,
+        "sample": 4.7
+      },
+      {
+        "theoretical": 1.5689196324989263,
+        "sample": 4.8
+      },
+      {
+        "theoretical": 1.7316643961222453,
+        "sample": 4.8
+      },
+      {
+        "theoretical": 1.959963984540054,
+        "sample": 5
+      },
+      {
+        "theoretical": 2.3939797998185104,
+        "sample": 5
+      }
+    ],
+    "hist_post": [
+      {
+        "bin_start": 1,
+        "bin_end": 1.5714285714285714,
+        "count": 2
+      },
+      {
+        "bin_start": 1.5714285714285714,
+        "bin_end": 2.142857142857143,
+        "count": 2
+      },
+      {
+        "bin_start": 2.142857142857143,
+        "bin_end": 2.7142857142857144,
+        "count": 7
+      },
+      {
+        "bin_start": 2.7142857142857144,
+        "bin_end": 3.2857142857142856,
+        "count": 11
+      },
+      {
+        "bin_start": 3.2857142857142856,
+        "bin_end": 3.8571428571428568,
+        "count": 18
+      },
+      {
+        "bin_start": 3.8571428571428568,
+        "bin_end": 4.428571428571429,
+        "count": 10
+      },
+      {
+        "bin_start": 4.428571428571429,
+        "bin_end": 5,
+        "count": 10
+      }
+    ]
+  },
+  "inputs": {
+    "request": {
+      "schema_version": 1,
+      "request_id": "f05dd77c-548e-4fb5-87ce-9fed4ae64783",
+      "analysis_id": "t_test.independent",
+      "dataset_id": "ds_47a4e51eaa26",
+      "snapshot_id": "snap_995f87257b629cb9e3c19fdd",
+      "variables": {
+        "outcome": [
+          "Q3_score"
+        ],
+        "group": [
+          "Time"
+        ]
+      },
+      "subset": [],
+      "options": {},
+      "corrections": [],
+      "alpha": 0.05,
+      "tails": "two_sided",
+      "ci_level": 0.95
+    },
+    "dataset_id": "ds_47a4e51eaa26",
+    "snapshot_id": "snap_995f87257b629cb9e3c19fdd",
+    "n_used": 120,
+    "n_excluded": 0,
+    "n_by_group": [
+      {
+        "group": {
+          "Time": "Pre"
+        },
+        "n": 60
+      },
+      {
+        "group": {
+          "Time": "Post"
+        },
+        "n": 60
+      }
+    ]
+  },
+  "engine_version": "0.1.0",
+  "timestamp": "2026-09-25T20:53:35Z"
+}

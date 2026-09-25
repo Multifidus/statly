@@ -41,6 +41,14 @@ import type {
   ScalesUpsertParams,
   VariablesUpdateParams,
 } from "@/lib/variablesRpc";
+import type {
+  AdvisorAnswerParams,
+  AdvisorPath,
+  AdvisorStartParams,
+  AdvisorStep,
+  AnalysisListResult,
+} from "@/lib/analysisRpc";
+import type { AnalysisRequest, AnalysisResult } from "@/contracts";
 
 /** Anything that can answer a JSON-RPC method call. Rejects with an `EngineError`. */
 export interface Transport {
@@ -105,6 +113,13 @@ export const rpc = {
   history: (p: DatasetIdParams) => call<HistoryResult>("dataset.history", p),
   restoreSnapshot: (p: { dataset_id: string; snapshot_id: string }) =>
     call<RestoreSnapshotResult>("dataset.restore_snapshot", p),
+
+  // Phase 4: Test Advisor + analyses (docs/PROTOCOL.md, contracts/README.md).
+  advisorStart: (p: AdvisorStartParams) => call<AdvisorStep>("advisor.start", p),
+  advisorAnswer: (p: AdvisorAnswerParams) => call<AdvisorStep>("advisor.answer", p),
+  advisorPaths: () => call<{ paths: AdvisorPath[] }>("advisor.paths", {}),
+  analysisList: () => call<AnalysisListResult>("analysis.list", {}),
+  analysisRun: (p: AnalysisRequest) => call<AnalysisResult>("analysis.run", p),
 };
 
 export type Rpc = typeof rpc;

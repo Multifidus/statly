@@ -6,6 +6,8 @@
  */
 import exampleProject from "../../../contracts/examples/ProjectFile.json";
 import type {
+  AnalysisRequest,
+  AnalysisResult,
   CellValue,
   ColumnMatch,
   ComputedDefinition,
@@ -67,6 +69,8 @@ import type {
   VariablesUpdateParams,
 } from "@/lib/variablesRpc";
 import { answerKeyForPath, MOCK_EXAMPLE_PROJECT_PATH, shapeForPath, type FileShape } from "./shapes";
+import { mockAdvisorEvaluate, mockAdvisorPaths } from "./advisor";
+import { MOCK_ANALYSES, mockAnalysisRun } from "./analysis";
 
 // --- helpers -----------------------------------------------------------------------------
 
@@ -1085,6 +1089,18 @@ export class MockEngine implements Transport {
         return this.recoverable(p) as T;
       case "project.discard_autosave":
         return this.discard(p) as T;
+      case "advisor.start":
+        return mockAdvisorEvaluate({}, (params as { dataset_context?: object }).dataset_context) as T;
+      case "advisor.answer": {
+        const a = params as { answers: Record<string, string>; dataset_context?: object };
+        return mockAdvisorEvaluate(a.answers ?? {}, a.dataset_context) as T;
+      }
+      case "advisor.paths":
+        return { paths: mockAdvisorPaths() } as T;
+      case "analysis.list":
+        return { analyses: clone(MOCK_ANALYSES) } as T;
+      case "analysis.run":
+        return this.runAnalysis(p) as T;
       default:
         throw rpcError(-32601, `Method not found: ${method}`, "MethodNotFound");
     }
@@ -1777,6 +1793,14 @@ export class MockEngine implements Transport {
       rows.push(columns.map((c) => ds.cell(r, c)));
     }
     return { snapshot_id: ds.meta.snapshot_id, offset: p.offset, total_rows: ds.nRows, columns, row_ids: rowIds, rows };
+  }
+
+  runAnalysis(p: AnalysisRequest): AnalysisResult {
+    const ds = this.getDataset(p.dataset_id);
+    if (p.snapshot_id !== ds.meta.snapshot_id) {
+      throw rpcError(-32002, "The data changed since this analysis was set up; please run it again.", "StaleOrUnknown");
+    }
+    return mockAnalysisRun(clone(p), ds.meta, ds.cell, ds.nRows);
   }
 
   missing(p: DatasetIdParams): DatasetMissingSummaryResult {
