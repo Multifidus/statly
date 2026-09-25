@@ -1,0 +1,332 @@
+{
+  "analysis_id": "regression.linear",
+  "case": "multiple",
+  "dataset": "reg_multiple.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "predictors": [
+        "hours",
+        "motivation",
+        "female",
+        "region"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 90,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 17.1310184128494,
+        "df": [
+          5,
+          84
+        ],
+        "p": 1.19616605797744e-11,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 13.9083636828878,
+        "df": [
+          84
+        ],
+        "p": 1.6638380428685e-23,
+        "term": "(Intercept)"
+      },
+      {
+        "key": "t",
+        "value": 8.26931146605751,
+        "df": [
+          84
+        ],
+        "p": 1.75016063167012e-12,
+        "term": "hours"
+      },
+      {
+        "key": "t",
+        "value": 2.36417359851864,
+        "df": [
+          84
+        ],
+        "p": 0.0203772935675127,
+        "term": "motivation"
+      },
+      {
+        "key": "t",
+        "value": 2.69269124332882,
+        "df": [
+          84
+        ],
+        "p": 0.00855429249319708,
+        "term": "female"
+      },
+      {
+        "key": "t",
+        "value": 2.62158387177115,
+        "df": [
+          84
+        ],
+        "p": 0.0103883812085929,
+        "term": "region[Suburban]"
+      },
+      {
+        "key": "t",
+        "value": 3.49975184685501,
+        "df": [
+          84
+        ],
+        "p": 0.000747804547263538,
+        "term": "region[Urban]"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_squared",
+        "value": 0.504877814288121,
+        "ci_lower": 0.338754603423572,
+        "ci_upper": 0.60976984253839
+      },
+      {
+        "key": "adj_r_squared",
+        "value": 0.475406255614794,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "f_sq",
+        "value": 1.01970347695532,
+        "ci_lower": 0.512297862756338,
+        "ci_upper": 1.56259025828463
+      },
+      {
+        "key": "beta",
+        "value": 0.645393159550013,
+        "ci_lower": 0.490188571919086,
+        "ci_upper": 0.800597747180939,
+        "term": "hours"
+      },
+      {
+        "key": "beta",
+        "value": 0.184003985198033,
+        "ci_lower": 0.0292301970311493,
+        "ci_upper": 0.338777773364917,
+        "term": "motivation"
+      },
+      {
+        "key": "beta",
+        "value": 0.208270264101588,
+        "ci_lower": 0.0544582510970861,
+        "ci_upper": 0.362082277106091,
+        "term": "female"
+      },
+      {
+        "key": "beta",
+        "value": 0.23176384498786,
+        "ci_lower": 0.0559587419884503,
+        "ci_upper": 0.407568947987271,
+        "term": "region[Suburban]"
+      },
+      {
+        "key": "beta",
+        "value": 0.307946544948084,
+        "ci_lower": 0.132966859818168,
+        "ci_upper": 0.482926230077999,
+        "term": "region[Urban]"
+      }
+    ],
+    "coefficients": [
+      {
+        "term": "(Intercept)",
+        "estimate": 52.1091360551987,
+        "se": 3.74660436290656,
+        "statistic": 13.9083636828878,
+        "p": 1.6638380428685e-23,
+        "ci_lower": 44.6586024007894,
+        "ci_upper": 59.5596697096081,
+        "beta": null,
+        "beta_ci_lower": null,
+        "beta_ci_upper": null
+      },
+      {
+        "term": "hours",
+        "estimate": 2.01198536121578,
+        "se": 0.24330748327406,
+        "statistic": 8.26931146605751,
+        "p": 1.75016063167012e-12,
+        "ci_lower": 1.52814174792945,
+        "ci_upper": 2.4958289745021,
+        "beta": 0.645393159550013,
+        "beta_ci_lower": 0.490188571919086,
+        "beta_ci_upper": 0.800597747180939
+      },
+      {
+        "term": "motivation",
+        "estimate": 2.16015262833928,
+        "se": 0.913703050272113,
+        "statistic": 2.36417359851864,
+        "p": 0.0203772935675127,
+        "ci_lower": 0.343153909822966,
+        "ci_upper": 3.9771513468556,
+        "beta": 0.184003985198033,
+        "beta_ci_lower": 0.0292301970311493,
+        "beta_ci_upper": 0.338777773364917
+      },
+      {
+        "term": "female",
+        "estimate": 3.63223045359435,
+        "se": 1.34892199861133,
+        "statistic": 2.69269124332882,
+        "p": 0.00855429249319708,
+        "ci_lower": 0.949751127159662,
+        "ci_upper": 6.31470978002904,
+        "beta": 0.208270264101588,
+        "beta_ci_lower": 0.0544582510970861,
+        "beta_ci_upper": 0.362082277106091
+      },
+      {
+        "term": "region[Suburban]",
+        "estimate": 4.29591570760759,
+        "se": 1.63867185553948,
+        "statistic": 2.62158387177115,
+        "p": 0.0103883812085929,
+        "ci_lower": 1.03723701468076,
+        "ci_upper": 7.55459440053441,
+        "beta": 0.23176384498786,
+        "beta_ci_lower": 0.0559587419884503,
+        "beta_ci_upper": 0.407568947987271
+      },
+      {
+        "term": "region[Urban]",
+        "estimate": 5.60562456554186,
+        "se": 1.60172058215478,
+        "statistic": 3.49975184685501,
+        "p": 0.000747804547263538,
+        "ci_lower": 2.42042753207491,
+        "ci_upper": 8.79082159900882,
+        "beta": 0.307946544948084,
+        "beta_ci_lower": 0.132966859818168,
+        "beta_ci_upper": 0.482926230077999
+      }
+    ],
+    "model": {
+      "r_squared": 0.504877814288121,
+      "adj_r_squared": 0.475406255614794,
+      "sigma": 6.25000291813753,
+      "f": 17.1310184128494,
+      "df1": 5,
+      "df2": 84,
+      "p": 1.19616605797744e-11,
+      "f_sq": 1.01970347695532,
+      "r_squared_ci_lower": 0.338754603423572,
+      "r_squared_ci_upper": 0.60976984253839,
+      "f_sq_ci_lower": 0.512297862756338,
+      "f_sq_ci_upper": 1.56259025828463
+    },
+    "vif": [
+      {
+        "term": "hours",
+        "gvif": 1.03342012580755,
+        "df": 1,
+        "gvif_adj": 1.01657273512895
+      },
+      {
+        "term": "motivation",
+        "gvif": 1.02769118467991,
+        "df": 1,
+        "gvif_adj": 1.01375104669732
+      },
+      {
+        "term": "female",
+        "gvif": 1.01495857859895,
+        "df": 1,
+        "gvif_adj": 1.00745152667458
+      },
+      {
+        "term": "region",
+        "gvif": 1.04817717533233,
+        "df": 2,
+        "gvif_adj": 1.01183261603492
+      }
+    ],
+    "dummy_coding": [
+      {
+        "variable": "region",
+        "reference": "Rural",
+        "levels": ["Rural", "Suburban", "Urban"]
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "n": 90,
+        "statistic": 0.984521829331067,
+        "p": 0.364029650745144,
+        "df": []
+      },
+      {
+        "test": "breusch_pagan",
+        "n": 90,
+        "statistic": 6.85376820299946,
+        "p": 0.231744903075152,
+        "df": [
+          5
+        ]
+      },
+      {
+        "test": "reset",
+        "n": 90,
+        "statistic": 1.34301006876051,
+        "p": 0.266739471288236,
+        "df": [
+          2,
+          82
+        ]
+      },
+      {
+        "test": "cooks_distance",
+        "n": 90,
+        "statistic": 0.0865603938792553,
+        "p": null,
+        "df": [],
+        "n_over": 6,
+        "cutoff": 0.0444444444444444
+      },
+      {
+        "test": "vif",
+        "n": 90,
+        "statistic": 1.03342012580755,
+        "p": null,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

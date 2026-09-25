@@ -1,0 +1,332 @@
+{
+  "analysis_id": "regression.linear",
+  "case": "missing",
+  "dataset": "reg_missing.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "predictors": [
+        "hours",
+        "motivation",
+        "female",
+        "region"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 83,
+    "n_excluded": 7,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 15.124813787217,
+        "df": [
+          5,
+          77
+        ],
+        "p": 2.48305549335155e-10,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 13.5610585999293,
+        "df": [
+          77
+        ],
+        "p": 4.23106789915045e-22,
+        "term": "(Intercept)"
+      },
+      {
+        "key": "t",
+        "value": 7.69715559996302,
+        "df": [
+          77
+        ],
+        "p": 3.88723024241436e-11,
+        "term": "hours"
+      },
+      {
+        "key": "t",
+        "value": 2.52873113515209,
+        "df": [
+          77
+        ],
+        "p": 0.0134928617544254,
+        "term": "motivation"
+      },
+      {
+        "key": "t",
+        "value": 2.7277216647461,
+        "df": [
+          77
+        ],
+        "p": 0.00789576235808679,
+        "term": "female"
+      },
+      {
+        "key": "t",
+        "value": 2.1497468721421,
+        "df": [
+          77
+        ],
+        "p": 0.0347151480633512,
+        "term": "region[Suburban]"
+      },
+      {
+        "key": "t",
+        "value": 2.88072086817682,
+        "df": [
+          77
+        ],
+        "p": 0.00513708458887664,
+        "term": "region[Urban]"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_squared",
+        "value": 0.49549241782929,
+        "ci_lower": 0.318131955968942,
+        "ci_upper": 0.605505945647299
+      },
+      {
+        "key": "adj_r_squared",
+        "value": 0.462732185220802,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "f_sq",
+        "value": 0.9821307654037,
+        "ci_lower": 0.466559415349946,
+        "ci_upper": 1.53489245013042
+      },
+      {
+        "key": "beta",
+        "value": 0.632567193737926,
+        "ci_lower": 0.468922040856361,
+        "ci_upper": 0.796212346619491,
+        "term": "hours"
+      },
+      {
+        "key": "beta",
+        "value": 0.208812334062852,
+        "ci_lower": 0.0443826435220449,
+        "ci_upper": 0.373242024603659,
+        "term": "motivation"
+      },
+      {
+        "key": "beta",
+        "value": 0.223346022613655,
+        "ci_lower": 0.0603019866440427,
+        "ci_upper": 0.386390058583268,
+        "term": "female"
+      },
+      {
+        "key": "beta",
+        "value": 0.20305960084999,
+        "ci_lower": 0.014970794694199,
+        "ci_upper": 0.391148407005781,
+        "term": "region[Suburban]"
+      },
+      {
+        "key": "beta",
+        "value": 0.270161897197699,
+        "ci_lower": 0.0834166032665122,
+        "ci_upper": 0.456907191128886,
+        "term": "region[Urban]"
+      }
+    ],
+    "coefficients": [
+      {
+        "term": "(Intercept)",
+        "estimate": 52.2924578126321,
+        "se": 3.85607490943994,
+        "statistic": 13.5610585999293,
+        "p": 4.23106789915045e-22,
+        "ci_lower": 44.6140317002629,
+        "ci_upper": 59.9708839250012,
+        "beta": null,
+        "beta_ci_lower": null,
+        "beta_ci_upper": null
+      },
+      {
+        "term": "hours",
+        "estimate": 1.97566424402261,
+        "se": 0.256674588211793,
+        "statistic": 7.69715559996302,
+        "p": 3.88723024241436e-11,
+        "ci_lower": 1.46455984206137,
+        "ci_upper": 2.48676864598384,
+        "beta": 0.632567193737926,
+        "beta_ci_lower": 0.468922040856361,
+        "beta_ci_upper": 0.796212346619491
+      },
+      {
+        "term": "motivation",
+        "estimate": 2.36670533484809,
+        "se": 0.935926046841571,
+        "statistic": 2.52873113515209,
+        "p": 0.0134928617544254,
+        "ci_lower": 0.503038480316339,
+        "ci_upper": 4.23037218937985,
+        "beta": 0.208812334062852,
+        "beta_ci_lower": 0.0443826435220449,
+        "beta_ci_upper": 0.373242024603659
+      },
+      {
+        "term": "female",
+        "estimate": 3.81032716099819,
+        "se": 1.39689001639867,
+        "statistic": 2.7277216647461,
+        "p": 0.00789576235808679,
+        "ci_lower": 1.02876377597019,
+        "ci_upper": 6.5918905460262,
+        "beta": 0.223346022613655,
+        "beta_ci_lower": 0.0603019866440427,
+        "beta_ci_upper": 0.386390058583268
+      },
+      {
+        "term": "region[Suburban]",
+        "estimate": 3.67300033974636,
+        "se": 1.70857340803404,
+        "statistic": 2.1497468721421,
+        "p": 0.0347151480633512,
+        "ci_lower": 0.270796031154852,
+        "ci_upper": 7.07520464833786,
+        "beta": 0.20305960084999,
+        "beta_ci_lower": 0.014970794694199,
+        "beta_ci_upper": 0.391148407005781
+      },
+      {
+        "term": "region[Urban]",
+        "estimate": 4.75389692205558,
+        "se": 1.65024559462586,
+        "statistic": 2.88072086817682,
+        "p": 0.00513708458887664,
+        "ci_lower": 1.46783812828651,
+        "ci_upper": 8.03995571582464,
+        "beta": 0.270161897197699,
+        "beta_ci_lower": 0.0834166032665122,
+        "beta_ci_upper": 0.456907191128886
+      }
+    ],
+    "model": {
+      "r_squared": 0.49549241782929,
+      "adj_r_squared": 0.462732185220802,
+      "sigma": 6.18686987988143,
+      "f": 15.124813787217,
+      "df1": 5,
+      "df2": 77,
+      "p": 2.48305549335155e-10,
+      "f_sq": 0.9821307654037,
+      "r_squared_ci_lower": 0.318131955968942,
+      "r_squared_ci_upper": 0.605505945647299,
+      "f_sq_ci_lower": 0.466559415349946,
+      "f_sq_ci_upper": 1.53489245013042
+    },
+    "vif": [
+      {
+        "term": "hours",
+        "gvif": 1.030803358896,
+        "df": 1,
+        "gvif_adj": 1.01528486588543
+      },
+      {
+        "term": "motivation",
+        "gvif": 1.04071068043897,
+        "df": 1,
+        "gvif_adj": 1.02015228296513
+      },
+      {
+        "term": "female",
+        "gvif": 1.02324437810069,
+        "df": 1,
+        "gvif_adj": 1.01155542512543
+      },
+      {
+        "term": "region",
+        "gvif": 1.05359464726436,
+        "df": 2,
+        "gvif_adj": 1.01313749620851
+      }
+    ],
+    "dummy_coding": [
+      {
+        "variable": "region",
+        "reference": "Rural",
+        "levels": ["Rural", "Suburban", "Urban"]
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "n": 83,
+        "statistic": 0.985437166591657,
+        "p": 0.473875793108575,
+        "df": []
+      },
+      {
+        "test": "breusch_pagan",
+        "n": 83,
+        "statistic": 5.35266804443981,
+        "p": 0.374371876689302,
+        "df": [
+          5
+        ]
+      },
+      {
+        "test": "reset",
+        "n": 83,
+        "statistic": 1.92967357399506,
+        "p": 0.152336237910536,
+        "df": [
+          2,
+          75
+        ]
+      },
+      {
+        "test": "cooks_distance",
+        "n": 83,
+        "statistic": 0.0806048483378372,
+        "p": null,
+        "df": [],
+        "n_over": 6,
+        "cutoff": 0.0481927710843374
+      },
+      {
+        "test": "vif",
+        "n": 83,
+        "statistic": 1.04071068043897,
+        "p": null,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,414 @@
+{
+  "analysis_id": "regression.hierarchical",
+  "case": "two_blocks",
+  "dataset": "reg_multiple.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "block_1": [
+        "female"
+      ],
+      "block_2": [
+        "hours",
+        "motivation"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 90,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F_change",
+        "value": 30.4768824835647,
+        "df": [
+          2,
+          86
+        ],
+        "p": 9.8778531053289e-11,
+        "term": "Block 2"
+      },
+      {
+        "key": "F_change",
+        "value": 1.64890830700512,
+        "df": [
+          1,
+          88
+        ],
+        "p": 0.202478096390603,
+        "term": "Block 1"
+      },
+      {
+        "key": "F",
+        "value": 21.235775003437,
+        "df": [
+          3,
+          86
+        ],
+        "p": 2.19745587325855e-10,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 14.8050322941479,
+        "df": [
+          86
+        ],
+        "p": 2.2405805601333e-25,
+        "term": "(Intercept)"
+      },
+      {
+        "key": "t",
+        "value": 2.53078951166847,
+        "df": [
+          86
+        ],
+        "p": 0.0132006977944107,
+        "term": "female"
+      },
+      {
+        "key": "t",
+        "value": 7.39524870293461,
+        "df": [
+          86
+        ],
+        "p": 8.69585198125143e-11,
+        "term": "hours"
+      },
+      {
+        "key": "t",
+        "value": 2.32733463790672,
+        "df": [
+          86
+        ],
+        "p": 0.0222969853231072,
+        "term": "motivation"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_squared",
+        "value": 0.42554581084074,
+        "ci_lower": 0.261167704816571,
+        "ci_upper": 0.54506030295769
+      },
+      {
+        "key": "adj_r_squared",
+        "value": 0.405506711218905,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "f_sq",
+        "value": 0.740782848957105,
+        "ci_lower": 0.353487126265549,
+        "ci_upper": 1.19809351986929
+      },
+      {
+        "key": "delta_r_squared",
+        "value": 0.0183929546733389,
+        "ci_lower": null,
+        "ci_upper": null,
+        "term": "Block 1"
+      },
+      {
+        "key": "delta_r_squared",
+        "value": 0.407152856167401,
+        "ci_lower": null,
+        "ci_upper": null,
+        "term": "Block 2"
+      },
+      {
+        "key": "f_sq_change",
+        "value": 0.0187375943977848,
+        "ci_lower": null,
+        "ci_upper": null,
+        "term": "Block 1"
+      },
+      {
+        "key": "f_sq_change",
+        "value": 0.708764708920111,
+        "ci_lower": null,
+        "ci_upper": null,
+        "term": "Block 2"
+      },
+      {
+        "key": "beta",
+        "value": 0.208221466310741,
+        "ci_lower": 0.0446635831110919,
+        "ci_upper": 0.37177934951039,
+        "term": "female"
+      },
+      {
+        "key": "beta",
+        "value": 0.608561451521054,
+        "ci_lower": 0.444972615678778,
+        "ci_upper": 0.772150287363329,
+        "term": "hours"
+      },
+      {
+        "key": "beta",
+        "value": 0.190289931816569,
+        "ci_lower": 0.0277504076760747,
+        "ci_upper": 0.352829455957063,
+        "term": "motivation"
+      }
+    ],
+    "coefficients": [
+      {
+        "term": "(Intercept)",
+        "estimate": 55.6514007375681,
+        "se": 3.75895166129195,
+        "statistic": 14.8050322941479,
+        "p": 2.2405805601333e-25,
+        "ci_lower": 48.1788521504869,
+        "ci_upper": 63.1239493246494,
+        "beta": null,
+        "beta_ci_lower": null,
+        "beta_ci_upper": null
+      },
+      {
+        "term": "female",
+        "estimate": 3.6313794208137,
+        "se": 1.43488006571501,
+        "statistic": 2.53078951166847,
+        "p": 0.0132006977944107,
+        "ci_lower": 0.778932256328345,
+        "ci_upper": 6.48382658529906,
+        "beta": 0.208221466310741,
+        "beta_ci_lower": 0.0446635831110919,
+        "beta_ci_upper": 0.37177934951039
+      },
+      {
+        "term": "hours",
+        "estimate": 1.89716409872439,
+        "se": 0.256538241637708,
+        "statistic": 7.39524870293461,
+        "p": 8.69585198125143e-11,
+        "ci_lower": 1.38718295296438,
+        "ci_upper": 2.4071452444844,
+        "beta": 0.608561451521054,
+        "beta_ci_lower": 0.444972615678778,
+        "beta_ci_upper": 0.772150287363329
+      },
+      {
+        "term": "motivation",
+        "estimate": 2.23394779149847,
+        "se": 0.959873906877335,
+        "statistic": 2.32733463790672,
+        "p": 0.0222969853231072,
+        "ci_lower": 0.325781618340732,
+        "ci_upper": 4.14211396465622,
+        "beta": 0.190289931816569,
+        "beta_ci_lower": 0.0277504076760747,
+        "beta_ci_upper": 0.352829455957063
+      }
+    ],
+    "model": {
+      "r_squared": 0.42554581084074,
+      "adj_r_squared": 0.405506711218905,
+      "sigma": 6.65337718317476,
+      "f": 21.235775003437,
+      "df1": 3,
+      "df2": 86,
+      "p": 2.19745587325855e-10,
+      "f_sq": 0.740782848957105,
+      "r_squared_ci_lower": 0.261167704816571,
+      "r_squared_ci_upper": 0.54506030295769,
+      "f_sq_ci_lower": 0.353487126265549,
+      "f_sq_ci_upper": 1.19809351986929
+    },
+    "blocks": [
+      {
+        "block": 1,
+        "r_squared": 0.0183929546733389,
+        "adj_r_squared": 0.00723832915826306,
+        "delta_r_squared": 0.0183929546733389,
+        "f_change": 1.64890830700512,
+        "df1": 1,
+        "df2": 88,
+        "p_change": 0.202478096390603,
+        "f_sq_change": 0.0187375943977848
+      },
+      {
+        "block": 2,
+        "r_squared": 0.42554581084074,
+        "adj_r_squared": 0.405506711218905,
+        "delta_r_squared": 0.407152856167401,
+        "f_change": 30.4768824835647,
+        "df1": 2,
+        "df2": 86,
+        "p_change": 9.8778531053289e-11,
+        "f_sq_change": 0.708764708920111
+      }
+    ],
+    "vif": [
+      {
+        "term": "female",
+        "gvif": 1.0134025656726,
+        "df": 1,
+        "gvif_adj": 1.00667897845967
+      },
+      {
+        "term": "hours",
+        "gvif": 1.01378616632726,
+        "df": 1,
+        "gvif_adj": 1.00686948822936
+      },
+      {
+        "term": "motivation",
+        "gvif": 1.00082237237516,
+        "df": 1,
+        "gvif_adj": 1.00041110168528
+      }
+    ],
+    "block_coefficients": [
+      [
+        {
+          "term": "(Intercept)",
+          "estimate": 73.9320754716981,
+          "se": 1.18100906805622,
+          "statistic": 62.6007686743511,
+          "p": 9.26938636158445e-75,
+          "ci_lower": 71.5850681204763,
+          "ci_upper": 76.2790828229199,
+          "beta": null,
+          "beta_ci_lower": null,
+          "beta_ci_upper": null
+        },
+        {
+          "term": "female",
+          "estimate": 2.36522182559919,
+          "se": 1.8419321354901,
+          "statistic": 1.28409824663266,
+          "p": 0.202478096390609,
+          "ci_lower": -1.29523123896712,
+          "ci_upper": 6.02567489016549,
+          "beta": 0.135620627757502,
+          "beta_ci_lower": -0.0742679066371914,
+          "beta_ci_upper": 0.345509162152196
+        }
+      ],
+      [
+        {
+          "term": "(Intercept)",
+          "estimate": 55.6514007375681,
+          "se": 3.75895166129195,
+          "statistic": 14.8050322941479,
+          "p": 2.2405805601333e-25,
+          "ci_lower": 48.1788521504869,
+          "ci_upper": 63.1239493246494,
+          "beta": null,
+          "beta_ci_lower": null,
+          "beta_ci_upper": null
+        },
+        {
+          "term": "female",
+          "estimate": 3.6313794208137,
+          "se": 1.43488006571501,
+          "statistic": 2.53078951166847,
+          "p": 0.0132006977944107,
+          "ci_lower": 0.778932256328345,
+          "ci_upper": 6.48382658529906,
+          "beta": 0.208221466310741,
+          "beta_ci_lower": 0.0446635831110919,
+          "beta_ci_upper": 0.37177934951039
+        },
+        {
+          "term": "hours",
+          "estimate": 1.89716409872439,
+          "se": 0.256538241637708,
+          "statistic": 7.39524870293461,
+          "p": 8.69585198125143e-11,
+          "ci_lower": 1.38718295296438,
+          "ci_upper": 2.4071452444844,
+          "beta": 0.608561451521054,
+          "beta_ci_lower": 0.444972615678778,
+          "beta_ci_upper": 0.772150287363329
+        },
+        {
+          "term": "motivation",
+          "estimate": 2.23394779149847,
+          "se": 0.959873906877335,
+          "statistic": 2.32733463790672,
+          "p": 0.0222969853231072,
+          "ci_lower": 0.325781618340732,
+          "ci_upper": 4.14211396465622,
+          "beta": 0.190289931816569,
+          "beta_ci_lower": 0.0277504076760747,
+          "beta_ci_upper": 0.352829455957063
+        }
+      ]
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "n": 90,
+        "statistic": 0.97403687517061,
+        "p": 0.0683077722874655,
+        "df": []
+      },
+      {
+        "test": "breusch_pagan",
+        "n": 90,
+        "statistic": 7.65402107800926,
+        "p": 0.0537302983776608,
+        "df": [
+          3
+        ]
+      },
+      {
+        "test": "reset",
+        "n": 90,
+        "statistic": 0.569121285055434,
+        "p": 0.568189762454442,
+        "df": [
+          2,
+          84
+        ]
+      },
+      {
+        "test": "cooks_distance",
+        "n": 90,
+        "statistic": 0.109453641665103,
+        "p": null,
+        "df": [],
+        "n_over": 6,
+        "cutoff": 0.0444444444444444
+      },
+      {
+        "test": "vif",
+        "n": 90,
+        "statistic": 1.01378616632726,
+        "p": null,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

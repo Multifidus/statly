@@ -1,0 +1,179 @@
+{
+  "analysis_id": "regression.linear",
+  "case": "simple",
+  "dataset": "reg_simple.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "predictors": [
+        "hours"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 40,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 179.850069393253,
+        "df": [
+          1,
+          38
+        ],
+        "p": 5.4883375996137e-16,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 45.5876418662761,
+        "df": [
+          38
+        ],
+        "p": 8.77222010207299e-35,
+        "term": "(Intercept)"
+      },
+      {
+        "key": "t",
+        "value": 13.4108191171626,
+        "df": [
+          38
+        ],
+        "p": 5.48833759961366e-16,
+        "term": "hours"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_squared",
+        "value": 0.825568106974508,
+        "ci_lower": 0.716336083868346,
+        "ci_upper": 0.883414957552625
+      },
+      {
+        "key": "adj_r_squared",
+        "value": 0.820977794000153,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "f_sq",
+        "value": 4.73289656298035,
+        "ci_lower": 2.52529857740481,
+        "ci_upper": 7.57742965141854
+      },
+      {
+        "key": "beta",
+        "value": 0.908607785006549,
+        "ci_lower": 0.771451338321031,
+        "ci_upper": 1.04576423169207,
+        "term": "hours"
+      }
+    ],
+    "coefficients": [
+      {
+        "term": "(Intercept)",
+        "estimate": 52.5937965572088,
+        "se": 1.15368539376272,
+        "statistic": 45.5876418662761,
+        "p": 8.77222010207299e-35,
+        "ci_lower": 50.258282579085,
+        "ci_upper": 54.9293105353325,
+        "beta": null,
+        "beta_ci_lower": null,
+        "beta_ci_upper": null
+      },
+      {
+        "term": "hours",
+        "estimate": 2.87083926680726,
+        "se": 0.214068897785168,
+        "statistic": 13.4108191171626,
+        "p": 5.48833759961366e-16,
+        "ci_lower": 2.43747943945589,
+        "ci_upper": 3.30419909415862,
+        "beta": 0.908607785006549,
+        "beta_ci_lower": 0.771451338321031,
+        "beta_ci_upper": 1.04576423169207
+      }
+    ],
+    "model": {
+      "r_squared": 0.825568106974508,
+      "adj_r_squared": 0.820977794000153,
+      "sigma": 4.13079622660478,
+      "f": 179.850069393253,
+      "df1": 1,
+      "df2": 38,
+      "p": 5.4883375996137e-16,
+      "f_sq": 4.73289656298035,
+      "r_squared_ci_lower": 0.716336083868346,
+      "r_squared_ci_upper": 0.883414957552625,
+      "f_sq_ci_lower": 2.52529857740481,
+      "f_sq_ci_upper": 7.57742965141854
+    },
+    "vif": [],
+    "dummy_coding": [],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "n": 40,
+        "statistic": 0.978589734114633,
+        "p": 0.637277925587287,
+        "df": []
+      },
+      {
+        "test": "breusch_pagan",
+        "n": 40,
+        "statistic": 0.000694465457749009,
+        "p": 0.97897601096998,
+        "df": [
+          1
+        ]
+      },
+      {
+        "test": "reset",
+        "n": 40,
+        "statistic": 0.215627827449924,
+        "p": 0.807068677275241,
+        "df": [
+          2,
+          36
+        ]
+      },
+      {
+        "test": "cooks_distance",
+        "n": 40,
+        "statistic": 0.170145166753438,
+        "p": null,
+        "df": [],
+        "n_over": 2,
+        "cutoff": 0.1
+      }
+    ]
+  },
+  "error": null,
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

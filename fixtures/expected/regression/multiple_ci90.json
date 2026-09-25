@@ -1,0 +1,228 @@
+{
+  "analysis_id": "regression.linear",
+  "case": "multiple_ci90",
+  "dataset": "reg_multiple.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "predictors": [
+        "hours",
+        "motivation"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.9,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 90,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 26.9753638756905,
+        "df": [
+          2,
+          87
+        ],
+        "p": 7.66759133914019e-10,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 15.2175217792907,
+        "df": [
+          87
+        ],
+        "p": 3.00522890115883e-26,
+        "term": "(Intercept)"
+      },
+      {
+        "key": "t",
+        "value": 6.94123979424864,
+        "df": [
+          87
+        ],
+        "p": 6.61946997837642e-10,
+        "term": "hours"
+      },
+      {
+        "key": "t",
+        "value": 2.2254774399338,
+        "df": [
+          87
+        ],
+        "p": 0.0286348923006805,
+        "term": "motivation"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_squared",
+        "value": 0.382763030826937,
+        "ci_lower": 0.24840752669119,
+        "ci_upper": 0.490372612982971
+      },
+      {
+        "key": "adj_r_squared",
+        "value": 0.368573675213763,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "f_sq",
+        "value": 0.620123307487138,
+        "ci_lower": 0.330508268127807,
+        "ci_upper": 0.962217937017159
+      },
+      {
+        "key": "beta",
+        "value": 0.584847648423755,
+        "ci_lower": 0.444765647946057,
+        "ci_upper": 0.724929648901453,
+        "term": "hours"
+      },
+      {
+        "key": "beta",
+        "value": 0.187511926679705,
+        "ci_lower": 0.0474299262020074,
+        "ci_upper": 0.327593927157403,
+        "term": "motivation"
+      }
+    ],
+    "coefficients": [
+      {
+        "term": "(Intercept)",
+        "estimate": 57.644130354922,
+        "se": 3.78801037323757,
+        "statistic": 15.2175217792907,
+        "p": 3.00522890115883e-26,
+        "ci_lower": 51.3463458692436,
+        "ci_upper": 63.9419148406003,
+        "beta": null,
+        "beta_ci_lower": null,
+        "beta_ci_upper": null
+      },
+      {
+        "term": "hours",
+        "estimate": 1.82323733953192,
+        "se": 0.26266738991536,
+        "statistic": 6.94123979424864,
+        "p": 6.61946997837642e-10,
+        "ci_lower": 1.38653773997704,
+        "ci_upper": 2.2599369390868,
+        "beta": 0.584847648423755,
+        "beta_ci_lower": 0.444765647946057,
+        "beta_ci_upper": 0.724929648901453
+      },
+      {
+        "term": "motivation",
+        "estimate": 2.20133482884183,
+        "se": 0.989151716095273,
+        "statistic": 2.2254774399338,
+        "p": 0.0286348923006805,
+        "ci_lower": 0.556813373563278,
+        "ci_upper": 3.84585628412039,
+        "beta": 0.187511926679705,
+        "beta_ci_lower": 0.0474299262020074,
+        "beta_ci_upper": 0.327593927157403
+      }
+    ],
+    "model": {
+      "r_squared": 0.382763030826937,
+      "adj_r_squared": 0.368573675213763,
+      "sigma": 6.85693461832181,
+      "f": 26.9753638756905,
+      "df1": 2,
+      "df2": 87,
+      "p": 7.66759133914019e-10,
+      "f_sq": 0.620123307487138,
+      "r_squared_ci_lower": 0.24840752669119,
+      "r_squared_ci_upper": 0.490372612982971,
+      "f_sq_ci_lower": 0.330508268127807,
+      "f_sq_ci_upper": 0.962217937017159
+    },
+    "vif": [
+      {
+        "term": "hours",
+        "gvif": 1.00064198875965,
+        "df": 1,
+        "gvif_adj": 1.00032094287766
+      },
+      {
+        "term": "motivation",
+        "gvif": 1.00064198875965,
+        "df": 1,
+        "gvif_adj": 1.00032094287766
+      }
+    ],
+    "dummy_coding": [],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "n": 90,
+        "statistic": 0.970561602676768,
+        "p": 0.0387333028703858,
+        "df": []
+      },
+      {
+        "test": "breusch_pagan",
+        "n": 90,
+        "statistic": 6.95869451675086,
+        "p": 0.0308275268767875,
+        "df": [
+          2
+        ]
+      },
+      {
+        "test": "reset",
+        "n": 90,
+        "statistic": 0.46245408740117,
+        "p": 0.631311329749871,
+        "df": [
+          2,
+          85
+        ]
+      },
+      {
+        "test": "cooks_distance",
+        "n": 90,
+        "statistic": 0.0921538080678406,
+        "p": null,
+        "df": [],
+        "n_over": 7,
+        "cutoff": 0.0444444444444444
+      },
+      {
+        "test": "vif",
+        "n": 90,
+        "statistic": 1.00064198875965,
+        "p": null,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

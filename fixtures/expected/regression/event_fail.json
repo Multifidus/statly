@@ -1,0 +1,160 @@
+{
+  "analysis_id": "regression.logistic",
+  "case": "event_fail",
+  "dataset": "reg_logistic.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "result"
+      ],
+      "predictors": [
+        "hours"
+      ]
+    },
+    "options": {
+      "event": "Fail"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 148,
+    "n_excluded": 2,
+    "event": "Fail",
+    "statistics": [
+      {
+        "key": "chi2",
+        "value": 32.4577555580633,
+        "df": [
+          1
+        ],
+        "p": 1.21811853426746e-08,
+        "term": null
+      },
+      {
+        "key": "z",
+        "value": 4.67765706324937,
+        "df": [],
+        "p": 2.90171299995682e-06,
+        "term": "(Intercept)"
+      },
+      {
+        "key": "z",
+        "value": -5.10865232014722,
+        "df": [],
+        "p": 3.24464775958936e-07,
+        "term": "hours"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "nagelkerke_r2",
+        "value": 0.262712880816712,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "cox_snell_r2",
+        "value": 0.196926597740357,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "odds_ratio",
+        "value": 0.690925702643802,
+        "ci_lower": 0.594922553964708,
+        "ci_upper": 0.791207049969236,
+        "term": "hours"
+      }
+    ],
+    "coefficients": [
+      {
+        "term": "(Intercept)",
+        "estimate": 1.78109656659449,
+        "se": 0.380766811784453,
+        "statistic": 4.67765706324937,
+        "p": 2.90171299995682e-06,
+        "ci_lower": 1.06680877078321,
+        "ci_upper": 2.5671593216981,
+        "or": 5.93636246755593,
+        "or_ci_lower": 2.9060906849906,
+        "or_ci_upper": 13.0287613040963,
+        "confint_ci_lower": 1.06681640323928,
+        "confint_ci_upper": 2.56717297233228
+      },
+      {
+        "term": "hours",
+        "estimate": -0.369722982494881,
+        "se": 0.0723719210713924,
+        "statistic": -5.10865232014722,
+        "p": 3.24464775958936e-07,
+        "ci_lower": -0.519324043312091,
+        "ci_upper": -0.234195588236543,
+        "or": 0.690925702643802,
+        "or_ci_lower": 0.594922553964708,
+        "or_ci_upper": 0.791207049969236,
+        "confint_ci_lower": -0.51932738719136,
+        "confint_ci_upper": -0.23419639623649
+      }
+    ],
+    "model": {
+      "chi2": 32.4577555580633,
+      "df": 1,
+      "p": 1.21811853426746e-08,
+      "deviance": 172.470499970781,
+      "null_deviance": 204.928255528844,
+      "cox_snell_r2": 0.196926597740357,
+      "nagelkerke_r2": 0.262712880816712,
+      "n_events": 77
+    },
+    "classification": {
+      "tn": 45,
+      "fp": 26,
+      "fn": 19,
+      "tp": 58,
+      "percent_correct": 69.5945945945946
+    },
+    "vif": [],
+    "assumptions": [
+      {
+        "test": "hosmer_lemeshow",
+        "n": 148,
+        "statistic": 2.90501497411708,
+        "p": 0.940176103797169,
+        "df": [
+          8
+        ]
+      },
+      {
+        "test": "cooks_distance",
+        "n": 148,
+        "statistic": 0.0654433410362282,
+        "p": null,
+        "df": [],
+        "n_over": 10,
+        "cutoff": 0.027027027027027
+      }
+    ]
+  },
+  "error": null,
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

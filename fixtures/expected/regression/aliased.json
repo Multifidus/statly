@@ -1,0 +1,41 @@
+{
+  "analysis_id": "regression.linear",
+  "case": "aliased",
+  "dataset": "reg_collinear.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "predictors": [
+        "x1",
+        "x4"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": null,
+  "error": "there are aliased coefficients in the model",
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

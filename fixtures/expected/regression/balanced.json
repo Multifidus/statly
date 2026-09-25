@@ -1,0 +1,270 @@
+{
+  "analysis_id": "regression.logistic",
+  "case": "balanced",
+  "dataset": "reg_logistic.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "pass"
+      ],
+      "predictors": [
+        "hours",
+        "motivation",
+        "region"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 148,
+    "n_excluded": 2,
+    "event": 1,
+    "statistics": [
+      {
+        "key": "chi2",
+        "value": 40.7857202027695,
+        "df": [
+          4
+        ],
+        "p": 2.97688624138578e-08,
+        "term": null
+      },
+      {
+        "key": "z",
+        "value": -4.05058952878103,
+        "df": [],
+        "p": 5.10887578308806e-05,
+        "term": "(Intercept)"
+      },
+      {
+        "key": "z",
+        "value": 5.15086651661136,
+        "df": [],
+        "p": 2.5928568712985e-07,
+        "term": "hours"
+      },
+      {
+        "key": "z",
+        "value": 2.49589484917262,
+        "df": [],
+        "p": 0.0125639838904074,
+        "term": "motivation"
+      },
+      {
+        "key": "z",
+        "value": 0.415710219061277,
+        "df": [],
+        "p": 0.677622062560159,
+        "term": "region[Suburban]"
+      },
+      {
+        "key": "z",
+        "value": 1.18872369807737,
+        "df": [],
+        "p": 0.234548412028336,
+        "term": "region[Urban]"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "nagelkerke_r2",
+        "value": 0.321333149079812,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "cox_snell_r2",
+        "value": 0.24086768639879,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "odds_ratio",
+        "value": 1.48783622039029,
+        "ci_lower": 1.28879144921132,
+        "ci_upper": 1.74679427737648,
+        "term": "hours"
+      },
+      {
+        "key": "odds_ratio",
+        "value": 1.91539509360322,
+        "ci_lower": 1.16648297013678,
+        "ci_upper": 3.26298581833085,
+        "term": "motivation"
+      },
+      {
+        "key": "odds_ratio",
+        "value": 1.2118616138418,
+        "ci_lower": 0.487253298518868,
+        "ci_upper": 3.01543876698138,
+        "term": "region[Suburban]"
+      },
+      {
+        "key": "odds_ratio",
+        "value": 1.79063934678166,
+        "ci_lower": 0.688228604317097,
+        "ci_upper": 4.74751259757691,
+        "term": "region[Urban]"
+      }
+    ],
+    "coefficients": [
+      {
+        "term": "(Intercept)",
+        "estimate": -4.43072163774822,
+        "se": 1.09384611950093,
+        "statistic": -4.05058952878103,
+        "p": 5.10887578308806e-05,
+        "ci_lower": -6.70234139876955,
+        "ci_upper": -2.38787016706381,
+        "or": 0.0119058948288459,
+        "or_ci_lower": 0.00122803321844811,
+        "or_ci_upper": 0.0918250477685337,
+        "confint_ci_lower": -6.70243332350549,
+        "confint_ci_upper": -2.38788133846541
+      },
+      {
+        "term": "hours",
+        "estimate": 0.397322863411079,
+        "se": 0.0771370918135282,
+        "statistic": 5.15086651661136,
+        "p": 2.5928568712985e-07,
+        "ci_lower": 0.253704918168456,
+        "ci_upper": 0.557782266562806,
+        "or": 1.48783622039029,
+        "or_ci_lower": 1.28879144921132,
+        "or_ci_upper": 1.74679427737648,
+        "confint_ci_lower": 0.253707305309113,
+        "confint_ci_upper": 0.557789690579136
+      },
+      {
+        "term": "motivation",
+        "estimate": 0.64992391655006,
+        "se": 0.260397154457652,
+        "statistic": 2.49589484917262,
+        "p": 0.0125639838904074,
+        "ci_lower": 0.153993213261573,
+        "ci_upper": 1.18264267139605,
+        "or": 1.91539509360322,
+        "or_ci_lower": 1.16648297013678,
+        "or_ci_upper": 3.26298581833085,
+        "confint_ci_lower": 0.154001159939552,
+        "confint_ci_upper": 1.18265176523271
+      },
+      {
+        "term": "region[Suburban]",
+        "estimate": 0.192157701129574,
+        "se": 0.462239541677586,
+        "statistic": 0.415710219061277,
+        "p": 0.677622062560159,
+        "ci_lower": -0.718971170953208,
+        "ci_upper": 1.10374534761133,
+        "or": 1.2118616138418,
+        "or_ci_lower": 0.487253298518868,
+        "or_ci_upper": 3.01543876698138,
+        "confint_ci_lower": -0.718995959077394,
+        "confint_ci_upper": 1.10377115971507
+      },
+      {
+        "term": "region[Urban]",
+        "estimate": 0.582572733053148,
+        "se": 0.490082543147239,
+        "statistic": 1.18872369807737,
+        "p": 0.234548412028336,
+        "ci_lower": -0.373634222522769,
+        "ci_upper": 1.55762081721883,
+        "or": 1.79063934678166,
+        "or_ci_lower": 0.688228604317097,
+        "or_ci_upper": 4.74751259757691,
+        "confint_ci_lower": -0.373643336888535,
+        "confint_ci_upper": 1.55765691358667
+      }
+    ],
+    "model": {
+      "chi2": 40.7857202027695,
+      "df": 4,
+      "p": 2.97688624138578e-08,
+      "deviance": 164.142535326074,
+      "null_deviance": 204.928255528844,
+      "cox_snell_r2": 0.24086768639879,
+      "nagelkerke_r2": 0.321333149079812,
+      "n_events": 71
+    },
+    "classification": {
+      "tn": 58,
+      "fp": 19,
+      "fn": 20,
+      "tp": 51,
+      "percent_correct": 73.6486486486486
+    },
+    "vif": [
+      {
+        "term": "hours",
+        "gvif": 1.06743802398936,
+        "df": 1,
+        "gvif_adj": 1.03316892325958
+      },
+      {
+        "term": "motivation",
+        "gvif": 1.07456112356772,
+        "df": 1,
+        "gvif_adj": 1.03661040105129
+      },
+      {
+        "term": "region",
+        "gvif": 1.01730757881499,
+        "df": 2,
+        "gvif_adj": 1.00429909187528
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "hosmer_lemeshow",
+        "n": 148,
+        "statistic": 2.38268859071976,
+        "p": 0.966976989070773,
+        "df": [
+          8
+        ]
+      },
+      {
+        "test": "cooks_distance",
+        "n": 148,
+        "statistic": 0.0747464246694721,
+        "p": null,
+        "df": [],
+        "n_over": 8,
+        "cutoff": 0.027027027027027
+      },
+      {
+        "test": "vif",
+        "n": 148,
+        "statistic": 1.07456112356772,
+        "p": null,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_regression_packages": {
+    "car": "3.1.5",
+    "effectsize": "1.0.3",
+    "lmtest": "0.9.40",
+    "MASS": "7.3.65",
+    "brant": "0.3.0",
+    "ResourceSelection": "0.3.6"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
