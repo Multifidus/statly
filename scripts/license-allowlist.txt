@@ -1,0 +1,20 @@
+# License allowlist for scripts/check-licenses.py
+#
+# One entry per line, format: <ecosystem>:<package>
+# where ecosystem is one of: python, js, rust
+#
+# Use this ONLY for verified false positives, e.g. a package whose license
+# string contains "GPL" as part of a permissive dual/either-or license
+# (like "MIT OR GPL-2.0") where the MIT option is actually used. Do NOT
+# use this to allow an actual GPL/AGPL/LGPL-licensed dependency -- the
+# owner has banned the entire GPL family (including LGPL) from shipping
+# in Statly.
+#
+# Example:
+# python:some-dual-licensed-pkg
+
+# r-efi: transitive Rust dep (UEFI bindings, likely via a Windows-target
+# crate). License is "MIT OR Apache-2.0 OR LGPL-2.1-or-later" -- an
+# either-or license, so consuming it under MIT satisfies the ban on
+# copyleft. Not itself LGPL-only.
+rust:r-efi

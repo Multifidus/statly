@@ -42,15 +42,66 @@ jobs:
         working-directory: app
         run: npm run build
 
+  licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install engine + license tools
+        run: |
+          python3.12 -m venv /tmp/license-venv
+          /tmp/license-venv/bin/pip install -e engine
+          /tmp/license-venv/bin/pip install pip-licenses
+          /tmp/license-venv/bin/pip-licenses --format=json > /tmp/pip-licenses.json
+
+      - name: Install app deps
+        working-directory: app
+        run: npm ci
+
+      - name: JS license report
+        working-directory: app
+        run: npx --yes license-checker-rseidelsohn --production --json > /tmp/js-licenses.json
+
+      - name: Rust license report
+        working-directory: app/src-tauri
+        run: cargo metadata --format-version 1 > /tmp/cargo-metadata.json
+
+      - name: Check licenses (GPL/AGPL/LGPL gate)
+        run: |
+          python3.12 scripts/check-licenses.py \
+            --pip-licenses /tmp/pip-licenses.json \
+            --js-licenses /tmp/js-licenses.json \
+            --cargo-metadata /tmp/cargo-metadata.json \
+            --write THIRD_PARTY_LICENSES.md
+
+      - name: Fail if THIRD_PARTY_LICENSES.md is out of date
+        run: |
+          git diff --exit-code -- THIRD_PARTY_LICENSES.md || {
+            echo "THIRD_PARTY_LICENSES.md is stale. Run:" >&2
+            echo "  python3.12 scripts/check-licenses.py --pip-licenses ... --js-licenses ... --cargo-metadata ... --write THIRD_PARTY_LICENSES.md" >&2
+            echo "and commit the result." >&2
+            exit 1
+          }
+
   build:
-    needs: test
+    needs: [test, licenses]
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: macos-14
             target: aarch64-apple-darwin
-          - os: macos-13
+          - os: macos-15-intel
             target: x86_64-apple-darwin
           - os: windows-latest
             target: x86_64-pc-windows-msvc
