@@ -93,6 +93,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | js | use-callback-ref | 1.3.3 | MIT |
 | js | use-sidecar | 1.1.3 | MIT |
 | js | zustand | 5.0.15 | MIT |
+| python | annotated-types | 0.8.0 | MIT |
 | python | formulaic | 1.2.2 | MIT |
 | python | interface_meta | 2.0.1 | MIT |
 | python | narwhals | 2.26.0 | MIT |
@@ -100,11 +101,14 @@ regenerate instead. Covers runtime dependencies across the Python
 | python | packaging | 26.3 | Apache-2.0 OR BSD-2-Clause |
 | python | pandas | 3.0.6 | BSD License |
 | python | patsy | 1.0.3 | BSD License |
+| python | pydantic | 2.13.5 | MIT |
+| python | pydantic_core | 2.46.5 | MIT |
 | python | python-dateutil | 2.9.0.post0 | Apache Software License; BSD License |
 | python | scipy | 1.18.1 | BSD License |
 | python | six | 1.17.0 | MIT License |
 | python | statly_engine | 0.1.0 | UNKNOWN |
 | python | statsmodels | 0.15.0 | BSD-3-Clause |
+| python | typing-inspection | 0.4.4 | MIT |
 | python | typing_extensions | 4.16.0 | PSF-2.0 |
 | python | wrapt | 2.4.1 | BSD-2-Clause |
 | rust | adler2 | 2.0.1 | 0BSD OR MIT OR Apache-2.0 |
