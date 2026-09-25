@@ -1,0 +1,9 @@
+pyproject.toml
+statly_engine/__init__.py
+statly_engine/__main__.py
+statly_engine/rpc.py
+statly_engine.egg-info/PKG-INFO
+statly_engine.egg-info/SOURCES.txt
+statly_engine.egg-info/dependency_links.txt
+statly_engine.egg-info/requires.txt
+statly_engine.egg-info/top_level.txt

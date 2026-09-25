@@ -1,0 +1,125 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install engine (dev)
+        run: pip install -e "engine[dev]"
+
+      - name: Engine tests
+        run: pytest engine/tests -q
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install app deps
+        working-directory: app
+        run: npm ci
+
+      - name: Frontend tests
+        working-directory: app
+        run: npm run test
+
+      - name: Frontend build
+        working-directory: app
+        run: npm run build
+
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: macos-13
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+
+      - name: Build engine sidecar (macOS/Linux)
+        if: runner.os != 'Windows'
+        run: |
+          python3.12 -m venv engine/.venv
+          engine/.venv/bin/pip install -e "engine[dev]"
+          bash engine/build.sh
+          bash scripts/stage-engine.sh
+
+      - name: Build engine sidecar (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m venv engine\.venv
+          engine\.venv\Scripts\pip.exe install -e "engine[dev]"
+          engine\build.ps1
+          scripts\stage-engine.ps1
+
+      - name: Install app deps
+        working-directory: app
+        run: npm ci
+
+      - name: Tauri build (macOS)
+        if: runner.os == 'macOS'
+        working-directory: app
+        env:
+          CI: "true"
+          APPLE_SIGNING_IDENTITY: "-"
+        run: npm run tauri build -- --target ${{ matrix.target }}
+
+      - name: Tauri build (Windows)
+        if: runner.os == 'Windows'
+        working-directory: app
+        env:
+          CI: "true"
+        run: npm run tauri build -- --target ${{ matrix.target }}
+
+      - name: Upload DMG
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: statly-${{ matrix.target }}.dmg
+          path: app/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+
+      - name: Upload NSIS installer
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: statly-${{ matrix.target }}-setup
+          path: app/src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*-setup.exe
