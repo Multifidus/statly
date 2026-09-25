@@ -1,9 +1,9 @@
 ---
-id: kendall_tau_b
+id: correlation.kendall_tau_b
 title: "Kendall's tau-b"
 category: tests
 summary: "Measures how strongly two ranked variables agree, by counting matching and mismatched pairs instead of using ranks directly."
-related: [spearman, pearson, mann_whitney, outliers]
+related: [correlation.spearman, correlation.pearson, mann_whitney, outliers]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

@@ -3,7 +3,7 @@ id: descriptives
 title: "Descriptive statistics"
 category: tests
 summary: "The summary numbers, like mean, median, and spread, that describe your data before you run any test on it."
-related: [normality, outliers, t_one_sample, mann_whitney, kruskal_wallis, friedman]
+related: [normality, outliers, t_test.one_sample, mann_whitney, kruskal_wallis, friedman]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

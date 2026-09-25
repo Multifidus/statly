@@ -3,7 +3,7 @@ id: glass_delta
 title: "Glass's delta"
 category: effect_sizes
 summary: "Measures the size of a difference between two groups using only the control group's standard deviation."
-related: [cohens_d, hedges_g, t_independent, anova_welch, homogeneity_of_variance]
+related: [cohens_d, hedges_g, t_test.independent, anova.welch, homogeneity_of_variance]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

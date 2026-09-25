@@ -1,9 +1,9 @@
 ---
-id: split_half
+id: reliability.split_half
 title: "Split-half reliability"
 category: tests
 summary: "Splits a scale into two halves and checks how closely the halves agree, corrected for the shorter length."
-related: [cronbach_alpha, mcdonald_omega, kr20, descriptives, pearson]
+related: [reliability.cronbach_alpha, reliability.mcdonald_omega, reliability.kr20, descriptives, correlation.pearson]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

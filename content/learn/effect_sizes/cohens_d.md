@@ -3,7 +3,7 @@ id: cohens_d
 title: "Cohen's d"
 category: effect_sizes
 summary: "Measures the size of a difference between two independent group means in standard deviation units."
-related: [t_independent, hedges_g, glass_delta, anova_welch, descriptives]
+related: [t_test.independent, hedges_g, glass_delta, anova.welch, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

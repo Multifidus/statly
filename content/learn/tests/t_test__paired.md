@@ -1,9 +1,9 @@
 ---
-id: t_paired
+id: t_test.paired
 title: "Paired-samples t-test"
 category: tests
 summary: "Compares two related measurements from the same people or matched pairs."
-related: [t_independent, t_one_sample, wilcoxon_signed_rank, sign_test, anova_rm, d_z_d_av]
+related: [t_test.independent, t_test.one_sample, wilcoxon_signed_rank, sign_test, anova.repeated_measures, d_z_d_av]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

@@ -3,7 +3,7 @@ id: homogeneity_of_variance
 title: "Homogeneity of variance"
 category: assumptions
 summary: "Checks whether groups being compared spread out by a similar amount before you trust a test that assumes equal spread."
-related: [t_independent, anova_one_way, anova_welch, mann_whitney, sphericity]
+related: [t_test.independent, anova.one_way, anova.welch, mann_whitney, sphericity]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

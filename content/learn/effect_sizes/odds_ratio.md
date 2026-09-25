@@ -3,7 +3,7 @@ id: odds_ratio
 title: "Odds ratio"
 category: effect_sizes
 summary: "Compares the odds of an outcome happening in one group to the odds in another, commonly used with pass/fail or yes/no results."
-related: [chi_square_independence, fisher_exact, cramers_v_phi, mcnemar, descriptives]
+related: [chi_square.independence, fisher_exact, cramers_v_phi, mcnemar, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

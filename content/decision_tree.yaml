@@ -108,7 +108,7 @@ nodes:
 
   rec_chi_square_gof:
     type: recommendation
-    primary_test: chi_square_gof
+    primary_test: chi_square.goodness_of_fit
     nonparametric_alternative: null
     assumptions: [expected_cell_counts, independence_of_observations]
     effect_size: [cramers_v]
@@ -123,7 +123,7 @@ nodes:
 
   rec_chi_square_independence:
     type: recommendation
-    primary_test: chi_square_independence
+    primary_test: chi_square.independence
     nonparametric_alternative: fisher_exact
     assumptions: [expected_cell_counts, independence_of_observations]
     effect_size: [cramers_v, phi]
@@ -247,7 +247,7 @@ nodes:
     nonparametric_alternative: null
     assumptions: [independence_of_observations, similar_shape_of_distributions]
     effect_size: [epsilon_squared]
-    post_hoc: [dunn]
+    post_hoc: [posthoc.dunn]
     why_this_test: >
       The Kruskal-Wallis test extends the Mann-Whitney idea to three or more
       independent groups, comparing ranks instead of means - a better fit
@@ -331,7 +331,7 @@ nodes:
     nonparametric_alternative: null
     assumptions: [independence_of_observations]
     effect_size: [kendalls_w]
-    post_hoc: [conover]
+    post_hoc: [posthoc.conover]
     why_this_test: >
       The Friedman test compares ranks across three or more linked time
       points or conditions for the same people - a rank-based counterpart
@@ -385,7 +385,7 @@ nodes:
     nonparametric_alternative: null
     assumptions: [independence_of_observations, similar_shape_of_distributions]
     effect_size: [epsilon_squared]
-    post_hoc: [dunn]
+    post_hoc: [posthoc.dunn]
     why_this_test: >
       Without linked IDs, the time points are compared as independent
       groups using Kruskal-Wallis rather than a repeated-measures rank test.
@@ -418,7 +418,7 @@ nodes:
 
   rec_t_one_sample:
     type: recommendation
-    primary_test: t_one_sample
+    primary_test: t_test.one_sample
     nonparametric_alternative: wilcoxon_one_sample
     assumptions: [normality]
     effect_size: [cohens_d]
@@ -488,7 +488,7 @@ nodes:
 
   rec_t_independent:
     type: recommendation
-    primary_test: t_independent
+    primary_test: t_test.independent
     nonparametric_alternative: mann_whitney
     assumptions: [normality, homogeneity_of_variance]
     effect_size: [cohens_d, hedges_g]
@@ -527,10 +527,10 @@ nodes:
   rec_ancova:
     type: recommendation
     primary_test: ancova
-    nonparametric_alternative: quade
+    nonparametric_alternative: ancova.quade
     assumptions: [normality, homogeneity_of_variance, linearity, homogeneity_of_regression_slopes]
     effect_size: [partial_eta_squared]
-    post_hoc: [bonferroni, holm]
+    post_hoc: [posthoc.pairwise]
     why_this_test: >
       ANCOVA compares group means after statistically adjusting for a
       covariate (commonly a pretest score), using estimated marginal means.
@@ -557,11 +557,11 @@ nodes:
 
   rec_anova_one_way:
     type: recommendation
-    primary_test: anova_one_way
+    primary_test: anova.one_way
     nonparametric_alternative: kruskal_wallis
     assumptions: [normality, homogeneity_of_variance]
     effect_size: [eta_squared, omega_squared, cohens_f]
-    post_hoc: [tukey_hsd, bonferroni, holm]
+    post_hoc: [posthoc.tukey, posthoc.pairwise]
     why_this_test: >
       A one-way ANOVA tests whether the means of three or more independent
       groups differ. It's the standard first choice when group spreads are
@@ -571,11 +571,11 @@ nodes:
 
   rec_anova_welch:
     type: recommendation
-    primary_test: anova_welch
+    primary_test: anova.welch
     nonparametric_alternative: kruskal_wallis
     assumptions: [normality]
     effect_size: [eta_squared, omega_squared, cohens_f]
-    post_hoc: [games_howell]
+    post_hoc: [posthoc.games_howell]
     why_this_test: >
       Welch's ANOVA compares three or more group means without assuming
       equal variances, the same protection Welch's t-test gives a two-group
@@ -600,11 +600,11 @@ nodes:
 
   rec_anova_factorial:
     type: recommendation
-    primary_test: anova_factorial
-    nonparametric_alternative: art_anova
+    primary_test: anova.factorial
+    nonparametric_alternative: anova.art
     assumptions: [normality, homogeneity_of_variance]
     effect_size: [partial_eta_squared, omega_squared]
-    post_hoc: [tukey_hsd, bonferroni, holm]
+    post_hoc: [posthoc.tukey, posthoc.pairwise]
     why_this_test: >
       A factorial (two-way) ANOVA tests the effect of each grouping variable
       on its own, plus whether the two grouping variables interact - for
@@ -649,7 +649,7 @@ nodes:
 
   rec_t_paired:
     type: recommendation
-    primary_test: t_paired
+    primary_test: t_test.paired
     nonparametric_alternative: wilcoxon_signed_rank
     assumptions: [normality_of_differences]
     effect_size: [cohens_d_z, cohens_d_av]
@@ -679,11 +679,11 @@ nodes:
 
   rec_anova_rm:
     type: recommendation
-    primary_test: anova_rm
+    primary_test: anova.repeated_measures
     nonparametric_alternative: friedman
     assumptions: [normality, sphericity]
     effect_size: [partial_eta_squared, omega_squared]
-    post_hoc: [bonferroni, holm]
+    post_hoc: [posthoc.pairwise]
     why_this_test: >
       Repeated-measures ANOVA compares the same people's scores across
       three or more linked time points or conditions, using the correlation
@@ -695,11 +695,11 @@ nodes:
 
   rec_anova_mixed:
     type: recommendation
-    primary_test: anova_mixed
-    nonparametric_alternative: art_anova
+    primary_test: anova.mixed
+    nonparametric_alternative: anova.art
     assumptions: [normality, sphericity, homogeneity_of_variance]
     effect_size: [partial_eta_squared, omega_squared]
-    post_hoc: [bonferroni, holm]
+    post_hoc: [posthoc.pairwise]
     why_this_test: >
       A mixed ANOVA combines a between-subjects grouping variable (e.g.
       control vs. intervention) with a within-subjects factor (e.g. time),
@@ -734,7 +734,7 @@ nodes:
 
   rec_t_independent_aggregate:
     type: recommendation
-    primary_test: t_independent
+    primary_test: t_test.independent
     nonparametric_alternative: mann_whitney
     assumptions: [normality, homogeneity_of_variance]
     effect_size: [cohens_d, hedges_g]
@@ -748,11 +748,11 @@ nodes:
 
   rec_anova_one_way_aggregate:
     type: recommendation
-    primary_test: anova_one_way
+    primary_test: anova.one_way
     nonparametric_alternative: kruskal_wallis
     assumptions: [normality, homogeneity_of_variance]
     effect_size: [eta_squared, omega_squared, cohens_f]
-    post_hoc: [tukey_hsd, bonferroni, holm]
+    post_hoc: [posthoc.tukey, posthoc.pairwise]
     why_this_test: >
       Without linked IDs, the three or more time points are compared as
       independent groups using a one-way ANOVA rather than a
@@ -786,8 +786,8 @@ nodes:
 
   rec_pearson:
     type: recommendation
-    primary_test: pearson
-    nonparametric_alternative: spearman
+    primary_test: correlation.pearson
+    nonparametric_alternative: correlation.spearman
     assumptions: [normality, linearity, homoscedasticity, outliers]
     effect_size: [pearson_r]
     post_hoc: []
@@ -815,8 +815,8 @@ nodes:
 
   rec_spearman:
     type: recommendation
-    primary_test: spearman
-    nonparametric_alternative: kendall_tau_b
+    primary_test: correlation.spearman
+    nonparametric_alternative: correlation.kendall_tau_b
     assumptions: [monotonic_relationship]
     effect_size: [spearman_rho]
     post_hoc: []
@@ -832,7 +832,7 @@ nodes:
 
   rec_kendall:
     type: recommendation
-    primary_test: kendall_tau_b
+    primary_test: correlation.kendall_tau_b
     nonparametric_alternative: null
     assumptions: [monotonic_relationship]
     effect_size: [kendall_tau_b]
@@ -849,7 +849,7 @@ nodes:
 
   rec_point_biserial:
     type: recommendation
-    primary_test: point_biserial
+    primary_test: correlation.point_biserial
     nonparametric_alternative: null
     assumptions: [normality, homogeneity_of_variance]
     effect_size: [point_biserial_r]
@@ -864,7 +864,7 @@ nodes:
 
   rec_partial_correlation:
     type: recommendation
-    primary_test: partial_correlation
+    primary_test: correlation.partial
     nonparametric_alternative: null
     assumptions: [normality, linearity, homoscedasticity]
     effect_size: [pearson_r]
@@ -920,7 +920,7 @@ nodes:
 
   rec_regression_logistic:
     type: recommendation
-    primary_test: regression_logistic
+    primary_test: regression.logistic
     nonparametric_alternative: null
     assumptions: [linearity_of_logit, multicollinearity, independence_of_observations, outliers]
     effect_size: [odds_ratio, r_squared]
@@ -934,7 +934,7 @@ nodes:
 
   rec_regression_logistic_multi:
     type: recommendation
-    primary_test: regression_logistic
+    primary_test: regression.logistic
     nonparametric_alternative: null
     assumptions: [linearity_of_logit, multicollinearity, independence_of_observations, outliers]
     effect_size: [odds_ratio, r_squared]
@@ -950,7 +950,7 @@ nodes:
 
   rec_regression_ordinal:
     type: recommendation
-    primary_test: regression_ordinal
+    primary_test: regression.ordinal
     nonparametric_alternative: null
     assumptions: [proportional_odds, multicollinearity, independence_of_observations]
     effect_size: [odds_ratio, r_squared]
@@ -976,7 +976,7 @@ nodes:
 
   rec_regression_linear_simple:
     type: recommendation
-    primary_test: regression_linear
+    primary_test: regression.linear
     nonparametric_alternative: null
     assumptions: [linearity, normality_of_residuals, homoscedasticity, independence_of_residuals, outliers]
     effect_size: [r_squared, f_squared]
@@ -1006,7 +1006,7 @@ nodes:
 
   rec_regression_linear_multiple:
     type: recommendation
-    primary_test: regression_linear
+    primary_test: regression.linear
     nonparametric_alternative: null
     assumptions: [linearity, normality_of_residuals, homoscedasticity, independence_of_residuals, multicollinearity, outliers]
     effect_size: [r_squared, f_squared]
@@ -1020,7 +1020,7 @@ nodes:
 
   rec_regression_hierarchical:
     type: recommendation
-    primary_test: regression_hierarchical
+    primary_test: regression.hierarchical
     nonparametric_alternative: null
     assumptions: [linearity, normality_of_residuals, homoscedasticity, independence_of_residuals, multicollinearity, outliers]
     effect_size: [r_squared, f_squared]
@@ -1074,7 +1074,7 @@ nodes:
 
   rec_cronbach_alpha:
     type: recommendation
-    primary_test: cronbach_alpha
+    primary_test: reliability.cronbach_alpha
     nonparametric_alternative: null
     assumptions: [tau_equivalence]
     effect_size: []
@@ -1089,7 +1089,7 @@ nodes:
 
   rec_mcdonald_omega:
     type: recommendation
-    primary_test: mcdonald_omega
+    primary_test: reliability.mcdonald_omega
     nonparametric_alternative: null
     assumptions: []
     effect_size: []
@@ -1104,7 +1104,7 @@ nodes:
 
   rec_split_half:
     type: recommendation
-    primary_test: split_half
+    primary_test: reliability.split_half
     nonparametric_alternative: null
     assumptions: []
     effect_size: []
@@ -1119,7 +1119,7 @@ nodes:
 
   rec_item_analysis:
     type: recommendation
-    primary_test: item_analysis
+    primary_test: reliability.item_analysis
     nonparametric_alternative: null
     assumptions: []
     effect_size: []
@@ -1133,7 +1133,7 @@ nodes:
 
   rec_kr20:
     type: recommendation
-    primary_test: kr20
+    primary_test: reliability.kr20
     nonparametric_alternative: null
     assumptions: [tau_equivalence]
     effect_size: []
@@ -1166,7 +1166,7 @@ nodes:
 
   rec_efa:
     type: recommendation
-    primary_test: efa
+    primary_test: validity.efa
     nonparametric_alternative: null
     assumptions: [kmo_adequacy, bartlett_sphericity, sample_size]
     effect_size: []
@@ -1182,7 +1182,7 @@ nodes:
 
   rec_cfa:
     type: recommendation
-    primary_test: cfa
+    primary_test: validity.cfa
     nonparametric_alternative: null
     assumptions: [sample_size, multivariate_normality]
     effect_size: []

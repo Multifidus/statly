@@ -3,7 +3,7 @@ id: mann_whitney
 title: "Mann-Whitney U test"
 category: tests
 summary: "Compares two independent groups on ranks instead of raw scores, for when your data aren't normal enough to trust a t-test."
-related: [t_independent, kruskal_wallis, wilcoxon_signed_rank, rank_biserial, normality, outliers]
+related: [t_test.independent, kruskal_wallis, wilcoxon_signed_rank, rank_biserial, normality, outliers]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

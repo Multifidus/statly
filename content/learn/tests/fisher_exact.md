@@ -3,7 +3,7 @@ id: fisher_exact
 title: "Fisher's exact test"
 category: tests
 summary: "Checks whether two categorical variables in a small 2x2 table are related, without relying on a large-sample approximation."
-related: [chi_square_independence, odds_ratio, mcnemar, cramers_v_phi]
+related: [chi_square.independence, odds_ratio, mcnemar, cramers_v_phi]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

@@ -1,9 +1,9 @@
 ---
-id: spearman
+id: correlation.spearman
 title: "Spearman correlation"
 category: tests
 summary: "Measures how strongly two variables move together using ranks, so it still works when the pattern isn't a straight line."
-related: [pearson, kendall_tau_b, mann_whitney, outliers, wilcoxon_signed_rank]
+related: [correlation.pearson, correlation.kendall_tau_b, mann_whitney, outliers, wilcoxon_signed_rank]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

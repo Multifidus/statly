@@ -3,7 +3,7 @@ id: linearity
 title: "Linearity"
 category: assumptions
 summary: "Checks whether the relationship between two continuous variables follows a straight line, before you trust a test built for straight-line patterns."
-related: [pearson, spearman, outliers, descriptives]
+related: [correlation.pearson, correlation.spearman, outliers, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

@@ -3,7 +3,7 @@ id: outliers
 title: "Outliers"
 category: assumptions
 summary: "Checks for data points that sit far outside the rest of your scores and could be distorting your results."
-related: [normality, descriptives, pearson, t_one_sample]
+related: [normality, descriptives, correlation.pearson, t_test.one_sample]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

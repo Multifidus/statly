@@ -3,7 +3,7 @@ id: mcnemar
 title: "McNemar's test"
 category: tests
 summary: "Checks whether a paired yes/no outcome changed, using the same people measured twice."
-related: [chi_square_independence, fisher_exact, t_paired, wilcoxon_signed_rank, odds_ratio]
+related: [chi_square.independence, fisher_exact, t_test.paired, wilcoxon_signed_rank, odds_ratio]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

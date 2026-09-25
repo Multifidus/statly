@@ -3,7 +3,7 @@ id: eta_squared
 title: "Eta squared"
 category: effect_sizes
 summary: "Measures the percentage of total variance in an outcome explained by group membership in an ANOVA."
-related: [anova_one_way, anova_welch, partial_eta_squared, omega_squared, epsilon_squared]
+related: [anova.one_way, anova.welch, partial_eta_squared, omega_squared, epsilon_squared]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

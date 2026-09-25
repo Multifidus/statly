@@ -1,9 +1,9 @@
 ---
-id: t_independent
+id: t_test.independent
 title: "Independent-samples t-test"
 category: tests
 summary: "Compares the average scores of two separate, unrelated groups on a continuous outcome."
-related: [t_paired, t_one_sample, mann_whitney, anova_one_way, cohens_d, homogeneity_of_variance]
+related: [t_test.paired, t_test.one_sample, mann_whitney, anova.one_way, cohens_d, homogeneity_of_variance]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

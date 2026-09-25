@@ -3,7 +3,7 @@ id: sphericity
 title: "Sphericity"
 category: assumptions
 summary: "Checks whether the variances of the differences between every pair of repeated measurements are similar, before trusting a repeated-measures ANOVA."
-related: [anova_rm, friedman, homogeneity_of_variance, epsilon_squared]
+related: [anova.repeated_measures, friedman, homogeneity_of_variance, epsilon_squared]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

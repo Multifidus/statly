@@ -1,9 +1,9 @@
 ---
-id: anova_one_way
+id: anova.one_way
 title: "One-way ANOVA"
 category: tests
 summary: "Compares the average scores of three or more independent groups on a continuous outcome."
-related: [t_independent, anova_welch, kruskal_wallis, eta_squared, homogeneity_of_variance]
+related: [t_test.independent, anova.welch, kruskal_wallis, eta_squared, homogeneity_of_variance]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

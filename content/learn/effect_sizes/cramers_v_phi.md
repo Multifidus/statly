@@ -3,7 +3,7 @@ id: cramers_v_phi
 title: "Cramer's V and phi"
 category: effect_sizes
 summary: "Measure the strength of association between two categorical variables in a contingency table, phi for 2x2 tables and Cramer's V for larger ones."
-related: [chi_square_independence, fisher_exact, odds_ratio, descriptives, chi_square_gof]
+related: [chi_square.independence, fisher_exact, odds_ratio, descriptives, chi_square.goodness_of_fit]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

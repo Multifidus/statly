@@ -3,7 +3,7 @@ id: hedges_g
 title: "Hedges' g"
 category: effect_sizes
 summary: "Adjusts Cohen's d for small-sample bias, giving a more accurate effect size estimate."
-related: [cohens_d, glass_delta, t_independent, d_z_d_av, descriptives]
+related: [cohens_d, glass_delta, t_test.independent, d_z_d_av, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

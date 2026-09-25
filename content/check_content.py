@@ -9,6 +9,7 @@ Checks, per content/learn/<category>/<id>.md:
 
 Usage: python3 content/check_content.py
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -16,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 LEARN_DIR = ROOT / "learn"
 GLOSSARY_PATH = ROOT / "glossary.yaml"
+ANALYSIS_IDS_PATH = ROOT.parent / "contracts" / "analysis_ids.json"
 
 REQUIRED_KEYS = [
     "id",
@@ -104,6 +106,30 @@ def parse_front_matter(text):
     return data, body
 
 
+def load_canonical_analysis_ids():
+    """Flatten contracts/analysis_ids.json (family -> [ids]) into a set of
+    every canonical analysis id."""
+    data = json.loads(ANALYSIS_IDS_PATH.read_text(encoding="utf-8"))
+    ids = set()
+    for key, value in data.items():
+        if key.startswith("$"):
+            continue
+        ids.update(value)
+    return ids
+
+
+def id_to_filename_stem(analysis_id):
+    """tests/*.md file naming convention (see content/learn/README.md):
+    the dot in a dotted canonical id (family.variant) becomes a double
+    underscore in the filename; ids without a dot are unaffected."""
+    return analysis_id.replace(".", "__")
+
+
+def filename_stem_to_id(stem):
+    """Inverse of id_to_filename_stem, for the tests/*.md category only."""
+    return stem.replace("__", ".")
+
+
 def parse_glossary(text):
     """Parse content/glossary.yaml: top-level term_key, nested term/short/long/
     see_also. Returns {term_key: {...}}."""
@@ -186,6 +212,7 @@ def flesch_kincaid_grade(body):
 def main():
     glossary_text = GLOSSARY_PATH.read_text(encoding="utf-8")
     glossary = parse_glossary(glossary_text)
+    canonical_analysis_ids = load_canonical_analysis_ids()
 
     failures = []
     grade_flags = []
@@ -216,8 +243,20 @@ def main():
                 f"category '{fm.get('category')}' does not match directory '{dir_category}'"
             )
 
-        if fm.get("id") and fm["id"] != path.stem:
-            page_errors.append(f"id '{fm.get('id')}' does not match filename '{path.stem}'")
+        if fm.get("id"):
+            # tests/*.md ids are canonical analysis ids and may be dotted
+            # (family.variant); the filename uses a double underscore in
+            # place of the dot (see content/learn/README.md). Other
+            # categories' ids are never dotted, so filename == id exactly.
+            expected_stem = id_to_filename_stem(fm["id"]) if dir_category == "tests" else fm["id"]
+            if expected_stem != path.stem:
+                page_errors.append(f"id '{fm.get('id')}' does not match filename '{path.stem}'")
+
+        if dir_category == "tests" and fm.get("id"):
+            if fm["id"] not in canonical_analysis_ids:
+                page_errors.append(
+                    f"id '{fm['id']}' is not a canonical analysis id in {ANALYSIS_IDS_PATH}"
+                )
 
         expected_sections = SECTIONS_BY_CATEGORY.get(dir_category)
         if expected_sections is None:

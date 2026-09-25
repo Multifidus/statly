@@ -3,7 +3,7 @@ id: epsilon_squared
 title: "Epsilon squared"
 category: effect_sizes
 summary: "Another less-biased alternative to eta squared, similar to omega squared, for estimating variance explained by group membership."
-related: [eta_squared, omega_squared, anova_one_way, kruskal_wallis, anova_welch]
+related: [eta_squared, omega_squared, anova.one_way, kruskal_wallis, anova.welch]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

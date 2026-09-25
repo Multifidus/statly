@@ -1,9 +1,9 @@
 ---
-id: t_one_sample
+id: t_test.one_sample
 title: "One-sample t-test"
 category: tests
 summary: "Checks whether a single group's average score differs from one specific, known value."
-related: [t_paired, t_independent, wilcoxon_signed_rank, sign_test, descriptives]
+related: [t_test.paired, t_test.independent, wilcoxon_signed_rank, sign_test, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

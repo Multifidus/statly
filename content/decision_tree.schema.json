@@ -104,10 +104,10 @@
       ],
       "properties": {
         "type": { "const": "recommendation" },
-        "primary_test": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "primary_test": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" },
         "nonparametric_alternative": {
           "anyOf": [
-            { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+            { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" },
             { "type": "null" }
           ]
         },
@@ -121,7 +121,7 @@
         },
         "post_hoc": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$" }
         },
         "why_this_test": { "type": "string", "minLength": 1 },
         "likert_note": { "type": ["string", "null"] },

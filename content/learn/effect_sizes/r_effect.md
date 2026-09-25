@@ -3,7 +3,7 @@ id: r_effect
 title: "r (rank-based effect size)"
 category: effect_sizes
 summary: "Converts a nonparametric test's Z score into a correlation-like effect size between -1 and 1."
-related: [wilcoxon_signed_rank, mann_whitney, rank_biserial, sign_test, t_paired]
+related: [wilcoxon_signed_rank, mann_whitney, rank_biserial, sign_test, t_test.paired]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

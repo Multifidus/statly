@@ -3,7 +3,7 @@ id: normality
 title: "Normality"
 category: assumptions
 summary: "Checks whether your data follow a roughly bell-shaped, symmetric distribution before you run a test that assumes this."
-related: [t_paired, t_one_sample, wilcoxon_signed_rank, outliers, homogeneity_of_variance]
+related: [t_test.paired, t_test.one_sample, wilcoxon_signed_rank, outliers, homogeneity_of_variance]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

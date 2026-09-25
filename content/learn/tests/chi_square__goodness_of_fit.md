@@ -1,9 +1,9 @@
 ---
-id: chi_square_gof
+id: chi_square.goodness_of_fit
 title: "Chi-square goodness-of-fit test"
 category: tests
 summary: "Checks whether one categorical variable's counts match a claimed or expected distribution."
-related: [chi_square_independence, fisher_exact, cramers_v_phi, descriptives]
+related: [chi_square.independence, fisher_exact, cramers_v_phi, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

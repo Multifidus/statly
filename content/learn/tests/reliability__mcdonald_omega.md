@@ -1,9 +1,9 @@
 ---
-id: mcdonald_omega
+id: reliability.mcdonald_omega
 title: "McDonald's omega"
 category: tests
 summary: "A more flexible internal-consistency estimate that doesn't assume every item is equally good at measuring the trait."
-related: [cronbach_alpha, kr20, split_half, descriptives, pearson]
+related: [reliability.cronbach_alpha, reliability.kr20, reliability.split_half, descriptives, correlation.pearson]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

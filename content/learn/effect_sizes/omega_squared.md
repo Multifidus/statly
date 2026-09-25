@@ -3,7 +3,7 @@ id: omega_squared
 title: "Omega squared"
 category: effect_sizes
 summary: "A less-biased alternative to eta squared for estimating the percentage of variance a factor explains, especially with small samples."
-related: [eta_squared, epsilon_squared, anova_one_way, anova_welch, partial_eta_squared]
+related: [eta_squared, epsilon_squared, anova.one_way, anova.welch, partial_eta_squared]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

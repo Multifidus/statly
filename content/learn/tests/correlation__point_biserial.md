@@ -1,9 +1,9 @@
 ---
-id: point_biserial
+id: correlation.point_biserial
 title: "Point-biserial correlation"
 category: tests
 summary: "Measures how strongly a continuous outcome relates to a variable with only two categories."
-related: [t_independent, pearson, cohens_d, r_effect]
+related: [t_test.independent, correlation.pearson, cohens_d, r_effect]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

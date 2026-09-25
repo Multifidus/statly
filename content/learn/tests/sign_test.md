@@ -3,7 +3,7 @@ id: sign_test
 title: "Sign test"
 category: tests
 summary: "Compares two related measurements using only the direction of each change, the simplest and least assumption-heavy paired test."
-related: [wilcoxon_signed_rank, t_paired, mcnemar, rank_biserial, descriptives]
+related: [wilcoxon_signed_rank, t_test.paired, mcnemar, rank_biserial, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

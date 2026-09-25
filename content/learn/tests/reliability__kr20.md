@@ -1,9 +1,9 @@
 ---
-id: kr20
+id: reliability.kr20
 title: "KR-20"
 category: tests
 summary: "Cronbach's alpha's special case for tests scored right or wrong instead of on a rating scale."
-related: [cronbach_alpha, mcdonald_omega, split_half, descriptives]
+related: [reliability.cronbach_alpha, reliability.mcdonald_omega, reliability.split_half, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

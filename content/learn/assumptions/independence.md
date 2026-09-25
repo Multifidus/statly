@@ -3,7 +3,7 @@ id: independence
 title: "Independence"
 category: assumptions
 summary: "Checks that each observation is unrelated to the others, a design question you answer by thinking about how the data were collected, not by running a test."
-related: [t_independent, chi_square_independence, anova_one_way, mcnemar]
+related: [t_test.independent, chi_square.independence, anova.one_way, mcnemar]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

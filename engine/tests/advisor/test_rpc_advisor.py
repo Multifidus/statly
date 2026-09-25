@@ -47,5 +47,5 @@ def test_advisor_paths_enumerates_every_path(engine):
     assert len(paths) >= 30
     primary_tests = {p["recommendation"]["primary_test"] for p in paths}
     assert "mcnemar" in primary_tests
-    assert "t_independent" in primary_tests
-    assert "anova_mixed" in primary_tests
+    assert "t_test.independent" in primary_tests
+    assert "anova.mixed" in primary_tests

@@ -21,7 +21,7 @@ def test_one_group_pre_post_aggregate_recommends_independent_t_with_caveat(tree)
         "q_compare_design": "repeated_aggregate",
         "q_compare_aggregate_groups": "two",
     })
-    assert rec["primary_test"] == "t_independent"
+    assert rec["primary_test"] == "t_test.independent"
     assert "aggregate_time_comparison" in rec["caveats"]
 
 
@@ -32,7 +32,7 @@ def test_one_group_pre_post_linked_recommends_paired_t(tree):
         "q_compare_design": "repeated_linked",
         "q_compare_time_points": "two",
     })
-    assert rec["primary_test"] == "t_paired"
+    assert rec["primary_test"] == "t_test.paired"
     assert rec["nonparametric_alternative"] == "wilcoxon_signed_rank"
 
 
@@ -44,8 +44,8 @@ def test_three_groups_three_times_linked_recommends_mixed_anova(tree):
         "q_compare_time_points": "three_plus",
         "q_compare_between_factor_rm": "yes",
     })
-    assert rec["primary_test"] == "anova_mixed"
-    assert rec["nonparametric_alternative"] == "art_anova"
+    assert rec["primary_test"] == "anova.mixed"
+    assert rec["nonparametric_alternative"] == "anova.art"
 
 
 def test_post_adjusted_for_pre_recommends_ancova(tree):
@@ -58,7 +58,7 @@ def test_post_adjusted_for_pre_recommends_ancova(tree):
         "q_compare_covariate_two": "yes",
     })
     assert rec["primary_test"] == "ancova"
-    assert rec["nonparametric_alternative"] == "quade"
+    assert rec["nonparametric_alternative"] == "ancova.quade"
 
 
 def test_single_likert_item_between_two_groups_recommends_mann_whitney(tree):
@@ -81,7 +81,7 @@ def test_ten_item_scale_score_between_two_groups_recommends_welch_t(tree):
         "q_compare_between_groups_count": "two",
         "q_compare_covariate_two": "no",
     })
-    assert rec["primary_test"] == "t_independent"
+    assert rec["primary_test"] == "t_test.independent"
     assert rec["likert_note"] is None
     assert "welch" in rec["why_this_test"].lower()
 
@@ -101,15 +101,15 @@ def test_items_hang_together_recommends_cronbach_alpha(tree):
         "q_reliability_type": "rating_scale",
         "q_reliability_detail": "overall_reliability",
     })
-    assert rec["primary_test"] == "cronbach_alpha"
+    assert rec["primary_test"] == "reliability.cronbach_alpha"
 
 
 def test_items_measure_construct_recommends_efa_or_cfa(tree):
     rec_explore = _recommend(tree, {"q_intent": "validity", "q_validity_stage": "exploring"})
-    assert rec_explore["primary_test"] == "efa"
+    assert rec_explore["primary_test"] == "validity.efa"
 
     rec_confirm = _recommend(tree, {"q_intent": "validity", "q_validity_stage": "confirming"})
-    assert rec_confirm["primary_test"] == "cfa"
+    assert rec_confirm["primary_test"] == "validity.cfa"
 
 
 def test_predict_outcome_from_gpa_and_pretest_recommends_multiple_regression(tree):
@@ -119,7 +119,7 @@ def test_predict_outcome_from_gpa_and_pretest_recommends_multiple_regression(tre
         "q_predict_predictor_count": "two_plus",
         "q_predict_entry_method": "no",
     })
-    assert rec["primary_test"] == "regression_linear"
+    assert rec["primary_test"] == "regression.linear"
 
 
 def test_dataset_context_auto_answers_and_user_answers_can_be_combined(tree):
@@ -135,7 +135,7 @@ def test_dataset_context_auto_answers_and_user_answers_can_be_combined(tree):
         },
         dataset_context={"outcome_level": "continuous", "num_groups": 2},
     )
-    assert rec["primary_test"] == "t_independent"
+    assert rec["primary_test"] == "t_test.independent"
 
 
 def test_start_style_call_returns_next_question_when_nothing_answered(tree):

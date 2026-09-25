@@ -1,9 +1,9 @@
 ---
-id: chi_square_independence
+id: chi_square.independence
 title: "Chi-square test of independence"
 category: tests
 summary: "Checks whether two categorical variables are related, using a table of counts."
-related: [fisher_exact, chi_square_gof, mcnemar, cramers_v_phi, independence]
+related: [fisher_exact, chi_square.goodness_of_fit, mcnemar, cramers_v_phi, independence]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

@@ -3,21 +3,37 @@
 One Markdown file per topic, at `content/learn/<category>/<id>.md`.
 Categories: `tests`, `assumptions`, `effect_sizes`.
 
+## File naming vs. front-matter `id`
+
+`tests/*.md` pages are keyed to the canonical analysis ids in
+`contracts/analysis_ids.json`, which are dotted (`family.variant`, e.g.
+`t_test.independent`). A dot is not usable in a filename the way we want it
+to sort/scan, so **file names replace the dot with a double underscore**:
+the id `t_test.independent` is the file `tests/t_test__independent.md`. The
+front-matter `id` field itself is unaffected and keeps the dot exactly as
+written in `contracts/analysis_ids.json` (`id: t_test.independent`).
+`content/check_content.py` enforces this mapping (double-underscore-to-dot)
+when it checks that a page's `id` matches its filename. Ids without a dot
+(e.g. `mann_whitney`, `descriptives`) are unaffected: filename and id match
+exactly as before. `assumptions/*.md` and `effect_sizes/*.md` ids are not
+analysis ids and are never dotted, so this convention doesn't apply to them.
+
 ## Front matter
 
 YAML front matter, these keys, in this order:
 
 ```yaml
-id: t_independent            # matches the analysis id used by the engine
+id: t_test.independent       # matches the analysis id used by the engine
 title: "Independent-samples t-test"
 category: tests              # tests | assumptions | effect_sizes
 summary: "One sentence, plain language, what this page covers."
-related: [t_paired, mann_whitney, cohens_d, normality, homogeneity_of_variance]
+related: [t_test.paired, mann_whitney, cohens_d, normality, homogeneity_of_variance]
 reading_level_target: "8-10"
 owner_reviewed: false
 ```
 
-- `id` must be one of the analysis ids in the SPEC (see the delegation brief / engine).
+- `id` must be one of the canonical analysis ids in `contracts/analysis_ids.json`
+  (for `tests/*.md`) or a stable snake_case id for assumptions/effect sizes.
 - `related` items must be ids that exist elsewhere in `content/learn/**` (any category).
 - `owner_reviewed` starts `false`. The project owner flips it to `true` after review.
 

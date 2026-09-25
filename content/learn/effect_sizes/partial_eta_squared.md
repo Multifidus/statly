@@ -3,7 +3,7 @@ id: partial_eta_squared
 title: "Partial eta squared"
 category: effect_sizes
 summary: "Measures the percentage of variance a single factor explains after setting aside variance from other factors in the design."
-related: [anova_rm, anova_one_way, eta_squared, omega_squared, epsilon_squared]
+related: [anova.repeated_measures, anova.one_way, eta_squared, omega_squared, epsilon_squared]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

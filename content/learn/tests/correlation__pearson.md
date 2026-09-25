@@ -1,9 +1,9 @@
 ---
-id: pearson
+id: correlation.pearson
 title: "Pearson correlation"
 category: tests
 summary: "Measures how strongly two continuous variables move together in a straight-line pattern."
-related: [spearman, kendall_tau_b, point_biserial, linearity, outliers, r_effect]
+related: [correlation.spearman, correlation.kendall_tau_b, correlation.point_biserial, linearity, outliers, r_effect]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

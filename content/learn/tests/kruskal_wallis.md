@@ -3,7 +3,7 @@ id: kruskal_wallis
 title: "Kruskal-Wallis test"
 category: tests
 summary: "Compares three or more independent groups on ranks, the nonparametric alternative to a one-way ANOVA."
-related: [anova_one_way, anova_welch, mann_whitney, friedman, epsilon_squared, homogeneity_of_variance]
+related: [anova.one_way, anova.welch, mann_whitney, friedman, epsilon_squared, homogeneity_of_variance]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

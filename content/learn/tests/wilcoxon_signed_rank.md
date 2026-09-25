@@ -3,7 +3,7 @@ id: wilcoxon_signed_rank
 title: "Wilcoxon signed-rank test"
 category: tests
 summary: "Compares two related measurements (like pre and post scores from the same people) using ranks of the differences, for when a paired t-test's assumptions don't hold."
-related: [t_paired, sign_test, mann_whitney, rank_biserial, normality, descriptives]
+related: [t_test.paired, sign_test, mann_whitney, rank_biserial, normality, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

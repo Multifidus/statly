@@ -3,7 +3,7 @@ id: d_z_d_av
 title: "d_z and d_av (paired effect sizes)"
 category: effect_sizes
 summary: "Two ways to measure effect size for paired or repeated-measures data, one based on the spread of the differences and one on the average spread of both measurements."
-related: [t_paired, wilcoxon_signed_rank, cohens_d, hedges_g, descriptives]
+related: [t_test.paired, wilcoxon_signed_rank, cohens_d, hedges_g, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

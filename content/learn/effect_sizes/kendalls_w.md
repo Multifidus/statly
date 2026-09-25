@@ -3,7 +3,7 @@ id: kendalls_w
 title: "Kendall's W"
 category: effect_sizes
 summary: "Measures the size of a Friedman test's effect, based on how much agreement there is in the rankings across conditions."
-related: [friedman, anova_rm, wilcoxon_signed_rank, sphericity, descriptives]
+related: [friedman, anova.repeated_measures, wilcoxon_signed_rank, sphericity, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

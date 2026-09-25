@@ -3,7 +3,7 @@ id: friedman
 title: "Friedman test"
 category: tests
 summary: "Compares three or more repeated measurements on the same people using ranks, the nonparametric alternative to repeated-measures ANOVA."
-related: [anova_rm, kruskal_wallis, wilcoxon_signed_rank, kendalls_w, sphericity, descriptives]
+related: [anova.repeated_measures, kruskal_wallis, wilcoxon_signed_rank, kendalls_w, sphericity, descriptives]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

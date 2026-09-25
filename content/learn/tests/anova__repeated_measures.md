@@ -1,9 +1,9 @@
 ---
-id: anova_rm
+id: anova.repeated_measures
 title: "Repeated-measures ANOVA"
 category: tests
 summary: "Compares three or more measurements taken from the same people or units over time or conditions."
-related: [t_paired, friedman, sphericity, partial_eta_squared, anova_one_way]
+related: [t_test.paired, friedman, sphericity, partial_eta_squared, anova.one_way]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

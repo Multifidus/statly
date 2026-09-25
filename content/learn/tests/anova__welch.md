@@ -1,9 +1,9 @@
 ---
-id: anova_welch
+id: anova.welch
 title: "Welch's ANOVA"
 category: tests
 summary: "Compares the average scores of three or more independent groups without assuming equal variances."
-related: [anova_one_way, kruskal_wallis, t_independent, homogeneity_of_variance, omega_squared]
+related: [anova.one_way, kruskal_wallis, t_test.independent, homogeneity_of_variance, omega_squared]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---

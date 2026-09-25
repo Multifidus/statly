@@ -1,9 +1,9 @@
 ---
-id: cronbach_alpha
+id: reliability.cronbach_alpha
 title: "Cronbach's alpha"
 category: tests
 summary: "Estimates how consistently a set of scale items measure the same underlying thing."
-related: [mcdonald_omega, kr20, split_half, descriptives, pearson]
+related: [reliability.mcdonald_omega, reliability.kr20, reliability.split_half, descriptives, correlation.pearson]
 reading_level_target: "8-10"
 owner_reviewed: false
 ---
