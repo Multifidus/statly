@@ -207,12 +207,12 @@
           },
           {
             "type": "number",
-            "value": 0.843974077557921,
+            "value": 0.843974078,
             "display": "0.84"
           },
           {
             "type": "number",
-            "value": 2.733355934068382,
+            "value": 2.733355934,
             "display": "2.73"
           },
           {
@@ -222,17 +222,17 @@
           },
           {
             "type": "p_value",
-            "value": 0.004687871218393495,
+            "value": 0.004687871,
             "display": ".005"
           },
           {
             "type": "number",
-            "value": 0.4321815203796559,
+            "value": 0.43218152,
             "display": "0.43"
           },
           {
             "type": "interval",
-            "lower": 0.1573912317131759,
+            "lower": 0.157391232,
             "upper": null,
             "display": "[0.16, ∞]"
           }

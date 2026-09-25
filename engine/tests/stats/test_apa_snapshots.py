@@ -21,11 +21,23 @@ SNAP = Path(__file__).parent / "snapshots"
 CASES = ["t_test.independent/basic", "t_test.paired/basic", "t_test.one_sample/greater", "descriptives/grouped"]
 
 
+def _rounded(obj):
+    """Round raw floats so snapshots are stable across BLAS/libm builds (CI vs local differ at 1e-16);
+    the formatted `display` strings are what these snapshots are really guarding."""
+    if isinstance(obj, float):
+        return round(obj, 9)
+    if isinstance(obj, dict):
+        return {k: _rounded(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_rounded(v) for v in obj]
+    return obj
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_apa_output_snapshot(case):
     res = run_fixture(load_fixture(EXPECTED / f"{case}.json"))
-    got = {"apa_sentence": res["apa_sentence"], "apa_table": res["apa_table"],
-           "plain_language_summary": res["plain_language_summary"]}
+    got = _rounded({"apa_sentence": res["apa_sentence"], "apa_table": res["apa_table"],
+                    "plain_language_summary": res["plain_language_summary"]})
     path = SNAP / (case.replace("/", "__") + ".json")
     if os.environ.get("STATLY_UPDATE_SNAPSHOTS") == "1" or not path.exists():
         SNAP.mkdir(exist_ok=True)
