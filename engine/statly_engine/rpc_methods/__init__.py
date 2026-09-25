@@ -30,6 +30,8 @@ def rpc_method(params_model, result_model):
 
 
 def session_handlers() -> dict:
-    from statly_engine.rpc_methods import dataset, project
+    from statly_engine.rpc_methods import advisor, dataset, project
+    from statly_engine.rpc_methods import variables  # Phase 2: variables/scales/items/computed/history
+    from statly_engine.rpc_methods import analysis  # Phase 3: analysis.run / analysis.list
 
-    return {**dataset.METHODS, **project.METHODS}
+    return {**dataset.METHODS, **project.METHODS, **advisor.METHODS, **variables.METHODS, **analysis.METHODS}

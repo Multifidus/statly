@@ -27,6 +27,20 @@ import type {
   ProjectSaveParams,
   ProjectSaveResult,
 } from "@/contracts";
+import type {
+  ComputedAddParams,
+  ComputedPreviewParams,
+  ComputedPreviewResult,
+  ComputedRemoveParams,
+  DatasetEditResult,
+  HistoryResult,
+  ItemsScoreParams,
+  ParseAnswerKeyResult,
+  RestoreSnapshotResult,
+  ScalesDeleteParams,
+  ScalesUpsertParams,
+  VariablesUpdateParams,
+} from "@/lib/variablesRpc";
 
 /** Anything that can answer a JSON-RPC method call. Rejects with an `EngineError`. */
 export interface Transport {
@@ -78,6 +92,19 @@ export const rpc = {
     call<ProjectRecoverableResult>("project.recoverable", p),
   discardAutosave: (p: ProjectDiscardAutosaveParams) =>
     call<OkResult>("project.discard_autosave", p),
+
+  // Phase 2: Variable Interview (docs/PROTOCOL.md "Phase 2 methods").
+  updateVariables: (p: VariablesUpdateParams) => call<DatasetEditResult>("variables.update", p),
+  upsertScale: (p: ScalesUpsertParams) => call<DatasetEditResult>("scales.upsert", p),
+  deleteScale: (p: ScalesDeleteParams) => call<DatasetEditResult>("scales.delete", p),
+  scoreItems: (p: ItemsScoreParams) => call<DatasetEditResult>("items.score", p),
+  parseAnswerKey: (p: { path: string }) => call<ParseAnswerKeyResult>("items.parse_answer_key", p),
+  previewComputed: (p: ComputedPreviewParams) => call<ComputedPreviewResult>("computed.preview", p),
+  addComputed: (p: ComputedAddParams) => call<DatasetEditResult>("computed.add", p),
+  removeComputed: (p: ComputedRemoveParams) => call<DatasetEditResult>("computed.remove", p),
+  history: (p: DatasetIdParams) => call<HistoryResult>("dataset.history", p),
+  restoreSnapshot: (p: { dataset_id: string; snapshot_id: string }) =>
+    call<RestoreSnapshotResult>("dataset.restore_snapshot", p),
 };
 
 export type Rpc = typeof rpc;

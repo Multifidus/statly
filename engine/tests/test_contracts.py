@@ -27,7 +27,7 @@ def _load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-SCHEMAS = {p.stem: _load(p) for p in sorted(CONTRACTS_DIR.glob("*.json"))}
+SCHEMAS = {p.stem: _load(p) for p in sorted(CONTRACTS_DIR.glob("*.json")) if p.stem[0].isupper()}  # PascalCase = schema; lowercase = data
 REGISTRY = Registry().with_resources(
     (s["$id"], Resource.from_contents(s)) for s in SCHEMAS.values()
 )

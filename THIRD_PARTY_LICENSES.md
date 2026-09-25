@@ -6,6 +6,10 @@ regenerate instead. Covers runtime dependencies across the Python
 
 | Ecosystem | Package | Version | License |
 |---|---|---|---|
+| js | @dnd-kit/accessibility | 3.1.1 | MIT |
+| js | @dnd-kit/core | 6.3.1 | MIT |
+| js | @dnd-kit/sortable | 10.0.0 | MIT |
+| js | @dnd-kit/utilities | 3.2.2 | MIT |
 | js | @floating-ui/core | 1.8.0 | MIT |
 | js | @floating-ui/dom | 1.8.0 | MIT |
 | js | @floating-ui/react-dom | 2.1.9 | MIT |
@@ -112,6 +116,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | python | pydantic | 2.13.5 | MIT |
 | python | pydantic_core | 2.46.5 | MIT |
 | python | python-dateutil | 2.9.0.post0 | Apache Software License; BSD License |
+| python | PyYAML | 6.0.3 | MIT License |
 | python | scipy | 1.18.1 | BSD License |
 | python | six | 1.17.0 | MIT License |
 | python | statly_engine | 0.1.0 | UNKNOWN |

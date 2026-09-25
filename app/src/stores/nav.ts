@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
-/** Top-level screens. A tiny state router: Phase 1 has only three screens. */
-export type View = "home" | "import" | "data";
+/** Top-level screens. A tiny state router. */
+export type View = "home" | "import" | "data" | "interview" | "variables";
 
 interface NavState {
   view: View;

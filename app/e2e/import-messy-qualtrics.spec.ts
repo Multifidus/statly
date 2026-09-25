@@ -40,6 +40,10 @@ test("imports the messy Qualtrics export through the wizard and reaches the data
   await expect(page.getByText("113 rows", { exact: true })).toBeVisible();
   await page.getByTestId("wizard-next").click();
 
+  // The Variable Interview starts after import; skip it to reach the data grid.
+  await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
+  await page.getByRole("button", { name: "Skip for now" }).click();
+
   // Data screen: grid + missing-data summary.
   await expect(page.getByTestId("data-title")).toBeVisible();
   await expect(page.getByTestId("data-counts")).toContainText("108 rows");

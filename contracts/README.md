@@ -60,6 +60,7 @@ data/dataset.parquet         the dataset incl. _statly_row_id (pyarrow, Apache-2
 originals/<file_id>/<name>   untouched imported files, byte-identical (sha256 in import_log)
 results/<entry_id>.json      full AnalysisResult per TestLogEntry (entry.result_path)
 autosave.json                AutosaveMarker -- present ONLY in autosave copies
+history.json                 edit-history labels [{snapshot_id, label, timestamp, current}] (Phase 2)
 ```
 - Save is atomic: write `<path>.tmp`, fsync, rename over `<path>`; then delete this
   project's autosave.
@@ -90,3 +91,20 @@ Phase 1 application errors (JSON-RPC `error.code`, `error.data.type` = short nam
 `-32001` file unreadable / unsupported format, `-32002` stale snapshot or unknown
 `preview_id`/`dataset_id`, `-32003` params fail contract validation (with `data.errors`),
 `-32004` project file incompatible (newer `schema_version` than this build supports).
+
+
+## Phase 2 RPC methods (Variable Interview)
+Params/results are engine-side pydantic models (not yet in `Rpc.json`); see `docs/PROTOCOL.md`
+"Phase 2 methods" for shapes and semantics. Mutating methods return
+`{dataset_meta, warnings}` and add one undo/redo history entry.
+
+| Method | Purpose |
+|---|---|
+| `variables.update` | Batch partial `VariableSchema` patches by name (role, level, label, question text, value-label order, reverse coding, response range, missing codes, display order) |
+| `scales.upsert` / `scales.delete` | Create/update/remove a scale and its `scale_score` computed variable (mean or sum, `min_items`) |
+| `items.score` | Answer key -> `<item>_correct` 0/1 recode variables + a `test_total` sum |
+| `items.parse_answer_key` | Read an answer-key CSV/XLSX into key entries |
+| `computed.preview` / `computed.add` / `computed.remove` | Guided-builder computed variables (difference, normalized gain, scale mean/sum, recode); preview returns the first 10 values |
+| `dataset.history` / `dataset.restore_snapshot` | Snapshot history list and undo/redo by snapshot id |
+
+`.statly` zips also contain `history.json` (edit-history labels up to the current snapshot).

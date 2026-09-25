@@ -22,6 +22,7 @@ SUPPORTED_SCHEMA_VERSION = 1
 DATA_PATH = "data/dataset.parquet"
 PROJECT_JSON = "project.json"
 AUTOSAVE_JSON = "autosave.json"
+HISTORY_JSON = "history.json"  # edit-history labels (undo/redo); data is kept for the current snapshot only
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
@@ -63,6 +64,7 @@ def write_statly(path: str, project: dict, state: DatasetState | None, marker: d
                             zf.writestr(f["stored_path"], orig[1])
                     for rpath, data in state.results.items():
                         zf.writestr(rpath, data)
+                    zf.writestr(HISTORY_JSON, json.dumps(state.history_labels(), indent=2, ensure_ascii=False))
                 if marker is not None:
                     zf.writestr(AUTOSAVE_JSON, json.dumps(marker, indent=2))
             fh.flush()
@@ -112,6 +114,13 @@ def read_statly(path: str) -> tuple[dict, DatasetState | None, dict | None]:
                     originals[f["file_id"]] = (f["name"], zf.read(f["stored_path"]))
             results = {n: zf.read(n) for n in names if n.startswith("results/")}
             state = DatasetState(meta=meta, df=df, originals=originals, results=results)
+            labels = None
+            if HISTORY_JSON in names:
+                try:
+                    labels = json.loads(zf.read(HISTORY_JSON))
+                except ValueError:
+                    labels = None  # labels are non-essential; a damaged list is dropped
+            state.load_history_labels(labels if isinstance(labels, list) else None)
     return raw, state, marker
 
 

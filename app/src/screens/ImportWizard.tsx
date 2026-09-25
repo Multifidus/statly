@@ -12,6 +12,7 @@ import { StepSummary } from "@/components/import/StepSummary";
 import { blockingReason } from "@/lib/importLogic";
 import { STEP_TITLES, stepsFor, useImportFlow, type StepId } from "@/stores/importFlow";
 import { useDatasetStore } from "@/stores/dataset";
+import { useInterview } from "@/stores/interview";
 import { useNav } from "@/stores/nav";
 
 const BODY: Record<StepId, () => React.ReactNode> = {
@@ -50,14 +51,17 @@ export function ImportWizard() {
       return;
     }
     if (s.step === "summary") {
+      // After an import the Variable Interview starts (SPEC §6); it can be skipped.
       if (done) {
-        go("data");
+        useInterview.getState().reset();
+        go("interview");
         s.reset();
         return;
       }
       const ok = await s.commit();
       if (ok && !useImportFlow.getState().result?.linkReport) {
-        go("data");
+        useInterview.getState().reset();
+        go("interview");
         s.reset();
       }
       return;
@@ -71,7 +75,7 @@ export function ImportWizard() {
   };
 
   const nextLabel =
-    s.step === "summary" ? (done ? "Go to my data" : "Import") : s.step === "files" ? "Read files" : "Continue";
+    s.step === "summary" ? (done ? "Set up variables" : "Import") : s.step === "files" ? "Read files" : "Continue";
 
   return (
     <div className="mx-auto grid w-full max-w-4xl gap-6 md:grid-cols-[13rem_1fr]">

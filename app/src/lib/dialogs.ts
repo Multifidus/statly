@@ -26,6 +26,19 @@ export async function pickImportFiles(): Promise<string[] | null> {
   return Array.isArray(res) ? res : [res];
 }
 
+/** Pick an answer-key file (CSV/Excel: question, correct answer). Resolves null if cancelled. */
+export async function pickAnswerKeyFile(): Promise<string | null> {
+  if (import.meta.env.VITE_STATLY_MOCK === "1") return (await mockRequest<string[]>("import"))?.[0] ?? null;
+  const { open } = await import("@tauri-apps/plugin-dialog");
+  const res = await open({
+    multiple: false,
+    directory: false,
+    title: "Choose your answer key",
+    filters: [{ name: "Answer key (CSV, Excel)", extensions: DATA_FILE_EXTENSIONS }],
+  });
+  return typeof res === "string" ? res : null;
+}
+
 export async function pickProjectToOpen(): Promise<string | null> {
   if (import.meta.env.VITE_STATLY_MOCK === "1") return mockRequest<string>("open");
   const { open } = await import("@tauri-apps/plugin-dialog");

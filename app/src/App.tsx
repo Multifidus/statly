@@ -9,6 +9,10 @@ import { IS_MOCK } from "@/lib/engineMode";
 import { openProject, runAutosave, saveProject, saveProjectAs } from "@/lib/projectActions";
 import { closeWindowNow, guardWindowClose } from "@/lib/window";
 import { DataScreen } from "@/screens/DataScreen";
+import { InterviewScreen } from "@/screens/InterviewScreen";
+import { VariablesScreen } from "@/screens/VariablesScreen";
+import { DatasetTabs } from "@/components/DatasetTabs";
+import { redoEdit, undoEdit } from "@/lib/variableEdits";
 import { Home } from "@/screens/Home";
 import { ImportWizard } from "@/screens/ImportWizard";
 import { useNav } from "@/stores/nav";
@@ -20,6 +24,12 @@ const MockDialogHost =
   import.meta.env.VITE_STATLY_MOCK === "1"
     ? lazy(() => import("@/mocks/MockDialogHost").then((m) => ({ default: m.MockDialogHost })))
     : null;
+
+function isTextEditing(t: EventTarget | null): boolean {
+  if (!(t instanceof HTMLElement)) return false;
+  if (t.isContentEditable || t instanceof HTMLTextAreaElement) return true;
+  return t instanceof HTMLInputElement && !["checkbox", "radio", "button", "submit"].includes(t.type);
+}
 
 function useAppEffects() {
   // Periodic crash-recovery autosave while there are unsaved changes.
@@ -52,6 +62,12 @@ function useAppEffects() {
       if (k === "s") {
         e.preventDefault();
         void (e.shiftKey ? saveProjectAs() : saveProject());
+      } else if ((k === "z" || k === "y") && !isTextEditing(e.target)) {
+        // Undo/redo dataset edits; text fields keep their own native undo.
+        const view = useNav.getState().view;
+        if (view !== "data" && view !== "variables") return;
+        e.preventDefault();
+        void (k === "y" || e.shiftKey ? redoEdit() : undoEdit());
       } else if (k === "o" && !e.shiftKey) {
         e.preventDefault();
         void openProject();
@@ -101,6 +117,7 @@ export default function App() {
       <header className="flex items-center gap-4 border-b px-4 py-2">
         <span className="text-base font-semibold tracking-tight">Statly</span>
         <ProjectMenu />
+        <DatasetTabs />
         {IS_MOCK && (
           <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-950 dark:text-amber-200">
             Mock engine
@@ -115,6 +132,8 @@ export default function App() {
           {view === "home" && <Home />}
           {view === "import" && <ImportWizard />}
           {view === "data" && <DataScreen />}
+          {view === "interview" && <InterviewScreen />}
+          {view === "variables" && <VariablesScreen />}
         </EngineStartup>
       </main>
       <UnsavedChangesDialog />

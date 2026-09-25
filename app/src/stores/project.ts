@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { ProjectFile, RecoverableAutosave } from "@/contracts";
 import { rpc } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
+import { useHistory } from "@/stores/history";
 
 export const APP_VERSION = "0.1.0";
 /** How often a dirty project is copied to the autosave dir. */
@@ -37,9 +38,11 @@ interface ProjectState {
   confirmUnsaved: (reason: string) => Promise<GuardChoice>;
   answerGuard: (c: GuardChoice) => void;
   close: () => void;
-  /** Phase 2 hooks (undo/redo); intentionally no-ops for now. */
+  /** Undo/redo of dataset edits: a pointer into the engine's snapshot history (stores/history.ts). */
   canUndo: () => boolean;
   canRedo: () => boolean;
+  undo: () => Promise<boolean>;
+  redo: () => Promise<boolean>;
 }
 
 export function makeProject(name = "Untitled project", now = new Date().toISOString()): ProjectFile {
@@ -179,6 +182,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     set({ project: null, path: null, dirty: false, recovered: false, autosave: { status: "idle", at: null, error: null } });
   },
 
-  canUndo: () => false,
-  canRedo: () => false,
+  canUndo: () => useHistory.getState().canUndo(),
+  canRedo: () => useHistory.getState().canRedo(),
+  undo: async () => {
+    const ok = await useHistory.getState().undo();
+    if (ok) get().markDirty();
+    return ok;
+  },
+  redo: async () => {
+    const ok = await useHistory.getState().redo();
+    if (ok) get().markDirty();
+    return ok;
+  },
 }));

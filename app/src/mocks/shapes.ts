@@ -417,6 +417,19 @@ function wide(): FileShape {
   };
 }
 
+/**
+ * Synthetic answer-key fixture for items.parse_answer_key: any path whose basename contains
+ * "answer_key" returns the key for the three_groups shape's Q4_1..Q4_20 test items (their
+ * `gen` picks from ["A","B","C","D"]; the key below cycles the same four letters so most, but
+ * not all, answers are observed as correct in generated data).
+ */
+export function answerKeyForPath(path: string): { item: string; correct: string[] }[] | null {
+  const name = path.split(/[\\/]/).pop()?.toLowerCase() ?? "";
+  if (!name.includes("answer_key")) return null;
+  const letters = ["A", "B", "C", "D"];
+  return Array.from({ length: 20 }, (_, i) => ({ item: `Q4_${i + 1}`, correct: [letters[i % 4]] }));
+}
+
 /** Pick the synthetic shape for a path (and optional XLSX sheet). */
 export function shapeForPath(path: string, sheet: string | null): FileShape | null {
   const name = path.split(/[\\/]/).pop()?.toLowerCase() ?? "";
