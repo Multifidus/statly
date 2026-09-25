@@ -1,0 +1,88 @@
+{
+  "analysis_id": "reliability.cohen_kappa",
+  "case": "five_linear",
+  "dataset": "agr_four5.csv",
+  "request": {
+    "variables": {
+      "raters": [
+        "r1",
+        "r2"
+      ]
+    },
+    "options": {
+      "weights": "linear"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 28,
+    "n_excluded": 2,
+    "statistics": [
+      {
+        "key": "z_linear",
+        "value": 4.46959320819511,
+        "df": [],
+        "p": 7.83685024008385e-06,
+        "term": null
+      },
+      {
+        "key": "z_unweighted",
+        "value": 1.82942260705955,
+        "df": [],
+        "p": 0.0673363234888733,
+        "term": null
+      },
+      {
+        "key": "z_quadratic",
+        "value": 4.58014834719501,
+        "df": [],
+        "p": 4.64646240971867e-06,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "kappa_linear",
+        "value": 0.611111111111111,
+        "ci_lower": 0.471209982613308,
+        "ci_upper": 0.751012239608914
+      },
+      {
+        "key": "kappa",
+        "value": 0.175122749590835,
+        "ci_lower": -0.0408884374585669,
+        "ci_upper": 0.391133936640236
+      },
+      {
+        "key": "kappa_quadratic",
+        "value": 0.84703433922997,
+        "ci_lower": 0.768307219141623,
+        "ci_upper": 0.925761459318316
+      }
+    ],
+    "observed_agreement": 0.357142857142857
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "psych::cohen.kappa (CI) + irr::kappa2 (z, p); complete pairs; observed categories",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

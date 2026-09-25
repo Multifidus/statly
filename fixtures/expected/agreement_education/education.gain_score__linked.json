@@ -1,0 +1,169 @@
+{
+  "analysis_id": "education.gain_score",
+  "case": "linked",
+  "dataset": "agr_gain_linked_long.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "time": [
+        "time"
+      ],
+      "subject_id": [
+        "id"
+      ]
+    },
+    "options": {
+      "levels": [
+        "pre",
+        "post"
+      ]
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 73,
+    "n_excluded": 15,
+    "statistics": [
+      {
+        "key": "t",
+        "value": 5.85854361293019,
+        "df": [
+          72
+        ],
+        "p": 1.29177380239353e-07,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "mean_gain",
+        "value": 5.13835616438356,
+        "ci_lower": 3.38994794503979,
+        "ci_upper": 6.88676438372733
+      },
+      {
+        "key": "d_av",
+        "value": 0.288915835751576,
+        "ci_lower": 0.192259623892609,
+        "ci_upper": 0.385572047610543
+      },
+      {
+        "key": "d_z",
+        "value": 0.685690665355913,
+        "ci_lower": 0.428561633754754,
+        "ci_upper": 0.938938301788508,
+        "effectsize_ci_lower": 0.428561633801633,
+        "effectsize_ci_upper": 0.938938293363971
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "score",
+        "group": {
+          "time": "pre"
+        },
+        "n": 73,
+        "n_missing": 0,
+        "mean": 64.5684931506849,
+        "sd": 17.0865515400622,
+        "se": 1.99982959387469,
+        "ci_lower": 60.5819057157635,
+        "ci_upper": 68.5550805856063,
+        "median": 64.1,
+        "q1": 54.9,
+        "q3": 77.7,
+        "iqr": 22.8,
+        "min": 23.3,
+        "max": 100,
+        "skewness": -0.225664050745293,
+        "kurtosis": -0.414186200999498
+      },
+      {
+        "variable": "score",
+        "group": {
+          "time": "post"
+        },
+        "n": 73,
+        "n_missing": 0,
+        "mean": 69.7068493150685,
+        "sd": 18.4569568995235,
+        "se": 2.16022340926977,
+        "ci_lower": 65.4005226528391,
+        "ci_upper": 74.0131759772979,
+        "median": 68.1,
+        "q1": 57.8,
+        "q3": 85.6,
+        "iqr": 27.8,
+        "min": 18.9,
+        "max": 100,
+        "skewness": -0.106058055289965,
+        "kurtosis": -0.4059525743989
+      },
+      {
+        "variable": "gain",
+        "group": {},
+        "n": 73,
+        "n_missing": 15,
+        "mean": 5.13835616438356,
+        "sd": 7.49369420351735,
+        "se": 0.877070566316665,
+        "ci_lower": 3.38994794503979,
+        "ci_upper": 6.88676438372733,
+        "median": 5.9,
+        "q1": 0.399999999999999,
+        "q3": 9,
+        "iqr": 8.6,
+        "min": -11.1,
+        "max": 24.9,
+        "skewness": -0.0276228589640467,
+        "kurtosis": 0.14364874384183
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "differences",
+        "n": 73,
+        "statistic": 0.984875654559301,
+        "p": 0.53252555327089,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "gain = post - pre; t.test(post, pre, paired = TRUE); d_av, d_z (effectsize)",
+  "meta": {
+    "variables": [],
+    "link": {
+      "mode": "linked",
+      "id_variable": "id",
+      "normalization": {
+        "trim_whitespace": true,
+        "case_insensitive": true
+      }
+    }
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

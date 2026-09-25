@@ -1,0 +1,66 @@
+{
+  "analysis_id": "reliability.kendall_w",
+  "case": "chance",
+  "dataset": "agr_chance.csv",
+  "request": {
+    "variables": {
+      "raters": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 50,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "chi_sq",
+        "value": 49.3288249334117,
+        "df": [
+          49
+        ],
+        "p": 0.459968412038927,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "kendall_w",
+        "value": 0.335570237642257,
+        "ci_lower": 0.237613668586463,
+        "ci_upper": 0.436644673128143
+      }
+    ],
+    "bootstrap": {
+      "seed": 12345,
+      "iterations": 2000
+    }
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "irr::kendall(correct = TRUE); CI = boot::boot over subjects (rows), R = 2000, perc",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "analysis_id": "reliability.fleiss_kappa",
+  "case": "chance",
+  "dataset": "agr_chance.csv",
+  "request": {
+    "variables": {
+      "raters": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 50,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "z",
+        "value": -0.817499048448595,
+        "df": [],
+        "p": 0.413643292852472,
+        "term": null
+      },
+      {
+        "key": "z",
+        "value": -0.123711603170868,
+        "df": [],
+        "p": 0.901543624238036,
+        "term": "1"
+      },
+      {
+        "key": "z",
+        "value": -1.8617678924226,
+        "df": [],
+        "p": 0.0626358140668704,
+        "term": "2"
+      },
+      {
+        "key": "z",
+        "value": 0.364962089188069,
+        "df": [],
+        "p": 0.715139705612367,
+        "term": "3"
+      },
+      {
+        "key": "z",
+        "value": -0.424974181962801,
+        "df": [],
+        "p": 0.670855495772896,
+        "term": "4"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "fleiss_kappa",
+        "value": -0.0388059701492539,
+        "ci_lower": -0.131843759027435,
+        "ci_upper": 0.0542318187289268
+      }
+    ],
+    "category_effects": [
+      {
+        "key": "category_kappa",
+        "value": -0.0101010101010101,
+        "ci_lower": -0.170131399312854,
+        "ci_upper": 0.149929379110834,
+        "term": "1"
+      },
+      {
+        "key": "category_kappa",
+        "value": -0.152012711864407,
+        "ci_lower": -0.31204310107625,
+        "ci_upper": 0.0080176773474368,
+        "term": "2"
+      },
+      {
+        "key": "category_kappa",
+        "value": 0.0297990297990298,
+        "ci_lower": -0.130231359412814,
+        "ci_upper": 0.189829419010873,
+        "term": "3"
+      },
+      {
+        "key": "category_kappa",
+        "value": -0.0346989966555184,
+        "ci_lower": -0.194729385867362,
+        "ci_upper": 0.125331392556325,
+        "term": "4"
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "irr::kappam.fleiss (complete cases); CI = kappa +/- z SE; per-category kappas unrounded",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "analysis_id": "reliability.icc",
+  "case": "ordinal_four_icc1",
+  "dataset": "agr_four5.csv",
+  "request": {
+    "variables": {
+      "raters": [
+        "r1",
+        "r2",
+        "r3",
+        "r4"
+      ]
+    },
+    "options": {
+      "form": "ICC1"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 27,
+    "n_excluded": 3,
+    "statistics": [
+      {
+        "key": "F_one_way",
+        "value": 32.9611063094209,
+        "df": [
+          26,
+          81
+        ],
+        "p": 6.78703215417982e-33,
+        "term": null
+      },
+      {
+        "key": "F_two_way",
+        "value": 34.9230769230769,
+        "df": [
+          26,
+          78
+        ],
+        "p": 6.50170179802792e-33,
+        "term": null
+      },
+      {
+        "key": "F_raters",
+        "value": 2.60714285714285,
+        "df": [
+          3,
+          78
+        ],
+        "p": 0.0575374363689041,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "icc1",
+        "value": 0.888768716802461,
+        "ci_lower": 0.812986548935656,
+        "ci_upper": 0.941666276570647
+      },
+      {
+        "key": "icc2",
+        "value": 0.888942215396429,
+        "ci_lower": 0.812267439662673,
+        "ci_upper": 0.941932115694956
+      },
+      {
+        "key": "icc3",
+        "value": 0.894523326572008,
+        "ci_lower": 0.821488046427061,
+        "ci_upper": 0.944915372637766
+      },
+      {
+        "key": "icc1k",
+        "value": 0.969661212502622,
+        "ci_lower": 0.94561917839368,
+        "ci_upper": 0.984749348685749
+      },
+      {
+        "key": "icc2k",
+        "value": 0.969712834742546,
+        "ci_lower": 0.945375804916063,
+        "ci_upper": 0.984822013762105
+      },
+      {
+        "key": "icc3k",
+        "value": 0.97136563876652,
+        "ci_lower": 0.948473430118986,
+        "ci_upper": 0.985635391322279
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "r1",
+        "group": {},
+        "n": 27,
+        "n_missing": 0,
+        "mean": 2.88888888888889,
+        "sd": 1.57707941689044,
+        "se": 0.303509075291704,
+        "ci_lower": 2.26501704973151,
+        "ci_upper": 3.51276072804626,
+        "median": 3,
+        "q1": 1.5,
+        "q3": 4.5,
+        "iqr": 3,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.196892724990207,
+        "kurtosis": -1.52750345413965
+      },
+      {
+        "variable": "r2",
+        "group": {},
+        "n": 27,
+        "n_missing": 0,
+        "mean": 2.55555555555556,
+        "sd": 1.62512326948624,
+        "se": 0.312755119034735,
+        "ci_lower": 1.9126782012934,
+        "ci_upper": 3.19843290981771,
+        "median": 2,
+        "q1": 1,
+        "q3": 4,
+        "iqr": 3,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.444477111767487,
+        "kurtosis": -1.53735507587897
+      },
+      {
+        "variable": "r3",
+        "group": {},
+        "n": 27,
+        "n_missing": 0,
+        "mean": 2.7037037037037,
+        "sd": 1.539600717839,
+        "se": 0.296296296296296,
+        "ci_lower": 2.09465794410582,
+        "ci_upper": 3.31274946330159,
+        "median": 2,
+        "q1": 1,
+        "q3": 4,
+        "iqr": 3,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.33559525292565,
+        "kurtosis": -1.46287184495192
+      },
+      {
+        "variable": "r4",
+        "group": {},
+        "n": 27,
+        "n_missing": 0,
+        "mean": 2.55555555555556,
+        "sd": 1.52752523165195,
+        "se": 0.293972367896066,
+        "ci_lower": 1.95128669919764,
+        "ci_upper": 3.15982441191347,
+        "median": 2,
+        "q1": 1,
+        "q3": 4,
+        "iqr": 3,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.55077236296047,
+        "kurtosis": -1.19868131868132
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "psych::ICC(lmer = FALSE) on complete cases; headline = options.form (default ICC2)",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

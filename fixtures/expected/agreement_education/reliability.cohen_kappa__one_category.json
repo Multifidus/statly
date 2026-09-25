@@ -1,0 +1,39 @@
+{
+  "analysis_id": "reliability.cohen_kappa",
+  "case": "one_category",
+  "dataset": "agr_one_category.csv",
+  "request": {
+    "variables": {
+      "raters": [
+        "rater1",
+        "rater2"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": null,
+  "error": "Your data seem to have no variance and in complete agreement across raters (psych: kappa NA)",
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "psych::cohen.kappa",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

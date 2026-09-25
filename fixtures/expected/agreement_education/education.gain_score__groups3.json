@@ -1,0 +1,325 @@
+{
+  "analysis_id": "education.gain_score",
+  "case": "groups3",
+  "dataset": "agr_gain_groups3.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "pre",
+        "post"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 28,
+    "n_excluded": 2,
+    "statistics": [
+      {
+        "key": "welch_F",
+        "value": 2.33472083933045,
+        "df": [
+          2,
+          15.7261250510482
+        ],
+        "p": 0.129464215251511,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 4.71997306087273,
+        "df": [
+          8
+        ],
+        "p": 0.00150221709140925,
+        "term": "Control"
+      },
+      {
+        "key": "t",
+        "value": 4.30817958203392,
+        "df": [
+          10
+        ],
+        "p": 0.00154148387366765,
+        "term": "Online"
+      },
+      {
+        "key": "t",
+        "value": 5.88281196669705,
+        "df": [
+          7
+        ],
+        "p": 0.000609980018374573,
+        "term": "Tutoring"
+      }
+    ],
+    "effect_sizes": [],
+    "group_effects": [
+      {
+        "key": "mean_gain",
+        "value": 3.22222222222222,
+        "ci_lower": 1.64796370990408,
+        "ci_upper": 4.79648073454036,
+        "term": "Control"
+      },
+      {
+        "key": "mean_gain",
+        "value": 3.45454545454545,
+        "ci_lower": 1.66789594361875,
+        "ci_upper": 5.24119496547216,
+        "term": "Online"
+      },
+      {
+        "key": "mean_gain",
+        "value": 5.75,
+        "ci_lower": 3.43876015014085,
+        "ci_upper": 8.06123984985915,
+        "term": "Tutoring"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Control"
+        },
+        "n": 9,
+        "n_missing": 0,
+        "mean": 6.22222222222222,
+        "sd": 4.54911468798539,
+        "se": 1.5163715626618,
+        "ci_lower": 2.72546312821811,
+        "ci_upper": 9.71898131622633,
+        "median": 7,
+        "q1": 2,
+        "q3": 8,
+        "iqr": 6,
+        "min": 0,
+        "max": 13,
+        "skewness": 0.193815170763954,
+        "kurtosis": -1.19146756581106
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Control"
+        },
+        "n": 9,
+        "n_missing": 1,
+        "mean": 9.44444444444444,
+        "sd": 6.2271805640898,
+        "se": 2.0757268546966,
+        "ci_lower": 4.65780973395975,
+        "ci_upper": 14.2310791549291,
+        "median": 13,
+        "q1": 4,
+        "q3": 13,
+        "iqr": 9,
+        "min": 0,
+        "max": 17,
+        "skewness": -0.309094152719156,
+        "kurtosis": -1.6704700993541
+      },
+      {
+        "variable": "gain",
+        "group": {
+          "group": "Control"
+        },
+        "n": 9,
+        "n_missing": 1,
+        "mean": 3.22222222222222,
+        "sd": 2.04803428790742,
+        "se": 0.682678095969139,
+        "ci_lower": 1.64796370990408,
+        "ci_upper": 4.79648073454036,
+        "median": 4,
+        "q1": 2,
+        "q3": 5,
+        "iqr": 3,
+        "min": 0,
+        "max": 6,
+        "skewness": -0.27069822337175,
+        "kurtosis": -1.26919245396505
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Online"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 8.81818181818182,
+        "sd": 4.6865377800287,
+        "se": 1.41304430747094,
+        "ci_lower": 5.66972289712777,
+        "ci_upper": 11.9666407392359,
+        "median": 7,
+        "q1": 5.5,
+        "q3": 12,
+        "iqr": 6.5,
+        "min": 3,
+        "max": 17,
+        "skewness": 0.624410735742183,
+        "kurtosis": -0.880481530415333
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Online"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 12.2727272727273,
+        "sd": 5.78084611611327,
+        "se": 1.74299068526645,
+        "ci_lower": 8.38910200823491,
+        "ci_upper": 16.1563525372196,
+        "median": 12,
+        "q1": 10,
+        "q3": 16.5,
+        "iqr": 6.5,
+        "min": 1,
+        "max": 20,
+        "skewness": -0.395192741047059,
+        "kurtosis": 0.0318449466645987
+      },
+      {
+        "variable": "gain",
+        "group": {
+          "group": "Online"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 3.45454545454545,
+        "sd": 2.65945995885016,
+        "se": 0.801857348043635,
+        "ci_lower": 1.66789594361875,
+        "ci_upper": 5.24119496547216,
+        "median": 3,
+        "q1": 2,
+        "q3": 5.5,
+        "iqr": 3.5,
+        "min": -2,
+        "max": 7,
+        "skewness": -0.639904158059583,
+        "kurtosis": 0.172282763132677
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Tutoring"
+        },
+        "n": 8,
+        "n_missing": 0,
+        "mean": 9.25,
+        "sd": 1.83225076262581,
+        "se": 0.647798469543466,
+        "ci_lower": 7.71820002877283,
+        "ci_upper": 10.7817999712272,
+        "median": 8.5,
+        "q1": 8,
+        "q3": 11,
+        "iqr": 3,
+        "min": 7,
+        "max": 12,
+        "skewness": 0.441266367459,
+        "kurtosis": -1.5869624264373
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Tutoring"
+        },
+        "n": 8,
+        "n_missing": 1,
+        "mean": 15,
+        "sd": 3.81725406168211,
+        "se": 1.34960311626366,
+        "ci_lower": 11.8086957412578,
+        "ci_upper": 18.1913042587422,
+        "median": 16,
+        "q1": 11,
+        "q3": 18.25,
+        "iqr": 7.25,
+        "min": 10,
+        "max": 19,
+        "skewness": -0.30819813646799,
+        "kurtosis": -2.08062283737024
+      },
+      {
+        "variable": "gain",
+        "group": {
+          "group": "Tutoring"
+        },
+        "n": 8,
+        "n_missing": 1,
+        "mean": 5.75,
+        "sd": 2.76457178290909,
+        "se": 0.977423727386001,
+        "ci_lower": 3.43876015014085,
+        "ci_upper": 8.06123984985915,
+        "median": 5.5,
+        "q1": 3.75,
+        "q3": 8,
+        "iqr": 4.25,
+        "min": 2,
+        "max": 10,
+        "skewness": 0.18255011510868,
+        "kurtosis": -1.13085859026989
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 9,
+        "statistic": 0.939190777963692,
+        "p": 0.573406490403436,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Online",
+        "n": 11,
+        "statistic": 0.944019792466979,
+        "p": 0.568841115573984,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Tutoring",
+        "n": 8,
+        "statistic": 0.963307487536501,
+        "p": 0.840952527888799,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "grouped gains: per-group paired t; Welch t (2 groups, Hedges' g) or Welch F (3+) on the gains",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "analysis_id": "education.normalized_gain",
+  "case": "groups3",
+  "dataset": "agr_gain_groups3.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "pre",
+        "post"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {
+      "max_score": 20
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 28,
+    "n_excluded": 2,
+    "statistics": [],
+    "effect_sizes": [
+      {
+        "key": "g_class",
+        "value": 0.339339339339339,
+        "ci_lower": 0.240999716500392,
+        "ci_upper": 0.455758277605247
+      },
+      {
+        "key": "g_individual",
+        "value": 0.415369720149132,
+        "ci_lower": 0.308433965547078,
+        "ci_upper": 0.532995864157302
+      },
+      {
+        "key": "normalized_change",
+        "value": 0.410419724308613,
+        "ci_lower": 0.28280996768933,
+        "ci_upper": 0.538563004623406
+      }
+    ],
+    "group_effects": [
+      {
+        "key": "g_class",
+        "value": 0.233870967741935,
+        "ci_lower": 0.12163877348389,
+        "ci_upper": 0.391741280396024,
+        "term": "Control"
+      },
+      {
+        "key": "g_individual",
+        "value": 0.29532967032967,
+        "ci_lower": 0.162260914860463,
+        "ci_upper": 0.425394660753729,
+        "term": "Control"
+      },
+      {
+        "key": "normalized_change",
+        "value": 0.332245879120879,
+        "ci_lower": 0.203721654869281,
+        "ci_upper": 0.45764652014652,
+        "term": "Control"
+      },
+      {
+        "key": "g_class",
+        "value": 0.308943089430894,
+        "ci_lower": 0.15388545234377,
+        "ci_upper": 0.490900444790233,
+        "term": "Online"
+      },
+      {
+        "key": "g_individual",
+        "value": 0.406041863662184,
+        "ci_lower": 0.21213547605232,
+        "ci_upper": 0.618951123433333,
+        "term": "Online"
+      },
+      {
+        "key": "normalized_change",
+        "value": 0.356130990221899,
+        "ci_lower": 0.0764792931123976,
+        "ci_upper": 0.610686820491267,
+        "term": "Online"
+      },
+      {
+        "key": "g_class",
+        "value": 0.534883720930233,
+        "ci_lower": 0.351648351648352,
+        "ci_upper": 0.74025974025974,
+        "term": "Tutoring"
+      },
+      {
+        "key": "g_individual",
+        "value": 0.563240578865579,
+        "ci_lower": 0.372481479161839,
+        "ci_upper": 0.752469958289598,
+        "term": "Tutoring"
+      },
+      {
+        "key": "normalized_change",
+        "value": 0.563240578865579,
+        "ci_lower": 0.372481479161839,
+        "ci_upper": 0.752469958289598,
+        "term": "Tutoring"
+      }
+    ],
+    "n_g_excluded": 0,
+    "bootstrap": {
+      "seed": 12345,
+      "iterations": 2000
+    }
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "overall + per-group normalized gains; set.seed(12345) before every boot",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

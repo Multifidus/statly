@@ -1,0 +1,103 @@
+{
+  "analysis_id": "reliability.fleiss_kappa",
+  "case": "two3",
+  "dataset": "agr_two3.csv",
+  "request": {
+    "variables": {
+      "raters": [
+        "rater1",
+        "rater2"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 37,
+    "n_excluded": 3,
+    "statistics": [
+      {
+        "key": "z",
+        "value": 4.26329107292577,
+        "df": [],
+        "p": 2.01437843387886e-05,
+        "term": null
+      },
+      {
+        "key": "z",
+        "value": 2.04082889792046,
+        "df": [],
+        "p": 0.0412678371250477,
+        "term": "1"
+      },
+      {
+        "key": "z",
+        "value": 3.04366287149956,
+        "df": [],
+        "p": 0.00233716889993296,
+        "term": "2"
+      },
+      {
+        "key": "z",
+        "value": 4.29655448568684,
+        "df": [],
+        "p": 1.73473344404762e-05,
+        "term": "3"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "fleiss_kappa",
+        "value": 0.501962983735277,
+        "ci_lower": 0.271195402337595,
+        "ci_upper": 0.732730565132959
+      }
+    ],
+    "category_effects": [
+      {
+        "key": "category_kappa",
+        "value": 0.335510204081633,
+        "ci_lower": 0.013294109868275,
+        "ci_upper": 0.657726298294991,
+        "term": "1"
+      },
+      {
+        "key": "category_kappa",
+        "value": 0.500375093773443,
+        "ci_lower": 0.178158999560086,
+        "ci_upper": 0.822591187986801,
+        "term": "2"
+      },
+      {
+        "key": "category_kappa",
+        "value": 0.706349206349206,
+        "ci_lower": 0.384133112135849,
+        "ci_upper": 1,
+        "term": "3"
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "irr::kappam.fleiss (complete cases); CI = kappa +/- z SE; per-category kappas unrounded",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

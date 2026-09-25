@@ -1,0 +1,252 @@
+{
+  "analysis_id": "education.gain_score",
+  "case": "groups2",
+  "dataset": "agr_gain_groups2.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "pre",
+        "post"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 24,
+    "n_excluded": 2,
+    "statistics": [
+      {
+        "key": "welch_t",
+        "value": -2.79484266298407,
+        "df": [
+          18.8440813279307
+        ],
+        "p": 0.0116142098393481,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 3.67423461417477,
+        "df": [
+          12
+        ],
+        "p": 0.00318221437694122,
+        "term": "A"
+      },
+      {
+        "key": "t",
+        "value": 11.9319055632523,
+        "df": [
+          10
+        ],
+        "p": 3.08195696084625e-07,
+        "term": "B"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "gain_difference",
+        "value": -2.63636363636364,
+        "ci_lower": -4.6118109013164,
+        "ci_upper": -0.660916371410877
+      },
+      {
+        "key": "hedges_g",
+        "value": -1.05297576143931,
+        "ci_lower": -1.87730784878078,
+        "ci_upper": -0.20804155326133,
+        "effectsize_ci_lower": -1.87730781923367,
+        "effectsize_ci_upper": -0.208041534029527
+      }
+    ],
+    "group_effects": [
+      {
+        "key": "mean_gain",
+        "value": 3,
+        "ci_lower": 1.22100677409524,
+        "ci_upper": 4.77899322590476,
+        "term": "A"
+      },
+      {
+        "key": "mean_gain",
+        "value": 5.63636363636364,
+        "ci_lower": 4.58384099146589,
+        "ci_upper": 6.68888628126139,
+        "term": "B"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "pre",
+        "group": {
+          "group": "A"
+        },
+        "n": 13,
+        "n_missing": 1,
+        "mean": 10.8461538461538,
+        "sd": 3.36269122990683,
+        "se": 0.932642742537088,
+        "ci_lower": 8.81409987321801,
+        "ci_upper": 12.8782078190897,
+        "median": 11,
+        "q1": 9,
+        "q3": 14,
+        "iqr": 5,
+        "min": 4,
+        "max": 15,
+        "skewness": -0.511083117988902,
+        "kurtosis": -0.347998939835673
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "A"
+        },
+        "n": 13,
+        "n_missing": 0,
+        "mean": 13.8461538461538,
+        "sd": 4.70542512861757,
+        "se": 1.30505012108364,
+        "ci_lower": 11.002693898978,
+        "ci_upper": 16.6896137933297,
+        "median": 14,
+        "q1": 13,
+        "q3": 17,
+        "iqr": 4,
+        "min": 2,
+        "max": 20,
+        "skewness": -1.28687030810614,
+        "kurtosis": 2.41182475433676
+      },
+      {
+        "variable": "gain",
+        "group": {
+          "group": "A"
+        },
+        "n": 13,
+        "n_missing": 1,
+        "mean": 3,
+        "sd": 2.94392028877595,
+        "se": 0.816496580927726,
+        "ci_lower": 1.22100677409524,
+        "ci_upper": 4.77899322590476,
+        "median": 4,
+        "q1": 1,
+        "q3": 5,
+        "iqr": 4,
+        "min": -2,
+        "max": 6,
+        "skewness": -0.694806361861457,
+        "kurtosis": -0.916783216783216
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "B"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 10.6363636363636,
+        "sd": 3.77551922979416,
+        "se": 1.13836187945444,
+        "ci_lower": 8.09993530513109,
+        "ci_upper": 13.1727919675962,
+        "median": 10,
+        "q1": 8,
+        "q3": 13.5,
+        "iqr": 5.5,
+        "min": 5,
+        "max": 16,
+        "skewness": -0.0771394552305113,
+        "kurtosis": -1.4225978975774
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "B"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 16.2727272727273,
+        "sd": 3.74408624609287,
+        "se": 1.12888447827457,
+        "ci_lower": 13.7574159072794,
+        "ci_upper": 18.7880386381751,
+        "median": 17,
+        "q1": 14.5,
+        "q3": 19.5,
+        "iqr": 5,
+        "min": 9,
+        "max": 20,
+        "skewness": -0.847452588680883,
+        "kurtosis": -0.207808680760579
+      },
+      {
+        "variable": "gain",
+        "group": {
+          "group": "B"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 5.63636363636364,
+        "sd": 1.56669890360128,
+        "se": 0.47237749297333,
+        "ci_lower": 4.58384099146589,
+        "ci_upper": 6.68888628126139,
+        "median": 5,
+        "q1": 4.5,
+        "q3": 6.5,
+        "iqr": 2,
+        "min": 4,
+        "max": 9,
+        "skewness": 0.931422914706165,
+        "kurtosis": 0.60960219478738
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "A",
+        "n": 13,
+        "statistic": 0.870479951128739,
+        "p": 0.0530840050089757,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "B",
+        "n": 11,
+        "statistic": 0.894499157165072,
+        "p": 0.158189175302369,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "psych": "2.6.5",
+    "irr": "0.85",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "grouped gains: per-group paired t; Welch t (2 groups, Hedges' g) or Welch F (3+) on the gains",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
