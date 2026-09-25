@@ -1,0 +1,116 @@
+{
+  "dataset": "messy_qualtrics",
+  "files": {
+    "messy_3header.csv": {
+      "encoding": "utf-8-sig",
+      "delimiter": ",",
+      "header_rows": 3
+    },
+    "messy_2header.csv": {
+      "encoding": "utf-8",
+      "delimiter": ",",
+      "header_rows": 2
+    },
+    "messy_utf16.csv": {
+      "encoding": "utf-16",
+      "delimiter": "\t",
+      "header_rows": 3
+    },
+    "messy_text_choices.csv": {
+      "encoding": "utf-8",
+      "delimiter": ",",
+      "header_rows": 3,
+      "note": "Q5_1..Q5_6 and Q6 use text choice labels"
+    },
+    "messy.xlsx": {
+      "sheets": [
+        "Notes",
+        "Data"
+      ],
+      "data_sheet": "Data",
+      "header_rows": 3
+    }
+  },
+  "n_rows_total": 113,
+  "n_survey_preview": 3,
+  "n_spam": 2,
+  "n_valid_after_status_filter": 108,
+  "n_unfinished": 8,
+  "pii_columns": [
+    "IPAddress",
+    "RecipientFirstName",
+    "RecipientLastName",
+    "RecipientEmail",
+    "LocationLatitude",
+    "LocationLongitude"
+  ],
+  "pii_lookalike_columns": [
+    "Q9"
+  ],
+  "matrix_block": {
+    "columns": [
+      "Q5_1",
+      "Q5_2",
+      "Q5_3",
+      "Q5_4",
+      "Q5_5",
+      "Q5_6"
+    ],
+    "reverse_worded_items": [
+      "Q5_4"
+    ]
+  },
+  "multiselect_column": "Q7",
+  "multiselect_options": [
+    "Textbook",
+    "Online videos",
+    "Study group",
+    "Tutor",
+    "Practice problems",
+    "Office hours",
+    "Flashcards",
+    "Other"
+  ],
+  "multiselect_other_text_column": "Q7_8_TEXT",
+  "timing_columns": [
+    "Q1_First Click",
+    "Q1_Last Click",
+    "Q1_Page Submit",
+    "Q1_Click Count"
+  ],
+  "score_column": "SC0",
+  "q6_recode_values": [
+    1,
+    2,
+    4,
+    5,
+    7
+  ],
+  "missing_code": -99,
+  "n_missing_code_cells": 21,
+  "open_ended_columns": [
+    "Q9",
+    "Q10"
+  ],
+  "duplicate_identity": {
+    "first_name": "Jordan",
+    "last_name": "Reyes",
+    "email": "jordan.reyes@example.edu",
+    "n_rows_sharing_identity": 2
+  },
+  "gotchas": [
+    "3 'Survey Preview' and 2 'Spam' rows in Status, to be excluded by the row filter.",
+    "6 unfinished responses (Progress < 100) among the valid rows.",
+    "PII populated: IPAddress, Recipient first/last/email, lat/long.",
+    "Q9 (open text) contains email-look-alike strings though not flagged as a PII column.",
+    "Q5_1..Q5_6 matrix with Q5_4 reverse-worded.",
+    "Q7 multi-select comma-separated with Q7_8_TEXT 'Other, please specify'.",
+    "Q1_First/Last Click, Q1_Page Submit, Q1_Click Count are timing metadata.",
+    "SC0 is a scored-test total column.",
+    "Q6 uses non-contiguous Qualtrics recode values {1,2,4,5,7}, not 1-5.",
+    "-99 used as a missing-value code in Q5_* and Q6.",
+    "Q10 is multi-line free text containing commas and quotes (CSV-quoting test).",
+    "Two respondents share identical first/last name and email (not duplicate ResponseIds).",
+    "Same underlying data across messy_3header/2header/utf16/text_choices/xlsx so parsers can be cross-checked for identical row/col counts."
+  ]
+}

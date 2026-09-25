@@ -1,0 +1,482 @@
+{
+  "schema_version": 1,
+  "dataset_id": "ds_7f3a",
+  "snapshot_id": "snap_9c21e4",
+  "n_rows": 84,
+  "row_id_column": "_statly_row_id",
+  "variables": [
+    {
+      "schema_version": 1,
+      "name": "ResponseId",
+      "label": "Response ID",
+      "question_text": null,
+      "role": "identifier",
+      "level": "nominal",
+      "dtype": "string",
+      "value_labels": [],
+      "reverse_coded": false,
+      "response_range": null,
+      "scale_id": null,
+      "missing_codes": [],
+      "sources": [
+        {
+          "file_id": "file_pre",
+          "original_column_name": "ResponseId",
+          "qualtrics_import_id": "_recordId",
+          "header_texts": [
+            "ResponseId",
+            "Response ID",
+            "{\"ImportId\":\"_recordId\"}"
+          ]
+        }
+      ],
+      "is_metadata": true,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": null,
+      "display_order": 0
+    },
+    {
+      "schema_version": 1,
+      "name": "IPAddress",
+      "label": "IP Address",
+      "question_text": null,
+      "role": "ignore",
+      "level": "nominal",
+      "dtype": "string",
+      "value_labels": [],
+      "reverse_coded": false,
+      "response_range": null,
+      "scale_id": null,
+      "missing_codes": [],
+      "sources": [
+        {
+          "file_id": "file_pre",
+          "original_column_name": "IPAddress",
+          "qualtrics_import_id": "ipAddress",
+          "header_texts": [
+            "IPAddress",
+            "IP Address",
+            "{\"ImportId\":\"ipAddress\"}"
+          ]
+        }
+      ],
+      "is_metadata": true,
+      "is_pii": true,
+      "pii_reason": {
+        "kind": "ip_address",
+        "explanation": "IP addresses can identify a student's location or device."
+      },
+      "computed": null,
+      "display_order": 1
+    },
+    {
+      "schema_version": 1,
+      "name": "student_code",
+      "label": "Self-generated ID",
+      "question_text": "Enter your student code",
+      "role": "identifier",
+      "level": "nominal",
+      "dtype": "string",
+      "value_labels": [],
+      "reverse_coded": false,
+      "response_range": null,
+      "scale_id": null,
+      "missing_codes": [],
+      "sources": [
+        {
+          "file_id": "file_pre",
+          "original_column_name": "Q2",
+          "qualtrics_import_id": "QID2",
+          "header_texts": [
+            "Q2",
+            "Enter your student code",
+            "{\"ImportId\":\"QID2\"}"
+          ]
+        }
+      ],
+      "is_metadata": false,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": null,
+      "display_order": 2
+    },
+    {
+      "schema_version": 1,
+      "name": "Time",
+      "label": "Time point",
+      "question_text": null,
+      "role": "time",
+      "level": "ordinal",
+      "dtype": "string",
+      "value_labels": [
+        {
+          "value": "Pre",
+          "label": "Pre"
+        },
+        {
+          "value": "Post",
+          "label": "Post"
+        }
+      ],
+      "reverse_coded": false,
+      "response_range": null,
+      "scale_id": null,
+      "missing_codes": [],
+      "sources": [],
+      "is_metadata": false,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": null,
+      "display_order": 3
+    },
+    {
+      "schema_version": 1,
+      "name": "Q5_1",
+      "label": "I enjoy math",
+      "question_text": null,
+      "role": "likert_item",
+      "level": "ordinal",
+      "dtype": "integer",
+      "value_labels": [
+        {
+          "value": 1,
+          "label": "Strongly disagree"
+        },
+        {
+          "value": 2,
+          "label": "Disagree"
+        },
+        {
+          "value": 3,
+          "label": "Neutral"
+        },
+        {
+          "value": 4,
+          "label": "Agree"
+        },
+        {
+          "value": 5,
+          "label": "Strongly agree"
+        }
+      ],
+      "reverse_coded": false,
+      "response_range": {
+        "min": 1,
+        "max": 5
+      },
+      "scale_id": "scale_math_attitude",
+      "missing_codes": [],
+      "sources": [
+        {
+          "file_id": "file_pre",
+          "original_column_name": "Q5_1",
+          "qualtrics_import_id": "QID5_1",
+          "header_texts": [
+            "Q5_1",
+            "How much do you agree? - I enjoy math",
+            "{\"ImportId\":\"QID5_1\"}"
+          ]
+        }
+      ],
+      "is_metadata": false,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": null,
+      "display_order": 4
+    },
+    {
+      "schema_version": 1,
+      "name": "Q5_2",
+      "label": "Math is boring",
+      "question_text": "How much do you agree? - Math is boring",
+      "role": "likert_item",
+      "level": "ordinal",
+      "dtype": "integer",
+      "value_labels": [
+        {
+          "value": 1,
+          "label": "Strongly disagree"
+        },
+        {
+          "value": 2,
+          "label": "Disagree"
+        },
+        {
+          "value": 3,
+          "label": "Neutral"
+        },
+        {
+          "value": 4,
+          "label": "Agree"
+        },
+        {
+          "value": 5,
+          "label": "Strongly agree"
+        }
+      ],
+      "reverse_coded": true,
+      "response_range": {
+        "min": 1,
+        "max": 5
+      },
+      "scale_id": "scale_math_attitude",
+      "missing_codes": [
+        -99
+      ],
+      "sources": [
+        {
+          "file_id": "file_pre",
+          "original_column_name": "Q5_2",
+          "qualtrics_import_id": "QID5_2",
+          "header_texts": [
+            "Q5_2",
+            "How much do you agree? - Math is boring",
+            "{\"ImportId\":\"QID5_2\"}"
+          ]
+        },
+        {
+          "file_id": "file_post",
+          "original_column_name": "Q5_2",
+          "qualtrics_import_id": "QID5_2",
+          "header_texts": [
+            "Q5_2",
+            "How much do you agree? - Math is boring",
+            "{\"ImportId\":\"QID5_2\"}"
+          ]
+        }
+      ],
+      "is_metadata": false,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": null,
+      "display_order": 5
+    },
+    {
+      "schema_version": 1,
+      "name": "math_attitude",
+      "label": "Math attitude (scale mean)",
+      "question_text": null,
+      "role": "scale_score",
+      "level": "continuous",
+      "dtype": "float",
+      "value_labels": [],
+      "reverse_coded": false,
+      "response_range": null,
+      "scale_id": null,
+      "missing_codes": [],
+      "sources": [],
+      "is_metadata": false,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": {
+        "op": "scale_mean",
+        "items": [
+          "Q5_1",
+          "Q5_2"
+        ],
+        "min_items": 2,
+        "scale_id": "scale_math_attitude"
+      },
+      "display_order": 6
+    },
+    {
+      "schema_version": 1,
+      "name": "score_gain",
+      "label": "Test gain (post - pre)",
+      "question_text": null,
+      "role": "test_total",
+      "level": "continuous",
+      "dtype": "float",
+      "value_labels": [],
+      "reverse_coded": false,
+      "response_range": null,
+      "scale_id": null,
+      "missing_codes": [],
+      "sources": [],
+      "is_metadata": false,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": {
+        "op": "difference",
+        "minuend": {
+          "variable": "SC0",
+          "time_level": "Post"
+        },
+        "subtrahend": {
+          "variable": "SC0",
+          "time_level": "Pre"
+        }
+      },
+      "display_order": 7
+    },
+    {
+      "schema_version": 1,
+      "name": "SC0_band",
+      "label": "Score band",
+      "question_text": null,
+      "role": "group",
+      "level": "ordinal",
+      "dtype": "string",
+      "value_labels": [],
+      "reverse_coded": false,
+      "response_range": null,
+      "scale_id": null,
+      "missing_codes": [],
+      "sources": [],
+      "is_metadata": false,
+      "is_pii": false,
+      "pii_reason": null,
+      "computed": {
+        "op": "recode",
+        "source": "SC0",
+        "rules": [
+          {
+            "from_values": null,
+            "from_range": {
+              "min": 0,
+              "max": 5
+            },
+            "to": "Low"
+          },
+          {
+            "from_values": null,
+            "from_range": {
+              "min": 6,
+              "max": 10
+            },
+            "to": "High"
+          }
+        ],
+        "unmatched": "missing"
+      },
+      "display_order": 8
+    }
+  ],
+  "scales": [
+    {
+      "id": "scale_math_attitude",
+      "name": "Math attitude",
+      "items": [
+        "Q5_1",
+        "Q5_2"
+      ],
+      "scoring_method": "mean",
+      "min_items": 2,
+      "score_variable": "math_attitude",
+      "origin": "matrix_suggestion"
+    }
+  ],
+  "import_log": {
+    "files": [
+      {
+        "file_id": "file_pre",
+        "name": "Pre survey.csv",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size_bytes": 20480,
+        "format": "csv",
+        "encoding": "utf-16-le",
+        "delimiter": "\t",
+        "sheet_name": null,
+        "qualtrics": {
+          "detected": true,
+          "confirmed": true,
+          "header_rows": 3
+        },
+        "time_label": "Pre",
+        "n_rows_read": 47,
+        "n_rows_kept": 44,
+        "stored_path": "originals/file_pre/Pre survey.csv",
+        "imported_at": "2026-09-24T21:00:00Z"
+      },
+      {
+        "file_id": "file_post",
+        "name": "Post survey.xlsx",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "size_bytes": 30100,
+        "format": "xlsx",
+        "encoding": null,
+        "delimiter": null,
+        "sheet_name": "Sheet1",
+        "qualtrics": {
+          "detected": true,
+          "confirmed": true,
+          "header_rows": 2
+        },
+        "time_label": "Post",
+        "n_rows_read": 41,
+        "n_rows_kept": 40,
+        "stored_path": "originals/file_post/Post survey.xlsx",
+        "imported_at": "2026-09-24T21:00:00Z"
+      }
+    ],
+    "row_filters": [
+      {
+        "id": "rf1",
+        "kind": "exclude_values",
+        "file_id": null,
+        "variable": "Status",
+        "values": [
+          "Survey Preview",
+          "Spam"
+        ],
+        "threshold": null,
+        "explanation": "Preview and spam responses are not real students.",
+        "rows_removed": 3
+      },
+      {
+        "id": "rf2",
+        "kind": "progress_below",
+        "file_id": null,
+        "variable": "Progress",
+        "values": null,
+        "threshold": 80,
+        "explanation": "Responses less than 80% complete were left out.",
+        "rows_removed": 1
+      }
+    ],
+    "dropped_columns": [
+      {
+        "file_id": "file_pre",
+        "column": "RecipientEmail",
+        "reason": "pii"
+      }
+    ]
+  },
+  "stacking": {
+    "time_variable": "Time",
+    "levels": [
+      {
+        "file_id": "file_pre",
+        "label": "Pre"
+      },
+      {
+        "file_id": "file_post",
+        "label": "Post"
+      }
+    ]
+  },
+  "link": {
+    "mode": "linked",
+    "id_variable": "student_code",
+    "normalization": {
+      "trim_whitespace": true,
+      "case_insensitive": true
+    },
+    "counts": {
+      "matched": 36,
+      "unmatched": 10,
+      "duplicate": 1
+    }
+  },
+  "missing_summary": [
+    {
+      "variable": "Q5_1",
+      "n_total": 84,
+      "n_valid": 80,
+      "n_missing_blank": 3,
+      "n_missing_coded": 1,
+      "pct_missing": 4.76
+    }
+  ]
+}

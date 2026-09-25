@@ -1,0 +1,32 @@
+{
+  "dataset": "linked_id_prepost",
+  "id_column": "Q1",
+  "outcome_column": "Q4",
+  "n_pre_rows": 80,
+  "n_pre_unique_ids": 80,
+  "n_post_rows": 81,
+  "n_post_unique_ids_after_normalization": 79,
+  "n_matched_after_normalization": 75,
+  "n_pre_only": 5,
+  "n_post_only": 4,
+  "n_duplicated_ids_in_post": 2,
+  "duplicated_ids": [
+    "UN02",
+    "YX15"
+  ],
+  "id_normalization_needed": true,
+  "id_normalization_note": "post.csv IDs vary in case and have leading/trailing whitespace/tabs relative to pre.csv; must be trimmed and case-folded before matching (SPEC 5.4).",
+  "true_design": {
+    "pre_mean_target": 65,
+    "pre_sd_target": 15,
+    "post_gain_mean_target": 5,
+    "post_gain_sd_target": 8
+  },
+  "gotchas": [
+    "post.csv has more physical rows (81) than unique post IDs (79) because 2 IDs are duplicated (retake); n_post_rows counts all rows.",
+    "5 IDs appear only in pre.csv (pre-only, excluded from paired analyses).",
+    "4 IDs appear only in post.csv (post-only, e.g. late add).",
+    "ID case/whitespace must be normalized before matching pre/post.",
+    "Q4 is a continuous 0-100 outcome present in both files."
+  ]
+}

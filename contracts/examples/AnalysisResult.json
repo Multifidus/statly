@@ -1,0 +1,462 @@
+{
+  "schema_version": 1,
+  "analysis_id": "t_test.independent",
+  "statistics": [
+    {
+      "key": "t",
+      "label": "Welch's t",
+      "symbol": "t",
+      "value": 2.31,
+      "df": [
+        37.4
+      ],
+      "p": 0.026,
+      "term": null
+    }
+  ],
+  "effect_sizes": [
+    {
+      "key": "hedges_g",
+      "label": "Hedges' g",
+      "symbol": "g",
+      "value": 0.72,
+      "ci": {
+        "level": 0.95,
+        "lower": 0.08,
+        "upper": 1.35
+      },
+      "term": null,
+      "interpretation": {
+        "magnitude": "medium",
+        "benchmark": "Cohen (1988)",
+        "text": "A medium-sized difference by common benchmarks; education effects are often judged against field norms."
+      }
+    }
+  ],
+  "assumptions": [
+    {
+      "schema_version": 1,
+      "assumption": "normality",
+      "label": "Normality",
+      "test_used": {
+        "key": "shapiro_wilk",
+        "label": "Shapiro-Wilk"
+      },
+      "statistic": {
+        "symbol": "W",
+        "value": 0.962,
+        "df": []
+      },
+      "p": 0.284,
+      "verdict": "passed",
+      "explanation": "Scores in the control group look close to a bell curve, so this assumption is reasonable.",
+      "applies_to": {
+        "kind": "group",
+        "label": "Control group",
+        "group": {
+          "condition": "Control"
+        },
+        "n": 20
+      },
+      "chart_refs": [
+        {
+          "chart_type": "qq",
+          "title": "Q-Q plot: Control",
+          "data_key": "qq_control"
+        }
+      ]
+    }
+  ],
+  "descriptives": {
+    "continuous": [
+      {
+        "variable": "math_attitude",
+        "group": {
+          "condition": "Control"
+        },
+        "label": "Control",
+        "n": 20,
+        "n_missing": 1,
+        "mean": 3.1,
+        "sd": 0.62,
+        "se": 0.139,
+        "ci": {
+          "level": 0.95,
+          "lower": 2.81,
+          "upper": 3.39
+        },
+        "median": 3.0,
+        "q1": 2.5,
+        "q3": 3.5,
+        "iqr": 1.0,
+        "min": 2.0,
+        "max": 4.5,
+        "skewness": 0.12,
+        "kurtosis": -0.4
+      },
+      {
+        "variable": "math_attitude",
+        "group": {
+          "condition": "Intervention"
+        },
+        "label": "Intervention",
+        "n": 20,
+        "n_missing": 0,
+        "mean": 3.55,
+        "sd": 0.61,
+        "se": 0.136,
+        "ci": {
+          "level": 0.95,
+          "lower": 3.26,
+          "upper": 3.84
+        },
+        "median": 3.5,
+        "q1": 3.0,
+        "q3": 4.0,
+        "iqr": 1.0,
+        "min": 2.5,
+        "max": 5.0,
+        "skewness": -0.2,
+        "kurtosis": -0.7
+      }
+    ],
+    "frequencies": [
+      {
+        "variable": "condition",
+        "group": {},
+        "levels": [
+          {
+            "value": "Control",
+            "label": "Control",
+            "count": 21,
+            "percent": 51.2,
+            "valid_percent": 51.2
+          },
+          {
+            "value": "Intervention",
+            "label": "Intervention",
+            "count": 20,
+            "percent": 48.8,
+            "valid_percent": 48.8
+          }
+        ]
+      }
+    ]
+  },
+  "plain_language_summary": "At posttest, the intervention group liked math more than the control group, and the difference was medium-sized.",
+  "apa_sentence": [
+    {
+      "text": "Students in the intervention group reported more positive attitudes than the control group, "
+    },
+    {
+      "text": "t",
+      "italic": true
+    },
+    {
+      "text": "(37.4) = 2.31, "
+    },
+    {
+      "text": "p",
+      "italic": true
+    },
+    {
+      "text": " = .026, "
+    },
+    {
+      "text": "g",
+      "italic": true
+    },
+    {
+      "text": " = 0.72, 95% CI [0.08, 1.35]."
+    }
+  ],
+  "apa_table": {
+    "number": null,
+    "title": "Math Attitude by Condition at Posttest",
+    "columns": [
+      {
+        "key": "group",
+        "header": [
+          {
+            "text": "Condition"
+          }
+        ],
+        "align": "left"
+      },
+      {
+        "key": "n",
+        "header": [
+          {
+            "text": "n",
+            "italic": true
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m",
+        "header": [
+          {
+            "text": "M",
+            "italic": true
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true
+          }
+        ],
+        "align": "decimal"
+      }
+    ],
+    "column_groups": [],
+    "rows": [
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "Control"
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 20,
+            "display": "20"
+          },
+          {
+            "type": "number",
+            "value": 3.1,
+            "display": "3.10"
+          },
+          {
+            "type": "number",
+            "value": 0.62,
+            "display": "0.62"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      },
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "Intervention"
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 20,
+            "display": "20"
+          },
+          {
+            "type": "number",
+            "value": 3.55,
+            "display": "3.55"
+          },
+          {
+            "type": "number",
+            "value": 0.61,
+            "display": "0.61"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      }
+    ],
+    "notes": {
+      "general": [
+        {
+          "text": "Scores range from 1 to 5; higher scores indicate more positive attitudes."
+        }
+      ],
+      "specific": [],
+      "probability": []
+    }
+  },
+  "additional_tables": [
+    {
+      "number": null,
+      "title": "Welch's t Test",
+      "columns": [
+        {
+          "key": "t",
+          "header": [
+            {
+              "text": "t",
+              "italic": true
+            }
+          ],
+          "align": "decimal"
+        },
+        {
+          "key": "df",
+          "header": [
+            {
+              "text": "df",
+              "italic": true
+            }
+          ],
+          "align": "decimal"
+        },
+        {
+          "key": "p",
+          "header": [
+            {
+              "text": "p",
+              "italic": true
+            }
+          ],
+          "align": "decimal"
+        },
+        {
+          "key": "ci",
+          "header": [
+            {
+              "text": "95% CI"
+            }
+          ],
+          "align": "center"
+        },
+        {
+          "key": "e",
+          "header": [
+            {
+              "text": "M",
+              "italic": true
+            },
+            {
+              "text": " diff"
+            }
+          ],
+          "align": "decimal"
+        }
+      ],
+      "column_groups": [],
+      "rows": [
+        {
+          "cells": [
+            {
+              "type": "number",
+              "value": 2.31,
+              "display": "2.31"
+            },
+            {
+              "type": "number",
+              "value": 37.4,
+              "display": "37.40"
+            },
+            {
+              "type": "p_value",
+              "value": 0.026,
+              "display": ".026"
+            },
+            {
+              "type": "interval",
+              "lower": 0.06,
+              "upper": 0.84,
+              "display": "[0.06, 0.84]"
+            },
+            {
+              "type": "empty"
+            }
+          ],
+          "indent": 0,
+          "kind": "data"
+        }
+      ],
+      "notes": {
+        "general": null,
+        "specific": [],
+        "probability": []
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "code": "small_sample",
+      "severity": "caution",
+      "message": "Each group has about 20 students, so the estimate of the effect is not very precise."
+    }
+  ],
+  "chart_data": {
+    "qq_control": [
+      {
+        "theoretical": -1.64,
+        "sample": 2.0
+      },
+      {
+        "theoretical": 0.0,
+        "sample": 3.0
+      },
+      {
+        "theoretical": 1.64,
+        "sample": 4.5
+      }
+    ]
+  },
+  "inputs": {
+    "request": {
+      "schema_version": 1,
+      "request_id": "req_0001",
+      "analysis_id": "t_test.independent",
+      "dataset_id": "ds_7f3a",
+      "snapshot_id": "snap_9c21e4",
+      "variables": {
+        "outcome": [
+          "math_attitude"
+        ],
+        "group": [
+          "condition"
+        ]
+      },
+      "subset": [
+        {
+          "variable": "Time",
+          "op": "in",
+          "values": [
+            "Post"
+          ]
+        }
+      ],
+      "options": {
+        "welch": true
+      },
+      "corrections": [],
+      "alpha": 0.05,
+      "tails": "two_sided",
+      "ci_level": 0.95
+    },
+    "dataset_id": "ds_7f3a",
+    "snapshot_id": "snap_9c21e4",
+    "n_used": 40,
+    "n_excluded": 1,
+    "n_by_group": [
+      {
+        "group": {
+          "condition": "Control"
+        },
+        "n": 20
+      },
+      {
+        "group": {
+          "condition": "Intervention"
+        },
+        "n": 20
+      }
+    ]
+  },
+  "engine_version": "0.1.0",
+  "timestamp": "2026-09-24T21:00:00Z"
+}

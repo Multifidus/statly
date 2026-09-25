@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/ChartSpec.json",
+  "title": "ChartSpec",
+  "description": "A saved chart-builder chart. The compiled Vega-Lite spec is NOT stored; it is derived from this spec + data fetched from the engine. SPEC §10.2.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "chart_type", "source", "shelves", "subset", "error_bars", "customization", "theme_preset", "created_at", "modified_at"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string" },
+    "chart_type": { "$ref": "#/$defs/ChartType" },
+    "source": { "$ref": "#/$defs/ChartSource" },
+    "shelves": { "$ref": "#/$defs/Shelves" },
+    "subset": {
+      "type": "array",
+      "items": { "$ref": "AnalysisRequest.json#/$defs/SubsetCondition" },
+      "description": "Row filter applied before plotting."
+    },
+    "error_bars": { "$ref": "#/$defs/ErrorBarKind" },
+    "customization": { "$ref": "#/$defs/ChartCustomization" },
+    "theme_preset": { "title": "ChartThemePreset", "type": "string", "enum": ["statly", "apa"], "description": "Light/dark is a preview concern, not stored." },
+    "created_at": { "type": "string", "format": "date-time" },
+    "modified_at": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "ChartType": {
+      "title": "ChartType",
+      "type": "string",
+      "enum": [
+        "bar", "grouped_bar", "line", "interaction", "box", "violin", "histogram", "density", "qq",
+        "scatter", "correlation_heatmap", "likert_diverging", "stacked_bar", "percent_bar", "scree", "cfa_path"
+      ]
+    },
+    "ErrorBarKind": {
+      "title": "ErrorBarKind",
+      "type": "string",
+      "enum": ["none", "se", "sd", "ci95"]
+    },
+    "ChartSource": {
+      "title": "ChartSource",
+      "description": "Where the chart's data comes from: the dataset (aggregated by the engine) or a logged analysis result (scree plot, CFA path diagram, EMMs).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "test_log_entry_id"],
+      "properties": {
+        "kind": { "title": "ChartSourceKind", "type": "string", "enum": ["dataset", "analysis"] },
+        "test_log_entry_id": { "type": ["string", "null"] }
+      }
+    },
+    "ShelfField": {
+      "title": "ShelfField",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variable", "aggregate"],
+      "properties": {
+        "variable": { "type": "string" },
+        "aggregate": { "title": "ShelfAggregate", "type": "string", "enum": ["none", "mean", "median", "count", "percent", "sum"] }
+      }
+    },
+    "Shelves": {
+      "title": "Shelves",
+      "description": "Arrays allow several variables on a shelf (e.g. several Likert items on Y, heatmap variables on X).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "color", "facet"],
+      "properties": {
+        "x": { "type": "array", "items": { "$ref": "#/$defs/ShelfField" } },
+        "y": { "type": "array", "items": { "$ref": "#/$defs/ShelfField" } },
+        "color": { "type": "array", "items": { "$ref": "#/$defs/ShelfField" }, "maxItems": 1 },
+        "facet": { "type": "array", "items": { "$ref": "#/$defs/ShelfField" }, "maxItems": 2 }
+      }
+    },
+    "AxisCustomization": {
+      "title": "AxisCustomization",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": ["string", "null"] },
+        "min": { "type": ["number", "null"] },
+        "max": { "type": ["number", "null"] }
+      }
+    },
+    "ChartCustomization": {
+      "title": "ChartCustomization",
+      "description": "All fields optional; absent = preset default. Open for additions.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "title": { "type": ["string", "null"] },
+        "subtitle": { "type": ["string", "null"] },
+        "x_axis": { "$ref": "#/$defs/AxisCustomization" },
+        "y_axis": { "$ref": "#/$defs/AxisCustomization" },
+        "palette": { "type": "string", "description": "Named palette; default is colorblind-safe.", "default": "colorblind_safe" },
+        "font_family": { "type": "string" },
+        "font_size": { "type": "number", "exclusiveMinimum": 0 },
+        "legend_position": { "title": "LegendPosition", "type": "string", "enum": ["top", "bottom", "left", "right", "none"] },
+        "data_labels": { "type": "boolean" },
+        "gridlines": { "type": "boolean" },
+        "fit_line": { "title": "FitLine", "type": "string", "enum": ["none", "linear", "loess"] },
+        "width": { "type": "integer", "minimum": 50 },
+        "height": { "type": "integer", "minimum": 50 }
+      }
+    }
+  }
+}

@@ -1,0 +1,338 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/AnalysisResult.json",
+  "title": "AnalysisResult",
+  "description": "Output of a pure engine analysis. Field list is fixed by SPEC §4. The engine is the single APA formatter: every numeric table cell carries an engine-formatted display string.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "analysis_id", "statistics", "effect_sizes", "assumptions", "descriptives",
+    "plain_language_summary", "apa_sentence", "apa_table", "additional_tables", "warnings",
+    "chart_data", "inputs", "engine_version", "timestamp"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "analysis_id": { "type": "string", "description": "Echo of AnalysisRequest.analysis_id (the engine may resolve an alias to the concrete test run)." },
+    "statistics": { "type": "array", "items": { "$ref": "#/$defs/Statistic" } },
+    "effect_sizes": { "type": "array", "items": { "$ref": "#/$defs/EffectSize" } },
+    "assumptions": { "type": "array", "items": { "$ref": "AssumptionResult.json" } },
+    "descriptives": { "$ref": "#/$defs/Descriptives" },
+    "plain_language_summary": { "type": "string" },
+    "apa_sentence": { "$ref": "#/$defs/RichText" },
+    "apa_table": {
+      "anyOf": [{ "$ref": "#/$defs/ApaTable" }, { "type": "null" }],
+      "description": "Primary APA 7 table (null only if the analysis has no tabular output)."
+    },
+    "additional_tables": {
+      "type": "array",
+      "description": "Secondary tables (e.g. post hoc comparisons, item statistics, loadings).",
+      "items": { "$ref": "#/$defs/ApaTable" }
+    },
+    "warnings": { "type": "array", "items": { "$ref": "#/$defs/ResultWarning" } },
+    "chart_data": {
+      "type": "object",
+      "description": "Data for supporting charts (Q-Q, histograms, scree...), keyed by ChartRef.data_key. Each value is a list of flat records.",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "object", "additionalProperties": { "type": ["number", "string", "boolean", "null"] } }
+      }
+    },
+    "inputs": { "$ref": "#/$defs/ResultInputs" },
+    "engine_version": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "ConfidenceInterval": {
+      "title": "ConfidenceInterval",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "lower", "upper"],
+      "properties": {
+        "level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "lower": { "type": ["number", "null"] },
+        "upper": { "type": ["number", "null"] }
+      }
+    },
+    "Statistic": {
+      "title": "Statistic",
+      "description": "One test statistic. Multi-term analyses (ANOVA) emit one per term.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "symbol", "value", "df", "p", "term"],
+      "properties": {
+        "key": { "type": "string", "description": "Machine key: t, F, chi2, U, W, H, r, z, ..." },
+        "label": { "type": "string", "description": "e.g. 'Welch's t'." },
+        "symbol": { "type": "string", "description": "APA symbol, italicized when rendered: t, F, χ², U." },
+        "value": { "type": ["number", "null"] },
+        "df": { "type": "array", "items": { "type": "number" }, "maxItems": 2, "description": "[] none, [df] t/χ², [df1, df2] F. Non-integer allowed (Welch, GG)." },
+        "p": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "term": { "type": ["string", "null"], "description": "Model term / comparison this row belongs to (e.g. 'Group', 'Group × Time', 'Control vs A'); null for single-statistic tests." }
+      }
+    },
+    "EffectSizeInterpretation": {
+      "title": "EffectSizeInterpretation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["magnitude", "benchmark", "text"],
+      "properties": {
+        "magnitude": { "title": "EffectMagnitude", "type": "string", "enum": ["negligible", "small", "medium", "large"] },
+        "benchmark": { "type": "string", "description": "Source of the benchmark, e.g. 'Cohen (1988)'." },
+        "text": { "type": "string", "description": "Plain-language interpretation incl. the field-norms caveat." }
+      }
+    },
+    "EffectSize": {
+      "title": "EffectSize",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "symbol", "value", "ci", "term", "interpretation"],
+      "properties": {
+        "key": { "type": "string", "description": "cohens_d, hedges_g, glass_delta, d_z, d_av, r, rank_biserial, eta_sq, partial_eta_sq, omega_sq, cohens_f, epsilon_sq, kendall_w, cramers_v, phi, odds_ratio, r_sq, f_sq, ..." },
+        "label": { "type": "string" },
+        "symbol": { "type": "string" },
+        "value": { "type": ["number", "null"] },
+        "ci": { "anyOf": [{ "$ref": "#/$defs/ConfidenceInterval" }, { "type": "null" }], "description": "95% CI by default (AnalysisRequest.ci_level); null only where no CI method exists." },
+        "term": { "type": ["string", "null"] },
+        "interpretation": { "anyOf": [{ "$ref": "#/$defs/EffectSizeInterpretation" }, { "type": "null" }] }
+      }
+    },
+    "GroupDescriptives": {
+      "title": "GroupDescriptives",
+      "description": "Continuous-variable summary for one variable within one cell (group/time). All numbers nullable (undefined for n < 2 etc.).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variable", "group", "label", "n", "n_missing", "mean", "sd", "se", "ci", "median", "q1", "q3", "iqr", "min", "max", "skewness", "kurtosis"],
+      "properties": {
+        "variable": { "type": "string" },
+        "group": {
+          "type": "object",
+          "description": "Grouping variable -> level for this cell; {} for the whole sample.",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
+        },
+        "label": { "type": "string" },
+        "n": { "type": "integer", "minimum": 0 },
+        "n_missing": { "type": "integer", "minimum": 0 },
+        "mean": { "type": ["number", "null"] },
+        "sd": { "type": ["number", "null"] },
+        "se": { "type": ["number", "null"] },
+        "ci": { "anyOf": [{ "$ref": "#/$defs/ConfidenceInterval" }, { "type": "null" }], "description": "CI of the mean." },
+        "median": { "type": ["number", "null"] },
+        "q1": { "type": ["number", "null"] },
+        "q3": { "type": ["number", "null"] },
+        "iqr": { "type": ["number", "null"] },
+        "min": { "type": ["number", "null"] },
+        "max": { "type": ["number", "null"] },
+        "skewness": { "type": ["number", "null"] },
+        "kurtosis": { "type": ["number", "null"], "description": "Excess kurtosis." }
+      }
+    },
+    "FrequencyLevel": {
+      "title": "FrequencyLevel",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "label", "count", "percent", "valid_percent"],
+      "properties": {
+        "value": { "type": ["string", "number", "boolean", "null"], "description": "null = the missing row." },
+        "label": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 },
+        "percent": { "type": "number" },
+        "valid_percent": { "type": ["number", "null"] }
+      }
+    },
+    "FrequencyTable": {
+      "title": "FrequencyTable",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variable", "group", "levels"],
+      "properties": {
+        "variable": { "type": "string" },
+        "group": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean"] } },
+        "levels": { "type": "array", "items": { "$ref": "#/$defs/FrequencyLevel" } }
+      }
+    },
+    "Descriptives": {
+      "title": "Descriptives",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["continuous", "frequencies"],
+      "properties": {
+        "continuous": { "type": "array", "items": { "$ref": "#/$defs/GroupDescriptives" } },
+        "frequencies": { "type": "array", "items": { "$ref": "#/$defs/FrequencyTable" } }
+      }
+    },
+    "TextRun": {
+      "title": "TextRun",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "italic": { "type": "boolean", "default": false },
+        "subscript": { "type": "boolean", "default": false },
+        "superscript": { "type": "boolean", "default": false }
+      }
+    },
+    "RichText": {
+      "title": "RichText",
+      "description": "Minimal styled text for APA output (italic statistical symbols, sub/superscripts). Concatenate run.text for plain text.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/TextRun" }
+    },
+    "ApaColumn": {
+      "title": "ApaColumn",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "header", "align"],
+      "properties": {
+        "key": { "type": "string" },
+        "header": { "$ref": "#/$defs/RichText" },
+        "align": { "title": "ColumnAlign", "type": "string", "enum": ["left", "center", "right", "decimal"] }
+      }
+    },
+    "ApaColumnGroup": {
+      "title": "ApaColumnGroup",
+      "description": "Spanning header above consecutive columns.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "first_column", "span"],
+      "properties": {
+        "label": { "$ref": "#/$defs/RichText" },
+        "first_column": { "type": "integer", "minimum": 0 },
+        "span": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "NumberCell": {
+      "title": "NumberCell",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value", "display"],
+      "properties": {
+        "type": { "const": "number" },
+        "value": { "type": ["number", "null"] },
+        "display": { "type": "string", "description": "Engine-formatted APA text (decimals, no leading zero where applicable)." }
+      }
+    },
+    "PValueCell": {
+      "title": "PValueCell",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value", "display"],
+      "properties": {
+        "type": { "const": "p_value" },
+        "value": { "type": ["number", "null"] },
+        "display": { "type": "string", "description": "e.g. '.034', '< .001'." }
+      }
+    },
+    "IntervalCell": {
+      "title": "IntervalCell",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "lower", "upper", "display"],
+      "properties": {
+        "type": { "const": "interval" },
+        "lower": { "type": ["number", "null"] },
+        "upper": { "type": ["number", "null"] },
+        "display": { "type": "string", "description": "e.g. '[0.12, 0.88]'." }
+      }
+    },
+    "TextCell": {
+      "title": "TextCell",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "text" },
+        "text": { "$ref": "#/$defs/RichText" }
+      }
+    },
+    "EmptyCell": {
+      "title": "EmptyCell",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": { "type": { "const": "empty" } }
+    },
+    "TableCell": {
+      "title": "TableCell",
+      "oneOf": [
+        { "$ref": "#/$defs/NumberCell" },
+        { "$ref": "#/$defs/PValueCell" },
+        { "$ref": "#/$defs/IntervalCell" },
+        { "$ref": "#/$defs/TextCell" },
+        { "$ref": "#/$defs/EmptyCell" }
+      ]
+    },
+    "ApaRow": {
+      "title": "ApaRow",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cells", "indent", "kind"],
+      "properties": {
+        "cells": { "type": "array", "items": { "$ref": "#/$defs/TableCell" }, "description": "One cell per column, in column order." },
+        "indent": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "kind": { "title": "ApaRowKind", "type": "string", "enum": ["data", "section_header", "total"] }
+      }
+    },
+    "ApaNotes": {
+      "title": "ApaNotes",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["general", "specific", "probability"],
+      "properties": {
+        "general": { "anyOf": [{ "$ref": "#/$defs/RichText" }, { "type": "null" }] },
+        "specific": { "type": "array", "items": { "$ref": "#/$defs/RichText" } },
+        "probability": { "type": "array", "items": { "$ref": "#/$defs/RichText" } }
+      }
+    },
+    "ApaTable": {
+      "title": "ApaTable",
+      "description": "Structured APA 7 table, renderable to HTML (clipboard) and DOCX/PDF. Table number is assigned at render/export time when null.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number", "title", "columns", "column_groups", "rows", "notes"],
+      "properties": {
+        "number": { "type": ["integer", "null"], "minimum": 1 },
+        "title": { "type": "string", "description": "Rendered in italic title case." },
+        "columns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ApaColumn" } },
+        "column_groups": { "type": "array", "items": { "$ref": "#/$defs/ApaColumnGroup" } },
+        "rows": { "type": "array", "items": { "$ref": "#/$defs/ApaRow" } },
+        "notes": { "$ref": "#/$defs/ApaNotes" }
+      }
+    },
+    "ResultWarning": {
+      "title": "ResultWarning",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "e.g. small_sample, ties_present, unequal_groups, constant_variable, perfect_separation, pairs_dropped." },
+        "severity": { "title": "WarningSeverity", "type": "string", "enum": ["info", "caution", "serious"] },
+        "message": { "type": "string", "description": "Plain-language message." }
+      }
+    },
+    "GroupCount": {
+      "title": "GroupCount",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group", "n"],
+      "properties": {
+        "group": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean"] } },
+        "n": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "ResultInputs": {
+      "title": "ResultInputs",
+      "description": "Exact inputs used, for reproducibility and the Test Log.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request", "dataset_id", "snapshot_id", "n_used", "n_excluded", "n_by_group"],
+      "properties": {
+        "request": { "$ref": "AnalysisRequest.json" },
+        "dataset_id": { "type": "string" },
+        "snapshot_id": { "type": "string" },
+        "n_used": { "type": "integer", "minimum": 0, "description": "Rows (or matched participants for paired designs) actually analysed." },
+        "n_excluded": { "type": "integer", "minimum": 0, "description": "Rows in the subset excluded for missing data / unmatched IDs." },
+        "n_by_group": { "type": "array", "items": { "$ref": "#/$defs/GroupCount" } }
+      }
+    }
+  }
+}

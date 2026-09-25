@@ -1,0 +1,84 @@
+StartDate,EndDate,Status,IPAddress,Progress,Duration (in seconds),Finished,RecordedDate,ResponseId,RecipientLastName,RecipientFirstName,RecipientEmail,ExternalReference,LocationLatitude,LocationLongitude,DistributionChannel,UserLanguage,Q1,Q4
+StartDate,EndDate,Status,IPAddress,Progress,Duration (in seconds),Finished,RecordedDate,ResponseId,RecipientLastName,RecipientFirstName,RecipientEmail,ExternalReference,LocationLatitude,LocationLongitude,DistributionChannel,UserLanguage,"Please enter your unique ID (first two initials + birth day, e.g. AB05)",Assessment score (0-100)
+"{""ImportId"": ""StartDate""}","{""ImportId"": ""EndDate""}","{""ImportId"": ""Status""}","{""ImportId"": ""IPAddress""}","{""ImportId"": ""Progress""}","{""ImportId"": ""Duration (in seconds)""}","{""ImportId"": ""Finished""}","{""ImportId"": ""RecordedDate""}","{""ImportId"": ""ResponseId""}","{""ImportId"": ""RecipientLastName""}","{""ImportId"": ""RecipientFirstName""}","{""ImportId"": ""RecipientEmail""}","{""ImportId"": ""ExternalReference""}","{""ImportId"": ""LocationLatitude""}","{""ImportId"": ""LocationLongitude""}","{""ImportId"": ""DistributionChannel""}","{""ImportId"": ""UserLanguage""}","{""ImportId"": ""Q1""}","{""ImportId"": ""Q4""}"
+2026-02-06 13:08:32,2026-02-06 13:08:32,IP Address,,100,204,True,2026-02-06 13:08:32,R_D_POST_0004,,,,,,,anonymous,EN,RI01	,57.2
+2026-02-25 14:39:21,2026-02-25 14:39:21,IP Address,,100,105,True,2026-02-25 14:39:21,R_D_POST_0077,,,,,,,anonymous,EN,  NW12  ,89.7
+2026-02-13 11:57:03,2026-02-13 11:57:03,IP Address,,100,329,True,2026-02-13 11:57:03,R_D_POST_0011,,,,,,,anonymous,EN,EX12	,80.9
+2026-02-17 15:34:46,2026-02-17 15:34:46,IP Address,,100,261,True,2026-02-17 15:34:46,R_D_POST_0042,,,,,,,anonymous,EN,TM22,64.2
+2026-02-23 12:16:04,2026-02-23 12:16:04,IP Address,,100,898,True,2026-02-23 12:16:04,R_D_POST_0048,,,,,,,anonymous,EN,IG10	,92.8
+2026-02-13 11:06:54,2026-02-13 11:06:54,IP Address,,100,575,True,2026-02-13 11:06:54,R_D_POST_0038,,,,,,,anonymous,EN,  IT02  ,99.8
+2026-02-16 14:18:42,2026-02-16 14:18:42,IP Address,,100,640,True,2026-02-16 14:18:42,R_D_POST_0014,,,,,,,anonymous,EN,UI23,100.0
+2026-02-20 09:04:16,2026-02-20 09:04:16,IP Address,,100,595,True,2026-02-20 09:04:16,R_D_POST_0072,,,,,,,anonymous,EN,  PR23  ,75.9
+2026-02-05 12:19:01,2026-02-05 12:19:01,IP Address,,100,301,True,2026-02-05 12:19:01,R_D_POST_0057,,,,,,,anonymous,EN,GC25,60.5
+2026-02-12 10:08:32,2026-02-12 10:08:32,IP Address,,100,561,True,2026-02-12 10:08:32,R_D_POST_0064,,,,,,,anonymous,EN,UU22,100.0
+2026-02-23 12:25:55,2026-02-23 12:25:55,IP Address,,100,869,True,2026-02-23 12:25:55,R_D_POST_0075,,,,,,,anonymous,EN,  NW10  ,77.8
+2026-02-07 14:15:45,2026-02-07 14:15:45,IP Address,,100,623,True,2026-02-07 14:15:45,R_D_POST_0005,,,,,,,anonymous,EN,lf26,93.7
+2026-02-20 09:55:25,2026-02-20 09:55:25,IP Address,,100,74,True,2026-02-20 09:55:25,R_D_POST_0045,,,,,,,anonymous,EN,  QV27  ,56.0
+2026-02-13 11:15:45,2026-02-13 11:15:45,IP Address,,100,599,True,2026-02-13 11:15:45,R_D_POST_0065,,,,,,,anonymous,EN,EE25	,48.5
+2026-02-27 16:44:56,2026-02-27 16:44:56,IP Address,,100,595,True,2026-02-27 16:44:56,R_D_POST_0052,,,,,,,anonymous,EN,SJ03,50.8
+2026-02-18 16:41:59,2026-02-18 16:41:59,IP Address,,100,223,True,2026-02-18 16:41:59,R_D_POST_0043,,,,,,,anonymous,EN,  CC18  ,86.1
+2026-02-03 10:56:44,2026-02-03 10:56:44,IP Address,,100,859,True,2026-02-03 10:56:44,R_D_POST_0028,,,,,,,anonymous,EN,WB27	,62.0
+2026-02-14 12:13:07,2026-02-14 12:13:07,IP Address,,100,270,True,2026-02-14 12:13:07,R_D_POST_0039,,,,,,,anonymous,EN,IM28,67.9
+2026-02-17 15:43:37,2026-02-17 15:43:37,IP Address,,100,736,True,2026-02-17 15:43:37,R_D_POST_0069,,,,,,,anonymous,EN,kq10,42.8
+2026-02-21 10:11:29,2026-02-21 10:11:29,IP Address,,100,262,True,2026-02-21 10:11:29,R_D_POST_0073,,,,,,,anonymous,EN,VE21	,86.0
+2026-02-10 08:54:06,2026-02-10 08:54:06,IP Address,,100,256,True,2026-02-10 08:54:06,R_D_POST_0062,,,,,,,anonymous,EN,  VB02  ,100.0
+2026-02-18 16:32:08,2026-02-18 16:32:08,IP Address,,100,709,True,2026-02-18 16:32:08,R_D_POST_0016,,,,,,,anonymous,EN,  BQ23  ,64.6
+2026-02-25 14:30:30,2026-02-25 14:30:30,IP Address,,100,212,True,2026-02-25 14:30:30,R_D_POST_0050,,,,,,,anonymous,EN,ct25,41.3
+2026-02-05 12:10:10,2026-02-05 12:10:10,IP Address,,100,772,True,2026-02-05 12:10:10,R_D_POST_0030,,,,,,,anonymous,EN,WQ19,100.0
+2026-02-01 08:51:09,2026-02-01 08:51:09,IP Address,,100,834,True,2026-02-01 08:51:09,R_D_POST_0053,,,,,,,anonymous,EN,AJ15,18.9
+2026-02-09 16:38:02,2026-02-09 16:38:02,IP Address,,100,318,True,2026-02-09 16:38:02,R_D_POST_0034,,,,,,,anonymous,EN,WQ17,80.0
+2026-02-02 09:49:31,2026-02-02 09:49:31,IP Address,,100,644,True,2026-02-02 09:49:31,R_D_POST_0027,,,,,,,anonymous,EN,ML28,73.1
+2026-02-01 08:00:00,2026-02-01 08:00:00,IP Address,,100,800,True,2026-02-01 08:00:00,R_D_POST_0080,,,,,,,anonymous,EN,UN02,89.6
+2026-02-03 10:05:35,2026-02-03 10:05:35,IP Address,,100,718,True,2026-02-03 10:05:35,R_D_POST_0055,,,,,,,anonymous,EN,AY26,48.1
+2026-02-08 15:31:49,2026-02-08 15:31:49,IP Address,,100,94,True,2026-02-08 15:31:49,R_D_POST_0033,,,,,,,anonymous,EN,ao07,73.2
+2026-02-18 16:50:50,2026-02-18 16:50:50,IP Address,,100,445,True,2026-02-18 16:50:50,R_D_POST_0070,,,,,,,anonymous,EN,zc27,78.0
+2026-02-19 08:39:21,2026-02-19 08:39:21,IP Address,,100,127,True,2026-02-19 08:39:21,R_D_POST_0017,,,,,,,anonymous,EN,FC16	,68.1
+2026-02-22 11:00:00,2026-02-22 11:00:00,IP Address,,100,139,True,2026-02-22 11:00:00,R_D_POST_0020,,,,,,,anonymous,EN,UZ24,86.7
+2026-02-12 10:59:41,2026-02-12 10:59:41,IP Address,,100,128,True,2026-02-12 10:59:41,R_D_POST_0037,,,,,,,anonymous,EN,  XJ17  ,67.8
+2026-02-05 12:01:19,2026-02-05 12:01:19,IP Address,,100,791,True,2026-02-05 12:01:19,R_D_POST_0003,,,,,,,anonymous,EN,KC17,57.3
+2026-02-26 15:37:43,2026-02-26 15:37:43,IP Address,,100,132,True,2026-02-26 15:37:43,R_D_POST_0051,,,,,,,anonymous,EN,CY03,97.7
+2026-02-09 16:47:53,2026-02-09 16:47:53,IP Address,,100,352,True,2026-02-09 16:47:53,R_D_POST_0061,,,,,,,anonymous,EN,KE11	,79.7
+2026-02-19 08:57:03,2026-02-19 08:57:03,IP Address,,100,456,True,2026-02-19 08:57:03,R_D_POST_0071,,,,,,,anonymous,EN,KN10,63.5
+2026-02-27 16:35:05,2026-02-27 16:35:05,IP Address,,100,170,True,2026-02-27 16:35:05,R_D_POST_0025,,,,,,,anonymous,EN,TY23	,88.6
+2026-02-15 13:29:11,2026-02-15 13:29:11,IP Address,,100,376,True,2026-02-15 13:29:11,R_D_POST_0067,,,,,,,anonymous,EN,FO17,58.4
+2026-02-24 13:14:26,2026-02-24 13:14:26,IP Address,,100,682,True,2026-02-24 13:14:26,R_D_POST_0022,,,,,,,anonymous,EN,MP19	,58.3
+2026-02-16 14:36:24,2026-02-16 14:36:24,IP Address,,100,507,True,2026-02-16 14:36:24,R_D_POST_0068,,,,,,,anonymous,EN,GL28	,100.0
+2026-02-10 08:45:15,2026-02-10 08:45:15,IP Address,,100,443,True,2026-02-10 08:45:15,R_D_POST_0035,,,,,,,anonymous,EN,tw14,42.1
+2026-02-22 11:18:42,2026-02-22 11:18:42,IP Address,,100,411,True,2026-02-22 11:18:42,R_D_POST_0074,,,,,,,anonymous,EN,  EW13  ,75.4
+2026-02-02 09:58:22,2026-02-02 09:58:22,IP Address,,100,301,True,2026-02-02 09:58:22,R_D_POST_0054,,,,,,,anonymous,EN,BH15,96.1
+2026-02-24 13:23:17,2026-02-24 13:23:17,IP Address,,100,212,True,2026-02-24 13:23:17,R_D_POST_0049,,,,,,,anonymous,EN,DT27	,64.3
+2026-02-23 12:07:13,2026-02-23 12:07:13,IP Address,,100,446,True,2026-02-23 12:07:13,R_D_POST_0021,,,,,,,anonymous,EN,ef27,59.0
+2026-02-21 10:02:38,2026-02-21 10:02:38,IP Address,,100,637,True,2026-02-21 10:02:38,R_D_POST_0046,,,,,,,anonymous,EN,  SR02  ,55.4
+2026-02-04 11:54:06,2026-02-04 11:54:06,IP Address,,100,507,True,2026-02-04 11:54:06,R_D_POST_0002,,,,,,,anonymous,EN,ak26,50.9
+2026-02-14 12:04:16,2026-02-14 12:04:16,IP Address,,100,763,True,2026-02-14 12:04:16,R_D_POST_0012,,,,,,,anonymous,EN,pr08,38.7
+2026-02-01 08:42:18,2026-02-01 08:42:18,IP Address,,100,434,True,2026-02-01 08:42:18,R_D_POST_0026,,,,,,,anonymous,EN,QB22	,70.6
+2026-02-26 15:46:34,2026-02-26 15:46:34,IP Address,,100,614,True,2026-02-26 15:46:34,R_D_POST_0078,,,,,,,anonymous,EN,NW13,78.6
+2026-02-06 13:17:23,2026-02-06 13:17:23,IP Address,,100,735,True,2026-02-06 13:17:23,R_D_POST_0031,,,,,,,anonymous,EN,TM08,46.3
+2026-02-09 16:29:11,2026-02-09 16:29:11,IP Address,,100,503,True,2026-02-09 16:29:11,R_D_POST_0007,,,,,,,anonymous,EN,  DU21  ,74.5
+2026-02-22 11:09:51,2026-02-22 11:09:51,IP Address,,100,896,True,2026-02-22 11:09:51,R_D_POST_0047,,,,,,,anonymous,EN,ER01,90.8
+2026-02-16 14:27:33,2026-02-16 14:27:33,IP Address,,100,522,True,2026-02-16 14:27:33,R_D_POST_0041,,,,,,,anonymous,EN,  YS18  ,37.9
+2026-02-21 10:53:47,2026-02-21 10:53:47,IP Address,,100,210,True,2026-02-21 10:53:47,R_D_POST_0019,,,,,,,anonymous,EN,  ZG23  ,100.0
+2026-02-11 09:43:37,2026-02-11 09:43:37,IP Address,,100,795,True,2026-02-11 09:43:37,R_D_POST_0009,,,,,,,anonymous,EN,  JY18  ,71.3
+2026-02-27 16:53:47,2026-02-27 16:53:47,IP Address,,100,86,True,2026-02-27 16:53:47,R_D_POST_0079,,,,,,,anonymous,EN,  YX15  ,63.8
+2026-02-17 15:25:55,2026-02-17 15:25:55,IP Address,,100,599,True,2026-02-17 15:25:55,R_D_POST_0015,,,,,,,anonymous,EN,  CH06  ,68.1
+2026-02-25 14:21:39,2026-02-25 14:21:39,IP Address,,100,373,True,2026-02-25 14:21:39,R_D_POST_0023,,,,,,,anonymous,EN,wf28,57.8
+2026-02-20 09:46:34,2026-02-20 09:46:34,IP Address,,100,294,True,2026-02-20 09:46:34,R_D_POST_0018,,,,,,,anonymous,EN,  MH25  ,50.1
+2026-02-10 08:36:24,2026-02-10 08:36:24,IP Address,,100,806,True,2026-02-10 08:36:24,R_D_POST_0008,,,,,,,anonymous,EN,iu23,65.9
+2026-02-14 12:22:58,2026-02-14 12:22:58,IP Address,,100,478,True,2026-02-14 12:22:58,R_D_POST_0066,,,,,,,anonymous,EN,XL06,45.0
+2026-02-12 10:50:50,2026-02-12 10:50:50,IP Address,,100,687,True,2026-02-12 10:50:50,R_D_POST_0010,,,,,,,anonymous,EN,  LU13  ,62.7
+2026-02-08 15:22:58,2026-02-08 15:22:58,IP Address,,100,765,True,2026-02-08 15:22:58,R_D_POST_0006,,,,,,,anonymous,EN,ew14,85.6
+2026-02-08 15:40:40,2026-02-08 15:40:40,IP Address,,100,137,True,2026-02-08 15:40:40,R_D_POST_0060,,,,,,,anonymous,EN,QY12	,74.4
+2026-02-11 09:01:19,2026-02-11 09:01:19,IP Address,,100,865,True,2026-02-11 09:01:19,R_D_POST_0063,,,,,,,anonymous,EN,  KJ14  ,66.2
+2026-02-11 09:52:28,2026-02-11 09:52:28,IP Address,,100,843,True,2026-02-11 09:52:28,R_D_POST_0036,,,,,,,anonymous,EN,MW13	,76.0
+2026-02-15 13:11:29,2026-02-15 13:11:29,IP Address,,100,713,True,2026-02-15 13:11:29,R_D_POST_0013,,,,,,,anonymous,EN,un02,88.3
+2026-02-03 10:47:53,2026-02-03 10:47:53,IP Address,,100,370,True,2026-02-03 10:47:53,R_D_POST_0001,,,,,,,anonymous,EN,JJ10,63.2
+2026-02-15 13:20:20,2026-02-15 13:20:20,IP Address,,100,807,True,2026-02-15 13:20:20,R_D_POST_0040,,,,,,,anonymous,EN,KI06,89.8
+2026-02-26 15:28:52,2026-02-26 15:28:52,IP Address,,100,697,True,2026-02-26 15:28:52,R_D_POST_0024,,,,,,,anonymous,EN,  IG02  ,73.4
+2026-02-06 13:26:14,2026-02-06 13:26:14,IP Address,,100,122,True,2026-02-06 13:26:14,R_D_POST_0058,,,,,,,anonymous,EN,VF03,63.3
+2026-02-02 09:40:40,2026-02-02 09:40:40,IP Address,,100,899,True,2026-02-02 09:40:40,R_D_POST_0000,,,,,,,anonymous,EN,NX03	,63.9
+2026-02-04 11:03:57,2026-02-04 11:03:57,IP Address,,100,807,True,2026-02-04 11:03:57,R_D_POST_0029,,,,,,,anonymous,EN,NH10	,44.9
+2026-02-07 14:33:27,2026-02-07 14:33:27,IP Address,,100,866,True,2026-02-07 14:33:27,R_D_POST_0059,,,,,,,anonymous,EN,SU26,85.6
+2026-02-19 08:48:12,2026-02-19 08:48:12,IP Address,,100,803,True,2026-02-19 08:48:12,R_D_POST_0044,,,,,,,anonymous,EN,RG08	,73.8
+2026-02-07 14:24:36,2026-02-07 14:24:36,IP Address,,100,528,True,2026-02-07 14:24:36,R_D_POST_0032,,,,,,,anonymous,EN,AD26,77.2
+2026-02-04 11:12:48,2026-02-04 11:12:48,IP Address,,100,388,True,2026-02-04 11:12:48,R_D_POST_0056,,,,,,,anonymous,EN,  YX15  ,68.4
+2026-02-24 13:32:08,2026-02-24 13:32:08,IP Address,,100,291,True,2026-02-24 13:32:08,R_D_POST_0076,,,,,,,anonymous,EN,  NW11  ,47.1

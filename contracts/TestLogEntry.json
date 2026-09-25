@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/TestLogEntry.json",
+  "title": "TestLogEntry",
+  "description": "One analysis run, recorded in the project's Test Log. Corrections are never automatic: family_id, correction_method (identical across a family; 'none' when not in one) and adjusted_p are set only by the user's choice. SPEC §9.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "timestamp",
+    "request",
+    "result_summary",
+    "result_path",
+    "family_id",
+    "correction_method",
+    "adjusted_p"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "description": "Equals request.request_id."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "request": {
+      "$ref": "AnalysisRequest.json"
+    },
+    "result_summary": {
+      "$ref": "#/$defs/ResultSummary"
+    },
+    "result_path": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Full AnalysisResult JSON inside the .statly zip, e.g. 'results/<id>.json'."
+    },
+    "family_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "ProjectFile.test_families[].id this test belongs to; null = not in a family."
+    },
+    "correction_method": {
+      "$ref": "AnalysisRequest.json#/$defs/CorrectionMethod"
+    },
+    "adjusted_p": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Adjusted version of result_summary.p within the family; null when correction_method is 'none'."
+    }
+  },
+  "$defs": {
+    "ResultSummary": {
+      "title": "ResultSummary",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analysis_label",
+        "outcome_variables",
+        "primary_statistic",
+        "p",
+        "primary_effect_size",
+        "n_used",
+        "apa_sentence",
+        "plain_language_summary",
+        "engine_version"
+      ],
+      "properties": {
+        "analysis_label": {
+          "type": "string",
+          "description": "e.g. 'Independent-samples t test (Welch)'."
+        },
+        "outcome_variables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Used to detect related tests (same outcome across items) and suggest families."
+        },
+        "primary_statistic": {
+          "anyOf": [
+            {
+              "$ref": "AnalysisResult.json#/$defs/Statistic"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "p": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "The p-value subject to family correction."
+        },
+        "primary_effect_size": {
+          "anyOf": [
+            {
+              "$ref": "AnalysisResult.json#/$defs/EffectSize"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "n_used": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "apa_sentence": {
+          "$ref": "AnalysisResult.json#/$defs/RichText"
+        },
+        "plain_language_summary": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

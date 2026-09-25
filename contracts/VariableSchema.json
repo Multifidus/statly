@@ -1,0 +1,495 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/VariableSchema.json",
+  "title": "VariableSchema",
+  "description": "Metadata for one variable (column) of a dataset. Owned by the engine; the frontend edits it via RPC. SPEC §5, §6.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "label",
+    "question_text",
+    "role",
+    "level",
+    "dtype",
+    "value_labels",
+    "reverse_coded",
+    "response_range",
+    "scale_id",
+    "missing_codes",
+    "sources",
+    "is_metadata",
+    "is_pii",
+    "pii_reason",
+    "computed",
+    "display_order"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique variable name within the dataset (Qualtrics row-1 short ID, e.g. Q5_1). Also the Parquet column name."
+    },
+    "label": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Short human-readable label."
+    },
+    "question_text": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Full question text (Qualtrics row 2)."
+    },
+    "role": {
+      "$ref": "#/$defs/VariableRole"
+    },
+    "level": {
+      "$ref": "#/$defs/MeasurementLevel"
+    },
+    "dtype": {
+      "$ref": "#/$defs/StorageDtype"
+    },
+    "value_labels": {
+      "type": "array",
+      "description": "Ordered code -> label pairs. Array order IS the category order (matters for ordinal/Likert variables).",
+      "items": {
+        "$ref": "#/$defs/ValueLabel"
+      }
+    },
+    "reverse_coded": {
+      "type": "boolean",
+      "description": "If true, scoring uses (min + max) - x with min/max from response_range."
+    },
+    "response_range": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResponseRange"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Theoretical min/max of the response scale (e.g. 1..5). Required for reverse-coding; defaults from value_labels codes."
+    },
+    "scale_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Back-reference to DatasetMeta.scales[].id. DatasetMeta.scales[].items is authoritative; the engine keeps both in sync."
+    },
+    "missing_codes": {
+      "type": "array",
+      "description": "User-declared missing-value codes (e.g. -99). Treated as missing in every analysis.",
+      "items": {
+        "type": [
+          "number",
+          "string"
+        ]
+      }
+    },
+    "sources": {
+      "type": "array",
+      "description": "Provenance: one entry per imported file this column came from (several when files were stacked). Empty for computed variables.",
+      "items": {
+        "$ref": "#/$defs/VariableSource"
+      }
+    },
+    "is_metadata": {
+      "type": "boolean",
+      "description": "Qualtrics metadata / timing column. Hidden by default, kept available."
+    },
+    "is_pii": {
+      "type": "boolean",
+      "description": "Flagged as personally identifying (FERPA/IRB)."
+    },
+    "pii_reason": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PiiReason"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Why the column was flagged; null when is_pii is false."
+    },
+    "computed": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ComputedDefinition"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Guided-builder definition when this is a computed variable; null for imported columns."
+    },
+    "display_order": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Position in the Variables screen and data grid."
+    }
+  },
+  "$defs": {
+    "VariableRole": {
+      "title": "VariableRole",
+      "description": "SPEC §6 step 1 roles, plus 'unassigned' (before the interview) and 'scale_score' (computed scale totals/means).",
+      "type": "string",
+      "enum": [
+        "unassigned",
+        "identifier",
+        "group",
+        "time",
+        "test_item",
+        "test_total",
+        "likert_item",
+        "scale_score",
+        "demographic",
+        "open_text",
+        "ignore"
+      ]
+    },
+    "MeasurementLevel": {
+      "title": "MeasurementLevel",
+      "type": "string",
+      "enum": [
+        "nominal",
+        "ordinal",
+        "continuous"
+      ]
+    },
+    "StorageDtype": {
+      "title": "StorageDtype",
+      "description": "Logical storage type of the Parquet column.",
+      "type": "string",
+      "enum": [
+        "integer",
+        "float",
+        "string",
+        "boolean",
+        "datetime"
+      ]
+    },
+    "ValueLabel": {
+      "title": "ValueLabel",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "label"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "string"
+          ],
+          "description": "Stored code (e.g. 1) or raw text value."
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label (e.g. 'Strongly agree')."
+        }
+      }
+    },
+    "ResponseRange": {
+      "title": "ResponseRange",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        }
+      }
+    },
+    "VariableSource": {
+      "title": "VariableSource",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_id",
+        "original_column_name",
+        "qualtrics_import_id",
+        "header_texts"
+      ],
+      "properties": {
+        "file_id": {
+          "type": "string",
+          "description": "DatasetMeta.import_log.files[].file_id"
+        },
+        "original_column_name": {
+          "type": "string"
+        },
+        "qualtrics_import_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "From header row 3, e.g. 'QID4' (null for 2-header-row or non-Qualtrics files)."
+        },
+        "header_texts": {
+          "type": "array",
+          "description": "Raw text of each header row for this column, top to bottom (1 entry for plain CSV, 2-3 for Qualtrics).",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PiiReason": {
+      "title": "PiiReason",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "explanation"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "ip_address",
+            "name",
+            "email",
+            "location",
+            "external_reference",
+            "value_pattern",
+            "user_flagged"
+          ],
+          "title": "PiiKind"
+        },
+        "explanation": {
+          "type": "string",
+          "description": "Plain-language reason shown to the user."
+        }
+      }
+    },
+    "VariableOperand": {
+      "title": "VariableOperand",
+      "description": "Reference to a variable, optionally at one time level (linked long datasets only: the value is taken from the same participant's row at that level).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variable",
+        "time_level"
+      ],
+      "properties": {
+        "variable": {
+          "type": "string"
+        },
+        "time_level": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ComputedDifference": {
+      "title": "ComputedDifference",
+      "description": "Gain/difference score: minuend - subtrahend (e.g. post - pre).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "minuend",
+        "subtrahend"
+      ],
+      "properties": {
+        "op": {
+          "const": "difference"
+        },
+        "minuend": {
+          "$ref": "#/$defs/VariableOperand"
+        },
+        "subtrahend": {
+          "$ref": "#/$defs/VariableOperand"
+        }
+      }
+    },
+    "ComputedNormalizedGain": {
+      "title": "ComputedNormalizedGain",
+      "description": "Hake's normalized gain g = (post - pre) / (max_score - pre). Missing when pre == max_score.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "pre",
+        "post",
+        "max_score"
+      ],
+      "properties": {
+        "op": {
+          "const": "normalized_gain"
+        },
+        "pre": {
+          "$ref": "#/$defs/VariableOperand"
+        },
+        "post": {
+          "$ref": "#/$defs/VariableOperand"
+        },
+        "max_score": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "ComputedScaleScore": {
+      "title": "ComputedScaleScore",
+      "description": "Mean or sum of answered items (reverse-coded items reversed first). Missing when fewer than min_items are answered.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "items",
+        "min_items",
+        "scale_id"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "scale_mean",
+            "scale_sum"
+          ],
+          "title": "ScaleScoreOp"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "min_items": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "description": "Minimum answered items; null = all items must be answered for scale_sum, at least one for scale_mean."
+        },
+        "scale_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Scale this score belongs to, if any."
+        }
+      }
+    },
+    "RecodeRule": {
+      "title": "RecodeRule",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from_values",
+        "from_range",
+        "to"
+      ],
+      "properties": {
+        "from_values": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "description": "Exact source values mapped by this rule (null when from_range is used)."
+        },
+        "from_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResponseRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive numeric range mapped by this rule (null when from_values is used)."
+        },
+        "to": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ],
+          "description": "New value; null = set missing."
+        }
+      }
+    },
+    "ComputedRecode": {
+      "title": "ComputedRecode",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "source",
+        "rules",
+        "unmatched"
+      ],
+      "properties": {
+        "op": {
+          "const": "recode"
+        },
+        "source": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/RecodeRule"
+          }
+        },
+        "unmatched": {
+          "type": "string",
+          "enum": [
+            "keep",
+            "missing"
+          ],
+          "description": "What happens to values no rule matches.",
+          "title": "RecodeUnmatched"
+        }
+      }
+    },
+    "ComputedDefinition": {
+      "title": "ComputedDefinition",
+      "description": "Guided-builder operations only (no formula language). SPEC §6.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ComputedDifference"
+        },
+        {
+          "$ref": "#/$defs/ComputedNormalizedGain"
+        },
+        {
+          "$ref": "#/$defs/ComputedScaleScore"
+        },
+        {
+          "$ref": "#/$defs/ComputedRecode"
+        }
+      ]
+    }
+  }
+}

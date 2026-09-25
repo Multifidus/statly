@@ -1,0 +1,42 @@
+{
+  "dataset": "one_group_prepost_likert",
+  "n_pre": 60,
+  "n_post": 60,
+  "matrix_items": [
+    "Q3_1",
+    "Q3_2",
+    "Q3_3",
+    "Q3_4",
+    "Q3_5",
+    "Q3_6",
+    "Q3_7",
+    "Q3_8",
+    "Q3_9",
+    "Q3_10"
+  ],
+  "reverse_worded_items": [
+    "Q3_3",
+    "Q3_8"
+  ],
+  "likert_coding": "numeric 1-5",
+  "header_rows": 3,
+  "linked": false,
+  "note": "pre.csv and post.csv are independent Qualtrics exports of the same cohort (no shared ID); compare via SPEC 5.4 aggregate mode.",
+  "true_design": {
+    "pre_mean_target": 3.0,
+    "post_mean_target": 3.425,
+    "item_sd_target": 0.85,
+    "target_cohens_d": 0.5
+  },
+  "achieved": {
+    "pre_scale_mean": 2.96,
+    "post_scale_mean": 3.4917,
+    "pooled_sd": 0.8691,
+    "cohens_d": 0.6117
+  },
+  "gotchas": [
+    "10-item Likert matrix Q3_1..Q3_10 with 3-row Qualtrics header.",
+    "Q3_3 and Q3_8 are negatively worded and must be reverse-scored (6 - x on a 1-5 scale) before scale scoring.",
+    "pre.csv and post.csv share identical question text/IDs for multi-file stacking (SPEC 5.3) but have independent ResponseIds (aggregate mode only, no linking ID present)."
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/AssumptionResult.json",
+  "title": "AssumptionResult",
+  "description": "Outcome of one assumption check for one subset of data (one group, the differences, the residuals, ...). SPEC §7.2.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "assumption", "label", "test_used", "statistic", "p", "verdict", "explanation", "applies_to", "chart_refs"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "assumption": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Assumption key (open enum), e.g. normality, homogeneity_of_variance, sphericity, independence, linearity, multicollinearity, outliers, homogeneity_of_regression_slopes, equal_covariance_matrices."
+    },
+    "label": { "type": "string", "description": "Display name, e.g. 'Normality'." },
+    "test_used": {
+      "anyOf": [{ "$ref": "#/$defs/AssumptionTest" }, { "type": "null" }],
+      "description": "null for visual-only or design-based checks (e.g. independence)."
+    },
+    "statistic": {
+      "anyOf": [{ "$ref": "#/$defs/AssumptionStatistic" }, { "type": "null" }]
+    },
+    "p": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "verdict": { "title": "AssumptionVerdict", "type": "string", "enum": ["passed", "caution", "failed"] },
+    "explanation": { "type": "string", "description": "Plain-language meaning of the result for the user's decision (grade 8-10 reading level)." },
+    "applies_to": { "$ref": "#/$defs/AssumptionScope" },
+    "chart_refs": { "type": "array", "items": { "$ref": "#/$defs/ChartRef" } }
+  },
+  "$defs": {
+    "AssumptionTest": {
+      "title": "AssumptionTest",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label"],
+      "properties": {
+        "key": { "type": "string", "description": "e.g. shapiro_wilk, ks_lilliefors, levene_brown_forsythe, mauchly, box_m, vif." },
+        "label": { "type": "string", "description": "e.g. 'Shapiro-Wilk'." }
+      }
+    },
+    "AssumptionStatistic": {
+      "title": "AssumptionStatistic",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["symbol", "value", "df"],
+      "properties": {
+        "symbol": { "type": "string", "description": "APA symbol, e.g. 'W', 'F', 'χ²'." },
+        "value": { "type": "number" },
+        "df": { "type": "array", "items": { "type": "number" }, "maxItems": 2 }
+      }
+    },
+    "AssumptionScope": {
+      "title": "AssumptionScope",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label", "group", "n"],
+      "properties": {
+        "kind": { "title": "AssumptionScopeKind", "type": "string", "enum": ["group", "differences", "residuals", "overall"] },
+        "label": { "type": "string", "description": "e.g. 'Control group', 'Post - Pre differences'." },
+        "group": {
+          "type": ["object", "null"],
+          "description": "For kind=group: grouping variable -> level value.",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
+        },
+        "n": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "ChartRef": {
+      "title": "ChartRef",
+      "description": "A supporting visual. Its data lives in AnalysisResult.chart_data[data_key].",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chart_type", "title", "data_key"],
+      "properties": {
+        "chart_type": { "$ref": "ChartSpec.json#/$defs/ChartType" },
+        "title": { "type": "string" },
+        "data_key": { "type": "string" }
+      }
+    }
+  }
+}

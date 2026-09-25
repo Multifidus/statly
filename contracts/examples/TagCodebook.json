@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "tags": [
+    {
+      "id": "tag_conf",
+      "name": "Confidence",
+      "color": "#0072B2",
+      "definition": "Mentions feeling more (or less) confident about math."
+    },
+    {
+      "id": "tag_peer",
+      "name": "Peer help",
+      "color": "#E69F00",
+      "definition": "Mentions learning from classmates."
+    }
+  ],
+  "applications": [
+    {
+      "row_id": 17,
+      "variable": "Q9_TEXT",
+      "tag_ids": [
+        "tag_conf",
+        "tag_peer"
+      ]
+    }
+  ]
+}

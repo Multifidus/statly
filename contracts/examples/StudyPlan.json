@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "plan_1",
+  "title": "Math attitude intervention study",
+  "created_at": "2026-09-24T21:00:00Z",
+  "modified_at": "2026-09-24T21:00:00Z",
+  "design": {
+    "decision_tree_version": "1",
+    "answers": {
+      "goal": "compare",
+      "n_groups": 2,
+      "n_timepoints": 2,
+      "linked": true,
+      "covariates": [
+        "pretest"
+      ]
+    },
+    "summary": "Two groups (control, intervention) measured before and after, students linked by a self-generated code."
+  },
+  "planned_analyses": [
+    {
+      "analysis_id": "ancova",
+      "label": "ANCOVA (posttest adjusted for pretest)",
+      "rationale": "Adjusting for pretest makes the group comparison fairer and more precise.",
+      "nonparametric_alternative": "quade",
+      "assumptions_to_check": [
+        "normality",
+        "homogeneity_of_variance",
+        "homogeneity_of_regression_slopes"
+      ],
+      "effect_size": "partial_eta_sq",
+      "follow_ups": []
+    }
+  ],
+  "power_analyses": [
+    {
+      "analysis_id": "t_test.independent",
+      "mode": "a_priori",
+      "inputs": {
+        "alpha": 0.05,
+        "power": 0.8,
+        "tails": "two_sided",
+        "effect_size_metric": "d",
+        "effect_size": 0.5,
+        "n_total": null,
+        "allocation_ratio": 1
+      },
+      "outputs": {
+        "n_total": 128,
+        "n_per_group": [
+          64,
+          64
+        ],
+        "detectable_effect": null,
+        "achieved_power": 0.801,
+        "method_note": "Exact noncentral t (matches G*Power)."
+      }
+    }
+  ],
+  "recommendations": [
+    {
+      "category": "data_collection",
+      "text": "Ask every student for the same self-generated code on both surveys.",
+      "why": "Without it, pre and post answers cannot be matched and paired tests are impossible."
+    }
+  ]
+}

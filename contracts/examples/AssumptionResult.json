@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "assumption": "normality",
+  "label": "Normality",
+  "test_used": {
+    "key": "shapiro_wilk",
+    "label": "Shapiro-Wilk"
+  },
+  "statistic": {
+    "symbol": "W",
+    "value": 0.962,
+    "df": []
+  },
+  "p": 0.284,
+  "verdict": "passed",
+  "explanation": "Scores in the control group look close to a bell curve, so this assumption is reasonable.",
+  "applies_to": {
+    "kind": "group",
+    "label": "Control group",
+    "group": {
+      "condition": "Control"
+    },
+    "n": 20
+  },
+  "chart_refs": [
+    {
+      "chart_type": "qq",
+      "title": "Q-Q plot: Control",
+      "data_key": "qq_control"
+    }
+  ]
+}

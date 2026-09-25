@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/DatasetMeta.json",
+  "title": "DatasetMeta",
+  "description": "Everything about a dataset except the rows. The engine owns the data (Parquet); the frontend holds only this plus paged row slices (dataset.rows). SPEC §5.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "dataset_id", "snapshot_id", "n_rows", "row_id_column",
+    "variables", "scales", "import_log", "stacking", "link", "missing_summary"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "dataset_id": { "type": "string", "minLength": 1, "description": "Stable id for the dataset for the life of the project." },
+    "snapshot_id": { "type": "string", "minLength": 1, "description": "Content id of the current data + variable metadata. Changes on every mutation; analyses are pure functions of (snapshot_id, AnalysisRequest)." },
+    "n_rows": { "type": "integer", "minimum": 0 },
+    "row_id_column": {
+      "const": "_statly_row_id",
+      "description": "Reserved int64 Parquet column holding a stable per-row id (survives sorting/filtering; referenced by TagCodebook applications). Not listed in variables."
+    },
+    "variables": { "type": "array", "items": { "$ref": "VariableSchema.json" } },
+    "scales": { "type": "array", "items": { "$ref": "#/$defs/Scale" } },
+    "import_log": { "$ref": "#/$defs/ImportLog" },
+    "stacking": {
+      "anyOf": [{ "$ref": "#/$defs/StackingInfo" }, { "type": "null" }],
+      "description": "Present when several files were stacked into one long dataset."
+    },
+    "link": { "$ref": "#/$defs/LinkConfig" },
+    "missing_summary": { "type": "array", "items": { "$ref": "#/$defs/VariableMissingSummary" } }
+  },
+  "$defs": {
+    "Scale": {
+      "title": "Scale",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "items", "scoring_method", "min_items", "score_variable", "origin"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "items": { "type": "array", "items": { "type": "string" }, "description": "Item variable names (authoritative scale membership)." },
+        "scoring_method": { "title": "ScaleScoringMethod", "type": "string", "enum": ["mean", "sum"] },
+        "min_items": { "type": ["integer", "null"], "minimum": 1, "description": "Minimum answered items for a score; null = no threshold beyond at least one (mean) / all (sum)." },
+        "score_variable": { "type": ["string", "null"], "description": "Name of the computed variable (op scale_mean/scale_sum) holding the score, once created." },
+        "origin": { "title": "ScaleOrigin", "type": "string", "enum": ["user", "matrix_suggestion"], "description": "matrix_suggestion = proposed from a Qualtrics matrix question (Q5_1, Q5_2, ...)." }
+      }
+    },
+    "ImportLog": {
+      "title": "ImportLog",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "row_filters", "dropped_columns"],
+      "properties": {
+        "files": { "type": "array", "items": { "$ref": "#/$defs/ImportedFile" } },
+        "row_filters": { "type": "array", "items": { "$ref": "#/$defs/RowFilter" } },
+        "dropped_columns": { "type": "array", "items": { "$ref": "#/$defs/DroppedColumn" } }
+      }
+    },
+    "ImportedFile": {
+      "title": "ImportedFile",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_id", "name", "sha256", "size_bytes", "format", "encoding", "delimiter",
+        "sheet_name", "qualtrics", "time_label", "n_rows_read", "n_rows_kept", "stored_path", "imported_at"
+      ],
+      "properties": {
+        "file_id": { "type": "string" },
+        "name": { "type": "string", "description": "Original file name (no directory)." },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "format": { "$ref": "#/$defs/FileFormat" },
+        "encoding": { "type": ["string", "null"], "description": "Detected/confirmed text encoding for CSV (e.g. utf-8, utf-8-sig, utf-16-le, cp1252); null for XLSX." },
+        "delimiter": { "type": ["string", "null"], "description": "Detected/confirmed CSV delimiter; null for XLSX." },
+        "sheet_name": { "type": ["string", "null"], "description": "Chosen XLSX sheet; null for CSV." },
+        "qualtrics": { "$ref": "#/$defs/QualtricsDetection" },
+        "time_label": { "type": ["string", "null"], "description": "User-editable time label when stacked (e.g. 'Pre')." },
+        "n_rows_read": { "type": "integer", "minimum": 0, "description": "Data rows read, after header rows." },
+        "n_rows_kept": { "type": "integer", "minimum": 0, "description": "Rows kept after row filters." },
+        "stored_path": { "type": "string", "description": "Path of the untouched original inside the .statly zip, e.g. 'originals/<file_id>/<name>'." },
+        "imported_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "FileFormat": { "title": "FileFormat", "type": "string", "enum": ["csv", "xlsx"] },
+    "QualtricsDetection": {
+      "title": "QualtricsDetection",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detected", "confirmed", "header_rows"],
+      "properties": {
+        "detected": { "type": "boolean" },
+        "confirmed": { "type": "boolean", "description": "User accepted (or forced) Qualtrics mode." },
+        "header_rows": { "type": "integer", "minimum": 1, "maximum": 3, "description": "Header rows consumed: 1 (plain), 2 (older Qualtrics) or 3 (with ImportId row)." }
+      }
+    },
+    "RowFilter": {
+      "title": "RowFilter",
+      "description": "A row exclusion applied at import, with its plain-language explanation and effect.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "file_id", "variable", "values", "threshold", "explanation", "rows_removed"],
+      "properties": {
+        "id": { "type": "string" },
+        "kind": { "$ref": "#/$defs/RowFilterKind" },
+        "file_id": { "type": ["string", "null"], "description": "File the filter applied to; null = all files." },
+        "variable": { "type": ["string", "null"], "description": "Column tested (e.g. Status, Finished, Progress)." },
+        "values": { "type": ["array", "null"], "items": { "type": ["string", "number"] }, "description": "exclude_values: values that exclude a row (e.g. ['Survey Preview', 'Spam'] or Qualtrics codes 1, 8)." },
+        "threshold": { "type": ["number", "null"], "description": "progress_below: rows with Progress < threshold are removed." },
+        "explanation": { "type": "string" },
+        "rows_removed": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "RowFilterKind": {
+      "title": "RowFilterKind",
+      "type": "string",
+      "enum": ["exclude_values", "exclude_unfinished", "progress_below"]
+    },
+    "DroppedColumn": {
+      "title": "DroppedColumn",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_id", "column", "reason"],
+      "properties": {
+        "file_id": { "type": "string" },
+        "column": { "type": "string" },
+        "reason": { "title": "DropReason", "type": "string", "enum": ["pii", "user"] }
+      }
+    },
+    "StackingInfo": {
+      "title": "StackingInfo",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["time_variable", "levels"],
+      "properties": {
+        "time_variable": { "type": "string", "description": "Name of the created Time variable (role 'time')." },
+        "levels": {
+          "type": "array",
+          "description": "Time levels in order (this order is the Time variable's value order).",
+          "items": { "$ref": "#/$defs/StackLevel" }
+        }
+      }
+    },
+    "StackLevel": {
+      "title": "StackLevel",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_id", "label"],
+      "properties": {
+        "file_id": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+    "LinkConfig": {
+      "title": "LinkConfig",
+      "description": "Aggregate (default) or linked mode. In linked mode id_variable, normalization and counts are non-null.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "id_variable", "normalization", "counts"],
+      "properties": {
+        "mode": { "title": "LinkMode", "type": "string", "enum": ["aggregate", "linked"] },
+        "id_variable": { "type": ["string", "null"] },
+        "normalization": {
+          "anyOf": [{ "$ref": "#/$defs/IdNormalization" }, { "type": "null" }]
+        },
+        "counts": {
+          "anyOf": [{ "$ref": "#/$defs/LinkCounts" }, { "type": "null" }]
+        }
+      }
+    },
+    "IdNormalization": {
+      "title": "IdNormalization",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trim_whitespace", "case_insensitive"],
+      "properties": {
+        "trim_whitespace": { "type": "boolean" },
+        "case_insensitive": { "type": "boolean" }
+      }
+    },
+    "LinkCounts": {
+      "title": "LinkCounts",
+      "description": "Participant-level counts after normalization.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["matched", "unmatched", "duplicate"],
+      "properties": {
+        "matched": { "type": "integer", "minimum": 0, "description": "IDs present at every time level." },
+        "unmatched": { "type": "integer", "minimum": 0, "description": "IDs missing from at least one time level (excluded only from paired/repeated analyses)." },
+        "duplicate": { "type": "integer", "minimum": 0, "description": "IDs appearing more than once within a single time level." }
+      }
+    },
+    "VariableMissingSummary": {
+      "title": "VariableMissingSummary",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variable", "n_total", "n_valid", "n_missing_blank", "n_missing_coded", "pct_missing"],
+      "properties": {
+        "variable": { "type": "string" },
+        "n_total": { "type": "integer", "minimum": 0 },
+        "n_valid": { "type": "integer", "minimum": 0 },
+        "n_missing_blank": { "type": "integer", "minimum": 0, "description": "Empty / NA cells." },
+        "n_missing_coded": { "type": "integer", "minimum": 0, "description": "Cells equal to a declared missing code." },
+        "pct_missing": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    }
+  }
+}

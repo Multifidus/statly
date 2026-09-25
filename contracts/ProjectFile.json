@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/ProjectFile.json",
+  "title": "ProjectFile",
+  "description": "Root document stored as project.json inside a .statly zip (layout in contracts/README.md). SPEC §13 Phase 1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "project_id", "name", "app_version", "engine_version", "created_at", "modified_at",
+    "dataset_meta", "data_path", "test_log", "test_families", "chart_specs", "tag_codebook", "study_plan", "ui_state"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_id": { "type": "string", "description": "Stable UUID; keys autosave files." },
+    "name": { "type": "string" },
+    "app_version": { "type": "string" },
+    "engine_version": { "type": "string", "description": "Engine version that last wrote the file." },
+    "created_at": { "type": "string", "format": "date-time" },
+    "modified_at": { "type": "string", "format": "date-time" },
+    "dataset_meta": {
+      "anyOf": [{ "$ref": "DatasetMeta.json" }, { "type": "null" }],
+      "description": "null for a planner-only project with no data yet."
+    },
+    "data_path": { "type": ["string", "null"], "description": "Parquet path inside the zip ('data/dataset.parquet'); null iff dataset_meta is null." },
+    "test_log": { "type": "array", "items": { "$ref": "TestLogEntry.json" } },
+    "test_families": { "type": "array", "items": { "$ref": "#/$defs/TestFamily" } },
+    "chart_specs": { "type": "array", "items": { "$ref": "ChartSpec.json" } },
+    "tag_codebook": { "anyOf": [{ "$ref": "TagCodebook.json" }, { "type": "null" }] },
+    "study_plan": { "anyOf": [{ "$ref": "StudyPlan.json" }, { "type": "null" }] },
+    "ui_state": { "$ref": "#/$defs/UiState" }
+  },
+  "$defs": {
+    "TestFamily": {
+      "title": "TestFamily",
+      "description": "User-named group of related tests for multiple-comparison correction. Membership and method live on TestLogEntry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "UiState": {
+      "title": "UiState",
+      "description": "Minimal, non-essential UI restore hints. Safe to discard.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["active_view"],
+      "properties": {
+        "active_view": { "type": ["string", "null"], "description": "e.g. 'data', 'variables', 'analyze', 'results', 'charts', 'qualitative', 'planner'." },
+        "active_chart_id": { "type": ["string", "null"] },
+        "active_test_log_entry_id": { "type": ["string", "null"] }
+      }
+    },
+    "AutosaveMarker": {
+      "title": "AutosaveMarker",
+      "description": "autosave.json, present ONLY in autosave copies of a .statly zip.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "project_id", "original_path", "saved_at"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "project_id": { "type": "string" },
+        "original_path": { "type": ["string", "null"], "description": "Path of the real .statly file; null if never saved." },
+        "saved_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

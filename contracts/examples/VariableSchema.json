@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "name": "Q5_2",
+  "label": "Math is boring",
+  "question_text": "How much do you agree? - Math is boring",
+  "role": "likert_item",
+  "level": "ordinal",
+  "dtype": "integer",
+  "value_labels": [
+    {
+      "value": 1,
+      "label": "Strongly disagree"
+    },
+    {
+      "value": 2,
+      "label": "Disagree"
+    },
+    {
+      "value": 3,
+      "label": "Neutral"
+    },
+    {
+      "value": 4,
+      "label": "Agree"
+    },
+    {
+      "value": 5,
+      "label": "Strongly agree"
+    }
+  ],
+  "reverse_coded": true,
+  "response_range": {
+    "min": 1,
+    "max": 5
+  },
+  "scale_id": "scale_math_attitude",
+  "missing_codes": [
+    -99
+  ],
+  "sources": [
+    {
+      "file_id": "file_pre",
+      "original_column_name": "Q5_2",
+      "qualtrics_import_id": "QID5_2",
+      "header_texts": [
+        "Q5_2",
+        "How much do you agree? - Math is boring",
+        "{\"ImportId\":\"QID5_2\"}"
+      ]
+    },
+    {
+      "file_id": "file_post",
+      "original_column_name": "Q5_2",
+      "qualtrics_import_id": "QID5_2",
+      "header_texts": [
+        "Q5_2",
+        "How much do you agree? - Math is boring",
+        "{\"ImportId\":\"QID5_2\"}"
+      ]
+    }
+  ],
+  "is_metadata": false,
+  "is_pii": false,
+  "pii_reason": null,
+  "computed": null,
+  "display_order": 5
+}

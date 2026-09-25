@@ -1,0 +1,113 @@
+{
+  "dataset": "three_groups_prepost_followup",
+  "group_variable": "Q2",
+  "groups": [
+    "Control",
+    "Intervention A",
+    "Intervention B"
+  ],
+  "n_per_group_per_time": {
+    "Control": {
+      "pre": 44,
+      "post": 38,
+      "followup": 30
+    },
+    "Intervention A": {
+      "pre": 46,
+      "post": 41,
+      "followup": 35
+    },
+    "Intervention B": {
+      "pre": 45,
+      "post": 40,
+      "followup": 33
+    }
+  },
+  "n_total_per_time": {
+    "pre": 135,
+    "post": 119,
+    "followup": 98
+  },
+  "linked": false,
+  "note": "Unequal group sizes; rows shrink pre->post->followup simulating dropout (independent samples per time, no ID link).",
+  "n_items": 20,
+  "item_choices": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "answer_key_file": "answer_key.csv",
+  "score_column": "SC0",
+  "true_design": {
+    "target_proportion_correct": {
+      "Control": {
+        "pre": 0.5,
+        "post": 0.52,
+        "fu": 0.5
+      },
+      "Intervention A": {
+        "pre": 0.5,
+        "post": 0.62,
+        "fu": 0.58
+      },
+      "Intervention B": {
+        "pre": 0.5,
+        "post": 0.72,
+        "fu": 0.65
+      }
+    },
+    "pattern": "post: B > A > Control; followup: partial fade toward baseline but ordering (B > A > Control) preserved"
+  },
+  "achieved": {
+    "Control": {
+      "pre": {
+        "n": 44,
+        "mean_proportion_correct": 0.4591
+      },
+      "post": {
+        "n": 38,
+        "mean_proportion_correct": 0.5197
+      },
+      "fu": {
+        "n": 30,
+        "mean_proportion_correct": 0.5217
+      }
+    },
+    "Intervention A": {
+      "pre": {
+        "n": 46,
+        "mean_proportion_correct": 0.5076
+      },
+      "post": {
+        "n": 41,
+        "mean_proportion_correct": 0.6085
+      },
+      "fu": {
+        "n": 35,
+        "mean_proportion_correct": 0.5714
+      }
+    },
+    "Intervention B": {
+      "pre": {
+        "n": 45,
+        "mean_proportion_correct": 0.5444
+      },
+      "post": {
+        "n": 40,
+        "mean_proportion_correct": 0.7025
+      },
+      "fu": {
+        "n": 33,
+        "mean_proportion_correct": 0.6121
+      }
+    }
+  },
+  "gotchas": [
+    "20-item raw-choice (A-D) knowledge test scored via answer_key.csv, not pre-scored \u2014 Phase 1/2 must apply the key to compute SC0-equivalent.",
+    "SC0 column present alongside raw items (Qualtrics scored-test column).",
+    "Group variable Q2 uses text choices, not numeric codes.",
+    "Unequal n per group and per time point; row counts shrink across pre -> post -> followup (dropout).",
+    "True effect: Intervention B > Intervention A > Control at post, with partial fade (but same ordering) at follow-up."
+  ]
+}

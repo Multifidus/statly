@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "req_0001",
+  "timestamp": "2026-09-24T21:00:00Z",
+  "request": {
+    "schema_version": 1,
+    "request_id": "req_0001",
+    "analysis_id": "t_test.independent",
+    "dataset_id": "ds_7f3a",
+    "snapshot_id": "snap_9c21e4",
+    "variables": {
+      "outcome": [
+        "math_attitude"
+      ],
+      "group": [
+        "condition"
+      ]
+    },
+    "subset": [
+      {
+        "variable": "Time",
+        "op": "in",
+        "values": [
+          "Post"
+        ]
+      }
+    ],
+    "options": {
+      "welch": true
+    },
+    "corrections": [],
+    "alpha": 0.05,
+    "tails": "two_sided",
+    "ci_level": 0.95
+  },
+  "result_summary": {
+    "analysis_label": "Independent-samples t test (Welch)",
+    "outcome_variables": [
+      "math_attitude"
+    ],
+    "primary_statistic": {
+      "key": "t",
+      "label": "Welch's t",
+      "symbol": "t",
+      "value": 2.31,
+      "df": [
+        37.4
+      ],
+      "p": 0.026,
+      "term": null
+    },
+    "p": 0.026,
+    "primary_effect_size": {
+      "key": "hedges_g",
+      "label": "Hedges' g",
+      "symbol": "g",
+      "value": 0.72,
+      "ci": {
+        "level": 0.95,
+        "lower": 0.08,
+        "upper": 1.35
+      },
+      "term": null,
+      "interpretation": {
+        "magnitude": "medium",
+        "benchmark": "Cohen (1988)",
+        "text": "A medium-sized difference by common benchmarks; education effects are often judged against field norms."
+      }
+    },
+    "n_used": 40,
+    "apa_sentence": [
+      {
+        "text": "Students in the intervention group reported more positive attitudes than the control group, "
+      },
+      {
+        "text": "t",
+        "italic": true
+      },
+      {
+        "text": "(37.4) = 2.31, "
+      },
+      {
+        "text": "p",
+        "italic": true
+      },
+      {
+        "text": " = .026, "
+      },
+      {
+        "text": "g",
+        "italic": true
+      },
+      {
+        "text": " = 0.72, 95% CI [0.08, 1.35]."
+      }
+    ],
+    "plain_language_summary": "At posttest, the intervention group liked math more than the control group, and the difference was medium-sized.",
+    "engine_version": "0.1.0"
+  },
+  "result_path": "results/req_0001.json",
+  "family_id": "fam_attitude",
+  "correction_method": "holm",
+  "adjusted_p": 0.052
+}

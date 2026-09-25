@@ -1,0 +1,138 @@
+StartDate,EndDate,Status,IPAddress,Progress,Duration (in seconds),Finished,RecordedDate,ResponseId,RecipientLastName,RecipientFirstName,RecipientEmail,ExternalReference,LocationLatitude,LocationLongitude,DistributionChannel,UserLanguage,Q2,Q4_1,Q4_2,Q4_3,Q4_4,Q4_5,Q4_6,Q4_7,Q4_8,Q4_9,Q4_10,Q4_11,Q4_12,Q4_13,Q4_14,Q4_15,Q4_16,Q4_17,Q4_18,Q4_19,Q4_20,SC0
+StartDate,EndDate,Status,IPAddress,Progress,Duration (in seconds),Finished,RecordedDate,ResponseId,RecipientLastName,RecipientFirstName,RecipientEmail,ExternalReference,LocationLatitude,LocationLongitude,DistributionChannel,UserLanguage,Which group are you in?,Knowledge item 1: which statement is correct?,Knowledge item 2: which statement is correct?,Knowledge item 3: which statement is correct?,Knowledge item 4: which statement is correct?,Knowledge item 5: which statement is correct?,Knowledge item 6: which statement is correct?,Knowledge item 7: which statement is correct?,Knowledge item 8: which statement is correct?,Knowledge item 9: which statement is correct?,Knowledge item 10: which statement is correct?,Knowledge item 11: which statement is correct?,Knowledge item 12: which statement is correct?,Knowledge item 13: which statement is correct?,Knowledge item 14: which statement is correct?,Knowledge item 15: which statement is correct?,Knowledge item 16: which statement is correct?,Knowledge item 17: which statement is correct?,Knowledge item 18: which statement is correct?,Knowledge item 19: which statement is correct?,Knowledge item 20: which statement is correct?,Total score (auto-scored)
+"{""ImportId"": ""StartDate""}","{""ImportId"": ""EndDate""}","{""ImportId"": ""Status""}","{""ImportId"": ""IPAddress""}","{""ImportId"": ""Progress""}","{""ImportId"": ""Duration (in seconds)""}","{""ImportId"": ""Finished""}","{""ImportId"": ""RecordedDate""}","{""ImportId"": ""ResponseId""}","{""ImportId"": ""RecipientLastName""}","{""ImportId"": ""RecipientFirstName""}","{""ImportId"": ""RecipientEmail""}","{""ImportId"": ""ExternalReference""}","{""ImportId"": ""LocationLatitude""}","{""ImportId"": ""LocationLongitude""}","{""ImportId"": ""DistributionChannel""}","{""ImportId"": ""UserLanguage""}","{""ImportId"": ""Q2""}","{""ImportId"": ""Q4_1""}","{""ImportId"": ""Q4_2""}","{""ImportId"": ""Q4_3""}","{""ImportId"": ""Q4_4""}","{""ImportId"": ""Q4_5""}","{""ImportId"": ""Q4_6""}","{""ImportId"": ""Q4_7""}","{""ImportId"": ""Q4_8""}","{""ImportId"": ""Q4_9""}","{""ImportId"": ""Q4_10""}","{""ImportId"": ""Q4_11""}","{""ImportId"": ""Q4_12""}","{""ImportId"": ""Q4_13""}","{""ImportId"": ""Q4_14""}","{""ImportId"": ""Q4_15""}","{""ImportId"": ""Q4_16""}","{""ImportId"": ""Q4_17""}","{""ImportId"": ""Q4_18""}","{""ImportId"": ""Q4_19""}","{""ImportId"": ""Q4_20""}","{""ImportId"": ""SC0""}"
+2026-02-26 15:04:16,2026-02-26 15:04:16,IP Address,,100,279,True,2026-02-26 15:04:16,R_B_PRE_0052,,,,,,,anonymous,EN,Intervention A,C,D,A,A,C,B,B,C,B,C,A,B,D,B,C,A,B,B,D,B,9
+2026-02-21 10:20:20,2026-02-21 10:20:20,IP Address,,100,505,True,2026-02-21 10:20:20,R_B_PRE_0020,,,,,,,anonymous,EN,Control,A,D,C,D,C,B,B,A,D,B,B,C,C,A,B,B,A,C,B,D,4
+2026-02-01 08:45:15,2026-02-01 08:45:15,IP Address,,100,125,True,2026-02-01 08:45:15,R_B_PRE_0135,,,,,,,anonymous,EN,Intervention B,C,C,D,C,B,C,A,C,C,B,C,D,B,B,C,D,C,D,B,A,9
+2026-02-19 08:33:27,2026-02-19 08:33:27,IP Address,,100,700,True,2026-02-19 08:33:27,R_B_PRE_0099,,,,,,,anonymous,EN,Intervention B,D,C,D,A,B,A,B,C,A,B,A,D,B,B,B,A,C,A,B,C,10
+2026-02-08 15:07:13,2026-02-08 15:07:13,IP Address,,100,418,True,2026-02-08 15:07:13,R_B_PRE_0061,,,,,,,anonymous,EN,Intervention A,D,C,D,C,A,D,B,A,D,C,C,B,C,C,C,A,C,B,B,D,9
+2026-02-01 08:09:51,2026-02-01 08:09:51,IP Address,,100,771,True,2026-02-01 08:09:51,R_B_PRE_0027,,,,,,,anonymous,EN,Control,C,B,B,B,A,A,C,C,C,C,A,B,A,A,B,C,A,B,B,C,7
+2026-02-14 12:31:49,2026-02-14 12:31:49,IP Address,,100,656,True,2026-02-14 12:31:49,R_B_PRE_0013,,,,,,,anonymous,EN,Control,D,D,D,D,B,D,B,C,B,C,D,C,A,D,D,D,A,C,B,A,9
+2026-02-11 09:46:34,2026-02-11 09:46:34,IP Address,,100,782,True,2026-02-11 09:46:34,R_B_PRE_0118,,,,,,,anonymous,EN,Intervention B,B,C,D,D,B,B,B,C,B,B,C,D,A,B,C,A,B,B,B,B,16
+2026-02-02 09:43:37,2026-02-02 09:43:37,IP Address,,100,447,True,2026-02-02 09:43:37,R_B_PRE_0109,,,,,,,anonymous,EN,Intervention B,D,C,D,B,B,A,C,D,B,B,C,B,A,B,C,C,D,B,D,B,15
+2026-02-06 13:35:05,2026-02-06 13:35:05,IP Address,,100,686,True,2026-02-06 13:35:05,R_B_PRE_0005,,,,,,,anonymous,EN,Control,C,B,A,C,D,D,C,A,B,B,D,C,C,B,A,B,D,A,D,C,3
+2026-02-14 12:58:22,2026-02-14 12:58:22,IP Address,,100,868,True,2026-02-14 12:58:22,R_B_PRE_0094,,,,,,,anonymous,EN,Intervention B,C,A,A,D,B,C,C,D,B,A,B,B,A,B,D,D,D,B,A,A,7
+2026-02-14 12:07:13,2026-02-14 12:07:13,IP Address,,100,400,True,2026-02-14 12:07:13,R_B_PRE_0121,,,,,,,anonymous,EN,Intervention B,D,D,D,D,B,A,C,B,B,B,B,B,B,B,C,D,B,B,C,B,13
+2026-02-23 12:43:37,2026-02-23 12:43:37,IP Address,,100,765,True,2026-02-23 12:43:37,R_B_PRE_0049,,,,,,,anonymous,EN,Intervention A,A,C,A,B,A,A,C,C,B,C,D,B,A,B,D,A,B,B,B,A,10
+2026-02-22 11:36:24,2026-02-22 11:36:24,IP Address,,100,487,True,2026-02-22 11:36:24,R_B_PRE_0048,,,,,,,anonymous,EN,Intervention A,D,C,D,D,B,A,B,C,B,A,C,C,A,B,C,A,B,B,B,B,17
+2026-02-11 09:10:10,2026-02-11 09:10:10,IP Address,,100,246,True,2026-02-11 09:10:10,R_B_PRE_0010,,,,,,,anonymous,EN,Control,C,A,B,B,A,D,C,D,B,B,A,C,C,B,D,A,B,D,A,C,4
+2026-02-15 13:47:53,2026-02-15 13:47:53,IP Address,,100,833,True,2026-02-15 13:47:53,R_B_PRE_0041,,,,,,,anonymous,EN,Control,D,C,D,C,A,A,B,C,B,B,D,B,D,B,C,D,D,C,D,C,11
+2026-02-20 09:31:49,2026-02-20 09:31:49,IP Address,,100,548,True,2026-02-20 09:31:49,R_B_PRE_0073,,,,,,,anonymous,EN,Intervention A,D,A,D,D,B,A,A,C,B,D,C,B,B,B,B,D,B,B,D,C,12
+2026-02-09 16:14:26,2026-02-09 16:14:26,IP Address,,100,840,True,2026-02-09 16:14:26,R_B_PRE_0062,,,,,,,anonymous,EN,Intervention A,D,C,D,D,B,B,D,C,B,A,B,B,D,B,D,A,D,D,B,B,11
+2026-02-25 14:48:12,2026-02-25 14:48:12,IP Address,,100,94,True,2026-02-25 14:48:12,R_B_PRE_0024,,,,,,,anonymous,EN,Control,B,C,D,D,B,D,C,C,C,B,D,B,A,A,C,C,D,D,C,C,10
+2026-02-02 09:16:04,2026-02-02 09:16:04,IP Address,,100,748,True,2026-02-02 09:16:04,R_B_PRE_0028,,,,,,,anonymous,EN,Control,D,D,D,A,B,C,A,C,A,D,C,B,B,C,A,A,A,D,B,C,7
+2026-02-15 13:38:02,2026-02-15 13:38:02,IP Address,,100,753,True,2026-02-15 13:38:02,R_B_PRE_0014,,,,,,,anonymous,EN,Control,D,C,D,A,B,A,C,C,B,A,A,C,D,B,D,C,A,A,B,A,10
+2026-02-19 08:06:54,2026-02-19 08:06:54,IP Address,,100,298,True,2026-02-19 08:06:54,R_B_PRE_0018,,,,,,,anonymous,EN,Control,D,C,D,A,B,A,A,D,B,B,A,A,A,B,C,C,B,B,C,A,13
+2026-02-13 11:33:27,2026-02-13 11:33:27,IP Address,,100,436,True,2026-02-13 11:33:27,R_B_PRE_0039,,,,,,,anonymous,EN,Control,D,A,D,B,B,A,B,C,B,B,C,B,A,C,B,C,B,A,B,B,15
+2026-02-14 12:49:31,2026-02-14 12:49:31,IP Address,,100,867,True,2026-02-14 12:49:31,R_B_PRE_0067,,,,,,,anonymous,EN,Intervention A,D,C,B,C,A,D,B,D,B,C,C,B,A,A,D,C,C,D,A,D,8
+2026-02-06 13:53:47,2026-02-06 13:53:47,IP Address,,100,754,True,2026-02-06 13:53:47,R_B_PRE_0059,,,,,,,anonymous,EN,Intervention A,D,D,D,A,B,A,D,D,B,D,A,B,A,B,A,A,B,B,D,A,10
+2026-02-08 15:16:04,2026-02-08 15:16:04,IP Address,,100,517,True,2026-02-08 15:16:04,R_B_PRE_0088,,,,,,,anonymous,EN,Intervention A,A,A,D,D,B,B,B,C,B,C,C,A,A,B,C,A,A,A,B,D,11
+2026-02-25 14:24:36,2026-02-25 14:24:36,IP Address,,100,398,True,2026-02-25 14:24:36,R_B_PRE_0132,,,,,,,anonymous,EN,Intervention B,C,C,D,C,C,B,C,C,A,C,C,C,A,D,B,C,C,C,B,D,7
+2026-02-06 13:02:38,2026-02-06 13:02:38,IP Address,,100,127,True,2026-02-06 13:02:38,R_B_PRE_0086,,,,,,,anonymous,EN,Intervention A,D,C,D,B,B,D,B,A,B,C,C,B,A,B,B,B,C,D,D,B,11
+2026-02-26 15:55:25,2026-02-26 15:55:25,IP Address,,100,706,True,2026-02-26 15:55:25,R_B_PRE_0025,,,,,,,anonymous,EN,Control,D,C,D,A,D,C,A,C,B,B,B,B,A,B,C,B,B,D,B,C,12
+2026-02-18 16:59:41,2026-02-18 16:59:41,IP Address,,100,484,True,2026-02-18 16:59:41,R_B_PRE_0017,,,,,,,anonymous,EN,Control,C,A,C,B,C,A,D,C,B,C,C,D,D,B,D,B,C,A,B,D,6
+2026-02-04 11:30:30,2026-02-04 11:30:30,IP Address,,100,501,True,2026-02-04 11:30:30,R_B_PRE_0030,,,,,,,anonymous,EN,Control,D,D,A,D,B,B,D,C,B,D,C,D,A,A,C,A,B,B,A,A,10
+2026-02-25 14:06:54,2026-02-25 14:06:54,IP Address,,100,396,True,2026-02-25 14:06:54,R_B_PRE_0078,,,,,,,anonymous,EN,Intervention A,C,C,D,B,B,C,B,C,B,C,C,B,A,A,C,B,B,B,A,D,12
+2026-02-02 09:07:13,2026-02-02 09:07:13,IP Address,,100,224,True,2026-02-02 09:07:13,R_B_PRE_0001,,,,,,,anonymous,EN,Control,A,C,B,D,C,C,D,C,A,D,D,D,B,B,A,C,D,A,B,B,7
+2026-02-20 09:49:31,2026-02-20 09:49:31,IP Address,,100,821,True,2026-02-20 09:49:31,R_B_PRE_0127,,,,,,,anonymous,EN,Intervention B,B,C,A,B,D,C,B,D,B,D,D,B,D,B,A,C,B,B,B,D,9
+2026-02-12 10:44:56,2026-02-12 10:44:56,IP Address,,100,95,True,2026-02-12 10:44:56,R_B_PRE_0092,,,,,,,anonymous,EN,Intervention B,D,B,D,D,B,D,D,D,B,A,C,B,D,A,A,A,D,D,B,B,9
+2026-02-24 13:17:23,2026-02-24 13:17:23,IP Address,,100,725,True,2026-02-24 13:17:23,R_B_PRE_0131,,,,,,,anonymous,EN,Intervention B,C,B,D,D,B,A,C,C,B,C,C,B,B,B,C,B,B,A,B,C,12
+2026-02-26 15:22:58,2026-02-26 15:22:58,IP Address,,100,115,True,2026-02-26 15:22:58,R_B_PRE_0106,,,,,,,anonymous,EN,Intervention B,D,B,C,D,D,D,C,C,B,B,D,B,D,D,C,B,A,D,D,A,7
+2026-02-17 15:19:01,2026-02-17 15:19:01,IP Address,,100,507,True,2026-02-17 15:19:01,R_B_PRE_0097,,,,,,,anonymous,EN,Intervention B,A,B,D,D,A,A,B,A,B,B,C,A,B,D,B,B,B,B,B,D,10
+2026-02-03 10:14:26,2026-02-03 10:14:26,IP Address,,100,570,True,2026-02-03 10:14:26,R_B_PRE_0002,,,,,,,anonymous,EN,Control,A,B,D,A,A,B,D,A,B,A,D,C,A,D,A,B,D,B,C,B,5
+2026-02-16 14:21:39,2026-02-16 14:21:39,IP Address,,100,599,True,2026-02-16 14:21:39,R_B_PRE_0123,,,,,,,anonymous,EN,Intervention B,D,B,D,D,B,C,D,C,C,C,B,C,A,C,A,C,A,C,B,B,9
+2026-02-22 11:03:57,2026-02-22 11:03:57,IP Address,,100,520,True,2026-02-22 11:03:57,R_B_PRE_0129,,,,,,,anonymous,EN,Intervention B,D,A,D,D,C,D,B,C,A,A,C,A,A,A,C,D,B,C,D,B,10
+2026-02-01 08:18:42,2026-02-01 08:18:42,IP Address,,100,617,True,2026-02-01 08:18:42,R_B_PRE_0054,,,,,,,anonymous,EN,Intervention A,C,B,D,D,A,A,B,C,B,C,C,A,D,B,C,B,B,D,A,C,10
+2026-02-27 16:38:02,2026-02-27 16:38:02,IP Address,,100,601,True,2026-02-27 16:38:02,R_B_PRE_0134,,,,,,,anonymous,EN,Intervention B,A,A,B,D,B,A,C,C,D,B,C,B,A,B,A,A,B,B,B,A,12
+2026-02-01 08:36:24,2026-02-01 08:36:24,IP Address,,100,402,True,2026-02-01 08:36:24,R_B_PRE_0108,,,,,,,anonymous,EN,Intervention B,A,C,B,D,D,C,B,C,B,B,C,A,A,A,C,D,B,D,A,B,11
+2026-02-05 12:28:52,2026-02-05 12:28:52,IP Address,,100,646,True,2026-02-05 12:28:52,R_B_PRE_0004,,,,,,,anonymous,EN,Control,A,C,D,C,B,D,B,C,C,D,C,B,A,B,C,C,B,B,B,B,15
+2026-02-16 14:03:57,2026-02-16 14:03:57,IP Address,,100,778,True,2026-02-16 14:03:57,R_B_PRE_0069,,,,,,,anonymous,EN,Intervention A,C,A,A,A,B,D,B,C,B,B,C,A,A,D,B,D,C,C,B,B,9
+2026-02-08 15:49:31,2026-02-08 15:49:31,IP Address,,100,121,True,2026-02-08 15:49:31,R_B_PRE_0007,,,,,,,anonymous,EN,Control,B,B,D,C,B,D,B,A,C,A,C,D,A,B,C,D,A,C,B,A,8
+2026-02-08 15:58:22,2026-02-08 15:58:22,IP Address,,100,308,True,2026-02-08 15:58:22,R_B_PRE_0034,,,,,,,anonymous,EN,Control,D,A,D,C,A,D,D,C,B,A,B,A,A,B,A,B,B,C,A,A,7
+2026-02-12 10:26:14,2026-02-12 10:26:14,IP Address,,100,835,True,2026-02-12 10:26:14,R_B_PRE_0038,,,,,,,anonymous,EN,Control,A,B,D,D,D,A,A,D,B,B,D,B,B,B,C,C,A,B,D,C,10
+2026-02-17 15:10:10,2026-02-17 15:10:10,IP Address,,100,503,True,2026-02-17 15:10:10,R_B_PRE_0070,,,,,,,anonymous,EN,Intervention A,B,C,D,B,B,B,B,D,B,C,D,B,A,B,B,C,A,B,B,B,12
+2026-02-06 13:44:56,2026-02-06 13:44:56,IP Address,,100,784,True,2026-02-06 13:44:56,R_B_PRE_0032,,,,,,,anonymous,EN,Control,D,D,D,B,D,A,A,B,A,B,D,C,B,B,C,A,C,C,A,B,7
+2026-02-10 08:12:48,2026-02-10 08:12:48,IP Address,,100,209,True,2026-02-10 08:12:48,R_B_PRE_0036,,,,,,,anonymous,EN,Control,B,D,A,B,B,B,B,D,A,B,D,A,A,D,C,C,C,B,B,C,8
+2026-02-03 10:41:59,2026-02-03 10:41:59,IP Address,,100,746,True,2026-02-03 10:41:59,R_B_PRE_0083,,,,,,,anonymous,EN,Intervention A,A,C,D,D,C,D,B,C,B,B,A,B,A,B,C,D,B,B,B,B,15
+2026-02-04 11:57:03,2026-02-04 11:57:03,IP Address,,100,639,True,2026-02-04 11:57:03,R_B_PRE_0111,,,,,,,anonymous,EN,Intervention B,D,C,D,C,B,C,D,C,B,B,C,B,A,B,C,C,B,B,D,B,16
+2026-02-05 12:04:16,2026-02-05 12:04:16,IP Address,,100,661,True,2026-02-05 12:04:16,R_B_PRE_0112,,,,,,,anonymous,EN,Intervention B,D,B,D,D,B,A,B,C,B,B,B,A,A,B,D,C,C,B,B,D,14
+2026-02-12 10:17:23,2026-02-12 10:17:23,IP Address,,100,410,True,2026-02-12 10:17:23,R_B_PRE_0011,,,,,,,anonymous,EN,Control,C,C,D,A,C,A,D,C,B,A,B,B,D,D,B,A,B,B,C,B,9
+2026-02-13 11:51:09,2026-02-13 11:51:09,IP Address,,100,100,True,2026-02-13 11:51:09,R_B_PRE_0093,,,,,,,anonymous,EN,Intervention B,D,D,D,B,B,A,C,C,B,C,C,B,A,B,A,A,A,A,C,D,10
+2026-02-10 08:21:39,2026-02-10 08:21:39,IP Address,,100,786,True,2026-02-10 08:21:39,R_B_PRE_0063,,,,,,,anonymous,EN,Intervention A,B,D,D,C,B,A,A,D,A,A,C,D,A,D,D,B,B,A,B,A,7
+2026-02-21 10:29:11,2026-02-21 10:29:11,IP Address,,100,733,True,2026-02-21 10:29:11,R_B_PRE_0047,,,,,,,anonymous,EN,Intervention A,B,A,C,C,C,A,D,A,D,C,D,C,B,D,C,C,B,D,B,B,6
+2026-02-03 10:32:08,2026-02-03 10:32:08,IP Address,,100,135,True,2026-02-03 10:32:08,R_B_PRE_0056,,,,,,,anonymous,EN,Intervention A,A,B,D,D,A,B,A,C,A,B,D,B,D,B,A,B,B,C,B,A,8
+2026-02-23 12:52:28,2026-02-23 12:52:28,IP Address,,100,338,True,2026-02-23 12:52:28,R_B_PRE_0076,,,,,,,anonymous,EN,Intervention A,A,D,B,B,B,D,B,C,B,B,D,B,C,B,D,A,D,A,D,D,7
+2026-02-13 11:24:36,2026-02-13 11:24:36,IP Address,,100,632,True,2026-02-13 11:24:36,R_B_PRE_0012,,,,,,,anonymous,EN,Control,B,B,D,A,D,D,D,B,B,B,B,D,C,D,B,A,D,C,C,D,3
+2026-02-25 14:57:03,2026-02-25 14:57:03,IP Address,,100,702,True,2026-02-25 14:57:03,R_B_PRE_0051,,,,,,,anonymous,EN,Intervention A,C,B,B,C,B,D,C,D,D,B,C,A,B,B,A,D,C,D,D,B,5
+2026-02-21 10:47:53,2026-02-21 10:47:53,IP Address,,100,738,True,2026-02-21 10:47:53,R_B_PRE_0101,,,,,,,anonymous,EN,Intervention B,D,C,B,B,B,A,D,D,B,B,C,B,A,B,C,B,D,C,B,B,13
+2026-02-10 08:39:21,2026-02-10 08:39:21,IP Address,,100,538,True,2026-02-10 08:39:21,R_B_PRE_0117,,,,,,,anonymous,EN,Intervention B,C,C,D,A,A,A,B,C,B,D,C,B,C,C,A,C,B,B,B,B,13
+2026-02-15 13:05:35,2026-02-15 13:05:35,IP Address,,100,723,True,2026-02-15 13:05:35,R_B_PRE_0095,,,,,,,anonymous,EN,Intervention B,A,B,D,C,C,C,C,C,B,B,B,D,A,B,C,D,B,B,C,D,9
+2026-02-09 16:32:08,2026-02-09 16:32:08,IP Address,,100,446,True,2026-02-09 16:32:08,R_B_PRE_0116,,,,,,,anonymous,EN,Intervention B,A,C,D,D,B,B,B,C,B,B,C,B,A,D,C,A,C,C,B,C,13
+2026-02-24 13:50:50,2026-02-24 13:50:50,IP Address,,100,664,True,2026-02-24 13:50:50,R_B_PRE_0050,,,,,,,anonymous,EN,Intervention A,D,D,A,B,D,A,D,D,A,A,D,A,A,B,C,D,A,A,C,D,5
+2026-02-07 14:00:00,2026-02-07 14:00:00,IP Address,,100,589,True,2026-02-07 14:00:00,R_B_PRE_0060,,,,,,,anonymous,EN,Intervention A,C,D,A,D,B,A,A,C,C,B,C,A,A,B,C,C,A,C,C,B,11
+2026-02-18 16:35:05,2026-02-18 16:35:05,IP Address,,100,195,True,2026-02-18 16:35:05,R_B_PRE_0125,,,,,,,anonymous,EN,Intervention B,C,C,C,D,D,D,B,C,C,D,D,D,A,D,C,D,B,D,B,A,8
+2026-02-27 16:29:11,2026-02-27 16:29:11,IP Address,,100,71,True,2026-02-27 16:29:11,R_B_PRE_0107,,,,,,,anonymous,EN,Intervention B,B,C,D,D,B,B,A,B,B,B,C,B,A,C,C,A,B,B,B,B,14
+2026-02-09 16:56:44,2026-02-09 16:56:44,IP Address,,100,106,True,2026-02-09 16:56:44,R_B_PRE_0008,,,,,,,anonymous,EN,Control,B,D,B,D,B,A,C,A,D,A,C,D,B,B,B,B,D,B,A,B,7
+2026-02-16 14:45:15,2026-02-16 14:45:15,IP Address,,100,804,True,2026-02-16 14:45:15,R_B_PRE_0015,,,,,,,anonymous,EN,Control,B,B,D,A,B,B,B,C,A,B,C,A,A,B,A,C,B,C,B,B,12
+2026-02-21 10:38:02,2026-02-21 10:38:02,IP Address,,100,214,True,2026-02-21 10:38:02,R_B_PRE_0074,,,,,,,anonymous,EN,Intervention A,C,C,D,D,B,D,B,C,B,D,C,B,C,B,B,A,D,C,C,B,11
+2026-02-09 16:23:17,2026-02-09 16:23:17,IP Address,,100,74,True,2026-02-09 16:23:17,R_B_PRE_0089,,,,,,,anonymous,EN,Intervention A,B,C,C,B,B,A,A,C,B,A,A,A,A,A,C,A,A,B,A,B,9
+2026-02-03 10:50:50,2026-02-03 10:50:50,IP Address,,100,186,True,2026-02-03 10:50:50,R_B_PRE_0110,,,,,,,anonymous,EN,Intervention B,B,C,B,D,B,C,D,C,B,A,C,C,B,B,C,D,C,B,B,B,11
+2026-02-17 15:52:28,2026-02-17 15:52:28,IP Address,,100,475,True,2026-02-17 15:52:28,R_B_PRE_0016,,,,,,,anonymous,EN,Control,A,A,D,D,D,A,A,C,C,A,A,B,A,B,C,D,C,C,C,A,8
+2026-02-19 08:24:36,2026-02-19 08:24:36,IP Address,,100,281,True,2026-02-19 08:24:36,R_B_PRE_0072,,,,,,,anonymous,EN,Intervention A,B,B,D,D,B,A,B,C,A,B,C,A,A,D,C,C,B,B,D,B,14
+2026-02-14 12:40:40,2026-02-14 12:40:40,IP Address,,100,594,True,2026-02-14 12:40:40,R_B_PRE_0040,,,,,,,anonymous,EN,Control,D,C,D,D,D,A,B,C,B,C,D,C,D,B,C,B,C,D,B,A,11
+2026-02-05 12:55:25,2026-02-05 12:55:25,IP Address,,100,708,True,2026-02-05 12:55:25,R_B_PRE_0085,,,,,,,anonymous,EN,Intervention A,D,B,D,C,A,B,D,A,A,D,C,B,A,C,C,B,C,D,D,A,6
+2026-02-06 13:11:29,2026-02-06 13:11:29,IP Address,,100,570,True,2026-02-06 13:11:29,R_B_PRE_0113,,,,,,,anonymous,EN,Intervention B,D,C,D,D,B,D,D,C,B,B,A,B,A,A,B,A,B,B,B,B,14
+2026-02-04 11:39:21,2026-02-04 11:39:21,IP Address,,100,868,True,2026-02-04 11:39:21,R_B_PRE_0057,,,,,,,anonymous,EN,Intervention A,B,B,D,C,B,B,B,C,A,B,C,B,A,B,C,D,B,A,B,B,13
+2026-02-26 15:13:07,2026-02-26 15:13:07,IP Address,,100,236,True,2026-02-26 15:13:07,R_B_PRE_0079,,,,,,,anonymous,EN,Intervention A,A,D,D,D,B,B,D,C,B,B,C,B,A,D,C,B,B,B,B,B,14
+2026-02-02 09:34:46,2026-02-02 09:34:46,IP Address,,100,566,True,2026-02-02 09:34:46,R_B_PRE_0082,,,,,,,anonymous,EN,Intervention A,A,D,D,C,B,D,C,C,A,A,C,B,A,B,D,D,A,B,B,C,9
+2026-02-11 09:37:43,2026-02-11 09:37:43,IP Address,,100,562,True,2026-02-11 09:37:43,R_B_PRE_0091,,,,,,,anonymous,EN,Intervention B,D,C,D,B,B,A,B,C,A,B,A,B,A,B,C,A,C,B,C,C,13
+2026-02-27 16:11:29,2026-02-27 16:11:29,IP Address,,100,836,True,2026-02-27 16:11:29,R_B_PRE_0053,,,,,,,anonymous,EN,Intervention A,D,C,A,C,D,B,B,C,D,A,C,B,A,C,A,A,B,C,B,C,9
+2026-02-08 15:25:55,2026-02-08 15:25:55,IP Address,,100,755,True,2026-02-08 15:25:55,R_B_PRE_0115,,,,,,,anonymous,EN,Intervention B,B,D,B,C,B,C,B,C,B,D,D,B,A,B,C,B,A,B,B,B,11
+2026-02-27 16:20:20,2026-02-27 16:20:20,IP Address,,100,169,True,2026-02-27 16:20:20,R_B_PRE_0080,,,,,,,anonymous,EN,Intervention A,C,C,C,C,A,D,D,C,B,B,A,B,A,D,A,D,A,D,C,C,6
+2026-02-20 09:22:58,2026-02-20 09:22:58,IP Address,,100,210,True,2026-02-20 09:22:58,R_B_PRE_0046,,,,,,,anonymous,EN,Intervention A,B,D,B,D,B,D,C,C,B,D,C,C,A,C,A,D,C,C,B,A,7
+2026-02-22 11:45:15,2026-02-22 11:45:15,IP Address,,100,831,True,2026-02-22 11:45:15,R_B_PRE_0075,,,,,,,anonymous,EN,Intervention A,D,C,D,B,A,C,C,B,B,B,B,B,B,A,D,A,B,C,B,D,8
+2026-02-23 12:34:46,2026-02-23 12:34:46,IP Address,,100,320,True,2026-02-23 12:34:46,R_B_PRE_0022,,,,,,,anonymous,EN,Control,D,C,D,C,B,D,C,C,B,B,C,B,C,B,C,C,B,B,D,C,14
+2026-02-09 16:05:35,2026-02-09 16:05:35,IP Address,,100,492,True,2026-02-09 16:05:35,R_B_PRE_0035,,,,,,,anonymous,EN,Control,D,C,D,D,A,C,C,C,B,B,C,B,A,D,C,D,D,D,C,B,12
+2026-02-22 11:54:06,2026-02-22 11:54:06,IP Address,,100,199,True,2026-02-22 11:54:06,R_B_PRE_0102,,,,,,,anonymous,EN,Intervention B,A,C,A,D,A,A,B,C,B,B,C,C,A,B,C,A,B,B,B,C,14
+2026-02-05 12:37:43,2026-02-05 12:37:43,IP Address,,100,439,True,2026-02-05 12:37:43,R_B_PRE_0031,,,,,,,anonymous,EN,Control,A,C,C,B,B,D,B,C,B,D,C,B,A,B,C,C,D,A,B,B,13
+2026-02-07 14:51:09,2026-02-07 14:51:09,IP Address,,100,136,True,2026-02-07 14:51:09,R_B_PRE_0033,,,,,,,anonymous,EN,Control,B,D,C,D,A,D,B,A,D,D,A,B,B,D,A,D,A,B,A,C,4
+2026-02-10 08:03:57,2026-02-10 08:03:57,IP Address,,100,352,True,2026-02-10 08:03:57,R_B_PRE_0009,,,,,,,anonymous,EN,Control,D,A,B,A,B,C,A,C,D,D,C,D,C,B,C,A,D,B,B,D,8
+2026-02-13 11:42:18,2026-02-13 11:42:18,IP Address,,100,190,True,2026-02-13 11:42:18,R_B_PRE_0066,,,,,,,anonymous,EN,Intervention A,D,D,B,D,B,C,B,A,B,B,B,B,A,A,D,A,D,B,B,C,10
+2026-02-21 10:56:44,2026-02-21 10:56:44,IP Address,,100,753,True,2026-02-21 10:56:44,R_B_PRE_0128,,,,,,,anonymous,EN,Intervention B,C,A,C,D,A,D,B,C,C,B,C,C,A,B,C,C,B,B,B,D,12
+2026-02-11 09:19:01,2026-02-11 09:19:01,IP Address,,100,434,True,2026-02-11 09:19:01,R_B_PRE_0037,,,,,,,anonymous,EN,Control,D,B,B,B,B,D,C,D,B,C,C,B,C,B,B,A,B,B,B,C,9
+2026-02-18 16:26:14,2026-02-18 16:26:14,IP Address,,100,779,True,2026-02-18 16:26:14,R_B_PRE_0098,,,,,,,anonymous,EN,Intervention B,A,C,D,B,B,A,D,B,C,C,A,A,C,B,A,B,B,A,B,C,7
+2026-02-23 12:01:19,2026-02-23 12:01:19,IP Address,,100,300,True,2026-02-23 12:01:19,R_B_PRE_0103,,,,,,,anonymous,EN,Intervention B,A,D,D,D,B,A,B,C,D,B,D,C,A,A,C,C,B,A,A,D,11
+2026-02-04 11:48:12,2026-02-04 11:48:12,IP Address,,100,529,True,2026-02-04 11:48:12,R_B_PRE_0084,,,,,,,anonymous,EN,Intervention A,D,B,C,D,C,A,C,C,B,B,D,B,D,D,C,B,D,B,A,C,9
+2026-02-18 16:08:32,2026-02-18 16:08:32,IP Address,,100,629,True,2026-02-18 16:08:32,R_B_PRE_0044,,,,,,,anonymous,EN,Control,C,B,D,D,B,D,A,D,B,A,C,D,A,B,C,D,D,D,B,B,10
+2026-02-17 15:28:52,2026-02-17 15:28:52,IP Address,,100,630,True,2026-02-17 15:28:52,R_B_PRE_0124,,,,,,,anonymous,EN,Intervention B,A,A,D,B,A,B,B,C,A,A,B,A,B,B,B,D,B,B,C,C,6
+2026-02-26 15:31:49,2026-02-26 15:31:49,IP Address,,100,496,True,2026-02-26 15:31:49,R_B_PRE_0133,,,,,,,anonymous,EN,Intervention B,D,D,D,D,B,B,B,C,B,B,C,B,D,C,B,C,D,C,B,B,13
+2026-02-07 14:42:18,2026-02-07 14:42:18,IP Address,,100,187,True,2026-02-07 14:42:18,R_B_PRE_0006,,,,,,,anonymous,EN,Control,D,C,D,C,B,A,A,C,B,B,C,B,A,B,C,D,B,D,A,D,14
+2026-02-24 13:41:59,2026-02-24 13:41:59,IP Address,,100,443,True,2026-02-24 13:41:59,R_B_PRE_0023,,,,,,,anonymous,EN,Control,D,D,D,A,B,A,B,D,B,B,C,B,D,A,A,B,C,D,B,C,10
+2026-02-19 08:15:45,2026-02-19 08:15:45,IP Address,,100,682,True,2026-02-19 08:15:45,R_B_PRE_0045,,,,,,,anonymous,EN,Intervention A,A,C,A,D,D,B,D,D,B,B,D,C,A,B,A,A,C,B,B,B,9
+2026-02-24 13:59:41,2026-02-24 13:59:41,IP Address,,100,288,True,2026-02-24 13:59:41,R_B_PRE_0077,,,,,,,anonymous,EN,Intervention A,D,B,D,D,B,A,B,C,B,B,B,B,C,D,C,C,D,B,B,A,14
+2026-02-04 11:21:39,2026-02-04 11:21:39,IP Address,,100,769,True,2026-02-04 11:21:39,R_B_PRE_0003,,,,,,,anonymous,EN,Control,D,B,D,C,B,A,C,D,B,B,C,D,A,B,C,C,B,D,B,C,13
+2026-02-13 11:00:00,2026-02-13 11:00:00,IP Address,,100,680,True,2026-02-13 11:00:00,R_B_PRE_0120,,,,,,,anonymous,EN,Intervention B,A,A,D,D,B,D,D,C,B,B,C,A,C,D,C,B,A,B,D,B,10
+2026-02-16 14:54:06,2026-02-16 14:54:06,IP Address,,100,744,True,2026-02-16 14:54:06,R_B_PRE_0042,,,,,,,anonymous,EN,Control,D,C,D,D,B,D,A,C,B,B,B,A,A,B,D,C,B,B,D,A,13
+2026-02-03 10:23:17,2026-02-03 10:23:17,IP Address,,100,71,True,2026-02-03 10:23:17,R_B_PRE_0029,,,,,,,anonymous,EN,Control,C,A,D,C,B,C,C,A,A,A,B,B,A,D,B,D,C,B,B,C,6
+2026-02-20 09:40:40,2026-02-20 09:40:40,IP Address,,100,695,True,2026-02-20 09:40:40,R_B_PRE_0100,,,,,,,anonymous,EN,Intervention B,C,D,D,D,B,A,B,C,A,C,C,B,C,D,A,A,D,A,B,A,9
+2026-02-18 16:17:23,2026-02-18 16:17:23,IP Address,,100,426,True,2026-02-18 16:17:23,R_B_PRE_0071,,,,,,,anonymous,EN,Intervention A,A,A,C,D,A,D,B,C,B,B,A,B,A,B,C,C,D,C,B,A,11
+2026-02-24 13:08:32,2026-02-24 13:08:32,IP Address,,100,376,True,2026-02-24 13:08:32,R_B_PRE_0104,,,,,,,anonymous,EN,Intervention B,D,C,A,A,B,A,C,B,B,B,C,B,B,C,C,C,D,B,B,B,13
+2026-02-05 12:46:34,2026-02-05 12:46:34,IP Address,,100,429,True,2026-02-05 12:46:34,R_B_PRE_0058,,,,,,,anonymous,EN,Intervention A,D,D,D,D,B,A,C,C,B,B,D,C,A,B,D,B,B,B,C,B,13
+2026-02-12 10:35:05,2026-02-12 10:35:05,IP Address,,100,769,True,2026-02-12 10:35:05,R_B_PRE_0065,,,,,,,anonymous,EN,Intervention A,D,C,D,D,B,B,B,C,B,B,C,D,C,A,C,C,C,D,B,A,13
+2026-02-12 10:53:47,2026-02-12 10:53:47,IP Address,,100,460,True,2026-02-12 10:53:47,R_B_PRE_0119,,,,,,,anonymous,EN,Intervention B,B,C,B,D,B,A,A,B,B,B,A,D,A,C,C,C,C,B,A,B,11
+2026-02-11 09:28:52,2026-02-11 09:28:52,IP Address,,100,397,True,2026-02-11 09:28:52,R_B_PRE_0064,,,,,,,anonymous,EN,Intervention A,D,C,A,D,A,A,A,B,B,A,C,B,D,B,C,A,C,B,C,D,10
+2026-02-19 08:42:18,2026-02-19 08:42:18,IP Address,,100,426,True,2026-02-19 08:42:18,R_B_PRE_0126,,,,,,,anonymous,EN,Intervention B,A,A,D,D,A,C,D,A,B,B,C,B,B,C,C,D,C,D,C,C,7
+2026-02-16 14:12:48,2026-02-16 14:12:48,IP Address,,100,310,True,2026-02-16 14:12:48,R_B_PRE_0096,,,,,,,anonymous,EN,Intervention B,D,B,C,B,B,B,C,C,B,C,C,C,A,B,B,D,B,C,D,B,9
+2026-02-01 08:27:33,2026-02-01 08:27:33,IP Address,,100,100,True,2026-02-01 08:27:33,R_B_PRE_0081,,,,,,,anonymous,EN,Intervention A,D,C,C,B,B,C,B,C,D,A,C,A,A,B,D,B,A,B,D,B,10
+2026-02-15 13:56:44,2026-02-15 13:56:44,IP Address,,100,367,True,2026-02-15 13:56:44,R_B_PRE_0068,,,,,,,anonymous,EN,Intervention A,A,C,D,D,B,A,C,A,B,B,A,B,C,B,C,A,B,B,B,B,14
+2026-02-25 14:15:45,2026-02-25 14:15:45,IP Address,,100,469,True,2026-02-25 14:15:45,R_B_PRE_0105,,,,,,,anonymous,EN,Intervention B,A,D,C,C,B,D,B,C,D,D,C,D,A,A,C,B,B,B,B,A,9
+2026-02-20 09:13:07,2026-02-20 09:13:07,IP Address,,100,577,True,2026-02-20 09:13:07,R_B_PRE_0019,,,,,,,anonymous,EN,Control,B,A,D,D,B,A,B,A,B,D,C,D,B,D,D,A,C,D,B,A,8
+2026-02-07 14:09:51,2026-02-07 14:09:51,IP Address,,100,517,True,2026-02-07 14:09:51,R_B_PRE_0087,,,,,,,anonymous,EN,Intervention A,B,A,D,A,B,C,A,B,C,B,C,A,A,D,C,A,D,D,C,C,6
+2026-02-23 12:10:10,2026-02-23 12:10:10,IP Address,,100,374,True,2026-02-23 12:10:10,R_B_PRE_0130,,,,,,,anonymous,EN,Intervention B,B,D,C,D,D,D,B,A,A,B,A,B,C,B,C,B,C,D,B,B,8
+2026-02-17 15:01:19,2026-02-17 15:01:19,IP Address,,100,762,True,2026-02-17 15:01:19,R_B_PRE_0043,,,,,,,anonymous,EN,Control,C,D,D,B,B,B,B,C,B,B,B,D,A,A,C,B,A,B,B,B,11
+2026-02-27 16:02:38,2026-02-27 16:02:38,IP Address,,100,318,True,2026-02-27 16:02:38,R_B_PRE_0026,,,,,,,anonymous,EN,Control,D,C,D,A,B,C,B,C,B,C,C,D,A,B,A,C,B,C,D,B,13
+2026-02-02 09:25:55,2026-02-02 09:25:55,IP Address,,100,225,True,2026-02-02 09:25:55,R_B_PRE_0055,,,,,,,anonymous,EN,Intervention A,B,B,B,D,B,D,C,C,B,C,C,B,D,A,C,B,B,A,B,D,9
+2026-02-22 11:27:33,2026-02-22 11:27:33,IP Address,,100,196,True,2026-02-22 11:27:33,R_B_PRE_0021,,,,,,,anonymous,EN,Control,B,B,D,A,A,A,D,A,B,B,A,C,C,B,C,C,A,D,B,C,8
+2026-02-15 13:14:26,2026-02-15 13:14:26,IP Address,,100,495,True,2026-02-15 13:14:26,R_B_PRE_0122,,,,,,,anonymous,EN,Intervention B,B,C,D,B,D,D,B,C,B,D,C,D,A,A,C,D,B,B,B,A,11
+2026-02-10 08:30:30,2026-02-10 08:30:30,IP Address,,100,724,True,2026-02-10 08:30:30,R_B_PRE_0090,,,,,,,anonymous,EN,Intervention A,D,C,D,D,B,A,B,C,B,A,C,B,A,B,C,D,B,B,B,B,18
+2026-02-07 14:18:42,2026-02-07 14:18:42,IP Address,,100,381,True,2026-02-07 14:18:42,R_B_PRE_0114,,,,,,,anonymous,EN,Intervention B,D,C,A,A,B,A,B,C,B,B,C,B,D,B,C,C,A,A,B,B,15

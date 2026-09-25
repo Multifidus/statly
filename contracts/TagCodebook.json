@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/TagCodebook.json",
+  "title": "TagCodebook",
+  "description": "Qualitative coding of open-ended responses. SPEC §11.1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "tags", "applications"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "tags": { "type": "array", "items": { "$ref": "#/$defs/Tag" } },
+    "applications": {
+      "type": "array",
+      "description": "At most one entry per (row_id, variable).",
+      "items": { "$ref": "#/$defs/TagApplication" }
+    }
+  },
+  "$defs": {
+    "Tag": {
+      "title": "Tag",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "color", "definition"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "minLength": 1 },
+        "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "definition": { "type": "string" }
+      }
+    },
+    "TagApplication": {
+      "title": "TagApplication",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["row_id", "variable", "tag_ids"],
+      "properties": {
+        "row_id": { "type": "integer", "minimum": 0, "description": "Value of the reserved _statly_row_id column (DatasetMeta.row_id_column)." },
+        "variable": { "type": "string", "description": "Open-text variable the response belongs to." },
+        "tag_ids": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      }
+    }
+  }
+}

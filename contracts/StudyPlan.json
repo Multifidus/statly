@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/StudyPlan.json",
+  "title": "StudyPlan",
+  "description": "Output of the Study Planner (pre-data-collection). Can seed a later analysis project. SPEC §11.2.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "title", "created_at", "modified_at", "design", "planned_analyses", "power_analyses", "recommendations"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "modified_at": { "type": "string", "format": "date-time" },
+    "design": { "$ref": "#/$defs/DesignAnswers" },
+    "planned_analyses": { "type": "array", "items": { "$ref": "#/$defs/PlannedAnalysis" } },
+    "power_analyses": { "type": "array", "items": { "$ref": "#/$defs/PowerAnalysis" } },
+    "recommendations": { "type": "array", "items": { "$ref": "#/$defs/Recommendation" } }
+  },
+  "$defs": {
+    "DesignAnswers": {
+      "title": "DesignAnswers",
+      "description": "Answers to the plain-language design interview. Keys are node ids of content/decision_tree.yaml (the tree is data-driven), so answers are stored generically with the tree version.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision_tree_version", "answers", "summary"],
+      "properties": {
+        "decision_tree_version": { "type": "string" },
+        "answers": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              { "type": ["string", "number", "boolean"] },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        },
+        "summary": { "type": "string", "description": "Plain-language design summary for the exported plan." }
+      }
+    },
+    "PlannedAnalysis": {
+      "title": "PlannedAnalysis",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analysis_id", "label", "rationale", "nonparametric_alternative", "assumptions_to_check", "effect_size", "follow_ups"],
+      "properties": {
+        "analysis_id": { "type": "string", "description": "Same id space as AnalysisRequest.analysis_id." },
+        "label": { "type": "string" },
+        "rationale": { "type": "string" },
+        "nonparametric_alternative": { "type": ["string", "null"], "description": "analysis_id of the fallback test." },
+        "assumptions_to_check": { "type": "array", "items": { "type": "string" }, "description": "AssumptionResult.assumption keys." },
+        "effect_size": { "type": ["string", "null"], "description": "EffectSize.key to report." },
+        "follow_ups": { "type": "array", "items": { "type": "string" }, "description": "Post hoc / follow-up analysis ids." }
+      }
+    },
+    "PowerAnalysis": {
+      "title": "PowerAnalysis",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analysis_id", "mode", "inputs", "outputs"],
+      "properties": {
+        "analysis_id": { "type": "string", "description": "Test family the calculation is for, e.g. t_test.independent, anova.one_way, correlation.pearson, chi_square.independence, regression.linear." },
+        "mode": { "title": "PowerMode", "type": "string", "enum": ["a_priori", "sensitivity"], "description": "a_priori: effect -> required n. sensitivity: n -> detectable effect." },
+        "inputs": { "$ref": "#/$defs/PowerInputs" },
+        "outputs": { "anyOf": [{ "$ref": "#/$defs/PowerOutputs" }, { "type": "null" }], "description": "null until computed." }
+      }
+    },
+    "PowerInputs": {
+      "title": "PowerInputs",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alpha", "power", "tails", "effect_size_metric", "effect_size", "n_total"],
+      "properties": {
+        "alpha": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "power": { "type": ["number", "null"], "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "tails": { "$ref": "AnalysisRequest.json#/$defs/Tails" },
+        "effect_size_metric": { "type": "string", "description": "d, f, r, w, f_sq, ..." },
+        "effect_size": { "type": ["number", "null"], "description": "Required for a_priori." },
+        "n_total": { "type": ["integer", "null"], "minimum": 2, "description": "Required for sensitivity." },
+        "n_groups": { "type": ["integer", "null"], "minimum": 1 },
+        "n_measurements": { "type": ["integer", "null"], "minimum": 1 },
+        "correlation_among_measures": { "type": ["number", "null"], "minimum": -1, "maximum": 1 },
+        "nonsphericity_epsilon": { "type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 1 },
+        "n_predictors": { "type": ["integer", "null"], "minimum": 1 },
+        "df": { "type": ["integer", "null"], "minimum": 1, "description": "Chi-square degrees of freedom." },
+        "allocation_ratio": { "type": ["number", "null"], "exclusiveMinimum": 0, "description": "n2 / n1 for two-group designs." }
+      }
+    },
+    "PowerOutputs": {
+      "title": "PowerOutputs",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n_total", "n_per_group", "detectable_effect", "achieved_power", "method_note"],
+      "properties": {
+        "n_total": { "type": ["integer", "null"] },
+        "n_per_group": { "type": ["array", "null"], "items": { "type": "integer" } },
+        "detectable_effect": { "type": ["number", "null"] },
+        "achieved_power": { "type": ["number", "null"] },
+        "method_note": { "type": "string", "description": "Method and any approximation used (documented per SPEC §8)." }
+      }
+    },
+    "Recommendation": {
+      "title": "Recommendation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "text", "why"],
+      "properties": {
+        "category": { "title": "RecommendationCategory", "type": "string", "enum": ["design", "data_collection", "qualtrics_setup", "analysis"] },
+        "text": { "type": "string" },
+        "why": { "type": "string" }
+      }
+    }
+  }
+}

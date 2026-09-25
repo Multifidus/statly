@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statly.local/contracts/AnalysisRequest.json",
+  "title": "AnalysisRequest",
+  "description": "Input to a pure engine analysis: (snapshot_id, AnalysisRequest) -> AnalysisResult. SPEC §4, §7, §8.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request_id", "analysis_id", "dataset_id", "snapshot_id", "variables", "subset", "options", "corrections", "alpha", "tails", "ci_level"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "request_id": { "type": "string", "minLength": 1, "description": "Client-generated id (UUID); becomes the TestLogEntry id." },
+    "analysis_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+      "description": "Open enum of analysis identifiers, dotted snake_case (family.variant). The engine's registry is authoritative.",
+      "examples": [
+        "descriptives", "t_test.one_sample", "t_test.independent", "t_test.paired", "mann_whitney",
+        "wilcoxon_signed_rank", "anova.one_way", "anova.welch", "kruskal_wallis", "anova.repeated_measures",
+        "friedman", "chi_square.independence", "fisher_exact", "correlation.pearson", "reliability.cronbach_alpha"
+      ]
+    },
+    "dataset_id": { "type": "string" },
+    "snapshot_id": { "type": "string", "description": "DatasetMeta.snapshot_id the request was built against; the engine rejects a stale snapshot." },
+    "variables": {
+      "type": "object",
+      "description": "Analysis role -> variable names. Role keys are analysis-specific snake_case (outcome, group, time, subject_id, covariates, predictors, items, x, y, ...). Always arrays for uniform typing.",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "subset": {
+      "type": "array",
+      "description": "Row conditions ANDed together (e.g. Time in ['Post']). Empty = all rows.",
+      "items": { "$ref": "#/$defs/SubsetCondition" }
+    },
+    "options": {
+      "type": "object",
+      "description": "Analysis-specific options (e.g. {\"welch\": true, \"posthoc\": \"games_howell\", \"test_value\": 3}). Per-analysis subschemas may be added later under $defs.",
+      "additionalProperties": true
+    },
+    "corrections": {
+      "type": "array",
+      "description": "Within-analysis p-value adjustments requested (e.g. pairwise comparisons, correlation matrices). Cross-analysis family corrections live in the Test Log, never here.",
+      "items": { "$ref": "#/$defs/RequestedCorrection" }
+    },
+    "alpha": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1, "default": 0.05 },
+    "tails": { "$ref": "#/$defs/Tails" },
+    "ci_level": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1, "default": 0.95 }
+  },
+  "$defs": {
+    "Tails": {
+      "title": "Tails",
+      "description": "two_sided is the default (SPEC §3). greater/less are one-tailed alternatives.",
+      "type": "string",
+      "enum": ["two_sided", "greater", "less"]
+    },
+    "CorrectionMethod": {
+      "title": "CorrectionMethod",
+      "type": "string",
+      "enum": ["none", "bonferroni", "holm", "fdr_bh"]
+    },
+    "RequestedCorrection": {
+      "title": "RequestedCorrection",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "method"],
+      "properties": {
+        "scope": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Which set of p-values within this analysis, e.g. 'pairwise', 'matrix', 'simple_effects'." },
+        "method": { "$ref": "#/$defs/CorrectionMethod" }
+      }
+    },
+    "SubsetCondition": {
+      "title": "SubsetCondition",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variable", "op", "values"],
+      "properties": {
+        "variable": { "type": "string" },
+        "op": { "title": "SubsetOp", "type": "string", "enum": ["in", "not_in"] },
+        "values": { "type": "array", "minItems": 1, "items": { "type": ["string", "number", "boolean"] } }
+      }
+    }
+  }
+}
