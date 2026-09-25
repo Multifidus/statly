@@ -1,0 +1,77 @@
+{
+  "analysis_id": "descriptives",
+  "case": "ties_grouped",
+  "dataset": "indep_ties.csv",
+  "request": {
+    "variables": {
+      "variables": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 30,
+        "n_missing": 0,
+        "mean": 2.96666666666667,
+        "sd": 1.37673610356182,
+        "se": 0.251356473217525,
+        "ci_lower": 2.45258495690025,
+        "ci_upper": 3.48074837643308,
+        "median": 3,
+        "q1": 2,
+        "q3": 4,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.318531761768046,
+        "kurtosis": -1.09819496872164
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Treatment"
+        },
+        "n": 28,
+        "n_missing": 0,
+        "mean": 3.64285714285714,
+        "sd": 1.06159508617181,
+        "se": 0.200622613647056,
+        "ci_lower": 3.23121354188008,
+        "ci_upper": 4.05450074383421,
+        "median": 4,
+        "q1": 3,
+        "q3": 4,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.604172711975092,
+        "kurtosis": 0.000230723452305348
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "apa_sentence": [
+    {
+      "text": "y scores (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 3.36, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 0.84) were significantly higher than the test value of 3, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "t",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "(39) = 2.73, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "p",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = .005, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "d",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 0.43, 95% CI [0.16, ∞].",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    }
+  ],
+  "apa_table": {
+    "number": 1,
+    "title": "One-Sample t Test for y",
+    "columns": [
+      {
+        "key": "variable",
+        "header": [
+          {
+            "text": "Variable",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "left"
+      },
+      {
+        "key": "n",
+        "header": [
+          {
+            "text": "n",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "t",
+        "header": [
+          {
+            "text": "t",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "df",
+        "header": [
+          {
+            "text": "df",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "p",
+        "header": [
+          {
+            "text": "p",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "d",
+        "header": [
+          {
+            "text": "d",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "ci",
+        "header": [
+          {
+            "text": "95% CI",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      }
+    ],
+    "column_groups": [],
+    "rows": [
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "y",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 40.0,
+            "display": "40"
+          },
+          {
+            "type": "number",
+            "value": 3.36475,
+            "display": "3.36"
+          },
+          {
+            "type": "number",
+            "value": 0.843974077557921,
+            "display": "0.84"
+          },
+          {
+            "type": "number",
+            "value": 2.733355934068382,
+            "display": "2.73"
+          },
+          {
+            "type": "number",
+            "value": 39.0,
+            "display": "39"
+          },
+          {
+            "type": "p_value",
+            "value": 0.004687871218393495,
+            "display": ".005"
+          },
+          {
+            "type": "number",
+            "value": 0.4321815203796559,
+            "display": "0.43"
+          },
+          {
+            "type": "interval",
+            "lower": 0.1573912317131759,
+            "upper": null,
+            "display": "[0.16, ∞]"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      }
+    ],
+    "notes": {
+      "general": [
+        {
+          "text": "Test value = 3. ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "d",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = Cohen's d; CI = confidence interval for ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "d",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": ". One-tailed test (alternative: mean > 3).",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        }
+      ],
+      "specific": [],
+      "probability": []
+    }
+  },
+  "plain_language_summary": "On average, y scores (3.36) were higher than 3. This difference is unlikely to be due to chance alone (p = .005). The size of the difference was small by common benchmarks."
+}

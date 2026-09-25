@@ -1,0 +1,115 @@
+{
+  "analysis_id": "t_test.paired",
+  "case": "greater",
+  "dataset": "paired_basic.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "pre",
+        "post"
+      ]
+    },
+    "options": {},
+    "tails": "greater",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 30,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "t",
+        "value": -5.09064871345654,
+        "df": [
+          29
+        ],
+        "p": 0.999990141977367,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "d_av",
+        "value": -0.534019268669483,
+        "ci_lower": -0.706567715905897,
+        "ci_upper": null
+      },
+      {
+        "key": "d_z",
+        "value": -0.929421044231601,
+        "ci_lower": -1.28359852861748,
+        "ci_upper": null,
+        "effectsize_ci_lower": -1.28359850461219
+      },
+      {
+        "key": "mean_difference",
+        "value": -5.37,
+        "ci_lower": -7.16236726909987,
+        "ci_upper": null
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "pre",
+        "group": {},
+        "n": 30,
+        "n_missing": 0,
+        "mean": 57.2366666666667,
+        "sd": 9.08505720223137,
+        "se": 1.6586969219623,
+        "ci_lower": 53.8442505545551,
+        "ci_upper": 60.6290827787782,
+        "median": 58.15,
+        "q1": 51.2,
+        "q3": 63.375,
+        "iqr": 12.175,
+        "min": 38.1,
+        "max": 74.2,
+        "skewness": -0.209028086781188,
+        "kurtosis": -0.385334885627283
+      },
+      {
+        "variable": "post",
+        "group": {},
+        "n": 30,
+        "n_missing": 0,
+        "mean": 62.6066666666667,
+        "sd": 10.9407789337945,
+        "se": 1.99750380623885,
+        "ci_lower": 58.5213126718741,
+        "ci_upper": 66.6920206614593,
+        "median": 63.4,
+        "q1": 55.275,
+        "q3": 69.625,
+        "iqr": 14.35,
+        "min": 38.2,
+        "max": 86,
+        "skewness": -0.0615027024046884,
+        "kurtosis": -0.166419667118166
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "differences",
+        "n": 30,
+        "statistic": 0.978548513058958,
+        "p": 0.785782889636661,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "analysis_id": "t_test.independent",
+  "case": "missing",
+  "dataset": "indep_missing.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {
+      "variant": "welch"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 54,
+    "n_excluded": 6,
+    "statistics": [
+      {
+        "key": "welch_t",
+        "value": -2.24919682968408,
+        "df": [
+          47.4785499707687
+        ],
+        "p": 0.0291763362685769,
+        "term": null
+      },
+      {
+        "key": "student_t",
+        "value": -2.24919682968408,
+        "df": [
+          52
+        ],
+        "p": 0.0287612064524191,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "hedges_g",
+        "value": -0.603274872455405,
+        "ci_lower": -1.13878050432764,
+        "ci_upper": -0.0622389304302586,
+        "effectsize_ci_lower": -1.13878050468702,
+        "effectsize_ci_upper": -0.0622389808329842
+      },
+      {
+        "key": "cohens_d",
+        "value": -0.612153840423511,
+        "ci_lower": -1.15554101613128,
+        "ci_upper": -0.0631549597477241,
+        "effectsize_ci_lower": -1.15554101649595,
+        "effectsize_ci_upper": -0.0631550108922743
+      },
+      {
+        "key": "glass_delta",
+        "value": -0.736197946118089,
+        "ci_lower": -1.40147219655848,
+        "ci_upper": -0.0580385388414556,
+        "effectsize_ci_lower": -1.40147220041897,
+        "effectsize_ci_upper": -0.0580385280177029
+      },
+      {
+        "key": "r",
+        "value": -0.310308037193764,
+        "ci_lower": -0.524893974154118,
+        "ci_upper": -0.0328872719225637,
+        "effectsize_ci_lower": -0.524893979788867,
+        "effectsize_ci_upper": -0.0328872673509257
+      },
+      {
+        "key": "mean_difference",
+        "value": -0.36,
+        "ci_lower": -0.681907773012927,
+        "ci_upper": -0.0380922269870736
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 27,
+        "n_missing": 2,
+        "mean": 3.35740740740741,
+        "sd": 0.672736047178824,
+        "se": 0.129468112644086,
+        "ci_lower": 3.09128189050196,
+        "ci_upper": 3.62353292431286,
+        "median": 3.42,
+        "q1": 2.985,
+        "q3": 3.86,
+        "iqr": 0.875,
+        "min": 1.83,
+        "max": 4.64,
+        "skewness": -0.569365754428736,
+        "kurtosis": 0.0495285272808119
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Treatment"
+        },
+        "n": 27,
+        "n_missing": 2,
+        "mean": 3.71740740740741,
+        "sd": 0.488998919242101,
+        "se": 0.0941078858859544,
+        "ci_lower": 3.52396587756038,
+        "ci_upper": 3.91084893725443,
+        "median": 3.81,
+        "q1": 3.435,
+        "q3": 4.055,
+        "iqr": 0.62,
+        "min": 2.65,
+        "max": 4.47,
+        "skewness": -0.686424829073675,
+        "kurtosis": -0.112012704351186
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 27,
+        "statistic": 0.962807957187474,
+        "p": 0.427243614612305,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Treatment",
+        "n": 27,
+        "statistic": 0.943479681433487,
+        "p": 0.148456441821652,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 54,
+        "statistic": 2.13443075059822,
+        "p": 0.150040436580726,
+        "df": [
+          1,
+          52
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "analysis_id": "t_test.independent",
+  "case": "less",
+  "dataset": "indep_basic.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {
+      "variant": "welch"
+    },
+    "tails": "less",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 50,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "welch_t",
+        "value": -1.93326496988938,
+        "df": [
+          47.8557958681072
+        ],
+        "p": 0.0295657392941673,
+        "term": null
+      },
+      {
+        "key": "student_t",
+        "value": -1.93326496988938,
+        "df": [
+          48
+        ],
+        "p": 0.029556784600214,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "hedges_g",
+        "value": -0.538213742554587,
+        "ci_lower": null,
+        "ci_upper": -0.0687741223173756,
+        "effectsize_ci_upper": -0.0687741086398654
+      },
+      {
+        "key": "cohens_d",
+        "value": -0.546809908015674,
+        "ci_lower": null,
+        "ci_upper": -0.0698725590315241,
+        "effectsize_ci_upper": -0.0698725451355613
+      },
+      {
+        "key": "glass_delta",
+        "value": -0.562465668493222,
+        "ci_lower": null,
+        "ci_upper": -0.0602357749363569,
+        "effectsize_ci_upper": -0.0602357742443536
+      },
+      {
+        "key": "r",
+        "value": -0.269150188954393,
+        "ci_lower": -1,
+        "ci_upper": -0.0356699425725416,
+        "effectsize_ci_lower": -1,
+        "effectsize_ci_upper": -0.0356699427101802
+      },
+      {
+        "key": "mean_difference",
+        "value": -5.7256,
+        "ci_lower": null,
+        "ci_upper": -0.758001416738196
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 51.0176,
+        "sd": 10.7544685596267,
+        "se": 2.15089371192535,
+        "ci_lower": 46.5783735617425,
+        "ci_upper": 55.4568264382575,
+        "median": 50.26,
+        "q1": 41.84,
+        "q3": 60.87,
+        "iqr": 19.03,
+        "min": 33.01,
+        "max": 67.7,
+        "skewness": 0.155459642775151,
+        "kurtosis": -1.11063979139311
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Treatment"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 56.7432,
+        "sd": 10.1794657358167,
+        "se": 2.03589314716334,
+        "ci_lower": 52.5413230619412,
+        "ci_upper": 60.9450769380588,
+        "median": 56.78,
+        "q1": 52.7,
+        "q3": 64.93,
+        "iqr": 12.23,
+        "min": 35.84,
+        "max": 73.55,
+        "skewness": -0.52061437441927,
+        "kurtosis": -0.63329911163409
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 25,
+        "statistic": 0.945855041736652,
+        "p": 0.201854579185047,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Treatment",
+        "n": 25,
+        "statistic": 0.943179039790366,
+        "p": 0.17524731590883,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 50,
+        "statistic": 0.222288997047356,
+        "p": 0.639437373611582,
+        "df": [
+          1,
+          48
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

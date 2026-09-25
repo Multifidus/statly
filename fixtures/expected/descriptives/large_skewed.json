@@ -1,0 +1,51 @@
+{
+  "analysis_id": "descriptives",
+  "case": "large_skewed",
+  "dataset": "large_skewed.csv",
+  "request": {
+    "variables": {
+      "variables": [
+        "y"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.99,
+    "alpha": 0.05
+  },
+  "expected": {
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {},
+        "n": 600,
+        "n_missing": 0,
+        "mean": 0.999498333333333,
+        "sd": 1.03465458012042,
+        "se": 0.0422395963554767,
+        "ci_lower": 0.890348601338068,
+        "ci_upper": 1.1086480653286,
+        "median": 0.6725,
+        "q1": 0.28525,
+        "q3": 1.408,
+        "iqr": 1.12275,
+        "min": 0,
+        "max": 7.957,
+        "skewness": 2.02500505588991,
+        "kurtosis": 5.78715491785513
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "analysis_id": "t_test.one_sample",
+  "case": "ties",
+  "dataset": "indep_ties.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ]
+    },
+    "options": {
+      "test_value": 3
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 58,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "t",
+        "value": 1.75686239820545,
+        "df": [
+          57
+        ],
+        "p": 0.0843117361466858,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_d",
+        "value": 0.230687334533736,
+        "ci_lower": -0.0310981830771947,
+        "ci_upper": 0.490504563006732,
+        "effectsize_ci_lower": -0.0310981912722469,
+        "effectsize_ci_upper": 0.49050455668306
+      },
+      {
+        "key": "hedges_g",
+        "value": 0.227636356124188,
+        "ci_lower": -0.0306868909473669,
+        "ci_upper": 0.484017345862614,
+        "effectsize_ci_lower": -0.0306868990340346,
+        "effectsize_ci_upper": 0.484017339622576
+      },
+      {
+        "key": "mean_difference",
+        "value": 0.293103448275862,
+        "ci_lower": -0.040974810653819,
+        "ci_upper": 0.627181707205543
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {},
+        "n": 58,
+        "n_missing": 0,
+        "mean": 3.29310344827586,
+        "sd": 1.27056584562079,
+        "se": 0.166833468901863,
+        "ci_lower": 2.95902518934618,
+        "ci_upper": 3.62718170720554,
+        "median": 3,
+        "q1": 2,
+        "q3": 4,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.153896166084239,
+        "kurtosis": -1.02918463514285
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "overall",
+        "n": 58,
+        "statistic": 0.902456210202125,
+        "p": 0.000207617727198206,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

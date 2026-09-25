@@ -1,0 +1,170 @@
+{
+  "analysis_id": "t_test.independent",
+  "case": "ties",
+  "dataset": "indep_ties.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {
+      "variant": "welch"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 58,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "welch_t",
+        "value": -2.10255234418434,
+        "df": [
+          54.1253145378111
+        ],
+        "p": 0.0401711292063835,
+        "term": null
+      },
+      {
+        "key": "student_t",
+        "value": -2.08387604609572,
+        "df": [
+          56
+        ],
+        "p": 0.0417464886172905,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "hedges_g",
+        "value": -0.540206257335829,
+        "ci_lower": -1.05568281207492,
+        "ci_upper": -0.0200887379271154,
+        "effectsize_ci_lower": -1.05568281972499,
+        "effectsize_ci_upper": -0.0200887215424431
+      },
+      {
+        "key": "cohens_d",
+        "value": -0.547578309009976,
+        "ci_lower": -1.07008943572365,
+        "ci_upper": -0.0203628836113906,
+        "effectsize_ci_lower": -1.07008944347812,
+        "effectsize_ci_upper": -0.0203628670031211
+      },
+      {
+        "key": "glass_delta",
+        "value": -0.636957051703084,
+        "ci_lower": -1.24888097152928,
+        "ci_upper": -0.0141484215167099,
+        "effectsize_ci_lower": -1.24888097218166,
+        "effectsize_ci_upper": -0.0141484427300437
+      },
+      {
+        "key": "r",
+        "value": -0.274788181946174,
+        "ci_lower": -0.486133934560123,
+        "ci_upper": -0.0127521919194459,
+        "effectsize_ci_lower": -0.486133936977926,
+        "effectsize_ci_upper": -0.0127521824719474
+      },
+      {
+        "key": "mean_difference",
+        "value": -0.676190476190476,
+        "ci_lower": -1.32093466212728,
+        "ci_upper": -0.0314462902536756
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 30,
+        "n_missing": 0,
+        "mean": 2.96666666666667,
+        "sd": 1.37673610356182,
+        "se": 0.251356473217525,
+        "ci_lower": 2.45258495690025,
+        "ci_upper": 3.48074837643308,
+        "median": 3,
+        "q1": 2,
+        "q3": 4,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.318531761768046,
+        "kurtosis": -1.09819496872164
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Treatment"
+        },
+        "n": 28,
+        "n_missing": 0,
+        "mean": 3.64285714285714,
+        "sd": 1.06159508617181,
+        "se": 0.200622613647056,
+        "ci_lower": 3.23121354188008,
+        "ci_upper": 4.05450074383421,
+        "median": 4,
+        "q1": 3,
+        "q3": 4,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.604172711975092,
+        "kurtosis": 0.000230723452305348
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 30,
+        "statistic": 0.873316005770942,
+        "p": 0.00198722232811006,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Treatment",
+        "n": 28,
+        "statistic": 0.892057211300111,
+        "p": 0.00749195880869139,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 58,
+        "statistic": 2.26209122143244,
+        "p": 0.138194235117759,
+        "df": [
+          1,
+          56
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

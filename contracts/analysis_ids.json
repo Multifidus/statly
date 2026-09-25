@@ -1,0 +1,15 @@
+{
+  "$comment": "Canonical analysis ids (AnalysisRequest.analysis_id). Dotted family.variant per contracts/AnalysisRequest.json. The engine registry, content/decision_tree.yaml, and content/learn page ids must use exactly these. Owner decision 2026-09-25.",
+  "descriptives": ["descriptives"],
+  "t_test": ["t_test.one_sample", "t_test.independent", "t_test.paired"],
+  "nonparametric": ["mann_whitney", "wilcoxon_signed_rank", "wilcoxon_one_sample", "sign_test", "kruskal_wallis", "friedman"],
+  "anova": ["anova.one_way", "anova.welch", "anova.repeated_measures", "anova.factorial", "anova.mixed", "anova.art", "ancova", "ancova.quade", "manova", "mancova"],
+  "posthoc": ["posthoc.tukey", "posthoc.games_howell", "posthoc.pairwise", "posthoc.dunn", "posthoc.conover", "posthoc.nemenyi", "posthoc.simple_effects"],
+  "categorical": ["chi_square.independence", "chi_square.goodness_of_fit", "fisher_exact", "mcnemar", "cochran_q"],
+  "correlation": ["correlation.pearson", "correlation.spearman", "correlation.kendall_tau_b", "correlation.point_biserial", "correlation.partial", "correlation.matrix"],
+  "regression": ["regression.linear", "regression.hierarchical", "regression.logistic", "regression.ordinal"],
+  "reliability": ["reliability.cronbach_alpha", "reliability.mcdonald_omega", "reliability.kr20", "reliability.split_half", "reliability.item_analysis", "reliability.icc", "reliability.cohen_kappa", "reliability.fleiss_kappa", "reliability.kendall_w"],
+  "validity": ["validity.efa", "validity.cfa"],
+  "education": ["education.gain_score", "education.normalized_gain"],
+  "power": ["power.t_test", "power.anova", "power.correlation", "power.chi_square", "power.regression"]
+}

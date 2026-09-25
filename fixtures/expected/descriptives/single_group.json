@@ -1,0 +1,56 @@
+{
+  "analysis_id": "descriptives",
+  "case": "single_group",
+  "dataset": "indep_single_group.csv",
+  "request": {
+    "variables": {
+      "variables": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 11.7466666666667,
+        "sd": 2.23578259442277,
+        "se": 0.577276583595986,
+        "ci_lower": 10.5085315349233,
+        "ci_upper": 12.98480179841,
+        "median": 11.01,
+        "q1": 10.11,
+        "q3": 13.645,
+        "iqr": 3.535,
+        "min": 8.67,
+        "max": 15.01,
+        "skewness": 0.0627792588084015,
+        "kurtosis": -1.43900246994127
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

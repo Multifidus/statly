@@ -1,0 +1,114 @@
+{
+  "analysis_id": "assumptions",
+  "case": "indep_small",
+  "dataset": "indep_small.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 5,
+        "statistic": 0.973671697633692,
+        "p": 0.898253655546473,
+        "df": []
+      },
+      {
+        "test": "ks_lilliefors",
+        "scope": "Control",
+        "n": 5,
+        "statistic": 0.169361417679231,
+        "p": 0.908176916300374,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Treatment",
+        "n": 5,
+        "statistic": 0.92323517199817,
+        "p": 0.551021412594055,
+        "df": []
+      },
+      {
+        "test": "ks_lilliefors",
+        "scope": "Treatment",
+        "n": 5,
+        "statistic": 0.192115521140355,
+        "p": 0.787381785868483,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 10,
+        "statistic": 1.48917437067275,
+        "p": 0.257092423776976,
+        "df": [
+          1,
+          8
+        ]
+      }
+    ],
+    "qq": [
+      {
+        "scope": "Control",
+        "theoretical": [
+          -1.17976111761186,
+          -0.497200570681554,
+          0,
+          0.497200570681554,
+          1.17976111761186
+        ],
+        "sample": [
+          13.43,
+          16.77,
+          17.41,
+          20.32,
+          22.03
+        ]
+      },
+      {
+        "scope": "Treatment",
+        "theoretical": [
+          -1.17976111761186,
+          -0.497200570681554,
+          0,
+          0.497200570681554,
+          1.17976111761186
+        ],
+        "sample": [
+          19.95,
+          21.16,
+          22.53,
+          23.45,
+          23.71
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "analysis_id": "descriptives",
+  "case": "small_n",
+  "dataset": "one_sample_small.csv",
+  "request": {
+    "variables": {
+      "variables": [
+        "y"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {},
+        "n": 5,
+        "n_missing": 0,
+        "mean": 3.7,
+        "sd": 1.06536378763313,
+        "se": 0.476445169982864,
+        "ci_lower": 2.37717613990595,
+        "ci_upper": 5.02282386009405,
+        "median": 3.5,
+        "q1": 3.2,
+        "q3": 3.6,
+        "iqr": 0.4,
+        "min": 2.7,
+        "max": 5.5,
+        "skewness": 1.61885510240202,
+        "kurtosis": 3.21873119990685
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

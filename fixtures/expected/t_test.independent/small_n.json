@@ -1,0 +1,170 @@
+{
+  "analysis_id": "t_test.independent",
+  "case": "small_n",
+  "dataset": "indep_small.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {
+      "variant": "welch"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 10,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "welch_t",
+        "value": -2.52591030843114,
+        "df": [
+          5.72946201503087
+        ],
+        "p": 0.0467626797832518,
+        "term": null
+      },
+      {
+        "key": "student_t",
+        "value": -2.52591030843114,
+        "df": [
+          8
+        ],
+        "p": 0.0354806796829964,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "hedges_g",
+        "value": -1.44209199888348,
+        "ci_lower": -2.72754132874891,
+        "ci_upper": -0.0934151536440783,
+        "effectsize_ci_lower": -2.72754135518517,
+        "effectsize_ci_upper": -0.0934151476967998
+      },
+      {
+        "key": "cohens_d",
+        "value": -1.59752594798816,
+        "ci_lower": -3.0215257072781,
+        "ci_upper": -0.103483780505861,
+        "effectsize_ci_lower": -3.02152573656375,
+        "effectsize_ci_upper": -0.103483773917563
+      },
+      {
+        "key": "glass_delta",
+        "value": -2.62460395823574,
+        "ci_lower": -5.22852141468158,
+        "ci_upper": 0.145384255345054,
+        "effectsize_ci_lower": -5.22852131627567,
+        "effectsize_ci_upper": 0.145384304811157
+      },
+      {
+        "key": "r",
+        "value": -0.725857726180879,
+        "ci_lower": -0.897897217117052,
+        "ci_upper": -0.0140631216388437,
+        "effectsize_ci_lower": -0.897897215360284,
+        "effectsize_ci_upper": -0.0140631354716005
+      },
+      {
+        "key": "mean_difference",
+        "value": -4.168,
+        "ci_lower": -8.25231289096123,
+        "ci_upper": -0.0836871090387706
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 17.992,
+        "sd": 3.33049846119166,
+        "se": 1.4894441916366,
+        "ci_lower": 13.8566399646653,
+        "ci_upper": 22.1273600353347,
+        "median": 17.41,
+        "q1": 16.77,
+        "q3": 20.32,
+        "iqr": 3.55,
+        "min": 13.43,
+        "max": 22.03,
+        "skewness": -0.208740242500821,
+        "kurtosis": -0.576269431608497
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Treatment"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 22.16,
+        "sd": 1.58804911762829,
+        "se": 0.710197155725085,
+        "ci_lower": 20.1881765832617,
+        "ci_upper": 24.1318234167383,
+        "median": 22.53,
+        "q1": 21.16,
+        "q3": 23.45,
+        "iqr": 2.29,
+        "min": 19.95,
+        "max": 23.71,
+        "skewness": -0.61098512981613,
+        "kurtosis": -1.43268148465023
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 5,
+        "statistic": 0.973671697633692,
+        "p": 0.898253655546473,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Treatment",
+        "n": 5,
+        "statistic": 0.92323517199817,
+        "p": 0.551021412594055,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 10,
+        "statistic": 1.48917437067275,
+        "p": 0.257092423776976,
+        "df": [
+          1,
+          8
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,497 @@
+{
+  "apa_sentence": [
+    {
+      "text": "Scores on y had a mean of ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 51.02 (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 10.75, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "n",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 25) in the Control group; and ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 56.74 (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 10.18, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "n",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 25) in the Treatment group.",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    }
+  ],
+  "apa_table": {
+    "number": 1,
+    "title": "Descriptive Statistics",
+    "columns": [
+      {
+        "key": "variable",
+        "header": [
+          {
+            "text": "Variable",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "left"
+      },
+      {
+        "key": "group",
+        "header": [
+          {
+            "text": "Group",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "left"
+      },
+      {
+        "key": "n",
+        "header": [
+          {
+            "text": "n",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "mdn",
+        "header": [
+          {
+            "text": "Mdn",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "iqr",
+        "header": [
+          {
+            "text": "IQR",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "min",
+        "header": [
+          {
+            "text": "Min",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "max",
+        "header": [
+          {
+            "text": "Max",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "skew",
+        "header": [
+          {
+            "text": "Skewness",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "kurt",
+        "header": [
+          {
+            "text": "Kurtosis",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      }
+    ],
+    "column_groups": [],
+    "rows": [
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "y",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "Control",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 25.0,
+            "display": "25"
+          },
+          {
+            "type": "number",
+            "value": 51.0176,
+            "display": "51.02"
+          },
+          {
+            "type": "number",
+            "value": 10.754468559626739,
+            "display": "10.75"
+          },
+          {
+            "type": "number",
+            "value": 50.26,
+            "display": "50.26"
+          },
+          {
+            "type": "number",
+            "value": 19.029999999999994,
+            "display": "19.03"
+          },
+          {
+            "type": "number",
+            "value": 33.01,
+            "display": "33.01"
+          },
+          {
+            "type": "number",
+            "value": 67.7,
+            "display": "67.70"
+          },
+          {
+            "type": "number",
+            "value": 0.1554596427751514,
+            "display": "0.16"
+          },
+          {
+            "type": "number",
+            "value": -1.1106397913931065,
+            "display": "-1.11"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      },
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "y",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "Treatment",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 25.0,
+            "display": "25"
+          },
+          {
+            "type": "number",
+            "value": 56.743199999999995,
+            "display": "56.74"
+          },
+          {
+            "type": "number",
+            "value": 10.179465735816722,
+            "display": "10.18"
+          },
+          {
+            "type": "number",
+            "value": 56.78,
+            "display": "56.78"
+          },
+          {
+            "type": "number",
+            "value": 12.230000000000004,
+            "display": "12.23"
+          },
+          {
+            "type": "number",
+            "value": 35.84,
+            "display": "35.84"
+          },
+          {
+            "type": "number",
+            "value": 73.55,
+            "display": "73.55"
+          },
+          {
+            "type": "number",
+            "value": -0.520614374419268,
+            "display": "-0.52"
+          },
+          {
+            "type": "number",
+            "value": -0.6332991116340922,
+            "display": "-0.63"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      },
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "y",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "Total",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 50.0,
+            "display": "50"
+          },
+          {
+            "type": "number",
+            "value": 53.8804,
+            "display": "53.88"
+          },
+          {
+            "type": "number",
+            "value": 10.759432493948589,
+            "display": "10.76"
+          },
+          {
+            "type": "number",
+            "value": 55.665,
+            "display": "55.66"
+          },
+          {
+            "type": "number",
+            "value": 19.377499999999998,
+            "display": "19.38"
+          },
+          {
+            "type": "number",
+            "value": 33.01,
+            "display": "33.01"
+          },
+          {
+            "type": "number",
+            "value": 73.55,
+            "display": "73.55"
+          },
+          {
+            "type": "number",
+            "value": -0.1764206800145371,
+            "display": "-0.18"
+          },
+          {
+            "type": "number",
+            "value": -1.1129183445210753,
+            "display": "-1.11"
+          }
+        ],
+        "indent": 0,
+        "kind": "total"
+      }
+    ],
+    "notes": {
+      "general": [
+        {
+          "text": "n",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = number of scores; ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "M",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = mean; ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "SD",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = standard deviation; ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "Mdn",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = median; IQR = interquartile range. Skewness and kurtosis (excess) are bias-corrected.",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        }
+      ],
+      "specific": [],
+      "probability": []
+    }
+  },
+  "plain_language_summary": "y: Control averaged 51.02 (n = 25); Treatment averaged 56.74 (n = 25)."
+}

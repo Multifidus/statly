@@ -1,0 +1,418 @@
+{
+  "apa_sentence": [
+    {
+      "text": "An independent-samples Welch ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "t",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " test showed no significant difference in y scores between Control (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 51.02, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 10.75) and Treatment (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 56.74, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 10.18), ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "t",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "(47.86) = -1.93, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "p",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = .059, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "g",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = -0.54, 95% CI [-1.09, 0.02].",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    }
+  ],
+  "apa_table": {
+    "number": 1,
+    "title": "Comparison of y by group",
+    "columns": [
+      {
+        "key": "variable",
+        "header": [
+          {
+            "text": "Variable",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "left"
+      },
+      {
+        "key": "n1",
+        "header": [
+          {
+            "text": "n",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m1",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd1",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "n2",
+        "header": [
+          {
+            "text": "n",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m2",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd2",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "t",
+        "header": [
+          {
+            "text": "t",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "df",
+        "header": [
+          {
+            "text": "df",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "p",
+        "header": [
+          {
+            "text": "p",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "g",
+        "header": [
+          {
+            "text": "g",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "ci",
+        "header": [
+          {
+            "text": "95% CI",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      }
+    ],
+    "column_groups": [
+      {
+        "label": [
+          {
+            "text": "Control",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "first_column": 1,
+        "span": 3
+      },
+      {
+        "label": [
+          {
+            "text": "Treatment",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "first_column": 4,
+        "span": 3
+      }
+    ],
+    "rows": [
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "y",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 25.0,
+            "display": "25"
+          },
+          {
+            "type": "number",
+            "value": 51.0176,
+            "display": "51.02"
+          },
+          {
+            "type": "number",
+            "value": 10.754468559626739,
+            "display": "10.75"
+          },
+          {
+            "type": "number",
+            "value": 25.0,
+            "display": "25"
+          },
+          {
+            "type": "number",
+            "value": 56.743199999999995,
+            "display": "56.74"
+          },
+          {
+            "type": "number",
+            "value": 10.179465735816722,
+            "display": "10.18"
+          },
+          {
+            "type": "number",
+            "value": -1.9332649698893738,
+            "display": "-1.93"
+          },
+          {
+            "type": "number",
+            "value": 47.855795868107215,
+            "display": "47.86"
+          },
+          {
+            "type": "p_value",
+            "value": 0.05913147858833495,
+            "display": ".059"
+          },
+          {
+            "type": "number",
+            "value": -0.5382137425545935,
+            "display": "-0.54"
+          },
+          {
+            "type": "interval",
+            "lower": -1.0916301177771728,
+            "upper": 0.020593997710247672,
+            "display": "[-1.09, 0.02]"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      }
+    ],
+    "notes": {
+      "general": [
+        {
+          "text": "Welch's t test (equal variances not assumed). ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "g",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = Hedges' g; CI = confidence interval for ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "g",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": ". Student's t test: ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "t",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "(48) = -1.93, ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "p",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = .059.",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        }
+      ],
+      "specific": [],
+      "probability": []
+    }
+  },
+  "plain_language_summary": "The Treatment group scored higher on average (56.74) than the Control group (51.02). This difference could easily be due to chance, so there is no strong evidence of a real difference between the groups (p = .059). The size of the difference was medium by common benchmarks."
+}

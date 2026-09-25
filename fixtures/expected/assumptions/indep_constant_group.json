@@ -1,0 +1,134 @@
+{
+  "analysis_id": "assumptions",
+  "case": "indep_constant_group",
+  "dataset": "indep_constant_group.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 10,
+        "statistic": null,
+        "p": null,
+        "df": []
+      },
+      {
+        "test": "ks_lilliefors",
+        "scope": "Control",
+        "n": 10,
+        "statistic": null,
+        "p": null,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Treatment",
+        "n": 10,
+        "statistic": 0.93472294777142,
+        "p": 0.495917309579033,
+        "df": []
+      },
+      {
+        "test": "ks_lilliefors",
+        "scope": "Treatment",
+        "n": 10,
+        "statistic": 0.133139958440824,
+        "p": 0.883779472526465,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 20,
+        "statistic": 22.6489813242784,
+        "p": 0.000156800892482671,
+        "df": [
+          1,
+          18
+        ]
+      }
+    ],
+    "qq": [
+      {
+        "scope": "Control",
+        "theoretical": [
+          -1.54663527139923,
+          -1.00049054561931,
+          -0.655423505234427,
+          -0.375461770235518,
+          -0.122580843888802,
+          0.122580843888803,
+          0.375461770235518,
+          0.655423505234427,
+          1.00049054561931,
+          1.54663527139923
+        ],
+        "sample": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      {
+        "scope": "Treatment",
+        "theoretical": [
+          -1.54663527139923,
+          -1.00049054561931,
+          -0.655423505234427,
+          -0.375461770235518,
+          -0.122580843888802,
+          0.122580843888803,
+          0.375461770235518,
+          0.655423505234427,
+          1.00049054561931,
+          1.54663527139923
+        ],
+        "sample": [
+          3.1,
+          3.5,
+          4,
+          4.4,
+          4.7,
+          5,
+          5.3,
+          5.5,
+          5.8,
+          5.8
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

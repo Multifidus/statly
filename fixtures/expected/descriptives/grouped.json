@@ -1,0 +1,77 @@
+{
+  "analysis_id": "descriptives",
+  "case": "grouped",
+  "dataset": "indep_basic.csv",
+  "request": {
+    "variables": {
+      "variables": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 51.0176,
+        "sd": 10.7544685596267,
+        "se": 2.15089371192535,
+        "ci_lower": 46.5783735617425,
+        "ci_upper": 55.4568264382575,
+        "median": 50.26,
+        "q1": 41.84,
+        "q3": 60.87,
+        "iqr": 19.03,
+        "min": 33.01,
+        "max": 67.7,
+        "skewness": 0.155459642775151,
+        "kurtosis": -1.11063979139311
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Treatment"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 56.7432,
+        "sd": 10.1794657358167,
+        "se": 2.03589314716334,
+        "ci_lower": 52.5413230619412,
+        "ci_upper": 60.9450769380588,
+        "median": 56.78,
+        "q1": 52.7,
+        "q3": 64.93,
+        "iqr": 12.23,
+        "min": 35.84,
+        "max": 73.55,
+        "skewness": -0.52061437441927,
+        "kurtosis": -0.63329911163409
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

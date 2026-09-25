@@ -1,0 +1,130 @@
+{
+  "analysis_id": "t_test.paired",
+  "case": "long",
+  "dataset": "paired_long.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "time": [
+        "time"
+      ],
+      "subject_id": [
+        "id"
+      ]
+    },
+    "options": {
+      "levels": [
+        "Pre",
+        "Post"
+      ]
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 19,
+    "n_excluded": 6,
+    "statistics": [
+      {
+        "key": "t",
+        "value": -4.11572545685315,
+        "df": [
+          18
+        ],
+        "p": 0.000649111327277051,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "d_av",
+        "value": -0.510331619164721,
+        "ci_lower": -0.753358420689921,
+        "ci_upper": -0.267304817639521
+      },
+      {
+        "key": "d_z",
+        "value": -0.944212176093718,
+        "ci_lower": -1.47923494197626,
+        "ci_upper": -0.391261722420571,
+        "effectsize_ci_lower": -1.47923482618496,
+        "effectsize_ci_upper": -0.391261718779412
+      },
+      {
+        "key": "mean_difference",
+        "value": -4.47368421052632,
+        "ci_lower": -6.75733064358052,
+        "ci_upper": -2.19003777747211
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "score",
+        "group": {
+          "time": "Pre"
+        },
+        "n": 19,
+        "n_missing": 0,
+        "mean": 71.1526315789474,
+        "sd": 8.93596779693371,
+        "se": 2.05005160997725,
+        "ci_lower": 66.8456329679145,
+        "ci_upper": 75.4596301899802,
+        "median": 71.2,
+        "q1": 66.25,
+        "q3": 75.9,
+        "iqr": 9.65000000000001,
+        "min": 55.9,
+        "max": 92.2,
+        "skewness": 0.355924218703082,
+        "kurtosis": 0.420915631466495
+      },
+      {
+        "variable": "score",
+        "group": {
+          "time": "Post"
+        },
+        "n": 19,
+        "n_missing": 0,
+        "mean": 75.6263157894737,
+        "sd": 8.59313951845457,
+        "se": 1.97140140887838,
+        "ci_lower": 71.4845551193988,
+        "ci_upper": 79.7680764595485,
+        "median": 76,
+        "q1": 72.3,
+        "q3": 78.2,
+        "iqr": 5.89999999999999,
+        "min": 57.7,
+        "max": 99.8,
+        "skewness": 0.741918101678435,
+        "kurtosis": 3.21387416173042
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "differences",
+        "n": 19,
+        "statistic": 0.964082241586367,
+        "p": 0.654930908951248,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,408 @@
+{
+  "apa_sentence": [
+    {
+      "text": "A paired-samples ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "t",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " test showed that scores were significantly lower at pre (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 57.24, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 9.09) than at post (",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "M",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 62.61, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "SD",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " = 10.94), ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "t",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "(29) = -5.09, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "p",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": " < .001, ",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "d",
+      "italic": true,
+      "subscript": false,
+      "superscript": false
+    },
+    {
+      "text": "av",
+      "italic": false,
+      "subscript": true,
+      "superscript": false
+    },
+    {
+      "text": " = -0.53, 95% CI [-0.74, -0.33].",
+      "italic": false,
+      "subscript": false,
+      "superscript": false
+    }
+  ],
+  "apa_table": {
+    "number": 1,
+    "title": "Paired Comparison of pre and post",
+    "columns": [
+      {
+        "key": "variable",
+        "header": [
+          {
+            "text": "Variable",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "left"
+      },
+      {
+        "key": "m1",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd1",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "m2",
+        "header": [
+          {
+            "text": "M",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "sd2",
+        "header": [
+          {
+            "text": "SD",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "t",
+        "header": [
+          {
+            "text": "t",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "df",
+        "header": [
+          {
+            "text": "df",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "p",
+        "header": [
+          {
+            "text": "p",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "d_av",
+        "header": [
+          {
+            "text": "d",
+            "italic": true,
+            "subscript": false,
+            "superscript": false
+          },
+          {
+            "text": "av",
+            "italic": false,
+            "subscript": true,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      },
+      {
+        "key": "ci",
+        "header": [
+          {
+            "text": "95% CI",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "align": "decimal"
+      }
+    ],
+    "column_groups": [
+      {
+        "label": [
+          {
+            "text": "pre",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "first_column": 1,
+        "span": 2
+      },
+      {
+        "label": [
+          {
+            "text": "post",
+            "italic": false,
+            "subscript": false,
+            "superscript": false
+          }
+        ],
+        "first_column": 3,
+        "span": 2
+      }
+    ],
+    "rows": [
+      {
+        "cells": [
+          {
+            "type": "text",
+            "text": [
+              {
+                "text": "pre and post",
+                "italic": false,
+                "subscript": false,
+                "superscript": false
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 57.236666666666665,
+            "display": "57.24"
+          },
+          {
+            "type": "number",
+            "value": 9.085057202231372,
+            "display": "9.09"
+          },
+          {
+            "type": "number",
+            "value": 62.60666666666666,
+            "display": "62.61"
+          },
+          {
+            "type": "number",
+            "value": 10.940778933794473,
+            "display": "10.94"
+          },
+          {
+            "type": "number",
+            "value": -5.090648713456547,
+            "display": "-5.09"
+          },
+          {
+            "type": "number",
+            "value": 29.0,
+            "display": "29"
+          },
+          {
+            "type": "p_value",
+            "value": 1.9716045266699937e-05,
+            "display": "< .001"
+          },
+          {
+            "type": "number",
+            "value": -0.5340192686694836,
+            "display": "-0.53"
+          },
+          {
+            "type": "interval",
+            "lower": -0.7396234249484043,
+            "upper": -0.32841511239056287,
+            "display": "[-0.74, -0.33]"
+          }
+        ],
+        "indent": 0,
+        "kind": "data"
+      }
+    ],
+    "notes": {
+      "general": [
+        {
+          "text": "n",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": " = 30 people with both scores. ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "d",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "av",
+          "italic": false,
+          "subscript": true,
+          "superscript": false
+        },
+        {
+          "text": " = mean difference divided by the average of the two standard deviations; CI = confidence interval for ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "d",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "av",
+          "italic": false,
+          "subscript": true,
+          "superscript": false
+        },
+        {
+          "text": ". ",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "d",
+          "italic": true,
+          "subscript": false,
+          "superscript": false
+        },
+        {
+          "text": "z",
+          "italic": false,
+          "subscript": true,
+          "superscript": false
+        },
+        {
+          "text": " = -0.93.",
+          "italic": false,
+          "subscript": false,
+          "superscript": false
+        }
+      ],
+      "specific": [],
+      "probability": []
+    }
+  },
+  "plain_language_summary": "For the 30 people with both scores, scores were higher at post than at pre on average (a difference of 5.37 points). This change is unlikely to be due to chance alone (p < .001). The size of the difference was medium by common benchmarks."
+}

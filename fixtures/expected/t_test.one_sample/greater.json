@@ -1,0 +1,98 @@
+{
+  "analysis_id": "t_test.one_sample",
+  "case": "greater",
+  "dataset": "one_sample.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ]
+    },
+    "options": {
+      "test_value": 3
+    },
+    "tails": "greater",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 40,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "t",
+        "value": 2.73335593406838,
+        "df": [
+          39
+        ],
+        "p": 0.0046878712183935,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_d",
+        "value": 0.432181520379656,
+        "ci_lower": 0.157391231713159,
+        "ci_upper": null,
+        "effectsize_ci_lower": 0.157391229387739
+      },
+      {
+        "key": "hedges_g",
+        "value": 0.423807674394011,
+        "ci_lower": 0.154341656773677,
+        "ci_upper": null,
+        "effectsize_ci_lower": 0.154341654493315
+      },
+      {
+        "key": "mean_difference",
+        "value": 0.36475,
+        "ci_lower": 0.139913492985179,
+        "ci_upper": null
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {},
+        "n": 40,
+        "n_missing": 0,
+        "mean": 3.36475,
+        "sd": 0.843974077557921,
+        "se": 0.133444018561131,
+        "ci_lower": 3.09483399532318,
+        "ci_upper": 3.63466600467682,
+        "median": 3.285,
+        "q1": 2.74,
+        "q3": 3.825,
+        "iqr": 1.085,
+        "min": 1.71,
+        "max": 5.5,
+        "skewness": 0.420839625334563,
+        "kurtosis": 0.22966487528117
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "shapiro_wilk",
+        "scope": "overall",
+        "n": 40,
+        "statistic": 0.981706017124442,
+        "p": 0.752448941481468,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
