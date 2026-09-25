@@ -1,0 +1,484 @@
+# Statly hover glossary
+# Format: term_key: {term, short (<=25 words), long (<=80 words), see_also[]}
+# Every {{term}} marker used in content/learn/**/*.md must have a matching key here.
+# owner should review wording for tone and accuracy before release.
+
+p_value:
+  term: "p-value"
+  short: "The probability of seeing results this extreme (or more) if the null hypothesis were true."
+  long: "A p-value tells you how surprising your result would be if there were really no effect. A small p-value (usually under .05) means your result would be unlikely by chance alone, so you lean toward rejecting the null hypothesis. It does not tell you the size of the effect or the chance the null hypothesis is true."
+  see_also: [alpha, null_hypothesis, type_i_error]
+
+alpha:
+  term: "alpha"
+  short: "The cutoff you pick ahead of time for how much risk of a false positive you'll accept, usually .05."
+  long: "Alpha is the line in the sand you draw before running a test. If your p-value falls below alpha, you call the result statistically significant. Alpha of .05 means you're willing to accept a 5% chance of a false positive across many tests like this one."
+  see_also: [p_value, type_i_error]
+
+null_hypothesis:
+  term: "null hypothesis"
+  short: "The boring, no-difference explanation your test is trying to rule out."
+  long: "The null hypothesis usually says there's no real difference between groups, no real relationship between variables, or no real effect. Statistical tests are built to ask: 'if the null hypothesis were true, how likely is a result like mine?' A small p-value lets you argue against it."
+  see_also: [p_value, alpha]
+
+effect_size:
+  term: "effect size"
+  short: "A number that says how big a difference or relationship is, not just whether it's real."
+  long: "Effect size answers the question a p-value can't: how much does it matter? Two studies can both have p < .05 while one finds a tiny difference and the other a huge one. Effect sizes like Cohen's d or eta squared put that difference on a standard scale you can compare across studies."
+  see_also: [cohens_d, r_squared]
+
+confidence_interval:
+  term: "confidence interval"
+  short: "A range that likely contains the true value, not just a single best guess."
+  long: "Instead of reporting just one number (like a mean difference), a confidence interval gives a plausible range, usually the 95% version. If you repeated the study many times, about 95% of the intervals you'd calculate would contain the true population value. A narrow interval means a more precise estimate."
+  see_also: [standard_error]
+
+degrees_of_freedom:
+  term: "degrees of freedom"
+  short: "Roughly, how many values in your data were free to vary once totals are fixed."
+  long: "Degrees of freedom (df) is a technical bookkeeping number tests need to find the right reference distribution. A rough intuition: once you know a sample's total and most of its values, the last value is forced, so it isn't 'free.' Bigger samples generally mean bigger df, which usually means more precise results."
+  see_also: [sample_size]
+
+mean:
+  term: "mean"
+  short: "The everyday average: add up all the scores and divide by how many there are."
+  long: "The mean is the most common measure of the 'center' of a set of scores. It's sensitive to outliers, so one extreme score can pull it up or down a lot. When scores are skewed, the median can be a better summary."
+  see_also: [median, standard_deviation]
+
+median:
+  term: "median"
+  short: "The middle score when all the values are lined up from lowest to highest."
+  long: "The median splits your data exactly in half: half the scores fall below it, half above. Unlike the mean, it isn't dragged around by a few very high or low scores, which makes it a better summary for skewed data like income or reaction times."
+  see_also: [mean, skewness]
+
+standard_deviation:
+  term: "standard deviation"
+  short: "A typical distance between individual scores and the mean; bigger means more spread out."
+  long: "Standard deviation (SD) tells you how much scores tend to vary around the mean. A small SD means most people scored close to the mean; a large SD means scores were spread out. It's the building block for effect sizes like Cohen's d."
+  see_also: [mean, variance]
+
+standard_error:
+  term: "standard error"
+  short: "How much your sample's mean would likely bounce around if you repeated the study."
+  long: "Standard error (SE) estimates the uncertainty in a sample statistic, like a mean or a difference between means, due to random sampling. It shrinks as your sample size grows, which is why bigger samples give more precise, trustworthy estimates."
+  see_also: [confidence_interval, sample_size]
+
+normal_distribution:
+  term: "normal distribution"
+  short: "The classic symmetric bell-shaped curve where most scores cluster near the middle."
+  long: "Many statistics tests assume scores are roughly normally distributed: shaped like a bell, with most values near the mean and fewer values as you move toward the extremes in either direction. Real data is rarely perfectly normal, but 'close enough' is often fine."
+  see_also: [normality, skewness]
+
+ordinal:
+  term: "ordinal"
+  short: "Data with a meaningful order but no guarantee the gaps between values are equal."
+  long: "Ordinal data can be ranked (1st, 2nd, 3rd, or 'strongly disagree' to 'strongly agree'), but you can't assume the distance between adjacent ranks is the same everywhere. A single Likert item is a classic example, which is why nonparametric tests are often recommended for it."
+  see_also: [likert_scale, nonparametric]
+
+nominal:
+  term: "nominal"
+  short: "Category labels with no natural order, like eye color or which school a student attends."
+  long: "Nominal (or categorical) data sorts observations into named groups where no group is 'higher' or 'lower' than another. You can count how many fall into each category, but averaging or ranking the categories themselves doesn't make sense."
+  see_also: [categorical_variable]
+
+continuous:
+  term: "continuous"
+  short: "Data that can take any value along a range, like height, age, or a test score."
+  long: "Continuous variables can (in principle) take on any value within a range, including fractions, not just whole categories or ranks. Test scores, reaction times, and scale scores made from many items are usually treated as continuous, which opens the door to parametric tests."
+  see_also: [ordinal, parametric]
+
+likert_scale:
+  term: "Likert scale"
+  short: "A rating scale, like 1 (strongly disagree) to 5 (strongly agree), used in surveys."
+  long: "A Likert scale asks people to rate agreement or frequency on a fixed set of ordered options. A single item is ordinal data, best analyzed with nonparametric tests. Several Likert items combined into a total scale score are commonly treated as continuous."
+  see_also: [ordinal, scale_score]
+
+parametric:
+  term: "parametric"
+  short: "A test that assumes your data follows a specific pattern, usually roughly normal."
+  long: "Parametric tests (like the t-test and ANOVA) make assumptions about the shape of your data, typically that it's roughly normally distributed and that groups have similar spread. When those assumptions hold reasonably well, parametric tests tend to be more powerful than their nonparametric alternatives."
+  see_also: [nonparametric, normality]
+
+nonparametric:
+  term: "nonparametric"
+  short: "A test that doesn't assume your data follows a normal distribution, often works on ranks."
+  long: "Nonparametric tests are the backup plan when your data isn't roughly normal, is ordinal, or has serious outliers. Many nonparametric tests, like Mann-Whitney U, work by ranking the data instead of using the raw values, which makes them less sensitive to extreme scores."
+  see_also: [parametric, ordinal]
+
+paired:
+  term: "paired"
+  short: "The same people (or matched pairs) measured twice, like a pretest and posttest."
+  long: "Paired (or dependent) data comes from the same source measured under two conditions, such as the same students before and after an intervention. Because each person is compared to themselves, paired tests can be more sensitive than tests that compare separate groups."
+  see_also: [independent_groups, repeated_measures]
+
+independent_groups:
+  term: "independent groups"
+  short: "Separate, unrelated sets of people, like a control class and a different treatment class."
+  long: "Independent groups contain different people with no natural pairing between them. A control class and a treatment class taught by a different teacher are independent groups. This matters because independent-groups tests (like the independent t-test) are different from paired tests."
+  see_also: [paired, between_subjects]
+
+covariate:
+  term: "covariate"
+  short: "An extra variable you statistically control for, like adjusting for pretest score."
+  long: "A covariate is a variable you include in an analysis to account for its influence, so you can see a cleaner picture of your main effect. For example, adjusting posttest scores for pretest scores (ANCOVA) removes some of the noise caused by students starting at different levels."
+  see_also: []
+
+post_hoc:
+  term: "post hoc"
+  short: "Follow-up comparisons run after an overall test to find exactly which groups differ."
+  long: "An overall test like ANOVA tells you whether groups differ somewhere, but not where. Post hoc tests (like Tukey HSD) run all the pairwise comparisons afterward, using corrections that keep the overall false-positive risk under control."
+  see_also: [multiple_comparisons, pairwise_comparison]
+
+multiple_comparisons:
+  term: "multiple comparisons"
+  short: "Running many tests at once inflates your chance of a false positive somewhere."
+  long: "Every individual test carries some false-positive risk (usually 5%). Run 20 tests and, by chance alone, you'd expect about one 'significant' result even if nothing real is going on. Corrections like Bonferroni or Holm adjust your p-value cutoff to account for this."
+  see_also: [bonferroni_correction, type_i_error]
+
+type_i_error:
+  term: "Type I error"
+  short: "A false alarm: concluding there's an effect when there really isn't one."
+  long: "A Type I error happens when you reject the null hypothesis even though it was actually true, essentially a false positive. Alpha sets how much Type I error risk you're willing to accept for a single test, usually 5%."
+  see_also: [alpha, p_value]
+
+power:
+  term: "power"
+  short: "The chance your test will detect a real effect if one actually exists."
+  long: "Statistical power is the probability of correctly finding a real effect. Low power means you might miss a genuine difference just because your sample was too small. Power increases with larger samples, bigger true effects, and less noisy measurements."
+  see_also: [sample_size]
+
+sample_size:
+  term: "sample size"
+  short: "How many people (or rows of data) went into your analysis, usually written as n."
+  long: "Sample size, written as n (or N for a whole study), is the number of observations in your data. Bigger samples generally give more precise estimates, more statistical power, and results that are less swayed by a single unusual person."
+  see_also: [power, standard_error]
+
+outlier:
+  term: "outlier"
+  short: "An unusual data point far from the rest, which can distort means and some tests."
+  long: "An outlier is a score that sits well outside the pattern of the rest of your data, like a student who scored 5 when everyone else scored 60 to 90. Outliers can pull the mean and inflate the standard deviation, which is why Statly checks for them before recommending a test."
+  see_also: [interquartile_range, z_score]
+
+skewness:
+  term: "skewness"
+  short: "How lopsided a distribution is, with a longer tail stretching to one side."
+  long: "Skewness measures asymmetry. A right-skewed (positively skewed) distribution has a long tail of high scores; a left-skewed one has a long tail of low scores. A perfectly symmetric bell curve has a skewness near zero. High skewness is one sign that a normality assumption might not hold."
+  see_also: [normal_distribution, kurtosis]
+
+kurtosis:
+  term: "kurtosis"
+  short: "How heavy-tailed or peaked a distribution is compared to a normal bell curve."
+  long: "Kurtosis describes the shape of a distribution's tails and peak. High kurtosis means more extreme scores (heavier tails) than a normal distribution; low kurtosis means fewer. Like skewness, it's one clue used when checking the normality assumption."
+  see_also: [skewness, normal_distribution]
+
+reverse_scoring:
+  term: "reverse-scoring"
+  short: "Flipping the numbers on negatively worded survey items so high always means the same thing."
+  long: "Some survey items are worded in the opposite direction on purpose, like 'I dislike group work' on a scale about enjoying group work. Reverse-scoring flips those item's values (on a 1-5 scale, 6 minus the answer) so that a high number always means the same thing across every item before they're combined into a scale score."
+  see_also: [scale_score, likert_scale]
+
+scale_score:
+  term: "scale score"
+  short: "A single combined score made by adding or averaging several related survey items."
+  long: "Rather than analyzing each survey question separately, related items (after reverse-scoring where needed) are often combined into one scale score, usually by averaging or summing. Scale scores are commonly treated as continuous, even though each individual item is ordinal."
+  see_also: [likert_scale, reverse_scoring]
+
+reliability:
+  term: "reliability"
+  short: "Whether a measure gives consistent results, like a scale that agrees with itself."
+  long: "Reliability is about consistency, not accuracy. A reliable survey scale gives similar results across items measuring the same thing, or across repeated administrations. Cronbach's alpha, McDonald's omega, and split-half reliability all estimate one type of reliability: internal consistency."
+  see_also: [internal_consistency, validity]
+
+validity:
+  term: "validity"
+  short: "Whether a measure actually measures the concept it claims to measure."
+  long: "Validity asks a different question than reliability: even if a scale gives consistent scores, does it actually capture the concept you care about (like 'math anxiety' rather than something else)? A measure can be reliable without being valid."
+  see_also: [reliability]
+
+variance:
+  term: "variance"
+  short: "The average squared distance of scores from the mean; the standard deviation's square."
+  long: "Variance measures spread, like standard deviation, but on a squared scale that's harder to interpret directly (its units are 'squared' units, like points squared). Statisticians use it because it splits apart neatly into between-group and within-group pieces, which is the backbone of ANOVA."
+  see_also: [standard_deviation, sum_of_squares]
+
+test_statistic:
+  term: "test statistic"
+  short: "The single number a statistical test calculates from your data to get a p-value."
+  long: "A test statistic (like t, F, or chi-square) summarizes your data into one number that can be compared against a known reference distribution to produce a p-value. Different tests produce different kinds of test statistics suited to their data and question."
+  see_also: [p_value, degrees_of_freedom]
+
+t_statistic:
+  term: "t-statistic"
+  short: "The test statistic from a t-test, roughly the size of a difference relative to its noise."
+  long: "The t-statistic compares an observed difference (like two group means) to how much noise you'd expect just from sampling. A t-value far from zero, relative to the degrees of freedom, produces a small p-value."
+  see_also: [test_statistic, degrees_of_freedom]
+
+f_statistic:
+  term: "F-statistic"
+  short: "The test statistic from ANOVA-type tests, comparing variance between groups to variance within groups."
+  long: "The F-statistic is a ratio: variability between your groups' means, divided by variability within each group. A large F means the groups differ more than you'd expect from ordinary noise, which points to a small p-value."
+  see_also: [between_groups_variance, within_groups_variance]
+
+chi_square_statistic:
+  term: "chi-square statistic"
+  short: "The test statistic comparing observed counts in categories to what you'd expect by chance."
+  long: "The chi-square statistic sums up how far the observed counts in each category are from the counts you'd expect if there were no relationship (or no difference from a claimed pattern). Bigger mismatches produce a bigger chi-square value and a smaller p-value."
+  see_also: [observed_frequency, expected_frequency]
+
+correlation:
+  term: "correlation"
+  short: "A number from -1 to 1 showing how strongly two variables move together."
+  long: "A correlation describes the strength and direction of a relationship between two variables. Positive means they tend to rise together; negative means one rises as the other falls. A correlation near 0 means little to no linear relationship. Correlation never proves that one thing causes the other."
+  see_also: [linear_relationship, monotonic_relationship]
+
+rank:
+  term: "rank"
+  short: "A score's position in order (1st, 2nd, 3rd...) instead of its raw value."
+  long: "Ranking replaces raw scores with their order from lowest to highest. Many nonparametric tests work on ranks instead of raw scores, which makes them resistant to outliers and useful for ordinal data like Likert items."
+  see_also: [ties, nonparametric]
+
+ties:
+  term: "ties"
+  short: "Two or more scores that are exactly equal, which complicates ranking-based tests."
+  long: "Ties happen when observations share the same value, which is common with Likert items and small scales. Rank-based tests split tied scores' ranks evenly between them and often apply a small correction to the test statistic to account for it."
+  see_also: [rank]
+
+homogeneity_of_variance:
+  term: "homogeneity of variance"
+  short: "The assumption that groups being compared have roughly the same amount of spread."
+  long: "Homogeneity of variance means your groups' scores are spread out by roughly the same amount, even if their means differ. Levene's test checks this. When it's violated, adjusted versions of tests (like Welch's t-test or Welch's ANOVA) are safer choices."
+  see_also: [levenes_test]
+
+sphericity:
+  term: "sphericity"
+  short: "The assumption, for repeated-measures designs, that the differences between all pairs of time points have similar variance."
+  long: "Sphericity applies to repeated-measures ANOVA with three or more time points: it assumes the variance of the differences between every pair of conditions is about equal. Mauchly's test checks this, and when it's violated, corrections like Greenhouse-Geisser adjust the degrees of freedom."
+  see_also: [repeated_measures]
+
+normality:
+  term: "normality"
+  short: "The assumption that scores (or differences, or residuals) are roughly normally distributed."
+  long: "Normality is one of the most common assumptions behind parametric tests. Statly checks it with the Shapiro-Wilk test and Q-Q plots, and reminds you that normality tests get overly sensitive with large samples, so visual checks matter too."
+  see_also: [normal_distribution, shapiro_wilk_test]
+
+interaction_effect:
+  term: "interaction effect"
+  short: "When the effect of one factor depends on the level of another factor."
+  long: "An interaction effect means the story isn't simple: the effect of one variable changes depending on another variable. For example, an intervention might help younger students a lot but barely help older students. Factorial and mixed ANOVA are built to detect these."
+  see_also: [main_effect]
+
+main_effect:
+  term: "main effect"
+  short: "The overall effect of one factor by itself, averaged across the levels of other factors."
+  long: "A main effect describes the overall impact of one factor (like teaching method) ignoring the other factors in the design. It's most straightforward to interpret when there's no interaction effect complicating the picture."
+  see_also: [interaction_effect]
+
+pairwise_comparison:
+  term: "pairwise comparison"
+  short: "A comparison between exactly two groups at a time, like Group A versus Group B."
+  long: "When you have three or more groups, a pairwise comparison looks at just two of them at once. Post hoc tests run every relevant pairwise comparison after an overall test, using corrections to control the combined false-positive risk."
+  see_also: [post_hoc]
+
+family_wise_error_rate:
+  term: "family-wise error rate"
+  short: "The chance of at least one false positive across a whole set of related tests."
+  long: "When you run several related tests (a 'family'), the family-wise error rate is the chance that at least one of them turns up significant purely by chance. Corrections like Bonferroni and Holm are designed to keep this combined risk near your chosen alpha."
+  see_also: [multiple_comparisons, bonferroni_correction]
+
+bonferroni_correction:
+  term: "Bonferroni correction"
+  short: "A simple, strict way to lower your significance cutoff when running multiple tests."
+  long: "The Bonferroni correction divides your alpha (often .05) by the number of tests you're running, giving each individual test a stricter cutoff. It's easy to explain and very safe against false positives, but it can also make it harder to detect real effects when you run many tests."
+  see_also: [multiple_comparisons, family_wise_error_rate]
+
+shapiro_wilk_test:
+  term: "Shapiro-Wilk test"
+  short: "Statly's main statistical test for checking whether data looks normally distributed."
+  long: "The Shapiro-Wilk test checks how well your data's shape matches a normal distribution, producing a p-value where a small value suggests a departure from normality. It becomes overly sensitive to tiny, unimportant deviations with large samples, so Statly also shows you a Q-Q plot to judge visually."
+  see_also: [normality, qq_plot]
+
+levenes_test:
+  term: "Levene's test"
+  short: "A statistical test checking whether groups have similar spread (equal variances)."
+  long: "Levene's test checks the homogeneity of variance assumption: whether your groups' scores are spread out by a similar amount. A small p-value suggests unequal spread, which usually points toward using a variance-robust version of a test, like Welch's t-test."
+  see_also: [homogeneity_of_variance]
+
+qq_plot:
+  term: "Q-Q plot"
+  short: "A chart comparing your data's shape to a perfect normal distribution, point by point."
+  long: "A Q-Q (quantile-quantile) plot lines your data's values up against what you'd expect from a perfectly normal distribution. If the points fall roughly along the diagonal line, your data is close to normal; systematic curves or S-shapes suggest it isn't."
+  see_also: [normality, shapiro_wilk_test]
+
+histogram:
+  term: "histogram"
+  short: "A bar chart showing how many scores fall into each range of values."
+  long: "A histogram groups your data into bins (like 0-10, 11-20, and so on) and shows a bar for how many observations fall in each bin. It's a quick visual way to check a distribution's shape, spread, and any outliers."
+  see_also: [outlier]
+
+box_plot:
+  term: "box plot"
+  short: "A chart showing the median, middle 50% of scores, and any outliers at a glance."
+  long: "A box plot (box-and-whisker plot) shows the median as a line, a box covering the middle 50% of scores (the interquartile range), whiskers extending to typical extreme values, and individual dots for outliers beyond that."
+  see_also: [median, interquartile_range]
+
+z_score:
+  term: "z-score"
+  short: "How many standard deviations a score is above or below the mean."
+  long: "A z-score converts a raw score into standard-deviation units, so a z-score of 2 means a score is two standard deviations above the mean. Z-scores make it easy to spot unusually high or low values and to compare scores across different scales."
+  see_also: [standard_deviation, outlier]
+
+interquartile_range:
+  term: "interquartile range"
+  short: "The range covering the middle 50% of scores, from the 25th to the 75th percentile."
+  long: "The interquartile range (IQR) is the distance between the 25th percentile (Q1) and the 75th percentile (Q3) of your data. It describes spread without being thrown off by outliers, and is often used to flag them: a common rule flags anything more than 1.5 IQRs past Q1 or Q3."
+  see_also: [outlier, box_plot]
+
+mahalanobis_distance:
+  term: "Mahalanobis distance"
+  short: "A statistical distance that flags outliers across several variables at once."
+  long: "Mahalanobis distance measures how unusual a data point is, considering several variables together and how those variables relate to each other, not just one at a time. It's used to catch outliers that don't stand out on any single variable but are unusual in combination."
+  see_also: [outlier]
+
+monotonic_relationship:
+  term: "monotonic relationship"
+  short: "A relationship where one variable consistently rises (or falls) as the other does, even if not in a straight line."
+  long: "A monotonic relationship means that as one variable increases, the other consistently increases (or consistently decreases), but not necessarily at a constant rate. Spearman's correlation and Kendall's tau-b detect monotonic relationships, which is broader than the straight-line relationships Pearson's correlation looks for."
+  see_also: [linear_relationship]
+
+linear_relationship:
+  term: "linear relationship"
+  short: "A relationship that follows a straight line when plotted on a graph."
+  long: "A linear relationship means that, on a scatter plot, the points roughly follow a straight line rather than a curve. Pearson's correlation specifically measures the strength of a linear relationship, and can miss strong relationships that curve."
+  see_also: [correlation]
+
+categorical_variable:
+  term: "categorical variable"
+  short: "A variable that sorts people into named groups instead of measuring an amount."
+  long: "A categorical variable places each observation into one of a set of groups, like 'Control,' 'Intervention A,' or 'Intervention B.' It can be nominal (no order) or ordinal (ordered), but the categories themselves aren't numbers you'd average."
+  see_also: [nominal, ordinal]
+
+contingency_table:
+  term: "contingency table"
+  short: "A grid showing how many observations fall into each combination of two categorical variables."
+  long: "A contingency table (or crosstab) lays out counts for every combination of two categorical variables, like gender by pass/fail. Chi-square tests of independence compare these observed counts to what you'd expect if the two variables were unrelated."
+  see_also: [chi_square_statistic, observed_frequency]
+
+expected_frequency:
+  term: "expected frequency"
+  short: "How many observations you'd expect in a category if there were no real pattern."
+  long: "Expected frequency is the count a chi-square test would predict for a cell or category if the null hypothesis (no relationship, or a claimed distribution) were exactly true. It's compared against your actual observed frequency to build the test statistic."
+  see_also: [observed_frequency, chi_square_statistic]
+
+observed_frequency:
+  term: "observed frequency"
+  short: "The actual count of observations that fell into a category in your data."
+  long: "Observed frequency is simply what you counted: how many respondents actually landed in each category or cell. Chi-square tests compare observed frequencies to expected frequencies to see whether the difference is bigger than chance would produce."
+  see_also: [expected_frequency]
+
+goodness_of_fit:
+  term: "goodness of fit"
+  short: "How well your observed data matches a claimed or expected pattern of proportions."
+  long: "A goodness-of-fit test checks whether the distribution of a single categorical variable matches some expected pattern, like an even split across four answer choices, rather than comparing two variables to each other."
+  see_also: [expected_frequency, chi_square_statistic]
+
+internal_consistency:
+  term: "internal consistency"
+  short: "How well items on a scale agree with each other, one type of reliability."
+  long: "Internal consistency asks whether items meant to measure the same thing actually move together. Cronbach's alpha, McDonald's omega, KR-20, and split-half reliability are all ways of estimating internal consistency, each with slightly different assumptions."
+  see_also: [reliability]
+
+item_total_correlation:
+  term: "item-total correlation"
+  short: "How strongly one survey item correlates with the total score of the rest of the scale."
+  long: "The corrected item-total correlation shows how well a single item aligns with the rest of the scale (excluding that item itself). A low or negative value suggests the item might not belong on the scale, or might need reverse-scoring."
+  see_also: [reliability, reverse_scoring]
+
+split_half_reliability:
+  term: "split-half reliability"
+  short: "A reliability check that splits a scale in two and compares the two halves' scores."
+  long: "Split-half reliability divides a scale's items into two halves (often odd versus even items), scores each half separately, and correlates them. Because splitting in half shortens the scale, the Spearman-Brown correction is applied to estimate the reliability of the full-length scale."
+  see_also: [spearman_brown_correction, reliability]
+
+spearman_brown_correction:
+  term: "Spearman-Brown correction"
+  short: "A formula that adjusts a split-half reliability estimate to reflect the full-length scale."
+  long: "Because a split-half correlation is based on half-length scales, it tends to underestimate the reliability of the full scale. The Spearman-Brown correction adjusts the number upward to estimate what reliability would be if you used all the items together."
+  see_also: [split_half_reliability]
+
+one_tailed_test:
+  term: "one-tailed test"
+  short: "A test that only checks for an effect in one specific direction."
+  long: "A one-tailed test only looks for a difference in a direction you predicted ahead of time, like 'scores went up.' It's more powerful for detecting an effect in that direction, but can't detect one in the opposite direction. Statly defaults to two-tailed tests for safety."
+  see_also: [two_tailed_test]
+
+two_tailed_test:
+  term: "two-tailed test"
+  short: "A test that checks for a difference in either direction, higher or lower."
+  long: "A two-tailed test checks for an effect in either direction without assuming ahead of time which way it will go. It's the more conservative, generally recommended default, and it's what Statly uses unless you have a strong reason to do otherwise."
+  see_also: [one_tailed_test]
+
+sum_of_squares:
+  term: "sum of squares"
+  short: "A total of squared distances from a mean, the building block of variance and ANOVA."
+  long: "Sum of squares adds up the squared distance of every score from a mean. ANOVA splits total sum of squares into a between-groups piece and a within-groups piece, and compares them to build the F-statistic."
+  see_also: [variance, f_statistic]
+
+between_groups_variance:
+  term: "between-groups variance"
+  short: "How much the group means differ from each other and from the overall mean."
+  long: "Between-groups variance captures how spread out your group means are. Large between-groups variance, relative to within-groups variance, suggests the groups genuinely differ, which is exactly what the F-statistic in ANOVA measures."
+  see_also: [f_statistic, within_groups_variance]
+
+within_groups_variance:
+  term: "within-groups variance"
+  short: "How much individual scores vary inside each group, ignoring group differences."
+  long: "Within-groups variance measures ordinary noise: how spread out scores are within each group, separate from any differences between the group means. It's the 'baseline' variability that between-groups differences are judged against in ANOVA."
+  see_also: [f_statistic, between_groups_variance]
+
+repeated_measures:
+  term: "repeated measures"
+  short: "The same people measured multiple times, like scores at pretest, posttest, and follow-up."
+  long: "A repeated-measures design follows the same participants across several conditions or time points, rather than comparing separate groups. It requires tests built for correlated data, like repeated-measures ANOVA or the Friedman test."
+  see_also: [within_subjects, paired]
+
+within_subjects:
+  term: "within-subjects"
+  short: "A design factor where the same people experience every condition, like every time point."
+  long: "A within-subjects factor is one where each participant is measured under all of its levels, such as pretest, posttest, and follow-up for the same students. It's the design-level term behind 'repeated measures' and 'paired' data."
+  see_also: [repeated_measures, between_subjects]
+
+between_subjects:
+  term: "between-subjects"
+  short: "A design factor where different people are in each group, like control versus treatment."
+  long: "A between-subjects factor is one where each participant experiences only one of its levels, like being in either the control group or the treatment group but not both. It's the design-level term behind 'independent groups.'"
+  see_also: [independent_groups, within_subjects]
+
+dichotomous_variable:
+  term: "dichotomous variable"
+  short: "A variable with exactly two possible categories, like pass/fail or yes/no."
+  long: "A dichotomous variable has only two possible values, such as correct/incorrect or male/female. Some statistics, like point-biserial correlation and the phi coefficient, are specifically built for relationships involving a dichotomous variable."
+  see_also: [nominal, categorical_variable]
+
+best_fit_line:
+  term: "best-fit line"
+  short: "The straight line drawn through a scatter of points that comes closest to all of them overall."
+  long: "A best-fit (or regression) line is the single straight line that minimizes the overall distance between itself and every point in a scatter plot. It summarizes a linear relationship and lets you predict one variable from another."
+  see_also: [linear_relationship, r_squared]
+
+r_squared:
+  term: "R-squared"
+  short: "The percentage of variation in one variable explained by its relationship with another."
+  long: "R-squared (the square of a correlation coefficient, in the simplest case) tells you what proportion of the variation in your outcome is 'explained by' or associated with the predictor. An R-squared of .25 means 25% of the variation lines up with the predictor; the rest is unexplained."
+  see_also: [correlation, effect_size]
+
+dependent_variable:
+  term: "dependent variable"
+  short: "The outcome you're measuring, the thing you think might change or depend on other factors."
+  long: "The dependent variable (or outcome) is what you're measuring the effect on, like a test score or survey rating. It's called 'dependent' because its value may depend on the independent variable, like which teaching method a student experienced."
+  see_also: [independent_variable]
+
+independent_variable:
+  term: "independent variable"
+  short: "The factor you're comparing or manipulating, like group, time, or teaching method."
+  long: "The independent variable (or predictor, or factor) is what you're comparing groups on or using to predict an outcome, such as which intervention a student received. It's called 'independent' because, in a designed study, it doesn't depend on the outcome."
+  see_also: [dependent_variable]

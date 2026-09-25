@@ -1,0 +1,1196 @@
+# Test Advisor decision tree (SPEC §7.1).
+#
+# Single source of truth for test selection: nothing about which test to
+# recommend is hard-coded in Python. The engine (engine/statly_engine/advisor)
+# loads this file, validates it against decision_tree.schema.json, and walks
+# it with a pure function: (tree, answers) -> next question | recommendation.
+#
+# Node types:
+#   question       - id, text (plain language), why (plain-language reason we
+#                     ask), optional auto (answered from dataset_context: the
+#                     user can still override), options[] (value, label, next).
+#   recommendation - primary_test, nonparametric_alternative, assumptions[],
+#                     effect_size[], post_hoc[], why_this_test, likert_note,
+#                     caveats[]. Analysis/assumption/effect-size ids are
+#                     snake_case and owned by the engine's stats registry.
+#
+# `auto.field` is one of the five dataset_context signals the frontend can
+# derive from variable roles/levels (SPEC §7.1): outcome_level, num_groups,
+# num_time_points, linked_mode, covariates_present. `auto.rules` are matched
+# in order; the first rule whose `when` matches the field's value supplies the
+# answer. `when` supports equals / min / max / in - plain value comparisons,
+# not statistical logic, so the tree stays the single source of truth.
+
+version: 1
+root: q_intent
+
+nodes:
+
+  # ---------------------------------------------------------------------
+  # Root: what do you want to know? (SPEC §7.1)
+  # ---------------------------------------------------------------------
+  q_intent:
+    type: question
+    text: "What do you want to know?"
+    why: >
+      Statly picks a test by first understanding the shape of your question,
+      then the shape of your data. Starting here keeps the questions that
+      follow short and relevant.
+    options:
+      - value: compare
+        label: "Did scores change over time, or differ between groups?"
+        next: q_compare_outcome_level
+      - value: relate
+        label: "Are two things related?"
+        next: q_relate_variable_types
+      - value: predict
+        label: "Can one thing predict another?"
+        next: q_predict_outcome_type
+      - value: reliability
+        label: "Do my survey questions hang together?"
+        next: q_reliability_type
+      - value: validity
+        label: "Do my questions measure what I think they measure?"
+        next: q_validity_stage
+
+  # =======================================================================
+  # COMPARE branch
+  # =======================================================================
+  q_compare_outcome_level:
+    type: question
+    text: "What is your outcome (the thing you're comparing)?"
+    why: >
+      How a variable is measured decides the whole family of tests available
+      for it. A single survey question answered on a 1-5 scale behaves very
+      differently from a total test score, and both behave differently from
+      a category like pass/fail.
+    auto:
+      field: outcome_level
+      rules:
+        - when: { equals: "nominal" }
+          value: nominal
+        - when: { equals: "ordinal" }
+          value: ordinal
+        - when: { equals: "continuous" }
+          value: continuous
+    options:
+      - value: nominal
+        label: "A category, like pass/fail or yes/no"
+        next: q_compare_categorical
+      - value: ordinal
+        label: "A single survey item on a rating scale (e.g. one Likert question)"
+        next: q_compare_design_ordinal
+      - value: continuous
+        label: "A score or scale total (e.g. a test score or a multi-item scale average)"
+        next: q_compare_design
+
+  # --- categorical (nominal) outcome ------------------------------------
+  q_compare_categorical:
+    type: question
+    text: "How is your category comparison set up?"
+    why: >
+      With categories, the right test depends on whether you're checking
+      against an expected pattern, comparing independent groups, or
+      comparing the same respondents' answers across time.
+    options:
+      - value: one_var_vs_expected
+        label: "One category variable vs. an expected pattern (e.g. is enrollment evenly split by major?)"
+        next: rec_chi_square_gof
+      - value: two_groups_independent
+        label: "Two category variables, independent groups (e.g. pass/fail by class section)"
+        next: rec_chi_square_independence
+      - value: linked_two_time_points
+        label: "Same respondents, yes/no answer, two time points (linked)"
+        next: rec_mcnemar
+      - value: linked_three_plus_time_points
+        label: "Same respondents, yes/no answer, three or more time points (linked)"
+        next: rec_cochran_q
+
+  rec_chi_square_gof:
+    type: recommendation
+    primary_test: chi_square_gof
+    nonparametric_alternative: null
+    assumptions: [expected_cell_counts, independence_of_observations]
+    effect_size: [cramers_v]
+    post_hoc: []
+    why_this_test: >
+      A chi-square goodness-of-fit test compares the counts you observed in
+      each category to the counts you'd expect under some pattern (an even
+      split, or a known population breakdown). It tells you whether the
+      difference is bigger than chance would produce.
+    likert_note: null
+    caveats: []
+
+  rec_chi_square_independence:
+    type: recommendation
+    primary_test: chi_square_independence
+    nonparametric_alternative: fisher_exact
+    assumptions: [expected_cell_counts, independence_of_observations]
+    effect_size: [cramers_v, phi]
+    post_hoc: []
+    why_this_test: >
+      A chi-square test of independence checks whether two categorical
+      variables are related - for example, whether pass/fail rates differ
+      by class section. When any expected cell count is small (a common
+      problem with small samples), Fisher's exact test is the safer choice
+      because it doesn't rely on a large-sample approximation.
+    likert_note: null
+    caveats: []
+
+  rec_mcnemar:
+    type: recommendation
+    primary_test: mcnemar
+    nonparametric_alternative: null
+    assumptions: [independence_of_pairs]
+    effect_size: [odds_ratio]
+    post_hoc: []
+    why_this_test: >
+      McNemar's test is built for a yes/no answer measured twice on the same
+      people. Instead of comparing two separate groups, it focuses on the
+      respondents who switched their answer between the two time points,
+      which is exactly what "change" means for a linked yes/no variable.
+    likert_note: null
+    caveats: []
+
+  rec_cochran_q:
+    type: recommendation
+    primary_test: cochran_q
+    nonparametric_alternative: null
+    assumptions: [independence_of_pairs]
+    effect_size: [kendalls_w]
+    post_hoc: []
+    why_this_test: >
+      Cochran's Q extends McNemar's test to three or more linked time points
+      or conditions with a yes/no answer. It tells you whether the
+      proportion answering "yes" changed anywhere across those time points.
+    likert_note: null
+    caveats: []
+
+  # --- ordinal (single Likert item) outcome -----------------------------
+  q_compare_design_ordinal:
+    type: question
+    text: "What are you comparing?"
+    why: >
+      A single rating-scale question is ordinal data: the gap between
+      "agree" and "strongly agree" isn't guaranteed to equal the gap between
+      "disagree" and "agree". Statly recommends rank-based (nonparametric)
+      tests for this kind of variable, which compare ranks instead of means.
+    options:
+      - value: vs_fixed_value
+        label: "Comparing to a known or expected value"
+        next: rec_wilcoxon_one_sample
+      - value: independent_groups
+        label: "Independent groups (different people in each group)"
+        next: q_compare_ordinal_groups
+      - value: repeated_linked
+        label: "Same respondents, measured more than once (linked)"
+        next: q_compare_ordinal_time
+      - value: repeated_aggregate
+        label: "Comparing time points, but respondents are NOT linked across them"
+        next: q_compare_ordinal_aggregate
+
+  rec_wilcoxon_one_sample:
+    type: recommendation
+    primary_test: wilcoxon_one_sample
+    nonparametric_alternative: null
+    assumptions: [symmetry_of_differences]
+    effect_size: [rank_biserial]
+    post_hoc: []
+    why_this_test: >
+      The one-sample Wilcoxon test compares the ranks of your ratings to a
+      fixed value without assuming the scale behaves like a continuous,
+      evenly-spaced measurement - appropriate for a single rating-scale item.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. Statly recommends
+      a rank-based test rather than a one-sample t-test.
+    caveats: []
+
+  q_compare_ordinal_groups:
+    type: question
+    text: "How many groups are you comparing?"
+    why: "The number of groups decides whether you need a two-group or a multi-group rank test."
+    auto:
+      field: num_groups
+      rules:
+        - when: { equals: 2 }
+          value: two
+        - when: { min: 3 }
+          value: three_plus
+    options:
+      - value: two
+        label: "Two groups"
+        next: rec_mann_whitney
+      - value: three_plus
+        label: "Three or more groups"
+        next: rec_kruskal_wallis
+
+  rec_mann_whitney:
+    type: recommendation
+    primary_test: mann_whitney
+    nonparametric_alternative: null
+    assumptions: [independence_of_observations, similar_shape_of_distributions]
+    effect_size: [rank_biserial]
+    post_hoc: []
+    why_this_test: >
+      The Mann-Whitney U test compares the ranks of two independent groups'
+      ratings rather than their means, which fits a single rating-scale item
+      better than an independent-samples t-test.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. Statly recommends
+      the Mann-Whitney U test rather than an independent-samples t-test; if
+      you had a multi-item scale score instead, a t-test would be reasonable.
+    caveats: []
+
+  rec_kruskal_wallis:
+    type: recommendation
+    primary_test: kruskal_wallis
+    nonparametric_alternative: null
+    assumptions: [independence_of_observations, similar_shape_of_distributions]
+    effect_size: [epsilon_squared]
+    post_hoc: [dunn]
+    why_this_test: >
+      The Kruskal-Wallis test extends the Mann-Whitney idea to three or more
+      independent groups, comparing ranks instead of means - a better fit
+      for a single rating-scale item than a one-way ANOVA.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. Statly recommends
+      Kruskal-Wallis rather than a one-way ANOVA.
+    caveats: []
+
+  q_compare_ordinal_time:
+    type: question
+    text: "How many time points or conditions?"
+    why: "Two linked time points and three-or-more linked time points need different rank tests."
+    auto:
+      field: num_time_points
+      rules:
+        - when: { equals: 2 }
+          value: two
+        - when: { min: 3 }
+          value: three_plus
+    options:
+      - value: two
+        label: "Two"
+        next: q_compare_ordinal_paired_method
+      - value: three_plus
+        label: "Three or more"
+        next: rec_friedman
+
+  q_compare_ordinal_paired_method:
+    type: question
+    text: "Do you want the more common signed-rank test, or the simpler sign test?"
+    why: >
+      The Wilcoxon signed-rank test uses both the direction and size of each
+      person's change and is the usual first choice. The sign test only uses
+      the direction of change (up or down); it's simpler and more robust,
+      but less powerful, and is sometimes preferred when the size of the
+      change isn't meaningful.
+    options:
+      - value: signed_rank
+        label: "Signed-rank test (usual choice)"
+        next: rec_wilcoxon_signed_rank
+      - value: sign
+        label: "Sign test (simpler, direction only)"
+        next: rec_sign_test
+
+  rec_wilcoxon_signed_rank:
+    type: recommendation
+    primary_test: wilcoxon_signed_rank
+    nonparametric_alternative: null
+    assumptions: [symmetry_of_differences]
+    effect_size: [rank_biserial]
+    post_hoc: []
+    why_this_test: >
+      The Wilcoxon signed-rank test compares each person's two ratings by
+      ranking the sizes of their changes, which fits a single rating-scale
+      item measured twice on the same people better than a paired t-test.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. Statly recommends
+      the Wilcoxon signed-rank test rather than a paired t-test.
+    caveats: []
+
+  rec_sign_test:
+    type: recommendation
+    primary_test: sign_test
+    nonparametric_alternative: null
+    assumptions: []
+    effect_size: [rank_biserial]
+    post_hoc: []
+    why_this_test: >
+      The sign test only looks at whether each person's rating went up or
+      down, ignoring how much it changed. It makes the fewest assumptions of
+      any paired comparison, at the cost of some statistical power.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. The sign test
+      avoids assuming the scale is evenly spaced.
+    caveats: []
+
+  rec_friedman:
+    type: recommendation
+    primary_test: friedman
+    nonparametric_alternative: null
+    assumptions: [independence_of_observations]
+    effect_size: [kendalls_w]
+    post_hoc: [conover]
+    why_this_test: >
+      The Friedman test compares ranks across three or more linked time
+      points or conditions for the same people - a rank-based counterpart
+      to repeated-measures ANOVA.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. Statly recommends
+      Friedman rather than repeated-measures ANOVA.
+    caveats: []
+
+  q_compare_ordinal_aggregate:
+    type: question
+    text: "How many time points are you comparing?"
+    why: >
+      Without a way to link respondents across time, each time point has to
+      be treated as an independent group, even if some of the same people
+      answered more than once.
+    auto:
+      field: num_time_points
+      rules:
+        - when: { equals: 2 }
+          value: two
+        - when: { min: 3 }
+          value: three_plus
+    options:
+      - value: two
+        label: "Two"
+        next: rec_mann_whitney_aggregate
+      - value: three_plus
+        label: "Three or more"
+        next: rec_kruskal_wallis_aggregate
+
+  rec_mann_whitney_aggregate:
+    type: recommendation
+    primary_test: mann_whitney
+    nonparametric_alternative: null
+    assumptions: [independence_of_observations, similar_shape_of_distributions]
+    effect_size: [rank_biserial]
+    post_hoc: []
+    why_this_test: >
+      Without linked IDs, Statly can't pair up each respondent's before and
+      after rating, so the two time points are compared as independent
+      groups using the Mann-Whitney U test.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. Statly recommends
+      the Mann-Whitney U test rather than an independent-samples t-test.
+    caveats: [aggregate_time_comparison]
+
+  rec_kruskal_wallis_aggregate:
+    type: recommendation
+    primary_test: kruskal_wallis
+    nonparametric_alternative: null
+    assumptions: [independence_of_observations, similar_shape_of_distributions]
+    effect_size: [epsilon_squared]
+    post_hoc: [dunn]
+    why_this_test: >
+      Without linked IDs, the time points are compared as independent
+      groups using Kruskal-Wallis rather than a repeated-measures rank test.
+    likert_note: >
+      This is a single Likert item, so it's ordinal data. Statly recommends
+      Kruskal-Wallis rather than a one-way ANOVA.
+    caveats: [aggregate_time_comparison]
+
+  # --- continuous (score / scale) outcome --------------------------------
+  q_compare_design:
+    type: question
+    text: "What are you comparing?"
+    why: >
+      This decides the overall family of test: comparing to a fixed value,
+      comparing independent groups, comparing the same people over time, or
+      comparing time points you can't link.
+    options:
+      - value: vs_fixed_value
+        label: "Comparing to a known or expected value (e.g. a benchmark score)"
+        next: rec_t_one_sample
+      - value: independent_groups
+        label: "Independent groups (different people in each group/condition)"
+        next: q_compare_between_factors
+      - value: repeated_linked
+        label: "Same respondents, measured more than once (linked)"
+        next: q_compare_time_points
+      - value: repeated_aggregate
+        label: "Comparing time points, but respondents are NOT linked across them"
+        next: q_compare_aggregate_groups
+
+  rec_t_one_sample:
+    type: recommendation
+    primary_test: t_one_sample
+    nonparametric_alternative: wilcoxon_one_sample
+    assumptions: [normality]
+    effect_size: [cohens_d]
+    post_hoc: []
+    why_this_test: >
+      A one-sample t-test checks whether your group's average score differs
+      from a known or expected value, such as a benchmark or population mean.
+    likert_note: null
+    caveats: []
+
+  q_compare_between_factors:
+    type: question
+    text: "How many grouping variables (factors) do you have?"
+    why: >
+      Comparing groups on one variable (e.g. just "condition") is a
+      different test than crossing two grouping variables at once (e.g.
+      "condition" and "gender" together), which lets you ask whether they
+      interact.
+    options:
+      - value: one
+        label: "One grouping variable"
+        next: q_compare_between_groups_count
+      - value: two_plus
+        label: "Two grouping variables (a factorial design)"
+        next: q_compare_multiple_outcomes
+
+  q_compare_between_groups_count:
+    type: question
+    text: "How many groups?"
+    why: "Two groups and three-or-more groups use different tests."
+    auto:
+      field: num_groups
+      rules:
+        - when: { equals: 2 }
+          value: two
+        - when: { min: 3 }
+          value: three_plus
+    options:
+      - value: two
+        label: "Two groups"
+        next: q_compare_covariate_two
+      - value: three_plus
+        label: "Three or more groups"
+        next: q_compare_covariate_three
+
+  q_compare_covariate_two:
+    type: question
+    text: "Do you want to control for another variable (a covariate), such as a pretest score?"
+    why: >
+      Controlling for a covariate - most often a pretest - removes
+      differences that already existed before your groups were compared,
+      so the comparison reflects the effect of the grouping variable itself.
+    auto:
+      field: covariates_present
+      rules:
+        - when: { equals: true }
+          value: "yes"
+        - when: { equals: false }
+          value: "no"
+    options:
+      - value: "no"
+        label: "No"
+        next: rec_t_independent
+      - value: "yes"
+        label: "Yes"
+        next: rec_ancova
+
+  rec_t_independent:
+    type: recommendation
+    primary_test: t_independent
+    nonparametric_alternative: mann_whitney
+    assumptions: [normality, homogeneity_of_variance]
+    effect_size: [cohens_d, hedges_g]
+    post_hoc: []
+    why_this_test: >
+      An independent-samples t-test compares the means of two independent
+      groups. Statly runs Welch's version by default, which doesn't assume
+      the two groups have equal variance - a safe default because it
+      performs about as well as the classic (Student's) version when
+      variances are equal, and much better when they aren't.
+    likert_note: null
+    caveats: []
+
+  q_compare_covariate_three:
+    type: question
+    text: "Do you want to control for another variable (a covariate), such as a pretest score?"
+    why: >
+      Controlling for a covariate removes differences that already existed
+      before your groups were compared, isolating the effect of the
+      grouping variable.
+    auto:
+      field: covariates_present
+      rules:
+        - when: { equals: true }
+          value: "yes"
+        - when: { equals: false }
+          value: "no"
+    options:
+      - value: "no"
+        label: "No"
+        next: q_compare_variance_three
+      - value: "yes"
+        label: "Yes"
+        next: rec_ancova
+
+  rec_ancova:
+    type: recommendation
+    primary_test: ancova
+    nonparametric_alternative: quade
+    assumptions: [normality, homogeneity_of_variance, linearity, homogeneity_of_regression_slopes]
+    effect_size: [partial_eta_squared]
+    post_hoc: [bonferroni, holm]
+    why_this_test: >
+      ANCOVA compares group means after statistically adjusting for a
+      covariate (commonly a pretest score), using estimated marginal means.
+      This is the standard choice for "post-test adjusted for pretest"
+      designs.
+    likert_note: null
+    caveats: []
+
+  q_compare_variance_three:
+    type: question
+    text: "Do your groups have roughly similar amounts of spread (variance) in this outcome?"
+    why: >
+      A standard one-way ANOVA assumes each group's scores are spread out by
+      about the same amount. When that's not true, Welch's ANOVA is a safer
+      default because it doesn't rely on that assumption, similar to how
+      Welch's t-test protects an independent-samples comparison.
+    options:
+      - value: similar
+        label: "Yes, similar spread (or not sure)"
+        next: rec_anova_one_way
+      - value: different
+        label: "No, quite different spread across groups"
+        next: rec_anova_welch
+
+  rec_anova_one_way:
+    type: recommendation
+    primary_test: anova_one_way
+    nonparametric_alternative: kruskal_wallis
+    assumptions: [normality, homogeneity_of_variance]
+    effect_size: [eta_squared, omega_squared, cohens_f]
+    post_hoc: [tukey_hsd, bonferroni, holm]
+    why_this_test: >
+      A one-way ANOVA tests whether the means of three or more independent
+      groups differ. It's the standard first choice when group spreads are
+      roughly similar.
+    likert_note: null
+    caveats: []
+
+  rec_anova_welch:
+    type: recommendation
+    primary_test: anova_welch
+    nonparametric_alternative: kruskal_wallis
+    assumptions: [normality]
+    effect_size: [eta_squared, omega_squared, cohens_f]
+    post_hoc: [games_howell]
+    why_this_test: >
+      Welch's ANOVA compares three or more group means without assuming
+      equal variances, the same protection Welch's t-test gives a two-group
+      comparison. It's the safer default when groups' spreads differ.
+    likert_note: null
+    caveats: []
+
+  q_compare_multiple_outcomes:
+    type: question
+    text: "Do you have more than one outcome variable you want to compare at once?"
+    why: >
+      When several related outcomes are analyzed together instead of one at
+      a time, a multivariate test (MANOVA) controls the overall false-positive
+      rate better than running separate ANOVAs.
+    options:
+      - value: one_outcome
+        label: "No, one outcome"
+        next: rec_anova_factorial
+      - value: multiple_outcomes
+        label: "Yes, several related outcomes together"
+        next: rec_manova
+
+  rec_anova_factorial:
+    type: recommendation
+    primary_test: anova_factorial
+    nonparametric_alternative: art_anova
+    assumptions: [normality, homogeneity_of_variance]
+    effect_size: [partial_eta_squared, omega_squared]
+    post_hoc: [tukey_hsd, bonferroni, holm]
+    why_this_test: >
+      A factorial (two-way) ANOVA tests the effect of each grouping variable
+      on its own, plus whether the two grouping variables interact - for
+      example, whether an intervention works differently for different
+      genders. Interactions get simple-effects follow-up tests.
+    likert_note: null
+    caveats: []
+
+  rec_manova:
+    type: recommendation
+    primary_test: manova
+    nonparametric_alternative: null
+    assumptions: [multivariate_normality, homogeneity_of_covariance_matrices, linearity, multicollinearity]
+    effect_size: [partial_eta_squared]
+    post_hoc: []
+    why_this_test: >
+      MANOVA tests several related outcome variables together instead of
+      running a separate ANOVA for each, which controls the overall
+      false-positive rate. Statly reports Pillai's trace by default, along
+      with follow-up univariate tests for each outcome.
+    likert_note: null
+    caveats: []
+
+  q_compare_time_points:
+    type: question
+    text: "How many time points or conditions?"
+    why: "Two linked time points is a paired comparison; three or more is a repeated-measures design."
+    auto:
+      field: num_time_points
+      rules:
+        - when: { equals: 2 }
+          value: two
+        - when: { min: 3 }
+          value: three_plus
+    options:
+      - value: two
+        label: "Two"
+        next: rec_t_paired
+      - value: three_plus
+        label: "Three or more"
+        next: q_compare_between_factor_rm
+
+  rec_t_paired:
+    type: recommendation
+    primary_test: t_paired
+    nonparametric_alternative: wilcoxon_signed_rank
+    assumptions: [normality_of_differences]
+    effect_size: [cohens_d_z, cohens_d_av]
+    post_hoc: []
+    why_this_test: >
+      A paired t-test compares each linked respondent's two scores (e.g.
+      pre and post) by looking at the average difference, which is more
+      powerful than treating pre and post as independent groups when you
+      can actually link respondents.
+    likert_note: null
+    caveats: []
+
+  q_compare_between_factor_rm:
+    type: question
+    text: "Do you also have a between-subjects grouping variable (e.g. control vs. intervention)?"
+    why: >
+      Repeated measures on their own (everyone follows the same time
+      course) is a different design from a mixed design, where you also
+      want to know whether different groups change differently over time.
+    options:
+      - value: "no"
+        label: "No, just repeated measures"
+        next: rec_anova_rm
+      - value: "yes"
+        label: "Yes, groups measured across the same time points"
+        next: rec_anova_mixed
+
+  rec_anova_rm:
+    type: recommendation
+    primary_test: anova_rm
+    nonparametric_alternative: friedman
+    assumptions: [normality, sphericity]
+    effect_size: [partial_eta_squared, omega_squared]
+    post_hoc: [bonferroni, holm]
+    why_this_test: >
+      Repeated-measures ANOVA compares the same people's scores across
+      three or more linked time points or conditions, using the correlation
+      between repeated measurements to increase power. Mauchly's test
+      checks sphericity, with Greenhouse-Geisser and Huynh-Feldt corrections
+      available when it's violated.
+    likert_note: null
+    caveats: []
+
+  rec_anova_mixed:
+    type: recommendation
+    primary_test: anova_mixed
+    nonparametric_alternative: art_anova
+    assumptions: [normality, sphericity, homogeneity_of_variance]
+    effect_size: [partial_eta_squared, omega_squared]
+    post_hoc: [bonferroni, holm]
+    why_this_test: >
+      A mixed ANOVA combines a between-subjects grouping variable (e.g.
+      control vs. intervention) with a within-subjects factor (e.g. time),
+      so you can see the group x time interaction - whether groups change
+      differently across time points. Significant interactions get
+      simple-effects follow-up tests.
+    likert_note: null
+    caveats: []
+
+  q_compare_aggregate_groups:
+    type: question
+    text: "How many time points are you comparing?"
+    why: >
+      Without a way to link respondents across time (no shared ID, or the
+      user chose aggregate mode), each time point has to be compared as an
+      independent group even if some of the same people answered more than
+      once.
+    auto:
+      field: num_time_points
+      rules:
+        - when: { equals: 2 }
+          value: two
+        - when: { min: 3 }
+          value: three_plus
+    options:
+      - value: two
+        label: "Two"
+        next: rec_t_independent_aggregate
+      - value: three_plus
+        label: "Three or more"
+        next: rec_anova_one_way_aggregate
+
+  rec_t_independent_aggregate:
+    type: recommendation
+    primary_test: t_independent
+    nonparametric_alternative: mann_whitney
+    assumptions: [normality, homogeneity_of_variance]
+    effect_size: [cohens_d, hedges_g]
+    post_hoc: []
+    why_this_test: >
+      Without linked IDs, Statly can't pair up each respondent's before and
+      after score, so the two time points are compared as independent
+      groups with Welch's independent-samples t-test.
+    likert_note: null
+    caveats: [aggregate_time_comparison]
+
+  rec_anova_one_way_aggregate:
+    type: recommendation
+    primary_test: anova_one_way
+    nonparametric_alternative: kruskal_wallis
+    assumptions: [normality, homogeneity_of_variance]
+    effect_size: [eta_squared, omega_squared, cohens_f]
+    post_hoc: [tukey_hsd, bonferroni, holm]
+    why_this_test: >
+      Without linked IDs, the three or more time points are compared as
+      independent groups using a one-way ANOVA rather than a
+      repeated-measures ANOVA.
+    likert_note: null
+    caveats: [aggregate_time_comparison]
+
+  # =======================================================================
+  # RELATE branch (correlation)
+  # =======================================================================
+  q_relate_variable_types:
+    type: question
+    text: "What kind of variables are you relating?"
+    why: >
+      The right correlation coefficient depends on how both variables are
+      measured, and whether you want to remove the influence of a third
+      variable.
+    options:
+      - value: continuous_continuous
+        label: "Both are scores or scale totals (continuous)"
+        next: rec_pearson
+      - value: ordinal_involved
+        label: "One or both are ranks or single rating-scale items (ordinal)"
+        next: q_relate_ordinal_detail
+      - value: continuous_binary
+        label: "One is a score, the other is a two-category variable (e.g. pass/fail)"
+        next: rec_point_biserial
+      - value: control_third_variable
+        label: "I want to control for a third variable"
+        next: rec_partial_correlation
+
+  rec_pearson:
+    type: recommendation
+    primary_test: pearson
+    nonparametric_alternative: spearman
+    assumptions: [normality, linearity, homoscedasticity, outliers]
+    effect_size: [pearson_r]
+    post_hoc: []
+    why_this_test: >
+      Pearson's correlation measures the strength and direction of a
+      straight-line relationship between two continuous variables.
+    likert_note: null
+    caveats: []
+
+  q_relate_ordinal_detail:
+    type: question
+    text: "Do you have a small sample or a lot of tied ranks (e.g. many identical ratings)?"
+    why: >
+      Spearman's correlation is the usual rank-based choice. Kendall's
+      tau-b handles tied ranks more precisely and tends to be more
+      reliable in small samples, at the cost of being harder to interpret
+      directly against Pearson's r.
+    options:
+      - value: "no"
+        label: "No, use the usual choice"
+        next: rec_spearman
+      - value: "yes"
+        label: "Yes"
+        next: rec_kendall
+
+  rec_spearman:
+    type: recommendation
+    primary_test: spearman
+    nonparametric_alternative: kendall_tau_b
+    assumptions: [monotonic_relationship]
+    effect_size: [spearman_rho]
+    post_hoc: []
+    why_this_test: >
+      Spearman's correlation measures the strength of a monotonic
+      (consistently increasing or decreasing) relationship using ranks
+      instead of raw values, which fits ordinal data such as a single
+      rating-scale item.
+    likert_note: >
+      At least one variable here is a single Likert item, so it's ordinal
+      data. Statly recommends a rank-based correlation rather than Pearson's r.
+    caveats: []
+
+  rec_kendall:
+    type: recommendation
+    primary_test: kendall_tau_b
+    nonparametric_alternative: null
+    assumptions: [monotonic_relationship]
+    effect_size: [kendall_tau_b]
+    post_hoc: []
+    why_this_test: >
+      Kendall's tau-b measures the relationship between two ranked
+      variables based on how often pairs of observations agree in order.
+      It handles tied ranks explicitly, which makes it a good choice for a
+      small sample or many identical ratings.
+    likert_note: >
+      At least one variable here is a single Likert item, so it's ordinal
+      data.
+    caveats: []
+
+  rec_point_biserial:
+    type: recommendation
+    primary_test: point_biserial
+    nonparametric_alternative: null
+    assumptions: [normality, homogeneity_of_variance]
+    effect_size: [point_biserial_r]
+    post_hoc: []
+    why_this_test: >
+      The point-biserial correlation measures the relationship between a
+      continuous score and a genuinely two-category variable. It's
+      mathematically equivalent to Pearson's r applied to a 0/1-coded group
+      variable, and equivalent to an independent-samples t-test.
+    likert_note: null
+    caveats: []
+
+  rec_partial_correlation:
+    type: recommendation
+    primary_test: partial_correlation
+    nonparametric_alternative: null
+    assumptions: [normality, linearity, homoscedasticity]
+    effect_size: [pearson_r]
+    post_hoc: []
+    why_this_test: >
+      A partial correlation measures the relationship between two variables
+      after statistically removing the influence of one or more other
+      variables, so the result isn't misleading you about what's actually
+      driving the relationship.
+    likert_note: null
+    caveats: []
+
+  # =======================================================================
+  # PREDICT branch (regression)
+  # =======================================================================
+  q_predict_outcome_type:
+    type: question
+    text: "What kind of outcome do you want to predict?"
+    why: >
+      Regression comes in different flavors depending on how the outcome
+      you're predicting is measured.
+    auto:
+      field: outcome_level
+      rules:
+        - when: { equals: "continuous" }
+          value: continuous
+        - when: { equals: "ordinal" }
+          value: ordinal
+        - when: { equals: "nominal" }
+          value: nominal
+    options:
+      - value: continuous
+        label: "A score or scale total (continuous)"
+        next: q_predict_predictor_count
+      - value: nominal
+        label: "A category, like pass/fail"
+        next: q_predict_nominal_categories
+      - value: ordinal
+        label: "An ordered category (e.g. low/medium/high)"
+        next: rec_regression_ordinal
+
+  q_predict_nominal_categories:
+    type: question
+    text: "How many categories does your outcome have?"
+    why: "Binary logistic regression predicts a two-category outcome; more categories need a different model."
+    options:
+      - value: two
+        label: "Two categories (e.g. pass/fail)"
+        next: rec_regression_logistic
+      - value: three_plus
+        label: "Three or more categories"
+        next: rec_regression_logistic_multi
+
+  rec_regression_logistic:
+    type: recommendation
+    primary_test: regression_logistic
+    nonparametric_alternative: null
+    assumptions: [linearity_of_logit, multicollinearity, independence_of_observations, outliers]
+    effect_size: [odds_ratio, r_squared]
+    post_hoc: []
+    why_this_test: >
+      Binary logistic regression predicts a two-category outcome (like
+      pass/fail) from one or more predictors, reporting odds ratios for how
+      each predictor shifts the odds of the outcome.
+    likert_note: null
+    caveats: []
+
+  rec_regression_logistic_multi:
+    type: recommendation
+    primary_test: regression_logistic
+    nonparametric_alternative: null
+    assumptions: [linearity_of_logit, multicollinearity, independence_of_observations, outliers]
+    effect_size: [odds_ratio, r_squared]
+    post_hoc: []
+    why_this_test: >
+      Binary logistic regression predicts a two-category outcome. With
+      three or more unordered categories, Statly currently models it as a
+      series of binary comparisons rather than a full multinomial model;
+      consider recoding to the comparison that matters most, or treating
+      the outcome as ordinal if the categories have a natural order.
+    likert_note: null
+    caveats: [multinomial_outcome_not_supported]
+
+  rec_regression_ordinal:
+    type: recommendation
+    primary_test: regression_ordinal
+    nonparametric_alternative: null
+    assumptions: [proportional_odds, multicollinearity, independence_of_observations]
+    effect_size: [odds_ratio, r_squared]
+    post_hoc: []
+    why_this_test: >
+      Ordinal logistic regression predicts an ordered-category outcome
+      (like low/medium/high) while respecting the order of the categories,
+      which a plain binary or linear model would ignore or misuse.
+    likert_note: null
+    caveats: []
+
+  q_predict_predictor_count:
+    type: question
+    text: "How many predictor variables do you have?"
+    why: "A single predictor is a simple regression; two or more is a multiple regression."
+    options:
+      - value: one
+        label: "One"
+        next: rec_regression_linear_simple
+      - value: two_plus
+        label: "Two or more"
+        next: q_predict_entry_method
+
+  rec_regression_linear_simple:
+    type: recommendation
+    primary_test: regression_linear
+    nonparametric_alternative: null
+    assumptions: [linearity, normality_of_residuals, homoscedasticity, independence_of_residuals, outliers]
+    effect_size: [r_squared, f_squared]
+    post_hoc: []
+    why_this_test: >
+      Simple linear regression predicts a continuous outcome from a single
+      predictor, describing the relationship as a straight line.
+    likert_note: null
+    caveats: []
+
+  q_predict_entry_method:
+    type: question
+    text: "Do you want to enter predictors in stages, to see how much each block adds?"
+    why: >
+      Hierarchical regression enters predictors in blocks (e.g. demographics
+      first, then test scores) and reports the R-squared change at each
+      step, which shows how much predictive value each block adds on top of
+      the ones before it. If you just want the combined model, a standard
+      multiple regression is simpler to report.
+    options:
+      - value: "no"
+        label: "No, enter them all at once"
+        next: rec_regression_linear_multiple
+      - value: "yes"
+        label: "Yes, in stages"
+        next: rec_regression_hierarchical
+
+  rec_regression_linear_multiple:
+    type: recommendation
+    primary_test: regression_linear
+    nonparametric_alternative: null
+    assumptions: [linearity, normality_of_residuals, homoscedasticity, independence_of_residuals, multicollinearity, outliers]
+    effect_size: [r_squared, f_squared]
+    post_hoc: []
+    why_this_test: >
+      Multiple regression predicts a continuous outcome from two or more
+      predictors at once, showing each predictor's unique contribution
+      while holding the others constant.
+    likert_note: null
+    caveats: []
+
+  rec_regression_hierarchical:
+    type: recommendation
+    primary_test: regression_hierarchical
+    nonparametric_alternative: null
+    assumptions: [linearity, normality_of_residuals, homoscedasticity, independence_of_residuals, multicollinearity, outliers]
+    effect_size: [r_squared, f_squared]
+    post_hoc: []
+    why_this_test: >
+      Hierarchical regression enters predictors in blocks you choose and
+      reports the R-squared change at each step, which shows how much
+      predictive value each block adds beyond the ones entered before it.
+    likert_note: null
+    caveats: []
+
+  # =======================================================================
+  # RELIABILITY branch ("do my items hang together?")
+  # =======================================================================
+  q_reliability_type:
+    type: question
+    text: "What kind of items are you checking?"
+    why: >
+      Rating-scale items (like a Likert-scale survey) and right/wrong test
+      items use different reliability coefficients.
+    options:
+      - value: rating_scale
+        label: "Rating-scale items (e.g. a Likert-scale survey)"
+        next: q_reliability_detail
+      - value: right_wrong
+        label: "Right/wrong test items"
+        next: rec_kr20
+
+  q_reliability_detail:
+    type: question
+    text: "What would you like to check?"
+    why: >
+      Cronbach's alpha is the standard starting point. McDonald's omega is a
+      modern alternative that doesn't assume every item measures the
+      construct equally well. Split-half reliability is a quick, simple
+      check by splitting the scale in two. Item analysis looks at each item
+      individually rather than the scale as a whole.
+    options:
+      - value: overall_reliability
+        label: "Overall internal consistency (the usual choice)"
+        next: rec_cronbach_alpha
+      - value: modern_alternative
+        label: "A modern alternative that doesn't assume equal item quality"
+        next: rec_mcdonald_omega
+      - value: split_half
+        label: "Split-half reliability"
+        next: rec_split_half
+      - value: item_level_detail
+        label: "How each individual item is performing"
+        next: rec_item_analysis
+
+  rec_cronbach_alpha:
+    type: recommendation
+    primary_test: cronbach_alpha
+    nonparametric_alternative: null
+    assumptions: [tau_equivalence]
+    effect_size: []
+    post_hoc: []
+    why_this_test: >
+      Cronbach's alpha measures how consistently a set of items measures the
+      same underlying idea, using the average correlation among all the
+      items. Statly also reports alpha-if-item-deleted and corrected
+      item-total correlations so you can spot a weak item.
+    likert_note: null
+    caveats: []
+
+  rec_mcdonald_omega:
+    type: recommendation
+    primary_test: mcdonald_omega
+    nonparametric_alternative: null
+    assumptions: []
+    effect_size: []
+    post_hoc: []
+    why_this_test: >
+      McDonald's omega measures internal consistency without assuming every
+      item contributes equally to the underlying construct (an assumption
+      Cronbach's alpha makes but often doesn't hold), making it a more
+      accurate estimate for many real scales.
+    likert_note: null
+    caveats: []
+
+  rec_split_half:
+    type: recommendation
+    primary_test: split_half
+    nonparametric_alternative: null
+    assumptions: []
+    effect_size: []
+    post_hoc: []
+    why_this_test: >
+      Split-half reliability splits your items into two halves, correlates
+      the two halves' scores, and adjusts the result with the Spearman-Brown
+      formula. It's a quick reliability check that doesn't require any
+      particular statistical model of the items.
+    likert_note: null
+    caveats: []
+
+  rec_item_analysis:
+    type: recommendation
+    primary_test: item_analysis
+    nonparametric_alternative: null
+    assumptions: []
+    effect_size: []
+    post_hoc: []
+    why_this_test: >
+      Item analysis reports each item's difficulty and discrimination,
+      showing which items are pulling their weight and which might be worth
+      revising or dropping.
+    likert_note: null
+    caveats: []
+
+  rec_kr20:
+    type: recommendation
+    primary_test: kr20
+    nonparametric_alternative: null
+    assumptions: [tau_equivalence]
+    effect_size: []
+    post_hoc: []
+    why_this_test: >
+      KR-20 is Cronbach's alpha specialized for right/wrong (0/1-scored)
+      test items, and is the standard reliability estimate for a scored
+      test.
+    likert_note: null
+    caveats: []
+
+  # =======================================================================
+  # VALIDITY branch ("do my questions measure what I think?")
+  # =======================================================================
+  q_validity_stage:
+    type: question
+    text: "Are you exploring the structure of your items for the first time, or confirming a structure you already expect?"
+    why: >
+      Exploratory factor analysis discovers how many underlying factors your
+      items suggest, with no assumptions about the structure going in.
+      Confirmatory factor analysis tests a specific, pre-specified structure
+      (e.g. from theory or a prior EFA) and reports how well it fits.
+    options:
+      - value: exploring
+        label: "Exploring for the first time"
+        next: rec_efa
+      - value: confirming
+        label: "Confirming a structure I already expect"
+        next: rec_cfa
+
+  rec_efa:
+    type: recommendation
+    primary_test: efa
+    nonparametric_alternative: null
+    assumptions: [kmo_adequacy, bartlett_sphericity, sample_size]
+    effect_size: []
+    post_hoc: []
+    why_this_test: >
+      Exploratory factor analysis looks for patterns among your items to
+      suggest how many underlying factors (ideas) they measure, without
+      assuming a structure in advance. Statly reports KMO, Bartlett's test,
+      a parallel analysis and scree plot to help choose the number of
+      factors, and a rotated loadings table.
+    likert_note: null
+    caveats: [small_sample_efa]
+
+  rec_cfa:
+    type: recommendation
+    primary_test: cfa
+    nonparametric_alternative: null
+    assumptions: [sample_size, multivariate_normality]
+    effect_size: []
+    post_hoc: []
+    why_this_test: >
+      Confirmatory factor analysis tests whether a specific, pre-specified
+      factor structure (e.g. from theory or an earlier EFA) fits your data,
+      reporting fit indices (CFI, TLI, RMSEA, SRMR) and standardized
+      loadings.
+    likert_note: null
+    caveats: [small_sample_cfa]
