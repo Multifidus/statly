@@ -17,7 +17,7 @@ import type {
 } from "@/contracts";
 
 export interface ResponseSet {
-  /** Stable key: the sorted label list. */
+  /** Stable key: the matrix (scale) the items belong to, plus the sorted label list. */
   key: string;
   variables: string[];
   /** Labels in the engine's proposed order. */
@@ -43,10 +43,12 @@ export interface ImportDecisions {
   enabledFilters: Record<string, boolean>;
   /** Remove rows with Progress below this (null = off). */
   progressThreshold: number | null;
-  /** Multi-select column -> split into yes/no indicators (applied in Phase 2 Variable setup). */
+  /** Multi-select column -> split into yes/no indicator variables at import. */
   multiselectSplit: Record<string, boolean>;
-  /** Response-set key -> confirmed label order (lowest to highest). Code = position + 1. */
+  /** Response-set key -> confirmed label order (lowest to highest). */
   responseOrder: Record<string, string[]>;
+  /** Response-set key -> numeric code per position in `responseOrder` (default 1..k). */
+  responseCodes: Record<string, number[]>;
   responseConfirmed: Record<string, boolean>;
   noncontiguousAck: Record<string, boolean>;
   timeVariable: string;
@@ -65,20 +67,53 @@ export function unionVariables(files: FilePreview[]): VariableSchema[] {
   return [...seen.values()];
 }
 
-/** Text-choice variables grouped by identical label sets (e.g. one Likert set for a matrix). */
+/**
+ * Is this a question exported as answer text? The engine proposes such columns as integer
+ * variables whose value_labels map the text to codes 1..k and flags them with a
+ * `choice_text_detected` issue; string-valued labels are accepted too.
+ */
+function isChoiceText(v: VariableSchema, flagged: Set<string>): boolean {
+  if (v.value_labels.length < 2) return false;
+  if (v.role !== "likert_item" && v.level !== "ordinal") return false;
+  if (flagged.has(v.name)) return true;
+  return v.value_labels.every((l) => typeof l.value === "string");
+}
+
+/**
+ * Text-choice variables grouped into response sets: items of one matrix (same scale_id) share
+ * a set; standalone questions are grouped by identical label sets. Keeping a matrix apart from a
+ * standalone question with the same wording lets each get its own codes.
+ */
 export function findResponseSets(files: FilePreview[]): ResponseSet[] {
+  const flagged = new Set(
+    files.flatMap((f) => f.issues.filter((i) => i.code === "choice_text_detected" && i.column).map((i) => i.column as string)),
+  );
   const groups = new Map<string, ResponseSet>();
   for (const v of unionVariables(files)) {
-    if (v.value_labels.length < 2) continue;
-    if (!v.value_labels.every((l) => typeof l.value === "string")) continue;
-    if (v.role !== "likert_item" && v.level !== "ordinal") continue;
+    if (!isChoiceText(v, flagged)) continue;
     const labels = v.value_labels.map((l) => l.label);
-    const key = [...labels].sort().join("\u0001");
+    const key = `${v.scale_id ?? ""}\u0002${[...labels].sort().join("\u0001")}`;
     const g = groups.get(key);
     if (g) g.variables.push(v.name);
     else groups.set(key, { key, variables: [v.name], labels });
   }
   return [...groups.values()];
+}
+
+/** Default codes 1..k for a response set of k choices. */
+export const defaultCodes = (k: number): number[] => Array.from({ length: k }, (_, i) => i + 1);
+
+/** Codes for a set: the user's, if they cover every choice, else 1..k. */
+export function codesFor(d: ImportDecisions, key: string, k: number): number[] {
+  const c = d.responseCodes?.[key];
+  return c && c.length === k ? c : defaultCodes(k);
+}
+
+/** Plain-language problem with a code list, or null when every code is a distinct whole number. */
+export function codesProblem(codes: number[]): string | null {
+  if (codes.some((c) => !Number.isInteger(c))) return "Each answer code must be a whole number.";
+  if (new Set(codes).size !== codes.length) return "Each answer choice needs a different code.";
+  return null;
 }
 
 /** Numeric-coded variables whose codes skip values (e.g. Qualtrics recodes 1, 2, 4, 5, 7). */
@@ -139,6 +174,7 @@ export function defaultDecisions(preview: DatasetImportPreviewResult): ImportDec
     progressThreshold: null,
     multiselectSplit: Object.fromEntries(files.flatMap((f) => f.multiselect_candidates).map((c) => [c, true])),
     responseOrder,
+    responseCodes: {},
     responseConfirmed: {},
     noncontiguousAck: {},
     timeVariable: "Time",
@@ -163,6 +199,9 @@ export function blockingReason(
   if (step === "cleanup") {
     const sets = findResponseSets(preview.files);
     if (sets.some((s) => !d.responseConfirmed[s.key])) return "Confirm the order of each set of answer choices.";
+    if (sets.some((s) => codesProblem(codesFor(d, s.key, s.labels.length)))) {
+      return "Give each answer choice a different whole-number code.";
+    }
     const nc = findNoncontiguous(preview.files);
     if (nc.some((v) => !d.noncontiguousAck[v.variable])) return "Confirm the unusual answer codes.";
     if (d.progressThreshold !== null && !(d.progressThreshold > 0 && d.progressThreshold <= 100)) {
@@ -213,8 +252,50 @@ export function resolveMatches(proposal: ColumnMatch[], decisions: Record<string
   return out;
 }
 
-function codedLabels(order: string[]): ValueLabel[] {
-  return order.map((label, i) => ({ value: i + 1, label }));
+function codedLabels(order: string[], codes: number[]): ValueLabel[] {
+  return order.map((label, i) => ({ value: codes[i], label }));
+}
+
+/** Engine-compatible slug (statly_engine.data.columns.slug). */
+function slug(text: string): string {
+  return text.replace(/[^0-9A-Za-z]+/g, "_").replace(/^_+|_+$/g, "") || "option";
+}
+
+/**
+ * One yes/no indicator variable per option of a multi-select column. The engine recognizes
+ * them by `sources[0]` pointing at the multi-select column and `label` = the option text
+ * (docs/PROTOCOL.md "Multi-select split"). Mirrors importer.multiselect_indicator_variables.
+ */
+export function multiselectIndicators(v: VariableSchema, taken: Set<string>): VariableSchema[] {
+  return v.value_labels.map((vl, k) => {
+    const option = String(vl.label);
+    const base = `${v.name}_${slug(option)}`;
+    let name = base;
+    for (let n = 2; taken.has(name); n++) name = `${base}_${n}`;
+    taken.add(name);
+    return {
+      ...v,
+      name,
+      label: option,
+      question_text: `${v.question_text ?? v.name} - ${option}`,
+      role: "unassigned",
+      level: "nominal",
+      dtype: "integer",
+      value_labels: [
+        { value: 0, label: "Not selected" },
+        { value: 1, label: "Selected" },
+      ],
+      reverse_coded: false,
+      response_range: null,
+      scale_id: null,
+      missing_codes: [],
+      is_pii: false,
+      pii_reason: null,
+      computed: null,
+      sources: v.sources.slice(0, 1),
+      display_order: v.display_order + 1 + k,
+    };
+  });
 }
 
 /** Turn preview + decisions into the `dataset.import` params. */
@@ -236,26 +317,31 @@ export function buildImportParams(preview: DatasetImportPreviewResult, d: Import
     });
   }
 
-  // Variables: only send the full list when the user changed something (confirmed codings).
-  const sets = findResponseSets(files);
-  let variables: VariableSchema[] = [];
-  if (sets.length) {
-    const byVar = new Map<string, string[]>();
-    for (const s of sets) {
-      const order = d.responseOrder[s.key] ?? s.labels;
-      for (const v of s.variables) byVar.set(v, order);
-    }
-    variables = unionVariables(files)
-      .filter((v) => !d.dropColumns.includes(v.name))
-      .map((v) => {
-        const order = byVar.get(v.name);
-        if (!order) return v;
-        return {
-          ...v,
-          value_labels: codedLabels(order),
-          response_range: { min: 1, max: order.length },
-        };
+  // Variables: only the ones the user changed. Unmentioned columns keep the engine's proposal,
+  // which matters when stacking widened a type (e.g. integer in one file, decimal in another).
+  const kept = unionVariables(files).filter((v) => !d.dropColumns.includes(v.name));
+  const variables: VariableSchema[] = [];
+  for (const s of findResponseSets(files)) {
+    const order = d.responseOrder[s.key] ?? s.labels;
+    const codes = codesFor(d, s.key, order.length);
+    for (const v of kept.filter((x) => s.variables.includes(x.name))) {
+      variables.push({
+        ...v,
+        dtype: "integer",
+        missing_codes: v.missing_codes.map((c) => (typeof c === "string" && c.trim() !== "" && Number.isFinite(Number(c)) ? Number(c) : c)),
+        value_labels: codedLabels(order, codes),
+        response_range: { min: Math.min(...codes), max: Math.max(...codes) },
       });
+    }
+  }
+  const taken = new Set([
+    ...unionVariables(files).map((v) => v.name),
+    ...(preview.stack_proposal ?? []).map((m) => m.variable),
+    ...(multi ? [d.timeVariable.trim()] : []),
+  ]);
+  for (const v of kept) {
+    if (!d.multiselectSplit[v.name] || !files.some((f) => f.multiselect_candidates.includes(v.name))) continue;
+    variables.push(...multiselectIndicators(v, taken));
   }
 
   const decisionsFiles = files.map((f) => ({

@@ -75,17 +75,32 @@ describe("StepCleanup (text-choice export)", () => {
   it("lets the user reorder the response set by keyboard-accessible buttons and confirm it", async () => {
     const user = userEvent.setup();
     render(<StepCleanup />);
-    const list = screen.getByRole("list", { name: /Answer choices, lowest to highest/ });
-    const labels = () => within(list).getAllByRole("listitem").map((li) => li.textContent?.replace(/\s*is coded as \d+/, "").replace(/^\d+/, ""));
+    const list = screen.getAllByRole("list", { name: /Answer choices, lowest to highest/ })[0];
+    const labels = () => within(list).getAllByRole("listitem").map((li) => li.textContent);
     expect(labels()).toEqual(["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"]);
-    await user.click(screen.getByRole("button", { name: "Move Disagree up" }));
+    await user.click(within(list).getByRole("button", { name: "Move Disagree up" }));
     expect(labels()?.slice(0, 2)).toEqual(["Disagree", "Strongly disagree"]);
     const key = findResponseSets(useImportFlow.getState().preview!.files)[0].key;
     expect(useImportFlow.getState().decisions!.responseOrder[key][0]).toBe("Disagree");
-    await user.click(screen.getByRole("checkbox", { name: /order and numbering are correct/ }));
+    await user.click(screen.getAllByRole("checkbox", { name: /order and numbering are correct/ })[0]);
     expect(useImportFlow.getState().decisions!.responseConfirmed[key]).toBe(true);
     // Moving again un-confirms, so a changed order is always re-checked.
-    await user.click(screen.getByRole("button", { name: "Move Disagree down" }));
+    await user.click(within(list).getByRole("button", { name: "Move Disagree down" }));
     expect(useImportFlow.getState().decisions!.responseConfirmed[key]).toBe(false);
+  });
+
+  it("lets the user type the survey's own codes for a standalone question", async () => {
+    const user = userEvent.setup();
+    render(<StepCleanup />);
+    const q6list = screen.getAllByRole("list", { name: /Answer choices, lowest to highest/ })[1];
+    const q6key = findResponseSets(useImportFlow.getState().preview!.files)[1].key;
+    const codeFor = (label: string) => within(q6list).getByRole("spinbutton", { name: `Code for ${label}` });
+    for (const [label, code] of [["Neutral", "4"], ["Agree", "5"], ["Strongly agree", "7"]] as const) {
+      await user.clear(codeFor(label));
+      await user.type(codeFor(label), code);
+    }
+    expect(useImportFlow.getState().decisions!.responseCodes[q6key]).toEqual([1, 2, 4, 5, 7]);
+    await user.clear(codeFor("Agree"));
+    expect(screen.getByText("Each answer code must be a whole number.")).toBeVisible();
   });
 });

@@ -48,7 +48,7 @@ export function StepSummary() {
     ["Survey system columns", d.hideMetadata ? "hidden in the data table" : "shown"],
   ];
   if (findResponseSets(preview.files).length) items.push(["Answer choices", "numbered in the order you confirmed"]);
-  if (multiSplit.length) items.push(["Split later", multiSplit.join(", ")]);
+  if (multiSplit.length) items.push(["Split into yes/no columns", multiSplit.join(", ")]);
   if (params.stack) {
     items.push(["Time points", `${params.stack.levels.map((l) => l.label).join(" → ")} (column "${params.stack.time_variable}")`]);
     items.push(["Linking", d.linkMode === "linked" ? `by ${d.idVariable}` : "not linked (separate groups)"]);

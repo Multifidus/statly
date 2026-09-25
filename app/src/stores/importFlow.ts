@@ -98,11 +98,28 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
   },
 
   changeSheet: async (fileId, sheet) => {
-    const { preview, files } = get();
+    const { preview, files, decisions: before } = get();
     const fp = preview?.files.find((f) => f.file_id === fileId);
     if (!fp) return;
     set({ files: files.map((f) => (f.path === fp.path ? { ...f, sheet_name: sheet } : f)) });
-    await get().runPreview();
+    if (!(await get().runPreview()) || !before) return;
+    // file_id is derived from the path, so it survives the re-preview: keep what the user
+    // already decided for the other files and for the stack as a whole.
+    const fresh = get().decisions;
+    if (!fresh) return;
+    const others = (rec: Record<string, unknown>) => Object.fromEntries(Object.entries(rec).filter(([id]) => id !== fileId && id in fresh.timeLabels));
+    const sameFiles = before.levelOrder.length === fresh.levelOrder.length && before.levelOrder.every((id) => fresh.levelOrder.includes(id));
+    set({
+      decisions: {
+        ...fresh,
+        qualtricsConfirmed: { ...fresh.qualtricsConfirmed, ...(others(before.qualtricsConfirmed) as Record<string, boolean>) },
+        timeLabels: { ...fresh.timeLabels, ...(others(before.timeLabels) as Record<string, string>) },
+        levelOrder: sameFiles ? before.levelOrder : fresh.levelOrder,
+        timeVariable: before.timeVariable,
+        linkMode: before.linkMode,
+        normalization: before.normalization,
+      },
+    });
   },
 
   update: (patch) => {

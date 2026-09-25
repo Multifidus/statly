@@ -64,6 +64,7 @@ const iso = (r: number, offsetMin = 0) => {
 
 const LIKERT = ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"] as const;
 const numLabels = (codes: number[]) => codes.map((c) => ({ value: c, label: String(c) }));
+const likertCoded = () => LIKERT.map((l, i) => ({ value: i + 1, label: l }));
 
 function pii(kind: PiiKind, explanation: string): Partial<VariableSchema> {
   return { is_pii: true, is_metadata: true, pii_reason: { kind, explanation } };
@@ -151,11 +152,13 @@ function messy(variant: "3header" | "2header" | "utf16" | "text" | "xlsx"): File
   const likertCol = (i: number): ColSpec => ({
     name: `Q5_${i}`,
     text: `Matrix statement ${i} about classroom experience${i === 4 ? " (reverse-worded)" : ""}`,
+    // Mirrors the engine: text choices are proposed as integers coded 1..k (choice_text_detected);
+    // numeric matrix items carry no value labels.
     var: text
-      ? { role: "likert_item", level: "ordinal", dtype: "string", missing_codes: ["-99"],
-          value_labels: [...LIKERT].sort().map((l) => ({ value: l, label: l })) }
-      : { role: "likert_item", level: "ordinal", dtype: "integer", missing_codes: [-99],
-          value_labels: numLabels([1, 2, 3, 4, 5]), response_range: { min: 1, max: 5 } },
+      ? { role: "likert_item", level: "ordinal", dtype: "integer", missing_codes: [-99], scale_id: "scale_Q5",
+          value_labels: likertCoded(), response_range: { min: 1, max: 5 } }
+      : { role: "likert_item", level: "ordinal", dtype: "integer", missing_codes: [-99], scale_id: "scale_Q5",
+          value_labels: [], response_range: { min: 1, max: 5 } },
     gen: (_r, h) => {
       if (h(9) < 0.028) return text ? "-99" : -99;
       const k = Math.min(4, Math.floor(h() * 5));
@@ -184,9 +187,8 @@ function messy(variant: "3header" | "2header" | "utf16" | "text" | "xlsx"): File
       name: "Q6",
       text: "How satisfied are you with the course overall?",
       var: text
-        ? { role: "likert_item", level: "ordinal", dtype: "string", missing_codes: ["-99"],
-            value_labels: [...LIKERT].sort().map((l) => ({ value: l, label: l })) }
-        : { role: "likert_item", level: "ordinal", dtype: "integer", missing_codes: [-99], value_labels: numLabels(Q6_CODES) },
+        ? { level: "ordinal", dtype: "integer", missing_codes: [-99], value_labels: likertCoded(), response_range: { min: 1, max: 5 } }
+        : { level: "ordinal", dtype: "integer", missing_codes: [-99], value_labels: numLabels(Q6_CODES), response_range: { min: 1, max: 7 } },
       gen: (_r, h) => {
         if (h(9) < 0.02) return text ? "-99" : -99;
         const k = Math.min(4, Math.floor(h() * 5));
@@ -196,7 +198,7 @@ function messy(variant: "3header" | "2header" | "utf16" | "text" | "xlsx"): File
     {
       name: "Q7",
       text: "Which study strategies did you use? (select all that apply)",
-      var: { level: "nominal" },
+      var: { level: "nominal", value_labels: STRATEGIES.map((o) => ({ value: o, label: o })) },
       gen: (_r, h) => {
         const n = 1 + Math.floor(h() * 3);
         const chosen = new Set<string>();
@@ -247,7 +249,7 @@ function messy(variant: "3header" | "2header" | "utf16" | "text" | "xlsx"): File
 
 function matrixScale(q: string, idx: number[]): Scale {
   return {
-    id: `scale_${q.toLowerCase()}`,
+    id: `scale_${q}`,
     name: `${q} matrix`,
     items: idx.map((i) => `${q}_${i}`),
     scoring_method: "mean",

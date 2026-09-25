@@ -2,7 +2,7 @@ import { ArrowDown, ArrowUp, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge, CheckboxField, Input, Notice } from "@/components/ui/form";
 import { WhyItMatters } from "@/components/ui/why";
-import { findNoncontiguous, findResponseSets, unionVariables } from "@/lib/importLogic";
+import { codesFor, codesProblem, findNoncontiguous, findResponseSets, unionVariables } from "@/lib/importLogic";
 import { useImportFlow } from "@/stores/importFlow";
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -42,6 +42,12 @@ export function StepCleanup() {
     if (to < 0 || to >= order.length) return;
     [order[from], order[to]] = [order[to], order[from]];
     update({ responseOrder: { ...d.responseOrder, [key]: order }, responseConfirmed: { ...d.responseConfirmed, [key]: false } });
+  };
+
+  const setCode = (key: string, k: number, i: number, raw: string) => {
+    const codes = [...codesFor(d, key, k)];
+    codes[i] = raw.trim() === "" ? Number.NaN : Number(raw);
+    update({ responseCodes: { ...d.responseCodes, [key]: codes }, responseConfirmed: { ...d.responseConfirmed, [key]: false } });
   };
 
   return (
@@ -167,7 +173,7 @@ export function StepCleanup() {
           <p className="text-sm text-muted-foreground">
             In these questions people could pick more than one answer, so Qualtrics packed their choices into one
             cell, like "Textbook,Tutor". To count each choice, it helps to split them into yes/no columns, one per
-            choice. Statly will remember your choice and do the split when you set up your variables.
+            choice (1 = picked it, 0 = didn't). The original column is kept too.
           </p>
           {multi.map((c) => (
             <CheckboxField
@@ -187,24 +193,29 @@ export function StepCleanup() {
 
       {sets.map((s, si) => {
         const order = d.responseOrder[s.key] ?? s.labels;
+        const codes = codesFor(d, s.key, order.length);
+        const problem = codesProblem(codes);
         const listId = `rs-${si}`;
         return (
           <Section key={s.key} id={`sec-rs-${si}`} title="Check the order of the answer choices">
             <p className="text-sm text-muted-foreground">
               These questions were exported as words, not numbers:{" "}
               <span className="font-mono">{s.variables.join(", ")}</span>. Put the choices in order from lowest to
-              highest. Statly will number them 1 to {order.length} in this order.
+              highest. Statly numbers them 1 to {order.length} unless you type the codes your survey used (for
+              example, Qualtrics recode values like 1, 2, 4, 5, 7).
             </p>
             <ol id={listId} className="grid gap-1.5" aria-label="Answer choices, lowest to highest">
               {order.map((label, i) => (
                 <li key={label} className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-sm">
-                  <span className="w-6 text-right font-mono tabular-nums" aria-hidden>
-                    {i + 1}
-                  </span>
-                  <span className="flex-1">
-                    {label}
-                    <span className="sr-only"> is coded as {i + 1}</span>
-                  </span>
+                  <Input
+                    type="number"
+                    step={1}
+                    className="h-7 w-16 font-mono tabular-nums"
+                    aria-label={`Code for ${label}`}
+                    value={Number.isNaN(codes[i]) ? "" : codes[i]}
+                    onChange={(e) => setCode(s.key, order.length, i, e.target.value)}
+                  />
+                  <span className="flex-1">{label}</span>
                   <Button variant="ghost" size="icon-xs" aria-label={`Move ${label} up`} disabled={i === 0} onClick={() => move(s.key, i, i - 1)}>
                     <ArrowUp aria-hidden />
                   </Button>
@@ -220,6 +231,7 @@ export function StepCleanup() {
                 </li>
               ))}
             </ol>
+            {problem && <Notice tone="warn">{problem}</Notice>}
             <CheckboxField
               label="This order and numbering are correct"
               checked={!!d.responseConfirmed[s.key]}

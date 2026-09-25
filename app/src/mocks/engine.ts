@@ -121,12 +121,17 @@ interface DatasetState {
   cell: (r: number, col: string) => CellValue;
 }
 
+/** How many earlier files in the current preview share this path (set by previewFiles). */
+let previewPaths: string[] = [];
+const dupIndex = (path: string, idx: number) => previewPaths.slice(0, idx).filter((p) => p === path).length;
+
 function stageFile(path: string, sheet: string | null, idx: number): StagedFile {
   const shape = shapeForPath(path, sheet);
   if (!shape) {
     throw rpcError(-32001, `Unsupported or unreadable file: ${baseName(path)}`, "FileUnreadable");
   }
-  const fileId = `file_${idx + 1}_${(strHash(path) >>> 0).toString(36)}`;
+  // Like the engine: derived from the path, so it is stable across re-previews (sheet changes).
+  const fileId = `f_${(strHash(path) >>> 0).toString(36)}${idx > 0 && dupIndex(path, idx) ? `_${dupIndex(path, idx) + 1}` : ""}`;
   const seed = strHash(shape.key);
   const colIdx = new Map(shape.cols.map((c, i) => [c.name, i]));
   const cache = new Map<string, CellValue>();
@@ -201,6 +206,15 @@ function stageFile(path: string, sheet: string | null, idx: number): StagedFile 
     });
   }
   for (const v of vars) {
+    if (v.dtype === "integer" && v.value_labels.some((l) => typeof l.value === "number" && l.label !== String(l.value))) {
+      issues.push({
+        code: "choice_text_detected",
+        severity: "info",
+        message: `'${v.name}' contains answer text. We will store it as numbers 1-${v.value_labels.length} in that order.`,
+        file_id: fileId,
+        column: v.name,
+      });
+    }
     const codes = v.value_labels.map((l) => l.value).filter((x): x is number => typeof x === "number");
     if (codes.length > 1 && codes.some((c, i) => i > 0 && c !== codes[i - 1] + 1)) {
       issues.push({
@@ -432,6 +446,7 @@ export class MockEngine implements Transport {
   }
 
   importPreview(p: DatasetImportPreviewParams): DatasetImportPreviewResult {
+    previewPaths = p.files.map((f) => f.path);
     const files = p.files.map((f, i) => stageFile(f.path, f.sheet_name, i));
     if (p.qualtrics_mode !== "auto") {
       for (const f of files) {
@@ -532,6 +547,17 @@ export class MockEngine implements Transport {
         sources: [...o.source].map(([fid, col]) => ({ ...protoFor(fid, col).sources[0], file_id: fid, original_column_name: col })),
       });
     }
+    // Multi-select split: indicator variables whose sources[0] is the multi-select column.
+    const indicators = new Map<string, { column: string; option: string }>();
+    for (const uv of userVars) {
+      if (outs.some((o) => o.name === uv.name)) continue;
+      const col = uv.sources[0]?.original_column_name;
+      if (!col || !uv.label || !files.some(({ f }) => f.shape.multiselect.includes(col))) {
+        throw rpcError(-32003, `Variable '${uv.name}' does not correspond to any imported column.`, "InvalidParams");
+      }
+      indicators.set(uv.name, { column: col, option: uv.label });
+      variables.push({ ...clone(uv), dtype: "integer", display_order: variables.length });
+    }
     const varByName = new Map(variables.map((v) => [v.name, v]));
     const outByName = new Map(outs.map((o) => [o.name, o]));
 
@@ -539,6 +565,12 @@ export class MockEngine implements Transport {
       const row = rowIndex[r];
       if (!row) return null;
       if (stack && col === stack.time_variable) return row.level;
+      const ind = indicators.get(col);
+      if (ind) {
+        const raw = row.f.cell(row.r, ind.column);
+        if (isBlank(raw)) return null;
+        return String(raw).split(",").map((t) => t.trim()).includes(ind.option) ? 1 : 0;
+      }
       const o = outByName.get(col);
       const src = o?.source.get(row.f.preview.file_id);
       if (!src) return null;

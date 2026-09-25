@@ -132,10 +132,10 @@ describe("importFlow store (single messy Qualtrics file)", () => {
   it("text choices: requires order confirmation and sends numeric coding", async () => {
     const s = await preview([MESSY_TEXT]);
     const sets = findResponseSets(s.preview!.files);
-    expect(sets).toHaveLength(1);
-    expect(sets[0].variables).toEqual(["Q5_1", "Q5_2", "Q5_3", "Q5_4", "Q5_5", "Q5_6", "Q6"]);
+    // The matrix and the standalone question share wording but get separate sets (own codes).
+    expect(sets.map((x) => x.variables)).toEqual([["Q5_1", "Q5_2", "Q5_3", "Q5_4", "Q5_5", "Q5_6"], ["Q6"]]);
     expect(blockingReason("cleanup", s.preview, s.decisions, 1)).toMatch(/order/);
-    s.update({ responseConfirmed: { [sets[0].key]: true } });
+    s.update({ responseConfirmed: { [sets[0].key]: true, [sets[1].key]: true } });
     const params = buildImportParams(useImportFlow.getState().preview!, useImportFlow.getState().decisions!);
     const q6 = params.variables.find((v) => v.name === "Q6")!;
     expect(q6.value_labels.map((l) => [l.value, l.label])).toEqual([
@@ -146,10 +146,38 @@ describe("importFlow store (single messy Qualtrics file)", () => {
       [5, "Strongly agree"],
     ]);
     expect(q6.response_range).toEqual({ min: 1, max: 5 });
-    expect(params.variables.some((v) => v.name === "IPAddress")).toBe(false);
+    // Only changed variables are sent; unmentioned columns keep the engine's proposal.
+    expect(params.variables.map((v) => v.name)).toEqual(expect.arrayContaining(["Q5_1", "Q6"]));
+    expect(params.variables.some((v) => v.name === "IPAddress" || v.name === "Status")).toBe(false);
     expect(await useImportFlow.getState().commit()).toBe(true);
     const rows = engine.rows({ dataset_id: useDatasetStore.getState().meta!.dataset_id, snapshot_id: null, offset: 0, limit: 5, columns: ["Q6"], sort: null });
     expect(rows.rows.every(([v]) => v === -99 || (typeof v === "number" && v >= 1 && v <= 5))).toBe(true);
+  });
+
+  it("text choices: user-entered codes (Qualtrics recode values) are sent and validated", async () => {
+    const s = await preview([MESSY_TEXT]);
+    const [q5, q6set] = findResponseSets(s.preview!.files);
+    s.update({ responseConfirmed: { [q5.key]: true, [q6set.key]: true }, responseCodes: { [q6set.key]: [1, 2, 2, 5, 7] } });
+    expect(blockingReason("cleanup", useImportFlow.getState().preview, useImportFlow.getState().decisions, 1)).toMatch(/different/);
+    s.update({ responseCodes: { [q6set.key]: [1, 2, 4, 5, 7] } });
+    expect(blockingReason("cleanup", useImportFlow.getState().preview, useImportFlow.getState().decisions, 1)).toBeNull();
+    const params = buildImportParams(useImportFlow.getState().preview!, useImportFlow.getState().decisions!);
+    const q6 = params.variables.find((v) => v.name === "Q6")!;
+    expect(q6.value_labels.map((l) => l.value)).toEqual([1, 2, 4, 5, 7]);
+    expect(q6.response_range).toEqual({ min: 1, max: 7 });
+    expect(params.variables.find((v) => v.name === "Q5_1")!.value_labels.map((l) => l.value)).toEqual([1, 2, 3, 4, 5]);
+  });
+
+  it("multi-select: builds one indicator variable per option pointing at the column", async () => {
+    const s = await preview([MESSY]);
+    expect(s.decisions!.multiselectSplit.Q7).toBe(true);
+    const params = buildImportParams(s.preview!, s.decisions!);
+    const ind = params.variables.filter((v) => v.sources[0]?.original_column_name === "Q7");
+    expect(ind.map((v) => v.label)).toEqual(["Textbook", "Online videos", "Study group", "Tutor", "Practice problems", "Office hours", "Flashcards", "Other"]);
+    expect(ind.map((v) => v.name)).toContain("Q7_Online_videos");
+    expect(ind.every((v) => v.dtype === "integer" && v.sources[0].file_id === s.preview!.files[0].file_id)).toBe(true);
+    s.update({ multiselectSplit: { Q7: false } });
+    expect(buildImportParams(s.preview!, useImportFlow.getState().decisions!).variables.some((v) => v.name.startsWith("Q7_"))).toBe(false);
   });
 
   it("surfaces engine errors in plain language", async () => {
