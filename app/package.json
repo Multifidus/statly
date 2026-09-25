@@ -9,10 +9,15 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "test": "vitest run",
-    "gen:contracts": "bash ../scripts/gen-contracts.sh"
+    "gen:contracts": "bash ../scripts/gen-contracts.sh",
+    "dev:mock": "VITE_STATLY_MOCK=1 vite",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.14.13",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2.7.3",
+    "@tauri-apps/plugin-fs": "^2.5.2",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "lucide-react": "^1.48.0",
@@ -22,8 +27,13 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/node": "^26.6.2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

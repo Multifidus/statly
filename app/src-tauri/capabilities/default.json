@@ -1,7 +1,14 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Minimal capability for the main window: core defaults only.",
+  "description": "Main window: core defaults, native open/save dialogs, window destroy (unsaved-changes guard), and fs read/write limited to paths the user picked in a dialog (no static fs scope).",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "core:window:allow-destroy",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "fs:allow-read-file",
+    "fs:allow-write-file"
+  ]
 }

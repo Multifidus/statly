@@ -5,6 +5,10 @@ use tauri::{path::BaseDirectory, Manager, RunEvent};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
+        // File pickers for import/open/save. Paths the user picks are added to the fs
+        // scope by the dialog plugin; the capability grants no static fs scope.
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             let bundled = app
                 .path()

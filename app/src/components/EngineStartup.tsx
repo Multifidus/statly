@@ -2,14 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Loader2, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  describeEngineError,
-  type EngineError,
-  type EngineInfo,
-  engineInfo,
-  ping,
-  technicalDetail,
-} from "@/lib/engine";
+import { describeEngineError, type EngineError, type EngineInfo, technicalDetail } from "@/lib/engine";
+import { rpc } from "@/lib/rpc";
 
 /** Overall startup budget (PROTOCOL.md: 30 s). */
 const STARTUP_TIMEOUT_MS = 30_000;
@@ -27,8 +21,8 @@ async function waitForEngine(isCancelled: () => boolean): Promise<EngineInfo> {
   let lastError: EngineError | null = null;
   while (Date.now() < deadline && !isCancelled()) {
     try {
-      await ping();
-      return await engineInfo();
+      await rpc.ping();
+      return await rpc.engineInfo();
     } catch (e) {
       const err = e as EngineError;
       lastError = err;
@@ -40,7 +34,8 @@ async function waitForEngine(isCancelled: () => boolean): Promise<EngineInfo> {
   throw lastError ?? { kind: "timeout", method: "ping", seconds: STARTUP_TIMEOUT_MS / 1000 };
 }
 
-export function EngineStartup() {
+/** Shows the warm-up / error states and renders `children` once the engine answers. */
+export function EngineStartup({ children }: { children?: React.ReactNode }) {
   const [phase, setPhase] = useState<Phase>({ status: "warming" });
   const attempt = useRef(0);
 
@@ -101,6 +96,7 @@ export function EngineStartup() {
     );
   }
 
+  if (children) return <>{children}</>;
   const { info } = phase;
   const rows: [string, string][] = [
     ["Engine", info.engine_version],
