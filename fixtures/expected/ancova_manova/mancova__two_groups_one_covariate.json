@@ -1,0 +1,466 @@
+{
+  "analysis_id": "mancova",
+  "case": "mancova__two_groups_one_covariate",
+  "dataset": "anc_mv_two.csv",
+  "request": {
+    "variables": {
+      "outcomes": [
+        "y1",
+        "y2"
+      ],
+      "group": [
+        "group"
+      ],
+      "covariates": [
+        "pre"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 44,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "pillai",
+        "value": 0.189174760749831,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "pillai_F",
+        "value": 4.66622772928911,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "wilks",
+        "value": 0.810825239250169,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "wilks_F",
+        "value": 4.66622772928911,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "hotelling_lawley",
+        "value": 0.233311386464455,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "hotelling_lawley_F",
+        "value": 4.66622772928911,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "roy",
+        "value": 0.233311386464455,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "roy_F",
+        "value": 4.66622772928911,
+        "df": [
+          2,
+          40
+        ],
+        "p": 0.0150849952492409,
+        "term": "group"
+      },
+      {
+        "key": "pillai",
+        "value": 0.676957915006593,
+        "df": [
+          2,
+          40
+        ],
+        "p": 1.53172955789287e-10,
+        "term": "pre"
+      },
+      {
+        "key": "pillai_F",
+        "value": 41.9114379490467,
+        "df": [
+          2,
+          40
+        ],
+        "p": 1.53172955789287e-10,
+        "term": "pre"
+      },
+      {
+        "key": "F_univariate",
+        "value": 9.53192334060444,
+        "df": [
+          1,
+          41
+        ],
+        "p": 0.00722774427158507,
+        "term": "y1"
+      },
+      {
+        "key": "F_univariate",
+        "value": 0.0313100756506183,
+        "df": [
+          1,
+          41
+        ],
+        "p": 1,
+        "term": "y2"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.189174760749831,
+        "ci_lower": 0.0079898819216626,
+        "ci_upper": 0.383030752002529,
+        "effectsize_ci_lower": 0.00798988344596116,
+        "effectsize_ci_upper": 0.383030744168369,
+        "term": "group"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.676957915006593,
+        "ci_lower": 0.494423537239379,
+        "ci_upper": 0.779216303736637,
+        "effectsize_ci_lower": 0.494423537342284,
+        "effectsize_ci_upper": 0.779216301075637,
+        "term": "pre"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.188631714576855,
+        "ci_lower": 0.0237807514461077,
+        "ci_upper": 0.39192074587225,
+        "effectsize_ci_lower": 0.0299860256314214,
+        "effectsize_ci_upper": 0.39192074824204,
+        "term": "y1"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.000763077649553255,
+        "ci_lower": 0,
+        "ci_upper": 0.0781621042405121,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.0781621387184267,
+        "term": "y2"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y1",
+        "group": {
+          "group": "Control"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 45.421,
+        "sd": 5.53504709246358,
+        "se": 1.23767415574111,
+        "ci_lower": 42.8305182205144,
+        "ci_upper": 48.0114817794856,
+        "median": 42.925,
+        "q1": 41.33,
+        "q3": 50.545,
+        "iqr": 9.215,
+        "min": 38.43,
+        "max": 54.59,
+        "skewness": 0.546165739743881,
+        "kurtosis": -1.1697458982829
+      },
+      {
+        "variable": "y1",
+        "group": {
+          "group": "Program"
+        },
+        "n": 24,
+        "n_missing": 0,
+        "mean": 47.04125,
+        "sd": 5.57891318113203,
+        "se": 1.13879088442173,
+        "ci_lower": 44.6854815702652,
+        "ci_upper": 49.3970184297348,
+        "median": 46.3,
+        "q1": 43.2225,
+        "q3": 50.555,
+        "iqr": 7.3325,
+        "min": 35.86,
+        "max": 61.3,
+        "skewness": 0.544116235937049,
+        "kurtosis": 0.699384500458865
+      },
+      {
+        "variable": "y2",
+        "group": {
+          "group": "Control"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 36.3705,
+        "sd": 3.73327776822685,
+        "se": 0.834786286864394,
+        "ci_lower": 34.6232722213026,
+        "ci_upper": 38.1177277786974,
+        "median": 36.735,
+        "q1": 32.715,
+        "q3": 39.5375,
+        "iqr": 6.8225,
+        "min": 30.79,
+        "max": 42.29,
+        "skewness": -0.0758088149782223,
+        "kurtosis": -1.44081834758136
+      },
+      {
+        "variable": "y2",
+        "group": {
+          "group": "Program"
+        },
+        "n": 24,
+        "n_missing": 0,
+        "mean": 35.24,
+        "sd": 5.14222418465175,
+        "se": 1.04965211628301,
+        "ci_lower": 33.0686291613587,
+        "ci_upper": 37.4113708386413,
+        "median": 35.565,
+        "q1": 33.2,
+        "q3": 38.655,
+        "iqr": 5.455,
+        "min": 21.39,
+        "max": 44.37,
+        "skewness": -0.914669106350919,
+        "kurtosis": 1.40028326581549
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Control"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 51.861,
+        "sd": 8.80995184884386,
+        "se": 1.96996512125148,
+        "ci_lower": 47.7378156148753,
+        "ci_upper": 55.9841843851247,
+        "median": 53.675,
+        "q1": 42.8775,
+        "q3": 59.2375,
+        "iqr": 16.36,
+        "min": 38.21,
+        "max": 67.24,
+        "skewness": -0.126014852295732,
+        "kurtosis": -1.12584000171759
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Program"
+        },
+        "n": 24,
+        "n_missing": 0,
+        "mean": 48.3270833333333,
+        "sd": 7.96293777946997,
+        "se": 1.62542786776936,
+        "ci_lower": 44.964629604485,
+        "ci_upper": 51.6895370621816,
+        "median": 49.855,
+        "q1": 42.94,
+        "q3": 51.675,
+        "iqr": 8.735,
+        "min": 32.28,
+        "max": 65.91,
+        "skewness": 0.343547968351135,
+        "kurtosis": 0.457670965441299
+      }
+    ],
+    "univariate": [
+      {
+        "outcome": "y1",
+        "F": 9.53192334060444,
+        "p": 0.00361387213579253,
+        "p_bonferroni": 0.00722774427158507
+      },
+      {
+        "outcome": "y2",
+        "F": 0.0313100756506183,
+        "p": 0.860421618438158,
+        "p_bonferroni": 1
+      }
+    ],
+    "assumption_checks": [
+      {
+        "test": "box_m",
+        "scope": "all groups",
+        "n": 44,
+        "statistic": 2.79668590541814,
+        "df": [
+          3
+        ],
+        "p": 0.42404576664777
+      },
+      {
+        "test": "mahalanobis",
+        "scope": "residuals",
+        "n": 44,
+        "statistic": 8.76636571814182,
+        "df": [
+          2
+        ],
+        "p": 0.0124855555471607
+      },
+      {
+        "test": "outcome_correlations",
+        "scope": "outcomes",
+        "n": 44,
+        "statistic": 0.550601148750646,
+        "df": [],
+        "p": null
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "residuals: y1",
+        "n": 44,
+        "statistic": 0.985437760316123,
+        "df": [],
+        "p": 0.844450657754511
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "y1",
+        "n": 44,
+        "statistic": 0.275475494452368,
+        "df": [
+          1,
+          42
+        ],
+        "p": 0.602441848685222
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "residuals: y2",
+        "n": 44,
+        "statistic": 0.95841713961626,
+        "df": [],
+        "p": 0.11355385809244
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "y2",
+        "n": 44,
+        "statistic": 0.695180672523393,
+        "df": [
+          1,
+          42
+        ],
+        "p": 0.409124810457304
+      },
+      {
+        "test": "slopes_interaction",
+        "scope": "all groups",
+        "n": 44,
+        "statistic": 1.20650002145888,
+        "df": [
+          2,
+          39
+        ],
+        "p": 0.310166098268449
+      }
+    ],
+    "mahalanobis_flagged": 0,
+    "adjusted_means": [
+      {
+        "group": "Control",
+        "emmean": 44.4333024136584,
+        "se": 0.812432737042295,
+        "df": 41,
+        "lower": 42.7925612154736,
+        "upper": 46.0740436118431,
+        "outcome": "y1"
+      },
+      {
+        "group": "Program",
+        "emmean": 47.8643313219513,
+        "se": 0.74011749084687,
+        "df": 41,
+        "lower": 46.3696337262458,
+        "upper": 49.3590289176569,
+        "outcome": "y1"
+      },
+      {
+        "group": "Control",
+        "emmean": 35.653018269128,
+        "se": 0.763850973343746,
+        "df": 41,
+        "lower": 34.1103899331487,
+        "upper": 37.1956466051072,
+        "outcome": "y2"
+      },
+      {
+        "group": "Program",
+        "emmean": 35.8379014423934,
+        "se": 0.69586002630847,
+        "df": 41,
+        "lower": 34.432583609571,
+        "upper": 37.2432192752157,
+        "outcome": "y2"
+      }
+    ]
+  },
+  "error": null,
+  "r_ancova_packages": {
+    "car": "3.1.5",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "heplots": "1.8.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

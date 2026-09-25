@@ -1,0 +1,231 @@
+{
+  "analysis_id": "ancova.quade",
+  "case": "quade__three_unequal",
+  "dataset": "anc_three_unequal.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "post"
+      ],
+      "group": [
+        "group"
+      ],
+      "covariates": [
+        "pre"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 55,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 5.12679319144804,
+        "df": [
+          2,
+          52
+        ],
+        "p": 0.00928566821428362,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "eta_sq",
+        "value": 0.164706757934081,
+        "ci_lower": 0.0125056647903143,
+        "ci_upper": 0.33524665624793,
+        "effectsize_ci_lower": 0.0125056655944788,
+        "effectsize_ci_upper": 0.335246654559626
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.130484085644318,
+        "ci_lower": 0,
+        "ci_upper": 0.296071803930766,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.296071806839655
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.444054448820448,
+        "ci_lower": 0.112534603530764,
+        "ci_upper": 0.710153059089814,
+        "effectsize_ci_lower": 0.112534607194799,
+        "effectsize_ci_upper": 0.710153056399843
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "post",
+        "group": {
+          "group": "Control"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 49.18,
+        "sd": 7.14329564887753,
+        "se": 2.06209183289026,
+        "ci_lower": 44.6413664770624,
+        "ci_upper": 53.7186335229376,
+        "median": 48.475,
+        "q1": 44.245,
+        "q3": 56.02,
+        "iqr": 11.775,
+        "min": 35.93,
+        "max": 59.78,
+        "skewness": -0.0542948046898353,
+        "kurtosis": -0.555010721269159
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Peer"
+        },
+        "n": 18,
+        "n_missing": 0,
+        "mean": 56.1766666666667,
+        "sd": 7.5997662502753,
+        "se": 1.79128208366744,
+        "ci_lower": 52.3973918222514,
+        "ci_upper": 59.955941511082,
+        "median": 54.43,
+        "q1": 50.455,
+        "q3": 61.6175,
+        "iqr": 11.1625,
+        "min": 45.08,
+        "max": 70.53,
+        "skewness": 0.60351249330285,
+        "kurtosis": -0.494917933156573
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 60.9908,
+        "sd": 6.0605981002978,
+        "se": 1.21211962005956,
+        "ci_lower": 58.489108059638,
+        "ci_upper": 63.492491940362,
+        "median": 59.6,
+        "q1": 57.23,
+        "q3": 64.76,
+        "iqr": 7.53000000000001,
+        "min": 45.91,
+        "max": 75.99,
+        "skewness": 0.0442701446554559,
+        "kurtosis": 1.24158224468486
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Control"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 54.9041666666667,
+        "sd": 8.14670201909207,
+        "se": 2.35175030186524,
+        "ci_lower": 49.7279991520202,
+        "ci_upper": 60.0803341813131,
+        "median": 51.175,
+        "q1": 48.84,
+        "q3": 62.225,
+        "iqr": 13.385,
+        "min": 44.66,
+        "max": 67.02,
+        "skewness": 0.340393726145637,
+        "kurtosis": -1.74174201359437
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Peer"
+        },
+        "n": 18,
+        "n_missing": 0,
+        "mean": 60.5466666666667,
+        "sd": 9.01708378579239,
+        "se": 2.12534703048702,
+        "ci_lower": 56.0625763934434,
+        "ci_upper": 65.03075693989,
+        "median": 62.125,
+        "q1": 53.7,
+        "q3": 67.01,
+        "iqr": 13.31,
+        "min": 43.82,
+        "max": 75.09,
+        "skewness": -0.0713030359016295,
+        "kurtosis": -0.943654635672647
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 64.6132,
+        "sd": 7.93073699811899,
+        "se": 1.5861473996238,
+        "ci_lower": 61.3395526633864,
+        "ci_upper": 67.8868473366136,
+        "median": 65.62,
+        "q1": 58.74,
+        "q3": 70.11,
+        "iqr": 11.37,
+        "min": 48.77,
+        "max": 81.22,
+        "skewness": 0.0420328051566043,
+        "kurtosis": -0.333794947394411
+      }
+    ],
+    "rank_residuals": [
+      {
+        "group": "Control",
+        "n": 12,
+        "mean_residual": -4.56824741152278,
+        "mean_rank": 13.75
+      },
+      {
+        "group": "Peer",
+        "n": 18,
+        "mean_residual": -1.54595023068814,
+        "mean_rank": 25.6111111111111
+      },
+      {
+        "group": "Tutor",
+        "n": 25,
+        "mean_residual": 3.30584292362639,
+        "mean_rank": 36.56
+      }
+    ]
+  },
+  "error": null,
+  "r_ancova_packages": {
+    "car": "3.1.5",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "heplots": "1.8.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

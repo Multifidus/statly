@@ -1,0 +1,295 @@
+{
+  "analysis_id": "ancova.quade",
+  "case": "quade__likert_two_covariates",
+  "dataset": "anc_likert.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "post"
+      ],
+      "group": [
+        "group"
+      ],
+      "covariates": [
+        "pre",
+        "interest"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 45,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 6.40706847876541,
+        "df": [
+          2,
+          42
+        ],
+        "p": 0.00372812878414436,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "eta_sq",
+        "value": 0.233774308395278,
+        "ci_lower": 0.0334105184349866,
+        "ci_upper": 0.423592240891674,
+        "effectsize_ci_lower": 0.0334105157816182,
+        "effectsize_ci_upper": 0.423592241174786
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.19375265026062,
+        "ci_lower": 0.0130200735660045,
+        "ci_upper": 0.383630993091526,
+        "effectsize_ci_lower": 0.0130200753272777,
+        "effectsize_ci_upper": 0.383630992801971
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.55235722045505,
+        "ci_lower": 0.185917630165695,
+        "ci_upper": 0.857253148862,
+        "effectsize_ci_lower": 0.18591762252799,
+        "effectsize_ci_upper": 0.857253149359005
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "post",
+        "group": {
+          "group": "High"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 3.53333333333333,
+        "sd": 1.18723367940933,
+        "se": 0.306542417893925,
+        "ci_lower": 2.87586523615231,
+        "ci_upper": 4.19080143051436,
+        "median": 3,
+        "q1": 3,
+        "q3": 4.5,
+        "iqr": 1.5,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.386562238672373,
+        "kurtosis": -0.126847221441817
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Low"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 2.46666666666667,
+        "sd": 0.990430401872025,
+        "se": 0.255728030135192,
+        "ci_lower": 1.91818459190526,
+        "ci_upper": 3.01514874142807,
+        "median": 2,
+        "q1": 2,
+        "q3": 3,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.869410272864379,
+        "kurtosis": 2.07918530710499
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Mid"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 3,
+        "sd": 1.0690449676497,
+        "se": 0.276026223736942,
+        "ci_lower": 2.40798262981279,
+        "ci_upper": 3.59201737018721,
+        "median": 3,
+        "q1": 2,
+        "q3": 4,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": 0,
+        "kurtosis": -0.403846153846154
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "High"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 2.86666666666667,
+        "sd": 1.24594580635795,
+        "se": 0.321701823886753,
+        "ci_lower": 2.17668487731548,
+        "ci_upper": 3.55664845601785,
+        "median": 3,
+        "q1": 2,
+        "q3": 4,
+        "iqr": 2,
+        "min": 1,
+        "max": 4,
+        "skewness": -0.48027407492971,
+        "kurtosis": -1.50448614203366
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Low"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 2.6,
+        "sd": 1.0555973258235,
+        "se": 0.272554057547699,
+        "ci_lower": 2.01542968563371,
+        "ci_upper": 3.18457031436629,
+        "median": 3,
+        "q1": 2,
+        "q3": 3,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.538128814256857,
+        "kurtosis": 0.738127749962072
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Mid"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 2.33333333333333,
+        "sd": 0.975900072948533,
+        "se": 0.251976315339485,
+        "ci_lower": 1.79289788652263,
+        "ci_upper": 2.87376878014404,
+        "median": 2,
+        "q1": 2,
+        "q3": 3,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": 1.33998586939472,
+        "kurtosis": 3.23076923076923
+      },
+      {
+        "variable": "interest",
+        "group": {
+          "group": "High"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 2.86666666666667,
+        "sd": 1.06009882737862,
+        "se": 0.273716340251427,
+        "ci_lower": 2.27960350382983,
+        "ci_upper": 3.45372982950351,
+        "median": 3,
+        "q1": 2,
+        "q3": 3,
+        "iqr": 1,
+        "min": 2,
+        "max": 5,
+        "skewness": 1.12963318630215,
+        "kurtosis": 0.322520053919077
+      },
+      {
+        "variable": "interest",
+        "group": {
+          "group": "Low"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 2.93333333333333,
+        "sd": 1.09978352848359,
+        "se": 0.283962886016678,
+        "ci_lower": 2.32429351554204,
+        "ci_upper": 3.54237315112462,
+        "median": 3,
+        "q1": 2.5,
+        "q3": 3.5,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.223599974337935,
+        "kurtosis": 0.105662519017345
+      },
+      {
+        "variable": "interest",
+        "group": {
+          "group": "Mid"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 2.6,
+        "sd": 0.632455532033676,
+        "se": 0.163299316185545,
+        "ci_lower": 2.24975780049916,
+        "ci_upper": 2.95024219950084,
+        "median": 3,
+        "q1": 2,
+        "q3": 3,
+        "iqr": 1,
+        "min": 2,
+        "max": 4,
+        "skewness": 0.547317287336834,
+        "kurtosis": -0.384615384615389
+      }
+    ],
+    "rank_residuals": [
+      {
+        "group": "High",
+        "n": 15,
+        "mean_residual": 4.25823631725872,
+        "mean_rank": 28.9666666666667
+      },
+      {
+        "group": "Low",
+        "n": 15,
+        "mean_residual": -6.75173857029837,
+        "mean_rank": 16.7666666666667
+      },
+      {
+        "group": "Mid",
+        "n": 15,
+        "mean_residual": 2.49350225303965,
+        "mean_rank": 23.2666666666667
+      }
+    ]
+  },
+  "error": null,
+  "r_ancova_packages": {
+    "car": "3.1.5",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "heplots": "1.8.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

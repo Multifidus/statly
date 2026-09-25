@@ -1,0 +1,288 @@
+{
+  "analysis_id": "ancova",
+  "case": "ancova__two",
+  "dataset": "anc_two.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "post"
+      ],
+      "group": [
+        "group"
+      ],
+      "covariates": [
+        "pre"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 40,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 20.3727939872841,
+        "df": [
+          1,
+          37
+        ],
+        "p": 6.2666709671009e-05,
+        "term": "group"
+      },
+      {
+        "key": "F",
+        "value": 101.060060896003,
+        "df": [
+          1,
+          37
+        ],
+        "p": 3.97312007552712e-12,
+        "term": "pre"
+      },
+      {
+        "key": "t",
+        "value": -4.51362315521401,
+        "df": [
+          37
+        ],
+        "p": 6.2666709671009e-05,
+        "term": "Control vs Program"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.355095029741787,
+        "ci_lower": 0.122981252942265,
+        "ci_upper": 0.54826631582433,
+        "effectsize_ci_lower": 0.122981252962718,
+        "effectsize_ci_upper": 0.5482663199923,
+        "term": "group"
+      },
+      {
+        "key": "partial_omega_sq",
+        "value": 0.326290758548994,
+        "ci_lower": 0.0999528166444299,
+        "ci_upper": 0.524848458690059,
+        "effectsize_ci_lower": 0.0999528113294413,
+        "effectsize_ci_upper": 0.524848450889969,
+        "term": "group"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.742035075795195,
+        "ci_lower": 0.37446826475601,
+        "ci_upper": 1.10167766439668,
+        "effectsize_ci_lower": 0.374468264791515,
+        "effectsize_ci_upper": 1.10167767366658,
+        "term": "group"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.732000697668305,
+        "ci_lower": 0.570799981227177,
+        "ci_upper": 0.821084745993166,
+        "effectsize_ci_lower": 0.570799984647959,
+        "effectsize_ci_upper": 0.821084750067158,
+        "term": "pre"
+      },
+      {
+        "key": "partial_omega_sq",
+        "value": 0.7144082349807,
+        "ci_lower": 0.544916988741011,
+        "ci_upper": 0.809150209307514,
+        "effectsize_ci_lower": 0.544916990489362,
+        "effectsize_ci_upper": 0.80915020968749,
+        "term": "pre"
+      },
+      {
+        "key": "mean_difference",
+        "value": -4.73007237796939,
+        "ci_lower": -6.85343019324303,
+        "ci_upper": -2.60671456269574,
+        "term": "Control vs Program"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "post",
+        "group": {
+          "group": "Control"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 38.1005,
+        "sd": 6.94577832780081,
+        "se": 1.55312324976074,
+        "ci_lower": 34.84977567879,
+        "ci_upper": 41.35122432121,
+        "median": 39.13,
+        "q1": 33.1375,
+        "q3": 42.9625,
+        "iqr": 9.825,
+        "min": 22.43,
+        "max": 50.36,
+        "skewness": -0.504425304190043,
+        "kurtosis": 0.0284737180620818
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Program"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 45.0675,
+        "sd": 5.28750550578288,
+        "se": 1.18232217423349,
+        "ci_lower": 42.592871249269,
+        "ci_upper": 47.542128750731,
+        "median": 44.275,
+        "q1": 41.62,
+        "q3": 48.6225,
+        "iqr": 7.0025,
+        "min": 37.76,
+        "max": 57.52,
+        "skewness": 0.634936241815511,
+        "kurtosis": 0.0955525374399069
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Control"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 47.2565,
+        "sd": 9.36529667667316,
+        "se": 2.0941439998494,
+        "ci_lower": 42.8734062349204,
+        "ci_upper": 51.6395937650796,
+        "median": 48.36,
+        "q1": 41.66,
+        "q3": 52.14,
+        "iqr": 10.48,
+        "min": 29.75,
+        "max": 67.29,
+        "skewness": -0.0364018062643678,
+        "kurtosis": 0.0280007344787259
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Program"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 50.484,
+        "sd": 5.33014011862826,
+        "se": 1.19185556348516,
+        "ci_lower": 47.9894176362452,
+        "ci_upper": 52.9785823637548,
+        "median": 50.19,
+        "q1": 46.79,
+        "q3": 53.5725,
+        "iqr": 6.7825,
+        "min": 39.88,
+        "max": 62.63,
+        "skewness": 0.469436696444343,
+        "kurtosis": 0.586189472522652
+      }
+    ],
+    "adjusted_means": [
+      {
+        "group": "Control",
+        "emmean": 39.2189638110153,
+        "se": 0.732615916246248,
+        "df": 37,
+        "lower": 37.734542963222,
+        "upper": 40.7033846588086
+      },
+      {
+        "group": "Program",
+        "emmean": 43.9490361889847,
+        "se": 0.732615916246248,
+        "df": 37,
+        "lower": 42.4646153411914,
+        "upper": 45.433457036778
+      }
+    ],
+    "assumption_checks": [
+      {
+        "test": "slopes_interaction",
+        "scope": "all groups",
+        "n": 40,
+        "statistic": 0.280336251130041,
+        "df": [
+          1,
+          36
+        ],
+        "p": 0.599731062125213
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "residuals by group",
+        "n": 40,
+        "statistic": 1.24823675279012,
+        "df": [
+          1,
+          38
+        ],
+        "p": 0.270903831862305
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "residuals",
+        "n": 40,
+        "statistic": 0.981244845653367,
+        "df": [],
+        "p": 0.735594971128223
+      },
+      {
+        "test": "quadratic_term",
+        "scope": "Control: pre",
+        "n": 20,
+        "statistic": 0.542946738801459,
+        "df": [
+          1,
+          17
+        ],
+        "p": 0.471261650136699
+      },
+      {
+        "test": "quadratic_term",
+        "scope": "Program: pre",
+        "n": 20,
+        "statistic": 2.07349207015406,
+        "df": [
+          1,
+          17
+        ],
+        "p": 0.16803996398182
+      }
+    ]
+  },
+  "error": null,
+  "r_ancova_packages": {
+    "car": "3.1.5",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "heplots": "1.8.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

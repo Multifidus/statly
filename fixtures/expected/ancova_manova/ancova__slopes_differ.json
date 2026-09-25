@@ -1,0 +1,381 @@
+{
+  "analysis_id": "ancova",
+  "case": "ancova__slopes_differ",
+  "dataset": "anc_slopes.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "post"
+      ],
+      "group": [
+        "group"
+      ],
+      "covariates": [
+        "pre"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 840.099605752973,
+        "df": [
+          2,
+          56
+        ],
+        "p": 1.73971146663333e-42,
+        "term": "group"
+      },
+      {
+        "key": "F",
+        "value": 104.012565042015,
+        "df": [
+          1,
+          56
+        ],
+        "p": 2.2307277779056e-14,
+        "term": "pre"
+      },
+      {
+        "key": "t",
+        "value": -21.179399536633,
+        "df": [
+          56
+        ],
+        "p": 4.15997843912244e-28,
+        "term": "Control vs Peer"
+      },
+      {
+        "key": "t",
+        "value": -40.9472106223863,
+        "df": [
+          56
+        ],
+        "p": 5.95806547846499e-43,
+        "term": "Control vs Tutor"
+      },
+      {
+        "key": "t",
+        "value": -19.3438062802691,
+        "df": [
+          56
+        ],
+        "p": 1.82833842752086e-26,
+        "term": "Peer vs Tutor"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.96774563677435,
+        "ci_lower": 0.951477213398947,
+        "ci_upper": 0.977007507295064,
+        "effectsize_ci_lower": 0.951477213690088,
+        "effectsize_ci_upper": 0.977007507382265,
+        "term": "group"
+      },
+      {
+        "key": "partial_omega_sq",
+        "value": 0.965481516961444,
+        "ci_lower": 0.948073760836799,
+        "ci_upper": 0.975393113275484,
+        "effectsize_ci_lower": 0.948073762496836,
+        "effectsize_ci_upper": 0.975393112219076,
+        "term": "group"
+      },
+      {
+        "key": "cohens_f",
+        "value": 5.47755030541213,
+        "ci_lower": 4.42819083815604,
+        "ci_upper": 6.51862385686495,
+        "effectsize_ci_lower": 4.42819085211827,
+        "effectsize_ci_upper": 6.51862386951709,
+        "term": "group"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.650027483871057,
+        "ci_lower": 0.498129253701306,
+        "ci_upper": 0.74800639938778,
+        "effectsize_ci_lower": 0.498129255474965,
+        "effectsize_ci_upper": 0.748006397679566,
+        "term": "pre"
+      },
+      {
+        "key": "partial_omega_sq",
+        "value": 0.631930213572581,
+        "ci_lower": 0.474577469353538,
+        "ci_upper": 0.734598330178744,
+        "effectsize_ci_lower": 0.474577469723544,
+        "effectsize_ci_upper": 0.734598329478503,
+        "term": "pre"
+      },
+      {
+        "key": "mean_difference",
+        "value": -31.7287742891757,
+        "ci_lower": -35.42610984193,
+        "ci_upper": -28.0314387364214,
+        "term": "Control vs Peer"
+      },
+      {
+        "key": "mean_difference",
+        "value": -61.3766950003249,
+        "ci_lower": -65.0760702898648,
+        "ci_upper": -57.6773197107849,
+        "term": "Control vs Tutor"
+      },
+      {
+        "key": "mean_difference",
+        "value": -29.6479207111491,
+        "ci_lower": -33.430617415153,
+        "ci_upper": -25.8652240071453,
+        "term": "Peer vs Tutor"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "post",
+        "group": {
+          "group": "Control"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 29.1765,
+        "sd": 3.25766670615965,
+        "se": 0.728436420301081,
+        "ci_lower": 27.6518650502028,
+        "ci_upper": 30.7011349497972,
+        "median": 28.715,
+        "q1": 27.57,
+        "q3": 31.475,
+        "iqr": 3.905,
+        "min": 23.88,
+        "max": 34.23,
+        "skewness": 0.1799290067276,
+        "kurtosis": -0.952098063775114
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Peer"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 62.7665,
+        "sd": 9.05992986785915,
+        "se": 2.02586190559138,
+        "ci_lower": 58.5263223006878,
+        "ci_upper": 67.0066776993122,
+        "median": 63.465,
+        "q1": 57.0475,
+        "q3": 67.425,
+        "iqr": 10.3775,
+        "min": 44.54,
+        "max": 82.54,
+        "skewness": 0.0873426561514807,
+        "kurtosis": 0.192748669188745
+      },
+      {
+        "variable": "post",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 88.624,
+        "sd": 9.66996565606485,
+        "se": 2.16227005470494,
+        "ci_lower": 84.0983167633758,
+        "ci_upper": 93.1496832366242,
+        "median": 89.825,
+        "q1": 81.5225,
+        "q3": 95.125,
+        "iqr": 13.6025,
+        "min": 71.57,
+        "max": 103.08,
+        "skewness": -0.367288295922616,
+        "kurtosis": -0.758287210832679
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Control"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 50.6855,
+        "sd": 5.53662872437542,
+        "se": 1.23802781938814,
+        "ci_lower": 48.094277993994,
+        "ci_upper": 53.276722006006,
+        "median": 51.575,
+        "q1": 47.6725,
+        "q3": 54.735,
+        "iqr": 7.0625,
+        "min": 38.81,
+        "max": 60.43,
+        "skewness": -0.530373085731363,
+        "kurtosis": 0.411110815305043
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Peer"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 53.15,
+        "sd": 10.8284109734774,
+        "se": 2.42130630250002,
+        "ci_lower": 48.082147665777,
+        "ci_upper": 58.217852334223,
+        "median": 54.345,
+        "q1": 44.65,
+        "q3": 62.1575,
+        "iqr": 17.5075,
+        "min": 32.46,
+        "max": 74.61,
+        "skewness": -0.179208879264139,
+        "kurtosis": -0.430116859002023
+      },
+      {
+        "variable": "pre",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 20,
+        "n_missing": 0,
+        "mean": 48.131,
+        "sd": 8.01917235524701,
+        "se": 1.79314145096194,
+        "ci_lower": 44.37791181018,
+        "ci_upper": 51.88408818982,
+        "median": 48.375,
+        "q1": 40.9275,
+        "q3": 53.44,
+        "iqr": 12.5125,
+        "min": 33.8,
+        "max": 61.98,
+        "skewness": -0.00736046578639026,
+        "kurtosis": -0.869125492767399
+      }
+    ],
+    "adjusted_means": [
+      {
+        "group": "Control",
+        "emmean": 29.1538435701665,
+        "se": 1.05142673469526,
+        "df": 56,
+        "lower": 27.0475827223397,
+        "upper": 31.2601044179933
+      },
+      {
+        "group": "Peer",
+        "emmean": 60.8826178593422,
+        "se": 1.06752715914517,
+        "df": 56,
+        "lower": 58.7441039856666,
+        "upper": 63.0211317330178
+      },
+      {
+        "group": "Tutor",
+        "emmean": 90.5305385704913,
+        "se": 1.06791379801899,
+        "df": 56,
+        "lower": 88.3912501660802,
+        "upper": 92.6698269749024
+      }
+    ],
+    "assumption_checks": [
+      {
+        "test": "slopes_interaction",
+        "scope": "all groups",
+        "n": 60,
+        "statistic": 18.0226713120914,
+        "df": [
+          2,
+          54
+        ],
+        "p": 1.00966576916378e-06
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "residuals by group",
+        "n": 60,
+        "statistic": 0.985696527791441,
+        "df": [
+          2,
+          57
+        ],
+        "p": 0.379449387188854
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "residuals",
+        "n": 60,
+        "statistic": 0.979887253943971,
+        "df": [],
+        "p": 0.423784907796396
+      },
+      {
+        "test": "quadratic_term",
+        "scope": "Control: pre",
+        "n": 20,
+        "statistic": 4.03970626743309,
+        "df": [
+          1,
+          17
+        ],
+        "p": 0.0605860442783063
+      },
+      {
+        "test": "quadratic_term",
+        "scope": "Peer: pre",
+        "n": 20,
+        "statistic": 0.272754698908916,
+        "df": [
+          1,
+          17
+        ],
+        "p": 0.608228882621594
+      },
+      {
+        "test": "quadratic_term",
+        "scope": "Tutor: pre",
+        "n": 20,
+        "statistic": 0.930245417241496,
+        "df": [
+          1,
+          17
+        ],
+        "p": 0.348319826313791
+      }
+    ]
+  },
+  "error": null,
+  "r_ancova_packages": {
+    "car": "3.1.5",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "heplots": "1.8.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
