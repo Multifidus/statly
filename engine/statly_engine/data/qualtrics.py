@@ -249,6 +249,44 @@ def detect_response_set(raw: pd.Series) -> tuple[str, list[dict], list[float]] |
     return set_id, labels, sentinels
 
 
+def _continuation_merges(seqs: list[list[str]]):
+    """Yield (a, b) token pairs that are really one option containing a comma, e.g.
+    "Other" + "please specify": b starts lowercase, b only ever follows a, and a is always
+    followed by b. Re-evaluated after each merge so chains ("a, b, c") collapse fully."""
+    while True:
+        follows: dict[str, set] = {}
+        precedes: dict[str, set] = {}
+        for seq in seqs:
+            for i, t in enumerate(seq):
+                follows.setdefault(t, set()).add(seq[i + 1] if i + 1 < len(seq) else None)
+                precedes.setdefault(t, set()).add(seq[i - 1] if i else None)
+        pair = None
+        for b, before in precedes.items():
+            if not b[:1].islower() or len(before) != 1:
+                continue
+            a = next(iter(before))
+            if a is not None and a != b and follows.get(a) == {b}:
+                pair = (a, b)
+                break
+        if pair is None:
+            return
+        yield pair
+        seqs = [_merge_seq(seq, pair) for seq in seqs]
+
+
+def _merge_seq(seq: list[str], pair: tuple[str, str]) -> list[str]:
+    a, b = pair
+    out, i = [], 0
+    while i < len(seq):
+        if seq[i] == a and i + 1 < len(seq) and seq[i + 1] == b:
+            out.append(f"{a}, {b}")
+            i += 2
+        else:
+            out.append(seq[i])
+            i += 1
+    return out
+
+
 def detect_multiselect(raw: pd.Series, question_text: str | None) -> list[str] | None:
     """Comma-separated 'select all that apply' answers -> option list (first-seen order)."""
     vals = nonempty_values(raw)
@@ -258,9 +296,12 @@ def detect_multiselect(raw: pd.Series, question_text: str | None) -> list[str] |
     with_comma = vals.str.contains(",").mean()
     if with_comma < 0.2 and not hinted:
         return None
+    seqs = [split_tokens(v) for v in vals.unique()]
+    for merged in _continuation_merges(seqs):
+        seqs = [_merge_seq(seq, merged) for seq in seqs]
     options: dict[str, str] = {}
-    for v in vals.unique():
-        for t in split_tokens(v):
+    for seq in seqs:
+        for t in seq:
             options.setdefault(t.casefold(), t)
     if not 2 <= len(options) <= 40:
         return None

@@ -141,15 +141,58 @@ def _raise(s: pd.Series, bad: pd.Series):
 # ---------------------------------------------------------------------------
 # Multi-select
 # ---------------------------------------------------------------------------
+_COMMA_RE = re.compile(r"\s*,\s*")
+
+
 def split_tokens(value: str) -> list[str]:
     return [t.strip() for t in str(value).split(",") if t.strip()]
 
 
-def multiselect_indicator(raw: pd.Series, option: str) -> pd.Series:
-    """1 = option selected, 0 = answered without it, NA = question left blank."""
-    key = option.strip().casefold()
+def _norm_option(text: str) -> str:
+    return _COMMA_RE.sub(",", str(text).strip()).casefold()
+
+
+def split_selected(value: str, options: list[str] | None = None) -> list[str]:
+    """Split one multi-select cell into the chosen options.
+
+    Qualtrics joins choices with commas, so an option that itself contains a comma
+    ("Other, please specify") is ambiguous. Known `options` are matched greedily (longest
+    first) at each position, ignoring spacing around commas; text that matches no known
+    option falls back to plain comma splitting."""
+    if not options:
+        return split_tokens(value)
+    known = sorted({_norm_option(o): str(o).strip() for o in options if str(o).strip()}.items(),
+                   key=lambda kv: len(kv[0]), reverse=True)
+    text = _norm_option(value)
+    out, i, n = [], 0, len(text)
+    while i < n:
+        while i < n and text[i] == ",":
+            i += 1
+        if i >= n:
+            break
+        for key, canonical in known:
+            j = i + len(key)
+            if text.startswith(key, i) and (j == n or text[j] == ","):
+                out.append(canonical)
+                i = j
+                break
+        else:
+            j = text.find(",", i)
+            j = n if j < 0 else j
+            if text[i:j].strip():
+                out.append(text[i:j].strip())
+            i = j
+    return out
+
+
+def multiselect_indicator(raw: pd.Series, option: str, options: list[str] | None = None) -> pd.Series:
+    """1 = option selected, 0 = answered without it, NA = question left blank.
+
+    `options` is the column's full option list (see `split_selected`)."""
+    key = _norm_option(option)
+    opts = list(options or []) + [option]
     s = _strip(raw)
-    vals = s.map(lambda v: None if v == "" else int(key in {t.casefold() for t in split_tokens(v)}))
+    vals = s.map(lambda v: None if v == "" else int(key in {_norm_option(t) for t in split_selected(v, opts)}))
     return pd.Series(pd.array(vals.tolist(), dtype="Int64"), index=raw.index)
 
 

@@ -17,6 +17,8 @@ Conventions where the contracts are silent (see module docstrings / report):
 from __future__ import annotations
 
 import datetime as _dt
+import hashlib
+import os
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -204,6 +206,8 @@ def propose_variables(file_id: str, header: qx.HeaderInfo, data: pd.DataFrame, i
             contiguous = vals == list(range(vals[0], vals[-1] + 1))
             shown = ", ".join(str(x) for x in vals)
             if not contiguous:
+                # Expose the observed codes so the UI can show them (labels unknown: the number itself).
+                v["value_labels"] = [{"value": x, "label": str(x)} for x in vals]
                 issues.append(_issue(
                     "noncontiguous_codes", "caution",
                     f"'{v['name']}' uses the numbers {shown}, which skip values. Qualtrics recode values are "
@@ -279,11 +283,26 @@ def _existing_source(state) -> tuple[str, list[tuple[str, str | None]]]:
                                       if v["name"] != time_var]
 
 
+def stable_file_id(path: str, taken: set[str]) -> str:
+    """Deterministic file id from the file's absolute path, so re-running a preview (e.g. after
+    choosing another xlsx sheet) keeps the ids the UI keyed its decisions on. `taken` holds ids
+    already in use (same path listed twice, or files already in the dataset being stacked onto)."""
+    norm = os.path.normcase(os.path.abspath(path))
+    base = "f_" + hashlib.sha256(norm.encode("utf-8")).hexdigest()[:12]
+    fid, k = base, 2
+    while fid in taken:
+        fid, k = f"{base}_{k}", k + 1
+    taken.add(fid)
+    return fid
+
+
 def preview(store: DatasetStore, params: dict) -> dict:
     onto = params.get("stack_onto_dataset_id")
     existing = store.get(onto) if onto else None
     mode = params["qualtrics_mode"]
-    files = [stage_file(f["path"], sheet_name=f.get("sheet_name"), qualtrics_mode=mode) for f in params["files"]]
+    taken = ({onto} | {f["file_id"] for f in existing.meta["import_log"]["files"]}) if existing is not None else set()
+    files = [stage_file(f["path"], sheet_name=f.get("sheet_name"), qualtrics_mode=mode,
+                        file_id=stable_file_id(f["path"], taken)) for f in params["files"]]
     proposal, extra = None, []
     if len(files) >= 2 or existing is not None:
         sources = ([_existing_source(existing)] if existing is not None else []) + [
@@ -529,6 +548,9 @@ def _assemble(parts: list[Part], matches: list[dict], user_vars: list[dict], tim
         columns[sch["name"]] = pd.concat([s.reset_index(drop=True) for s in full], ignore_index=True)
         variables.append(sch)
 
+    requested: dict[int, list[str]] = {}
+    for spec, uv in indicators:
+        requested.setdefault(id(spec), []).append(uv["label"].strip())
     for spec, uv in indicators:
         option = uv["label"].strip()
         sch = dict(uv)
@@ -539,7 +561,9 @@ def _assemble(parts: list[Part], matches: list[dict], user_vars: list[dict], tim
             if ref is None or p.raw is None:
                 pieces.append(_na_series("integer", p.n_rows))
             else:
-                pieces.append(multiselect_indicator(p.raw[ref["column"]], option).reset_index(drop=True))
+                # Greedy matching needs every known option, so "Other, please specify" is one choice.
+                options = p.multiselect.get(ref["column"], []) + requested[id(spec)]
+                pieces.append(multiselect_indicator(p.raw[ref["column"]], option, options).reset_index(drop=True))
         columns[sch["name"]] = pd.concat(pieces, ignore_index=True)
         variables.append(sch)
 
