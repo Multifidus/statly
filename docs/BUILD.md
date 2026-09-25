@@ -32,8 +32,8 @@ GUI session (CI, SSH).
 ```powershell
 python -m venv engine\.venv
 engine\.venv\Scripts\pip.exe install -e "engine[dev]"
-engine\build.ps1                  # -> engine\dist\statly-engine\
-scripts\stage-engine.ps1          # -> app\src-tauri\resources\engine\
+.\engine\build.ps1                # -> engine\dist\statly-engine\
+.\scripts\stage-engine.ps1        # -> app\src-tauri\resources\engine\
 cd app; npm ci
 npm run tauri build
 ```
