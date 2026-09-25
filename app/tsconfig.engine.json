@@ -1,0 +1,10 @@
+{
+  "//": "Node-side real-engine test code (stdio transport + *.engine.test.ts); kept out of the app program so browser code can't reach Node APIs.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["src/**/*.engine.test.ts", "src/lib/transports/stdio.ts", "src/vite-env.d.ts"],
+  "exclude": []
+}

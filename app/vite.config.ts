@@ -25,9 +25,18 @@ export default defineConfig(() => ({
     hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
     watch: { ignored: ["**/src-tauri/**"] },
   },
-  test: {
-    environment: "jsdom",
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
-    setupFiles: ["src/test/setup.ts"],
-  },
+  test: process.env.STATLY_ENGINE_TESTS
+    ? {
+        // Real-engine integration suite (npm run test:engine): spawns the engine over stdio.
+        environment: "node",
+        include: ["src/**/*.engine.test.ts"],
+        testTimeout: 120_000,
+        fileParallelism: false,
+      }
+    : {
+        environment: "jsdom",
+        include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+        exclude: ["src/**/*.engine.test.ts", "node_modules/**"],
+        setupFiles: ["src/test/setup.ts"],
+      },
 }));

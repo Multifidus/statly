@@ -11,7 +11,8 @@
     "test": "vitest run",
     "gen:contracts": "bash ../scripts/gen-contracts.sh",
     "dev:mock": "VITE_STATLY_MOCK=1 vite",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:engine": "tsc --noEmit -p tsconfig.engine.json && STATLY_ENGINE_TESTS=1 vitest run"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.14.13",

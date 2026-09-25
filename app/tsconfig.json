@@ -24,5 +24,6 @@
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src"],
+  "exclude": ["src/**/*.engine.test.ts", "src/lib/transports/stdio.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
