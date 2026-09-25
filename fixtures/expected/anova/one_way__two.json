@@ -1,0 +1,164 @@
+{
+  "analysis_id": "anova.one_way",
+  "case": "one_way__two",
+  "dataset": "anova_two.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 30,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 2.67768138434513,
+        "df": [
+          1,
+          28
+        ],
+        "p": 0.112956547589926,
+        "term": null
+      },
+      {
+        "key": "welch_F",
+        "value": 2.67768138434512,
+        "df": [
+          1,
+          26.7929223303096
+        ],
+        "p": 0.113458384981372,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "eta_sq",
+        "value": 0.0872843469099837,
+        "ci_lower": 0,
+        "ci_upper": 0.319804954047147,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.319804952544653
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.0529609905469352,
+        "ci_lower": 0,
+        "ci_upper": 0.271132328101302,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.271239351160345
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.309243396069061,
+        "ci_lower": 0,
+        "ci_upper": 0.685686914026365,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.68568691165832
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 73.8333333333333,
+        "sd": 8.2192254298484,
+        "se": 2.12219488056849,
+        "ci_lower": 69.2816780043227,
+        "ci_upper": 78.3849886623439,
+        "median": 73.24,
+        "q1": 69.815,
+        "q3": 78.51,
+        "iqr": 8.69499999999999,
+        "min": 59.01,
+        "max": 89.05,
+        "skewness": 0.00130014827071545,
+        "kurtosis": -0.153012575980298
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Program"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 79.3666666666667,
+        "sd": 10.1961208776858,
+        "se": 2.63262709034633,
+        "ci_lower": 73.7202431290401,
+        "ci_upper": 85.0130902042932,
+        "median": 79.28,
+        "q1": 71.605,
+        "q3": 84.46,
+        "iqr": 12.855,
+        "min": 67.57,
+        "max": 100.24,
+        "skewness": 0.797678686567532,
+        "kurtosis": -0.0880708101989685
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 30,
+        "statistic": 0.945899875860487,
+        "p": 0.339092737329344,
+        "df": [
+          1,
+          28
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 15,
+        "statistic": 0.982110580616838,
+        "p": 0.981874653933823,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Program",
+        "n": 15,
+        "statistic": 0.911795714855418,
+        "p": 0.14427289528224,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_anova_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "rstatix": "1.1.0",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "analysis_id": "posthoc.pairwise",
+  "case": "pairwise__ties_holm",
+  "dataset": "anova_ties.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {
+      "adjust": "holm"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 75,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "t",
+        "value": 4.21754179613882,
+        "df": [
+          72
+        ],
+        "p": 0.000212519122778757,
+        "term": "High vs Low"
+      },
+      {
+        "key": "t",
+        "value": 1.40584726537961,
+        "df": [
+          72
+        ],
+        "p": 0.164070346020127,
+        "term": "High vs Mid"
+      },
+      {
+        "key": "t",
+        "value": -2.81169453075921,
+        "df": [
+          72
+        ],
+        "p": 0.0126907113424538,
+        "term": "Low vs Mid"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "mean_difference",
+        "value": 1.32,
+        "ci_lower": 0.552827366801136,
+        "ci_upper": 2.08717263319886,
+        "term": "High vs Low"
+      },
+      {
+        "key": "hedges_g",
+        "value": 1.10200848528664,
+        "ci_lower": 0.508775778493331,
+        "ci_upper": 1.68532764998717,
+        "effectsize_ci_lower": 0.508775770579066,
+        "effectsize_ci_upper": 1.68532769551039,
+        "term": "High vs Low"
+      },
+      {
+        "key": "mean_difference",
+        "value": 0.44,
+        "ci_lower": -0.327172633198863,
+        "ci_upper": 1.20717263319886,
+        "term": "High vs Mid"
+      },
+      {
+        "key": "hedges_g",
+        "value": 0.416092637033289,
+        "ci_lower": -0.137947307557621,
+        "ci_upper": 0.96590370308672,
+        "effectsize_ci_lower": -0.137947306761513,
+        "effectsize_ci_upper": 0.965903717381942,
+        "term": "High vs Mid"
+      },
+      {
+        "key": "mean_difference",
+        "value": -0.879999999999999,
+        "ci_lower": -1.64717263319886,
+        "ci_upper": -0.112827366801136,
+        "term": "Low vs Mid"
+      },
+      {
+        "key": "hedges_g",
+        "value": -0.790697665516752,
+        "ci_lower": -1.3548875145307,
+        "ci_upper": -0.218901515470872,
+        "effectsize_ci_lower": -1.35488752193014,
+        "effectsize_ci_upper": -0.218901520212044,
+        "term": "Low vs Mid"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "High"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 3.76,
+        "sd": 1.12842072532072,
+        "se": 0.225684145064143,
+        "ci_lower": 3.29421081761986,
+        "ci_upper": 4.22578918238014,
+        "median": 4,
+        "q1": 3,
+        "q3": 5,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.619408048697879,
+        "kurtosis": -0.163689084783213
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Low"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 2.44,
+        "sd": 1.22746350930146,
+        "se": 0.245492701860293,
+        "ci_lower": 1.93332796574036,
+        "ci_upper": 2.94667203425964,
+        "median": 2,
+        "q1": 1,
+        "q3": 3,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.370747377044177,
+        "kurtosis": -0.976654335459798
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Mid"
+        },
+        "n": 25,
+        "n_missing": 0,
+        "mean": 3.32,
+        "sd": 0.945163125250522,
+        "se": 0.189032625050104,
+        "ci_lower": 2.92985583705832,
+        "ci_upper": 3.71014416294168,
+        "median": 3,
+        "q1": 3,
+        "q3": 4,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.0751804136306129,
+        "kurtosis": 0.633234335666371
+      }
+    ]
+  },
+  "error": null,
+  "r_anova_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "rstatix": "1.1.0",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "analysis_id": "posthoc.tukey",
+  "case": "tukey__small_n",
+  "dataset": "anova_small.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 15,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "t",
+        "value": -1.60994651672263,
+        "df": [
+          12
+        ],
+        "p": 0.279141352893644,
+        "term": "A vs B"
+      },
+      {
+        "key": "t",
+        "value": -5.67653708614337,
+        "df": [
+          12
+        ],
+        "p": 0.000280322073089811,
+        "term": "A vs C"
+      },
+      {
+        "key": "t",
+        "value": -4.06659056942074,
+        "df": [
+          12
+        ],
+        "p": 0.0041207876996262,
+        "term": "B vs C"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "mean_difference",
+        "value": -1.582,
+        "ci_lower": -4.20355311428667,
+        "ci_upper": 1.03955311428666,
+        "term": "A vs B",
+        "tukeyhsd_ci_lower": -4.20355310989202,
+        "tukeyhsd_ci_upper": 1.03955310989202
+      },
+      {
+        "key": "hedges_g",
+        "value": -0.775438949805166,
+        "ci_lower": -1.93379621949407,
+        "ci_upper": 0.425628895610992,
+        "effectsize_ci_lower": -1.93379626195356,
+        "effectsize_ci_upper": 0.425628895216434,
+        "term": "A vs B"
+      },
+      {
+        "key": "mean_difference",
+        "value": -5.578,
+        "ci_lower": -8.19955311428667,
+        "ci_upper": -2.95644688571334,
+        "term": "A vs C",
+        "tukeyhsd_ci_lower": -8.19955310989202,
+        "tukeyhsd_ci_upper": -2.95644689010798
+      },
+      {
+        "key": "hedges_g",
+        "value": -3.61455621315515,
+        "ci_lower": -5.65119054916854,
+        "ci_upper": -1.51863699765123,
+        "effectsize_ci_lower": -5.65119055010975,
+        "effectsize_ci_upper": -1.51863697779164,
+        "term": "A vs C"
+      },
+      {
+        "key": "mean_difference",
+        "value": -3.996,
+        "ci_lower": -6.61755311428666,
+        "ci_upper": -1.37444688571333,
+        "term": "B vs C",
+        "tukeyhsd_ci_lower": -6.61755310989202,
+        "tukeyhsd_ci_upper": -1.37444689010798
+      },
+      {
+        "key": "hedges_g",
+        "value": -2.61031931695078,
+        "ci_lower": -4.25837466177729,
+        "ci_upper": -0.894345378723291,
+        "effectsize_ci_lower": -4.25837468335963,
+        "effectsize_ci_upper": -0.894345386171387,
+        "term": "B vs C"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "A"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 9.646,
+        "sd": 1.85002162149527,
+        "se": 0.827354821101563,
+        "ci_lower": 7.34889475669077,
+        "ci_upper": 11.9431052433092,
+        "median": 9.32,
+        "q1": 9.2,
+        "q3": 11.3,
+        "iqr": 2.1,
+        "min": 6.94,
+        "max": 11.47,
+        "skewness": -0.61492035407714,
+        "kurtosis": -0.293248417679351
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "B"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 11.228,
+        "sd": 1.83321302635564,
+        "se": 0.819837788833864,
+        "ci_lower": 8.95176538413603,
+        "ci_upper": 13.504234615864,
+        "median": 10.93,
+        "q1": 10.61,
+        "q3": 12.72,
+        "iqr": 2.11,
+        "min": 8.64,
+        "max": 13.24,
+        "skewness": -0.414588810064442,
+        "kurtosis": -0.655862262111548
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "C"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 15.224,
+        "sd": 0.677222267796918,
+        "se": 0.302863005334095,
+        "ci_lower": 14.3831174912947,
+        "ci_upper": 16.0648825087053,
+        "median": 14.98,
+        "q1": 14.74,
+        "q3": 15.78,
+        "iqr": 1.04,
+        "min": 14.53,
+        "max": 16.09,
+        "skewness": 0.481844091664154,
+        "kurtosis": -2.36396991372461
+      }
+    ]
+  },
+  "error": null,
+  "r_anova_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "rstatix": "1.1.0",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

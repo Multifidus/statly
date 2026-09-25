@@ -1,0 +1,190 @@
+{
+  "analysis_id": "anova.one_way",
+  "case": "one_way__constant_group",
+  "dataset": "anova_constant_group.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 30,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 4.11541971153005,
+        "df": [
+          2,
+          27
+        ],
+        "p": 0.02753914407364,
+        "term": null
+      },
+      {
+        "key": "welch_F",
+        "value": null,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "eta_sq",
+        "value": 0.233625981039573,
+        "ci_lower": 0,
+        "ci_upper": 0.462364253346872,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.462364250113906
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.171976126478988,
+        "ci_lower": 0,
+        "ci_upper": 0.401159597841664,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.401159599231653
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.552128521775303,
+        "ci_lower": 0,
+        "ci_upper": 0.927359353697563,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.927359347667153
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 20.382,
+        "sd": 3.0084983334252,
+        "se": 0.951370707044432,
+        "ci_lower": 18.229849940583,
+        "ci_upper": 22.534150059417,
+        "median": 20.665,
+        "q1": 17.7125,
+        "q3": 23.0825,
+        "iqr": 5.37,
+        "min": 15.96,
+        "max": 24.23,
+        "skewness": -0.205274734508699,
+        "kurtosis": -1.54729297545974
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Peer"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 23,
+        "sd": 0,
+        "se": 0,
+        "ci_lower": 23,
+        "ci_upper": 23,
+        "median": 23,
+        "q1": 23,
+        "q3": 23,
+        "iqr": 0,
+        "min": 23,
+        "max": 23,
+        "skewness": null,
+        "kurtosis": null
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 22.905,
+        "sd": 2.64967608083202,
+        "se": 0.83790114770976,
+        "ci_lower": 21.0095359169915,
+        "ci_upper": 24.8004640830085,
+        "median": 23.505,
+        "q1": 21.4025,
+        "q3": 24.8675,
+        "iqr": 3.465,
+        "min": 17.27,
+        "max": 25.82,
+        "skewness": -1.07355531839346,
+        "kurtosis": 0.957122942890298
+      }
+    ],
+    "assumptions": [
+      {
+        "test": "levene_brown_forsythe",
+        "scope": "overall",
+        "n": 30,
+        "statistic": 9.75159387899193,
+        "p": 0.000649223207347312,
+        "df": [
+          2,
+          27
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Control",
+        "n": 10,
+        "statistic": 0.927339098519382,
+        "p": 0.422235487234754,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Peer",
+        "n": 10,
+        "statistic": null,
+        "p": null,
+        "df": []
+      },
+      {
+        "test": "shapiro_wilk",
+        "scope": "Tutor",
+        "n": 10,
+        "statistic": 0.908896819490546,
+        "p": 0.273498999982782,
+        "df": []
+      }
+    ]
+  },
+  "error": null,
+  "r_anova_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "rstatix": "1.1.0",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

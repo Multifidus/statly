@@ -1,0 +1,295 @@
+{
+  "analysis_id": "posthoc.games_howell",
+  "case": "games_howell__four_unequal",
+  "dataset": "anova_four_unequal.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 73,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "t",
+        "value": -3.06279693244548,
+        "df": [
+          19.551995673637
+        ],
+        "p": 0.0292787098745865,
+        "term": "Grade 5 vs Grade 6"
+      },
+      {
+        "key": "t",
+        "value": -0.175784489313497,
+        "df": [
+          25.9927251292437
+        ],
+        "p": 0.998019096663418,
+        "term": "Grade 5 vs Grade 7"
+      },
+      {
+        "key": "t",
+        "value": -3.15938114991747,
+        "df": [
+          35.4066523451929
+        ],
+        "p": 0.0162831592619791,
+        "term": "Grade 5 vs Grade 8"
+      },
+      {
+        "key": "t",
+        "value": 1.73042713330222,
+        "df": [
+          29.3849945100583
+        ],
+        "p": 0.326617885709145,
+        "term": "Grade 6 vs Grade 7"
+      },
+      {
+        "key": "t",
+        "value": -1.3406544776821,
+        "df": [
+          39.2082395152322
+        ],
+        "p": 0.543274066688245,
+        "term": "Grade 6 vs Grade 8"
+      },
+      {
+        "key": "t",
+        "value": -2.41590080578033,
+        "df": [
+          48.7385963926544
+        ],
+        "p": 0.0874000927351427,
+        "term": "Grade 7 vs Grade 8"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "mean_difference",
+        "value": -6.15339285714285,
+        "ci_lower": -11.7879402686687,
+        "ci_upper": -0.518845445617054,
+        "term": "Grade 5 vs Grade 6",
+        "rstatix_ci_lower": -11.7879401437914,
+        "rstatix_ci_upper": -0.51884557049427
+      },
+      {
+        "key": "hedges_g",
+        "value": -1.16096879609529,
+        "ci_lower": -2.05758485245422,
+        "ci_upper": -0.239883029746833,
+        "effectsize_ci_lower": -2.05758482704451,
+        "effectsize_ci_upper": -0.239883029011734,
+        "term": "Grade 5 vs Grade 6"
+      },
+      {
+        "key": "mean_difference",
+        "value": -0.551726190476188,
+        "ci_lower": -9.16221076197503,
+        "ci_upper": 8.05875838102265,
+        "term": "Grade 5 vs Grade 7",
+        "rstatix_ci_lower": -9.16221076203231,
+        "rstatix_ci_upper": 8.05875838107993
+      },
+      {
+        "key": "hedges_g",
+        "value": -0.0469828472233849,
+        "ci_lower": -0.838096247057556,
+        "ci_upper": 0.744996184636555,
+        "effectsize_ci_lower": -0.838096288544436,
+        "effectsize_ci_upper": 0.74499617875037,
+        "term": "Grade 5 vs Grade 7"
+      },
+      {
+        "key": "mean_difference",
+        "value": -10.8985833333333,
+        "ci_lower": -20.1965583915674,
+        "ci_upper": -1.60060827509924,
+        "term": "Grade 5 vs Grade 8",
+        "rstatix_ci_lower": -20.1965583918801,
+        "rstatix_ci_upper": -1.60060827478656
+      },
+      {
+        "key": "hedges_g",
+        "value": -0.676104576724763,
+        "ci_lower": -1.45081490674581,
+        "ci_upper": 0.107602684466679,
+        "effectsize_ci_lower": -1.45081489799497,
+        "effectsize_ci_upper": 0.107602664044729,
+        "term": "Grade 5 vs Grade 8"
+      },
+      {
+        "key": "mean_difference",
+        "value": 5.60166666666667,
+        "ci_lower": -3.21112425050322,
+        "ci_upper": 14.4144575838365,
+        "term": "Grade 6 vs Grade 7",
+        "rstatix_ci_lower": -3.21112425062328,
+        "rstatix_ci_upper": 14.4144575839566
+      },
+      {
+        "key": "hedges_g",
+        "value": 0.506972498483333,
+        "ci_lower": -0.168616326315336,
+        "ci_upper": 1.17515297457434,
+        "effectsize_ci_lower": -0.168616316239043,
+        "effectsize_ci_upper": 1.17515298708952,
+        "term": "Grade 6 vs Grade 7"
+      },
+      {
+        "key": "mean_difference",
+        "value": -4.74519047619047,
+        "ci_lower": -14.2406383567716,
+        "ci_upper": 4.75025740439067,
+        "term": "Grade 6 vs Grade 8",
+        "rstatix_ci_lower": -14.240638357256,
+        "rstatix_ci_upper": 4.75025740487502
+      },
+      {
+        "key": "hedges_g",
+        "value": -0.313243977222412,
+        "ci_lower": -0.937947983302917,
+        "ci_upper": 0.31513709075984,
+        "effectsize_ci_lower": -0.937947993363054,
+        "effectsize_ci_upper": 0.31513711215679,
+        "term": "Grade 6 vs Grade 8"
+      },
+      {
+        "key": "mean_difference",
+        "value": -10.3468571428571,
+        "ci_lower": -21.7388768178973,
+        "ci_upper": 1.04516253218299,
+        "term": "Grade 7 vs Grade 8",
+        "rstatix_ci_lower": -21.738876819118,
+        "rstatix_ci_upper": 1.04516253340376
+      },
+      {
+        "key": "hedges_g",
+        "value": -0.643218808276296,
+        "ci_lower": -1.20367088631303,
+        "ci_upper": -0.0765394846472041,
+        "effectsize_ci_lower": -1.20367088757877,
+        "effectsize_ci_upper": -0.0765394947765979,
+        "term": "Grade 7 vs Grade 8"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Grade 5"
+        },
+        "n": 8,
+        "n_missing": 0,
+        "mean": 57.53875,
+        "sd": 3.69232964593977,
+        "se": 1.30543566551007,
+        "ci_lower": 54.4518851664407,
+        "ci_upper": 60.6256148335593,
+        "median": 58.225,
+        "q1": 55.6825,
+        "q3": 59.9625,
+        "iqr": 4.28000000000001,
+        "min": 51.9,
+        "max": 62.02,
+        "skewness": -0.607630450311352,
+        "kurtosis": -0.813944885696533
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Grade 6"
+        },
+        "n": 14,
+        "n_missing": 0,
+        "mean": 63.6921428571429,
+        "sd": 5.71411905663564,
+        "se": 1.52716255551189,
+        "ci_lower": 60.3929087388913,
+        "ci_upper": 66.9913769753944,
+        "median": 63.895,
+        "q1": 59.97,
+        "q3": 67.7025,
+        "iqr": 7.7325,
+        "min": 54.94,
+        "max": 72.77,
+        "skewness": 0.0718898620555228,
+        "kurtosis": -0.855161078376561
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Grade 7"
+        },
+        "n": 21,
+        "n_missing": 0,
+        "mean": 58.0904761904762,
+        "sd": 13.0799978884518,
+        "se": 2.8542895435092,
+        "ci_lower": 52.1365325348028,
+        "ci_upper": 64.0444198461496,
+        "median": 58.04,
+        "q1": 49.11,
+        "q3": 68.19,
+        "iqr": 19.08,
+        "min": 31.38,
+        "max": 83.73,
+        "skewness": -0.155046884635742,
+        "kurtosis": -0.309218090141014
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Grade 8"
+        },
+        "n": 30,
+        "n_missing": 0,
+        "mean": 68.4373333333333,
+        "sd": 17.4890298489502,
+        "se": 3.19304538571707,
+        "ci_lower": 61.9068222617897,
+        "ci_upper": 74.9678444048769,
+        "median": 66.83,
+        "q1": 55.9575,
+        "q3": 76.8475,
+        "iqr": 20.89,
+        "min": 39.34,
+        "max": 107.74,
+        "skewness": 0.459258772613903,
+        "kurtosis": -0.191436432008794
+      }
+    ]
+  },
+  "error": null,
+  "r_anova_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "rstatix": "1.1.0",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
