@@ -1,0 +1,605 @@
+{
+  "analysis_id": "anova.mixed",
+  "case": "mixed__2x3_long",
+  "dataset": "fact_mixed_2x3_long.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "time": [
+        "time"
+      ],
+      "subject_id": [
+        "id"
+      ],
+      "between": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 23,
+    "n_excluded": 16,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 0.214894549289207,
+        "df": [
+          1,
+          21
+        ],
+        "p": 0.647726686226472,
+        "term": "group"
+      },
+      {
+        "key": "F_gg",
+        "value": 30.8043709498924,
+        "df": [
+          1.58388443763941,
+          33.2615731904275
+        ],
+        "p": 1.57139223643863e-07,
+        "term": "time"
+      },
+      {
+        "key": "F",
+        "value": 30.8043709498924,
+        "df": [
+          2,
+          42
+        ],
+        "p": 5.81983530136767e-09,
+        "term": "time"
+      },
+      {
+        "key": "F_hf",
+        "value": 30.8043709498924,
+        "df": [
+          1.69165956612558,
+          35.5248508886371
+        ],
+        "p": 6.68192966389868e-08,
+        "term": "time"
+      },
+      {
+        "key": "F_gg",
+        "value": 2.92286105017878,
+        "df": [
+          1.58388443763941,
+          33.2615731904275
+        ],
+        "p": 0.0786380542565676,
+        "term": "group × time"
+      },
+      {
+        "key": "F",
+        "value": 2.92286105017878,
+        "df": [
+          2,
+          42
+        ],
+        "p": 0.064793242732584,
+        "term": "group × time"
+      },
+      {
+        "key": "F_hf",
+        "value": 2.92286105017878,
+        "df": [
+          1.69165956612558,
+          35.5248508886371
+        ],
+        "p": 0.0748076478708497,
+        "term": "group × time"
+      },
+      {
+        "key": "epsilon_gg",
+        "value": 0.791942218819704,
+        "df": [],
+        "p": null,
+        "term": "time"
+      },
+      {
+        "key": "epsilon_hf",
+        "value": 0.845829783062788,
+        "df": [],
+        "p": null,
+        "term": "time"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0101294186869483,
+        "ci_lower": 0,
+        "ci_upper": 0.213177053005643,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.213177080058477,
+        "term": "group"
+      },
+      {
+        "key": "generalized_eta_sq",
+        "value": 0.00893220091699809,
+        "ci_lower": 0,
+        "ci_upper": 0.208025186321957,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.208025205763039,
+        "term": "group"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0,
+        "ci_lower": 0,
+        "ci_upper": 0,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0,
+        "term": "group"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.101158656454485,
+        "ci_lower": 0,
+        "ci_upper": 0.520513165171212,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.520513207146821,
+        "term": "group"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.594628800332077,
+        "ci_lower": 0.387921536115728,
+        "ci_upper": 0.71820829561056,
+        "effectsize_ci_lower": 0.387921534596848,
+        "effectsize_ci_upper": 0.718208294075482,
+        "term": "time"
+      },
+      {
+        "key": "generalized_eta_sq",
+        "value": 0.14888955627943,
+        "ci_lower": 0,
+        "ci_upper": 0.335050221102686,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.335050202241946,
+        "term": "time"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.139091210611934,
+        "ci_lower": 0,
+        "ci_upper": 0.323744017895643,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.323744022172234,
+        "term": "time"
+      },
+      {
+        "key": "cohens_f",
+        "value": 1.2111460717592,
+        "ci_lower": 0.796101415143284,
+        "ci_upper": 1.5964712671245,
+        "effectsize_ci_lower": 0.796101412596978,
+        "effectsize_ci_upper": 1.59647126106994,
+        "term": "time"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.122178574044635,
+        "ci_lower": 0,
+        "ci_upper": 0.303483790708119,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.303483782214162,
+        "term": "group × time"
+      },
+      {
+        "key": "generalized_eta_sq",
+        "value": 0.0163276841375428,
+        "ci_lower": 0,
+        "ci_upper": 0.122254025772057,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.12225402620528,
+        "term": "group × time"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.0103158989945402,
+        "ci_lower": 0,
+        "ci_upper": 0.0987560601959243,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.0988953528445067,
+        "term": "group × time"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.37307353099935,
+        "ci_lower": 0,
+        "ci_upper": 0.660088453738833,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.660088440476637,
+        "term": "group × time"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "score",
+        "group": {
+          "group": "Control",
+          "time": "t1"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 50.9790909090909,
+        "sd": 3.60061232166268,
+        "se": 1.08562546240778,
+        "ci_lower": 48.5601666375946,
+        "ci_upper": 53.3980151805872,
+        "median": 52.33,
+        "q1": 49.785,
+        "q3": 53.375,
+        "iqr": 3.59,
+        "min": 43.32,
+        "max": 54.88,
+        "skewness": -1.19003634397247,
+        "kurtosis": 0.742054409696359
+      },
+      {
+        "variable": "score",
+        "group": {
+          "group": "Control",
+          "time": "t2"
+        },
+        "n": 11,
+        "n_missing": 1,
+        "mean": 52.1663636363636,
+        "sd": 5.27136277015208,
+        "se": 1.58937567658572,
+        "ci_lower": 48.625013940961,
+        "ci_upper": 55.7077133317662,
+        "median": 55.42,
+        "q1": 49.77,
+        "q3": 56.065,
+        "iqr": 6.29499999999999,
+        "min": 41.58,
+        "max": 56.54,
+        "skewness": -1.17123442061419,
+        "kurtosis": 0.104639061301972
+      },
+      {
+        "variable": "score",
+        "group": {
+          "group": "Control",
+          "time": "t3"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 54.8763636363636,
+        "sd": 5.39599716961985,
+        "se": 1.62695436194989,
+        "ci_lower": 51.2512834120946,
+        "ci_upper": 58.5014438606327,
+        "median": 56.15,
+        "q1": 52.375,
+        "q3": 58.415,
+        "iqr": 6.04,
+        "min": 45.05,
+        "max": 62.24,
+        "skewness": -0.782203019035988,
+        "kurtosis": -0.160171047376584
+      },
+      {
+        "variable": "score",
+        "group": {
+          "group": "Program",
+          "time": "t1"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 50.2641666666667,
+        "sd": 7.10728877898449,
+        "se": 2.05169754487755,
+        "ci_lower": 45.7484108173947,
+        "ci_upper": 54.7799225159386,
+        "median": 49.46,
+        "q1": 45.98,
+        "q3": 52.4275,
+        "iqr": 6.44750000000001,
+        "min": 39.58,
+        "max": 63.02,
+        "skewness": 0.582548717904563,
+        "kurtosis": -0.17563180946288
+      },
+      {
+        "variable": "score",
+        "group": {
+          "group": "Program",
+          "time": "t2"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 53.2525,
+        "sd": 6.1990147677602,
+        "se": 1.78950142243841,
+        "ci_lower": 49.3138339252502,
+        "ci_upper": 57.1911660747498,
+        "median": 53.245,
+        "q1": 50.7975,
+        "q3": 55.7225,
+        "iqr": 4.925,
+        "min": 40.81,
+        "max": 65.05,
+        "skewness": -0.0283660722577309,
+        "kurtosis": 1.07206707597015
+      },
+      {
+        "variable": "score",
+        "group": {
+          "group": "Program",
+          "time": "t3"
+        },
+        "n": 12,
+        "n_missing": 1,
+        "mean": 57.6883333333333,
+        "sd": 6.56245496377043,
+        "se": 1.89441756993883,
+        "ci_lower": 53.5187483748811,
+        "ci_upper": 61.8579182917856,
+        "median": 57.62,
+        "q1": 56.025,
+        "q3": 59.4875,
+        "iqr": 3.46249999999999,
+        "min": 42.7,
+        "max": 70.76,
+        "skewness": -0.370320808391836,
+        "kurtosis": 2.88897255012658
+      }
+    ],
+    "assumptions_ext": [
+      {
+        "test": "mauchly",
+        "kind": "overall",
+        "label": "all time points",
+        "n": 23,
+        "statistic": 0.737281614446086,
+        "p": 0.0474606892063012,
+        "df": [
+          2
+        ]
+      },
+      {
+        "test": "box_m",
+        "kind": "overall",
+        "label": "all groups",
+        "n": 23,
+        "statistic": 11.7844916904558,
+        "p": 0.0669528736336821,
+        "df": [
+          6
+        ]
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "kind": "group",
+        "label": "t1",
+        "n": 23,
+        "statistic": 3.19223313499097,
+        "p": 0.0884349738683575,
+        "df": [
+          1,
+          21
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "kind": "residuals",
+        "label": "t1",
+        "n": 23,
+        "statistic": 0.962748922844386,
+        "p": 0.521063213872598,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "kind": "group",
+        "label": "t2",
+        "n": 23,
+        "statistic": 0.0639383843159835,
+        "p": 0.802834810313821,
+        "df": [
+          1,
+          21
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "kind": "residuals",
+        "label": "t2",
+        "n": 23,
+        "statistic": 0.963325993549026,
+        "p": 0.533698323688629,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "kind": "group",
+        "label": "t3",
+        "n": 23,
+        "statistic": 0.00269379052601342,
+        "p": 0.959097530764278,
+        "df": [
+          1,
+          21
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "kind": "residuals",
+        "label": "t3",
+        "n": 23,
+        "statistic": 0.958767783626083,
+        "p": 0.43894148648731,
+        "df": []
+      }
+    ],
+    "sums_of_squares": {
+      "group": 19.3841932806323,
+      "time": 376.245166864295,
+      "group × time": 35.6998799077734,
+      "Error (between)": 1894.26888787879,
+      "Error (within)": 256.494395454545
+    },
+    "emmeans": [
+      {
+        "kind": "marginal",
+        "label": {
+          "group": "Control"
+        },
+        "emmean": 52.6739393939394,
+        "se": 1.65330963181185,
+        "df": 21,
+        "lower": 49.2356937940019,
+        "upper": 56.112184993877
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "group": "Program"
+        },
+        "emmean": 53.735,
+        "se": 1.58292345901131,
+        "df": 21,
+        "lower": 50.4431304594959,
+        "upper": 57.0268695405042
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "time": "t1"
+        },
+        "emmean": 50.6216287878788,
+        "se": 1.19227246730574,
+        "df": 21,
+        "lower": 48.1421624581822,
+        "upper": 53.1010951175754
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "time": "t2"
+        },
+        "emmean": 52.7094318181818,
+        "se": 1.20549563902545,
+        "df": 21,
+        "lower": 50.2024663975056,
+        "upper": 55.216397238858
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "time": "t3"
+        },
+        "emmean": 56.2823484848485,
+        "se": 1.25961353299904,
+        "df": 21,
+        "lower": 53.6628387426174,
+        "upper": 58.9018582270796
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Control",
+          "time": "t1"
+        },
+        "emmean": 50.9790909090909,
+        "se": 1.72239285704731,
+        "df": 21,
+        "lower": 47.3971788775153,
+        "upper": 54.5610029406666
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Program",
+          "time": "t1"
+        },
+        "emmean": 50.2641666666667,
+        "se": 1.64906561154299,
+        "df": 21,
+        "lower": 46.8347469900376,
+        "upper": 53.6935863432958
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Control",
+          "time": "t2"
+        },
+        "emmean": 52.1663636363636,
+        "se": 1.74149545074303,
+        "df": 21,
+        "lower": 48.5447255864681,
+        "upper": 55.7880016862591
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Program",
+          "time": "t2"
+        },
+        "emmean": 53.2525,
+        "se": 1.66735495257572,
+        "df": 21,
+        "lower": 49.7850455565483,
+        "upper": 56.7199544434517
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Control",
+          "time": "t3"
+        },
+        "emmean": 54.8763636363636,
+        "se": 1.81967579674163,
+        "df": 21,
+        "lower": 51.0921406565439,
+        "upper": 58.6605866161834
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Program",
+          "time": "t3"
+        },
+        "emmean": 57.6883333333333,
+        "se": 1.74220693512855,
+        "df": 21,
+        "lower": 54.0652156706594,
+        "upper": 61.3114509960073
+      }
+    ],
+    "epsilon_hf_uncapped": 0.845829783062788,
+    "headline_correction": "gg"
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

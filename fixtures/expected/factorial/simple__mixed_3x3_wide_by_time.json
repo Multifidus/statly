@@ -1,0 +1,444 @@
+{
+  "analysis_id": "posthoc.simple_effects",
+  "case": "simple__mixed_3x3_wide_by_time",
+  "dataset": "fact_mixed_3x3_wide.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "between": [
+        "group"
+      ]
+    },
+    "options": {
+      "by": "within"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 37,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 0.235092556366825,
+        "df": [
+          2,
+          34
+        ],
+        "p": 0.7917719705261,
+        "term": "group at t1"
+      },
+      {
+        "key": "F",
+        "value": 1.41440348634074,
+        "df": [
+          2,
+          34
+        ],
+        "p": 0.257010892286738,
+        "term": "group at t2"
+      },
+      {
+        "key": "F",
+        "value": 1.69674342904396,
+        "df": [
+          2,
+          34
+        ],
+        "p": 0.198431310848156,
+        "term": "group at t3"
+      },
+      {
+        "key": "t",
+        "value": 0.685698509167214,
+        "df": [
+          34
+        ],
+        "p": 1,
+        "term": "Coach vs Online at t1"
+      },
+      {
+        "key": "t",
+        "value": 0.390933196493,
+        "df": [
+          34
+        ],
+        "p": 1,
+        "term": "Coach vs Tutor at t1"
+      },
+      {
+        "key": "t",
+        "value": -0.345988453441898,
+        "df": [
+          34
+        ],
+        "p": 1,
+        "term": "Online vs Tutor at t1"
+      },
+      {
+        "key": "t",
+        "value": 0.181250245429804,
+        "df": [
+          34
+        ],
+        "p": 0.857247349419248,
+        "term": "Coach vs Online at t2"
+      },
+      {
+        "key": "t",
+        "value": -1.26777549374024,
+        "df": [
+          34
+        ],
+        "p": 0.426983604565952,
+        "term": "Coach vs Tutor at t2"
+      },
+      {
+        "key": "t",
+        "value": -1.53673239307139,
+        "df": [
+          34
+        ],
+        "p": 0.400841666655979,
+        "term": "Online vs Tutor at t2"
+      },
+      {
+        "key": "t",
+        "value": 0.803919481023825,
+        "df": [
+          34
+        ],
+        "p": 0.749373701990367,
+        "term": "Coach vs Online at t3"
+      },
+      {
+        "key": "t",
+        "value": -0.899550226764854,
+        "df": [
+          34
+        ],
+        "p": 0.749373701990367,
+        "term": "Coach vs Tutor at t3"
+      },
+      {
+        "key": "t",
+        "value": -1.83697562217039,
+        "df": [
+          34
+        ],
+        "p": 0.224904084927006,
+        "term": "Online vs Tutor at t3"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0136403419707763,
+        "ci_lower": 0,
+        "ci_upper": 0.123360741783817,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.123360821658811,
+        "term": "group at t1"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0768096282559412,
+        "ci_lower": 0,
+        "ci_upper": 0.260809577172399,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.261054254192036,
+        "term": "group at t2"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0907507468069652,
+        "ci_lower": 0,
+        "ci_upper": 0.281054049054308,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.281054063950771,
+        "term": "group at t3"
+      },
+      {
+        "key": "mean_difference",
+        "value": 1.56183333333333,
+        "ci_lower": -4.17407117227088,
+        "ci_upper": 7.29773783893754,
+        "term": "Coach vs Online at t1"
+      },
+      {
+        "key": "mean_difference",
+        "value": 0.849,
+        "ci_lower": -4.61997036157885,
+        "ci_upper": 6.31797036157885,
+        "term": "Coach vs Tutor at t1"
+      },
+      {
+        "key": "mean_difference",
+        "value": -0.712833333333331,
+        "ci_lower": -5.90115417289646,
+        "ci_upper": 4.4754875062298,
+        "term": "Online vs Tutor at t1"
+      },
+      {
+        "key": "mean_difference",
+        "value": 0.410499999999999,
+        "ci_lower": -5.29291519355467,
+        "ci_upper": 6.11391519355467,
+        "term": "Coach vs Online at t2"
+      },
+      {
+        "key": "mean_difference",
+        "value": -2.73766666666667,
+        "ci_lower": -8.17565968465595,
+        "ci_upper": 2.70032635132262,
+        "term": "Coach vs Tutor at t2"
+      },
+      {
+        "key": "mean_difference",
+        "value": -3.14816666666667,
+        "ci_lower": -8.30709981774841,
+        "ci_upper": 2.01076648441507,
+        "term": "Online vs Tutor at t2"
+      },
+      {
+        "key": "mean_difference",
+        "value": 2.06083333333333,
+        "ci_lower": -4.39467948103996,
+        "ci_upper": 8.51634614770662,
+        "term": "Coach vs Online at t3"
+      },
+      {
+        "key": "mean_difference",
+        "value": -2.19866666666667,
+        "ci_lower": -8.35375662956713,
+        "ci_upper": 3.95642329623379,
+        "term": "Coach vs Tutor at t3"
+      },
+      {
+        "key": "mean_difference",
+        "value": -4.2595,
+        "ci_lower": -10.098731045802,
+        "ci_upper": 1.57973104580202,
+        "term": "Online vs Tutor at t3"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Coach"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 51.861,
+        "sd": 4.8079574087594,
+        "se": 1.52040963047609,
+        "ci_lower": 48.4215944640311,
+        "ci_upper": 55.3004055359689,
+        "median": 51.33,
+        "q1": 49.0975,
+        "q3": 55.2,
+        "iqr": 6.10249999999999,
+        "min": 42.96,
+        "max": 58.8,
+        "skewness": -0.295821503928017,
+        "kurtosis": -0.258301163674295
+      },
+      {
+        "variable": "t2",
+        "group": {
+          "group": "Coach"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 51.993,
+        "sd": 4.28641017895187,
+        "se": 1.35548191512179,
+        "ci_lower": 48.9266868766638,
+        "ci_upper": 55.0593131233362,
+        "median": 50.55,
+        "q1": 49.68,
+        "q3": 55.46,
+        "iqr": 5.78000000000001,
+        "min": 46.97,
+        "max": 59.33,
+        "skewness": 0.748564603457615,
+        "kurtosis": -0.909304728575684
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Coach"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 53.85,
+        "sd": 5.21033161665892,
+        "se": 1.64765152734295,
+        "ci_lower": 50.1227532956257,
+        "ci_upper": 57.5772467043743,
+        "median": 52.975,
+        "q1": 49.765,
+        "q3": 57.2675,
+        "iqr": 7.5025,
+        "min": 47.77,
+        "max": 63.47,
+        "skewness": 0.679919340700821,
+        "kurtosis": -0.497725648773661
+      },
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Online"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 50.2991666666667,
+        "sd": 5.70122069597752,
+        "se": 1.64580065176604,
+        "ci_lower": 46.6767838556605,
+        "ci_upper": 53.9215494776729,
+        "median": 49.475,
+        "q1": 47.11,
+        "q3": 55.3825,
+        "iqr": 8.27249999999999,
+        "min": 41.52,
+        "max": 58.82,
+        "skewness": 0.0177408511895633,
+        "kurtosis": -0.941893051038911
+      },
+      {
+        "variable": "t2",
+        "group": {
+          "group": "Online"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 51.5825,
+        "sd": 5.66704528592522,
+        "se": 1.63593506066936,
+        "ci_lower": 47.9818312085931,
+        "ci_upper": 55.1831687914069,
+        "median": 52.325,
+        "q1": 48.0425,
+        "q3": 56.0625,
+        "iqr": 8.02,
+        "min": 40.23,
+        "max": 58.08,
+        "skewness": -0.684760614731062,
+        "kurtosis": -0.306710654096189
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Online"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 51.7891666666667,
+        "sd": 5.92133808331949,
+        "se": 1.70934306818364,
+        "ci_lower": 48.026927940089,
+        "ci_upper": 55.5514053932444,
+        "median": 51.34,
+        "q1": 47.14,
+        "q3": 57.6525,
+        "iqr": 10.5125,
+        "min": 40.83,
+        "max": 59.06,
+        "skewness": -0.323568848060435,
+        "kurtosis": -0.979312602720277
+      },
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 51.012,
+        "sd": 5.32214806257774,
+        "se": 1.37417272082758,
+        "ci_lower": 48.0646926414692,
+        "ci_upper": 53.9593073585308,
+        "median": 52.98,
+        "q1": 47.055,
+        "q3": 54.82,
+        "iqr": 7.765,
+        "min": 41.59,
+        "max": 57.27,
+        "skewness": -0.61190924083705,
+        "kurtosis": -0.897588344265551
+      },
+      {
+        "variable": "t2",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 54.7306666666667,
+        "sd": 5.55907811816038,
+        "se": 1.43534779812675,
+        "ci_lower": 51.6521518167123,
+        "ci_upper": 57.809181516621,
+        "median": 55.2,
+        "q1": 51.055,
+        "q3": 56.86,
+        "iqr": 5.80499999999999,
+        "min": 44.86,
+        "max": 63.28,
+        "skewness": 0.0562538997008881,
+        "kurtosis": -0.51711823995646
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 56.0486666666667,
+        "sd": 6.48454741968129,
+        "se": 1.67430294427453,
+        "ci_lower": 52.4576440002451,
+        "ci_upper": 59.6396893330883,
+        "median": 52.46,
+        "q1": 51.455,
+        "q3": 61.33,
+        "iqr": 9.875,
+        "min": 48.38,
+        "max": 68.72,
+        "skewness": 0.614604691605396,
+        "kurtosis": -0.991309291799318
+      }
+    ]
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

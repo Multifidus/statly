@@ -1,0 +1,288 @@
+{
+  "analysis_id": "posthoc.simple_effects",
+  "case": "simple__2x3_unbalanced_by_grade",
+  "dataset": "fact_2x3.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "factors": [
+        "method",
+        "grade"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 62,
+    "n_excluded": 6,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 0.00321505764173713,
+        "df": [
+          1,
+          56
+        ],
+        "p": 0.954984827555916,
+        "term": "method at G6"
+      },
+      {
+        "key": "F",
+        "value": 9.11034647812473,
+        "df": [
+          1,
+          56
+        ],
+        "p": 0.00382117040727713,
+        "term": "method at G7"
+      },
+      {
+        "key": "F",
+        "value": 9.2091259793356,
+        "df": [
+          1,
+          56
+        ],
+        "p": 0.00364831224552393,
+        "term": "method at G8"
+      },
+      {
+        "key": "t",
+        "value": 0.0567014783029255,
+        "df": [
+          56
+        ],
+        "p": 0.954984827555916,
+        "term": "Active vs Lecture at G6"
+      },
+      {
+        "key": "t",
+        "value": 3.01833505067359,
+        "df": [
+          56
+        ],
+        "p": 0.00382117040727713,
+        "term": "Active vs Lecture at G7"
+      },
+      {
+        "key": "t",
+        "value": 3.03465417788182,
+        "df": [
+          56
+        ],
+        "p": 0.00364831224552393,
+        "term": "Active vs Lecture at G8"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 5.74084476833698e-05,
+        "ci_lower": 0,
+        "ci_upper": 0.0205943005693591,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.0205942739251383,
+        "term": "method at G6"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.139921640275491,
+        "ci_lower": 0.0164209980723816,
+        "ci_upper": 0.312362026972653,
+        "effectsize_ci_lower": 0.0164209982762773,
+        "effectsize_ci_upper": 0.312362027613584,
+        "term": "method at G7"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.141224496434041,
+        "ci_lower": 0.0169448724841672,
+        "ci_upper": 0.313816918128323,
+        "effectsize_ci_lower": 0.0169448627227809,
+        "effectsize_ci_upper": 0.313816925111666,
+        "term": "method at G8"
+      },
+      {
+        "key": "mean_difference",
+        "value": 0.1474358974359,
+        "ci_lower": -5.06141582924361,
+        "ci_upper": 5.35628762411541,
+        "term": "Active vs Lecture at G6"
+      },
+      {
+        "key": "mean_difference",
+        "value": 8.60785714285715,
+        "ci_lower": 2.89490293429479,
+        "ci_upper": 14.3208113514195,
+        "term": "Active vs Lecture at G7"
+      },
+      {
+        "key": "mean_difference",
+        "value": 8.42357142857143,
+        "ci_lower": 2.8629901251637,
+        "ci_upper": 13.9841527319792,
+        "term": "Active vs Lecture at G8"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "score",
+        "group": {
+          "method": "Active",
+          "grade": "G6"
+        },
+        "n": 9,
+        "n_missing": 0,
+        "mean": 60.5166666666667,
+        "sd": 7.7285121465907,
+        "se": 2.57617071553023,
+        "ci_lower": 54.5760063436621,
+        "ci_upper": 66.4573269896713,
+        "median": 60.57,
+        "q1": 52.4,
+        "q3": 66.06,
+        "iqr": 13.66,
+        "min": 50.13,
+        "max": 71.59,
+        "skewness": -0.115403607211323,
+        "kurtosis": -1.54274955939729
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "Active",
+          "grade": "G7"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 67.225,
+        "sd": 5.97629331761602,
+        "se": 1.72520727784088,
+        "ci_lower": 63.4278443833901,
+        "ci_upper": 71.0221556166099,
+        "median": 68.19,
+        "q1": 64.8425,
+        "q3": 71.2225,
+        "iqr": 6.38,
+        "min": 53.01,
+        "max": 74.12,
+        "skewness": -1.24909822342213,
+        "kurtosis": 1.74813603097743
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "Active",
+          "grade": "G8"
+        },
+        "n": 14,
+        "n_missing": 1,
+        "mean": 71.5978571428572,
+        "sd": 5.74711991893656,
+        "se": 1.53598240695462,
+        "ci_lower": 68.2795688939941,
+        "ci_upper": 74.9161453917202,
+        "median": 73.33,
+        "q1": 66.54,
+        "q3": 75.4775,
+        "iqr": 8.93750000000001,
+        "min": 63.33,
+        "max": 80.75,
+        "skewness": -0.0843773145257551,
+        "kurtosis": -1.38316646250741
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "Lecture",
+          "grade": "G6"
+        },
+        "n": 13,
+        "n_missing": 1,
+        "mean": 60.3692307692308,
+        "sd": 4.5639994550439,
+        "se": 1.26582569664235,
+        "ci_lower": 57.611233501264,
+        "ci_upper": 63.1272280371976,
+        "median": 60.14,
+        "q1": 57.66,
+        "q3": 63.74,
+        "iqr": 6.08000000000001,
+        "min": 52.37,
+        "max": 67.03,
+        "skewness": -0.298739870996927,
+        "kurtosis": -0.696154982938135
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "Lecture",
+          "grade": "G7"
+        },
+        "n": 7,
+        "n_missing": 0,
+        "mean": 58.6171428571429,
+        "sd": 6.88720483768201,
+        "se": 2.60311874698108,
+        "ci_lower": 52.2475407452172,
+        "ci_upper": 64.9867449690685,
+        "median": 61.15,
+        "q1": 55.38,
+        "q3": 63.21,
+        "iqr": 7.83000000000001,
+        "min": 47.31,
+        "max": 64.68,
+        "skewness": -1.12113104261421,
+        "kurtosis": -0.569243202165593
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "Lecture",
+          "grade": "G8"
+        },
+        "n": 7,
+        "n_missing": 1,
+        "mean": 63.1742857142857,
+        "sd": 5.46075958435227,
+        "se": 2.06397311852979,
+        "ci_lower": 58.1239254301105,
+        "ci_upper": 68.2246459984609,
+        "median": 64.41,
+        "q1": 59.45,
+        "q3": 65.865,
+        "iqr": 6.41500000000001,
+        "min": 55.72,
+        "max": 71.46,
+        "skewness": 0.038138164856401,
+        "kurtosis": -0.612143263929672
+      }
+    ]
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

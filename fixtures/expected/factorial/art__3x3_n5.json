@@ -1,0 +1,306 @@
+{
+  "analysis_id": "anova.art",
+  "case": "art__3x3_n5",
+  "dataset": "fact_3x3.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "factors": [
+        "method",
+        "school"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 45,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 11.6393955184992,
+        "df": [
+          2,
+          36
+        ],
+        "p": 0.000126257426497177,
+        "term": "method"
+      },
+      {
+        "key": "F",
+        "value": 1.46547226601691,
+        "df": [
+          2,
+          36
+        ],
+        "p": 0.244419630573208,
+        "term": "school"
+      },
+      {
+        "key": "F",
+        "value": 1.68410500595201,
+        "df": [
+          4,
+          36
+        ],
+        "p": 0.17502616721196,
+        "term": "method × school"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.392700165266008,
+        "ci_lower": 0.136815254485985,
+        "ci_upper": 0.574353751083606,
+        "effectsize_ci_lower": 0.136815263215547,
+        "effectsize_ci_upper": 0.574353744391181,
+        "term": "method"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0752857288017283,
+        "ci_lower": 0,
+        "ci_upper": 0.253459169872343,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.253380386526185,
+        "term": "school"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.157627148461552,
+        "ci_lower": 0,
+        "ci_upper": 0.326820782960371,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.326820780821087,
+        "term": "method × school"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "score",
+        "group": {
+          "method": "A",
+          "school": "North"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 9.266,
+        "sd": 2.09693347533964,
+        "se": 0.937777159030865,
+        "ci_lower": 6.66231319704246,
+        "ci_upper": 11.8696868029575,
+        "median": 9.86,
+        "q1": 9.56,
+        "q3": 10.21,
+        "iqr": 0.65,
+        "min": 5.65,
+        "max": 11.05,
+        "skewness": -1.83137254767552,
+        "kurtosis": 3.76786068858777
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "A",
+          "school": "South"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 9.024,
+        "sd": 2.1903378734798,
+        "se": 0.979548875758632,
+        "ci_lower": 6.30433631859794,
+        "ci_upper": 11.7436636814021,
+        "median": 9.83,
+        "q1": 6.77,
+        "q3": 10.75,
+        "iqr": 3.98,
+        "min": 6.6,
+        "max": 11.17,
+        "skewness": -0.402294841352733,
+        "kurtosis": -3.06651957387044
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "A",
+          "school": "West"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 11.92,
+        "sd": 3.01400066356993,
+        "se": 1.34790207359437,
+        "ci_lower": 8.17762388548296,
+        "ci_upper": 15.662376114517,
+        "median": 11.99,
+        "q1": 11.05,
+        "q3": 13.77,
+        "iqr": 2.72,
+        "min": 7.42,
+        "max": 15.37,
+        "skewness": -0.67549699956315,
+        "kurtosis": 0.54338419803836
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "B",
+          "school": "North"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 11.568,
+        "sd": 3.20750214341316,
+        "se": 1.43443856612962,
+        "ci_lower": 7.58536006436248,
+        "ci_upper": 15.5506399356375,
+        "median": 11.21,
+        "q1": 9.88,
+        "q3": 13.72,
+        "iqr": 3.84,
+        "min": 7.42,
+        "max": 15.61,
+        "skewness": -0.0028067420691901,
+        "kurtosis": -1.00213256168043
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "B",
+          "school": "South"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 12.374,
+        "sd": 3.05287241790416,
+        "se": 1.36528605061357,
+        "ci_lower": 8.58335822757913,
+        "ci_upper": 16.1646417724209,
+        "median": 11.76,
+        "q1": 10.6,
+        "q3": 15.23,
+        "iqr": 4.63,
+        "min": 8.57,
+        "max": 15.71,
+        "skewness": -0.00641727699155019,
+        "kurtosis": -2.10243697846651
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "B",
+          "school": "West"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 14.24,
+        "sd": 1.5911002482559,
+        "se": 0.711561662823399,
+        "ci_lower": 12.2643881042076,
+        "ci_upper": 16.2156118957924,
+        "median": 14.7,
+        "q1": 13.59,
+        "q3": 15.15,
+        "iqr": 1.56,
+        "min": 11.83,
+        "max": 15.93,
+        "skewness": -0.889023429232523,
+        "kurtosis": 0.347708857965483
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "C",
+          "school": "North"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 15.656,
+        "sd": 3.02461237185858,
+        "se": 1.35264777381253,
+        "ci_lower": 11.9004477093415,
+        "ci_upper": 19.4115522906585,
+        "median": 16.55,
+        "q1": 14.71,
+        "q3": 17.81,
+        "iqr": 3.1,
+        "min": 10.86,
+        "max": 18.35,
+        "skewness": -1.21825385041784,
+        "kurtosis": 1.03194551268835
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "C",
+          "school": "South"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 13.246,
+        "sd": 1.80067487348494,
+        "se": 0.805286284497632,
+        "ci_lower": 11.0101668371236,
+        "ci_upper": 15.4818331628764,
+        "median": 13.8,
+        "q1": 13.03,
+        "q3": 14.08,
+        "iqr": 1.05,
+        "min": 10.29,
+        "max": 15.03,
+        "skewness": -1.38528918273656,
+        "kurtosis": 2.35124128252403
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "C",
+          "school": "West"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 13.342,
+        "sd": 1.04480620212554,
+        "se": 0.46725153825322,
+        "ci_lower": 12.0447017537207,
+        "ci_upper": 14.6392982462793,
+        "median": 13.04,
+        "q1": 12.88,
+        "q3": 13.74,
+        "iqr": 0.859999999999999,
+        "min": 12.14,
+        "max": 14.91,
+        "skewness": 0.75087738949918,
+        "kurtosis": 0.61344314138683
+      }
+    ]
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

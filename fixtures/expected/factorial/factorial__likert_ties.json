@@ -1,0 +1,452 @@
+{
+  "analysis_id": "anova.factorial",
+  "case": "factorial__likert_ties",
+  "dataset": "fact_likert.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "rating"
+      ],
+      "factors": [
+        "method",
+        "grade"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 48,
+    "n_excluded": 1,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 5.30368012731252,
+        "df": [
+          1,
+          42
+        ],
+        "p": 0.0263018677280654,
+        "term": "method"
+      },
+      {
+        "key": "F",
+        "value": 1.21103249213689,
+        "df": [
+          2,
+          42
+        ],
+        "p": 0.308078572460026,
+        "term": "grade"
+      },
+      {
+        "key": "F",
+        "value": 2.15875534538937,
+        "df": [
+          2,
+          42
+        ],
+        "p": 0.128110781174268,
+        "term": "method × grade"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.112119820551768,
+        "ci_lower": 0,
+        "ci_upper": 0.306717645485609,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.306717649084962,
+        "term": "method"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.0822825490832944,
+        "ci_lower": 0,
+        "ci_upper": 0.269130603383666,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.269130608605632,
+        "term": "method"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.355356297635691,
+        "ci_lower": 0,
+        "ci_upper": 0.665141901303208,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.665141906932577,
+        "term": "method"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0545239170023105,
+        "ci_lower": 0,
+        "ci_upper": 0.207299113993969,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.207299141406304,
+        "term": "grade"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.00871637722205494,
+        "ci_lower": 0,
+        "ci_upper": 0.0906892865486183,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.090689294057739,
+        "term": "grade"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.240142070265251,
+        "ci_lower": 0,
+        "ci_upper": 0.511380367757813,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.511380410411178,
+        "term": "grade"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0932155166887738,
+        "ci_lower": 0,
+        "ci_upper": 0.266020272144402,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.266020268472573,
+        "term": "method × grade"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.0460577373356321,
+        "ci_lower": 0,
+        "ci_upper": 0.192202422693661,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.191827109989926,
+        "term": "method × grade"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.320621074775147,
+        "ci_lower": 0,
+        "ci_upper": 0.602026119777165,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.602026114116479,
+        "term": "method × grade"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "rating",
+        "group": {
+          "method": "Active",
+          "grade": "G6"
+        },
+        "n": 8,
+        "n_missing": 0,
+        "mean": 3.75,
+        "sd": 0.886405260427918,
+        "se": 0.313391585264004,
+        "ci_lower": 3.00894665723963,
+        "ci_upper": 4.49105334276037,
+        "median": 3.5,
+        "q1": 3,
+        "q3": 4.25,
+        "iqr": 1.25,
+        "min": 3,
+        "max": 5,
+        "skewness": 0.615355717983018,
+        "kurtosis": -1.48099173553719
+      },
+      {
+        "variable": "rating",
+        "group": {
+          "method": "Active",
+          "grade": "G7"
+        },
+        "n": 9,
+        "n_missing": 0,
+        "mean": 4.33333333333333,
+        "sd": 0.866025403784439,
+        "se": 0.288675134594813,
+        "ci_lower": 3.66764727922708,
+        "ci_upper": 4.99901938743959,
+        "median": 5,
+        "q1": 4,
+        "q3": 5,
+        "iqr": 1,
+        "min": 3,
+        "max": 5,
+        "skewness": -0.824786098842321,
+        "kurtosis": -1.07936507936508
+      },
+      {
+        "variable": "rating",
+        "group": {
+          "method": "Active",
+          "grade": "G8"
+        },
+        "n": 6,
+        "n_missing": 1,
+        "mean": 3.16666666666667,
+        "sd": 1.32916013582513,
+        "se": 0.542627353203324,
+        "ci_lower": 1.77179864900279,
+        "ci_upper": 4.56153468433054,
+        "median": 4,
+        "q1": 2.5,
+        "q3": 4,
+        "iqr": 1.5,
+        "min": 1,
+        "max": 4,
+        "skewness": -1.20660674487507,
+        "kurtosis": -0.45923816304735
+      },
+      {
+        "variable": "rating",
+        "group": {
+          "method": "Lecture",
+          "grade": "G6"
+        },
+        "n": 8,
+        "n_missing": 0,
+        "mean": 2.875,
+        "sd": 0.991031208965115,
+        "se": 0.350382444113368,
+        "ci_lower": 2.04647717531718,
+        "ci_upper": 3.70352282468282,
+        "median": 2.5,
+        "q1": 2,
+        "q3": 4,
+        "iqr": 2,
+        "min": 2,
+        "max": 4,
+        "skewness": 0.311888168904063,
+        "kurtosis": -2.35847933884298
+      },
+      {
+        "variable": "rating",
+        "group": {
+          "method": "Lecture",
+          "grade": "G7"
+        },
+        "n": 8,
+        "n_missing": 0,
+        "mean": 3.125,
+        "sd": 1.1259916264596,
+        "se": 0.398098157314428,
+        "ci_lower": 2.18364744269991,
+        "ci_upper": 4.0663525573001,
+        "median": 3,
+        "q1": 3,
+        "q3": 3.25,
+        "iqr": 0.25,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.312713405483722,
+        "kurtosis": 2.21067248561793
+      },
+      {
+        "variable": "rating",
+        "group": {
+          "method": "Lecture",
+          "grade": "G8"
+        },
+        "n": 9,
+        "n_missing": 0,
+        "mean": 3.33333333333333,
+        "sd": 0.5,
+        "se": 0.166666666666667,
+        "ci_lower": 2.94899931079931,
+        "ci_upper": 3.71766735586736,
+        "median": 3,
+        "q1": 3,
+        "q3": 4,
+        "iqr": 1,
+        "min": 3,
+        "max": 4,
+        "skewness": 0.857142857142856,
+        "kurtosis": -1.71428571428572
+      }
+    ],
+    "assumptions_ext": [
+      {
+        "test": "levene_brown_forsythe",
+        "kind": "overall",
+        "label": "all cells",
+        "n": 48,
+        "statistic": 0.509904153354633,
+        "p": 0.767143425092684,
+        "df": [
+          5,
+          42
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "kind": "residuals",
+        "label": "model residuals",
+        "n": 48,
+        "statistic": 0.962871028181559,
+        "p": 0.131859342731571,
+        "df": []
+      }
+    ],
+    "sums_of_squares": {
+      "method": 4.80909090909092,
+      "grade": 2.19619781312127,
+      "method × grade": 3.9148856858847,
+      "Error": 38.0833333333333
+    },
+    "emmeans": [
+      {
+        "kind": "marginal",
+        "label": {
+          "method": "Active"
+        },
+        "emmean": 3.75,
+        "se": 0.201443995987715,
+        "df": 42,
+        "lower": 3.34346955755456,
+        "upper": 4.15653044244544
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "method": "Lecture"
+        },
+        "emmean": 3.11111111111111,
+        "se": 0.190740098627367,
+        "df": 42,
+        "lower": 2.72618200807744,
+        "upper": 3.49604021414479
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "grade": "G6"
+        },
+        "emmean": 3.3125,
+        "se": 0.238058032807396,
+        "df": 42,
+        "lower": 2.83207943978244,
+        "upper": 3.79292056021756
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "grade": "G7"
+        },
+        "emmean": 3.72916666666667,
+        "se": 0.231350822913571,
+        "df": 42,
+        "lower": 3.2622818040128,
+        "upper": 4.19605152932054
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "grade": "G8"
+        },
+        "emmean": 3.25,
+        "se": 0.250935199656819,
+        "df": 42,
+        "lower": 2.74359226497948,
+        "upper": 3.75640773502052
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "Active",
+          "grade": "G6"
+        },
+        "emmean": 3.75,
+        "se": 0.336664898628078,
+        "df": 42,
+        "lower": 3.07058272809745,
+        "upper": 4.42941727190255
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "Lecture",
+          "grade": "G6"
+        },
+        "emmean": 2.875,
+        "se": 0.336664898628078,
+        "df": 42,
+        "lower": 2.19558272809745,
+        "upper": 3.55441727190255
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "Active",
+          "grade": "G7"
+        },
+        "emmean": 4.33333333333333,
+        "se": 0.317410710409861,
+        "df": 42,
+        "lower": 3.69277258637659,
+        "upper": 4.97389408029008
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "Lecture",
+          "grade": "G7"
+        },
+        "emmean": 3.125,
+        "se": 0.336664898628078,
+        "df": 42,
+        "lower": 2.44558272809745,
+        "upper": 3.80441727190255
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "Active",
+          "grade": "G8"
+        },
+        "emmean": 3.16666666666667,
+        "se": 0.388747139699238,
+        "df": 42,
+        "lower": 2.38214317701663,
+        "upper": 3.95119015631671
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "Lecture",
+          "grade": "G8"
+        },
+        "emmean": 3.33333333333333,
+        "se": 0.317410710409861,
+        "df": 42,
+        "lower": 2.69277258637659,
+        "upper": 3.97389408029008
+      }
+    ]
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

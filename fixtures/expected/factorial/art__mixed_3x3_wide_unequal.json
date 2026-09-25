@@ -1,0 +1,298 @@
+{
+  "analysis_id": "anova.art",
+  "case": "art__mixed_3x3_wide_unequal",
+  "dataset": "fact_mixed_3x3_wide.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "between": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 37,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 0.664382561644424,
+        "df": [
+          2,
+          34
+        ],
+        "p": 0.521144085606087,
+        "term": "group"
+      },
+      {
+        "key": "F",
+        "value": 8.78948844045396,
+        "df": [
+          2,
+          68
+        ],
+        "p": 0.000402551982189279,
+        "term": "Time"
+      },
+      {
+        "key": "F",
+        "value": 1.59693164226054,
+        "df": [
+          4,
+          68
+        ],
+        "p": 0.185140527903436,
+        "term": "group × Time"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0376114228349556,
+        "ci_lower": 0,
+        "ci_upper": 0.191721699167811,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.191721704937337,
+        "term": "group"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.205412328139549,
+        "ci_lower": 0.0511288056978019,
+        "ci_upper": 0.35855104302678,
+        "effectsize_ci_lower": 0.0511288072143353,
+        "effectsize_ci_upper": 0.35855104610709,
+        "term": "Time"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0858707056077789,
+        "ci_lower": 0,
+        "ci_upper": 0.194905869516378,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.194905868573344,
+        "term": "group × Time"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Coach"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 51.861,
+        "sd": 4.8079574087594,
+        "se": 1.52040963047609,
+        "ci_lower": 48.4215944640311,
+        "ci_upper": 55.3004055359689,
+        "median": 51.33,
+        "q1": 49.0975,
+        "q3": 55.2,
+        "iqr": 6.10249999999999,
+        "min": 42.96,
+        "max": 58.8,
+        "skewness": -0.295821503928017,
+        "kurtosis": -0.258301163674295
+      },
+      {
+        "variable": "t2",
+        "group": {
+          "group": "Coach"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 51.993,
+        "sd": 4.28641017895187,
+        "se": 1.35548191512179,
+        "ci_lower": 48.9266868766638,
+        "ci_upper": 55.0593131233362,
+        "median": 50.55,
+        "q1": 49.68,
+        "q3": 55.46,
+        "iqr": 5.78000000000001,
+        "min": 46.97,
+        "max": 59.33,
+        "skewness": 0.748564603457615,
+        "kurtosis": -0.909304728575684
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Coach"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 53.85,
+        "sd": 5.21033161665892,
+        "se": 1.64765152734295,
+        "ci_lower": 50.1227532956257,
+        "ci_upper": 57.5772467043743,
+        "median": 52.975,
+        "q1": 49.765,
+        "q3": 57.2675,
+        "iqr": 7.5025,
+        "min": 47.77,
+        "max": 63.47,
+        "skewness": 0.679919340700821,
+        "kurtosis": -0.497725648773661
+      },
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Online"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 50.2991666666667,
+        "sd": 5.70122069597752,
+        "se": 1.64580065176604,
+        "ci_lower": 46.6767838556605,
+        "ci_upper": 53.9215494776729,
+        "median": 49.475,
+        "q1": 47.11,
+        "q3": 55.3825,
+        "iqr": 8.27249999999999,
+        "min": 41.52,
+        "max": 58.82,
+        "skewness": 0.0177408511895633,
+        "kurtosis": -0.941893051038911
+      },
+      {
+        "variable": "t2",
+        "group": {
+          "group": "Online"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 51.5825,
+        "sd": 5.66704528592522,
+        "se": 1.63593506066936,
+        "ci_lower": 47.9818312085931,
+        "ci_upper": 55.1831687914069,
+        "median": 52.325,
+        "q1": 48.0425,
+        "q3": 56.0625,
+        "iqr": 8.02,
+        "min": 40.23,
+        "max": 58.08,
+        "skewness": -0.684760614731062,
+        "kurtosis": -0.306710654096189
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Online"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 51.7891666666667,
+        "sd": 5.92133808331949,
+        "se": 1.70934306818364,
+        "ci_lower": 48.026927940089,
+        "ci_upper": 55.5514053932444,
+        "median": 51.34,
+        "q1": 47.14,
+        "q3": 57.6525,
+        "iqr": 10.5125,
+        "min": 40.83,
+        "max": 59.06,
+        "skewness": -0.323568848060435,
+        "kurtosis": -0.979312602720277
+      },
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 51.012,
+        "sd": 5.32214806257774,
+        "se": 1.37417272082758,
+        "ci_lower": 48.0646926414692,
+        "ci_upper": 53.9593073585308,
+        "median": 52.98,
+        "q1": 47.055,
+        "q3": 54.82,
+        "iqr": 7.765,
+        "min": 41.59,
+        "max": 57.27,
+        "skewness": -0.61190924083705,
+        "kurtosis": -0.897588344265551
+      },
+      {
+        "variable": "t2",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 54.7306666666667,
+        "sd": 5.55907811816038,
+        "se": 1.43534779812675,
+        "ci_lower": 51.6521518167123,
+        "ci_upper": 57.809181516621,
+        "median": 55.2,
+        "q1": 51.055,
+        "q3": 56.86,
+        "iqr": 5.80499999999999,
+        "min": 44.86,
+        "max": 63.28,
+        "skewness": 0.0562538997008881,
+        "kurtosis": -0.51711823995646
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Tutor"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 56.0486666666667,
+        "sd": 6.48454741968129,
+        "se": 1.67430294427453,
+        "ci_lower": 52.4576440002451,
+        "ci_upper": 59.6396893330883,
+        "median": 52.46,
+        "q1": 51.455,
+        "q3": 61.33,
+        "iqr": 9.875,
+        "min": 48.38,
+        "max": 68.72,
+        "skewness": 0.614604691605396,
+        "kurtosis": -0.991309291799318
+      }
+    ]
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

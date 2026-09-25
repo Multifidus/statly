@@ -1,0 +1,485 @@
+{
+  "analysis_id": "anova.mixed",
+  "case": "mixed__2x2_wide_two_times",
+  "dataset": "fact_mixed_2x3_wide.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "t1",
+        "t3"
+      ],
+      "between": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 25,
+    "n_excluded": 3,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 0.915961093404927,
+        "df": [
+          1,
+          23
+        ],
+        "p": 0.348490309398682,
+        "term": "group"
+      },
+      {
+        "key": "F",
+        "value": 47.6463083545353,
+        "df": [
+          1,
+          23
+        ],
+        "p": 4.88859969621684e-07,
+        "term": "Time"
+      },
+      {
+        "key": "F_gg",
+        "value": 47.6463083545353,
+        "df": [
+          1,
+          23
+        ],
+        "p": 4.88859969621684e-07,
+        "term": "Time"
+      },
+      {
+        "key": "F_hf",
+        "value": 47.6463083545353,
+        "df": [
+          1,
+          23
+        ],
+        "p": 4.88859969621684e-07,
+        "term": "Time"
+      },
+      {
+        "key": "F",
+        "value": 4.41188641999922,
+        "df": [
+          1,
+          23
+        ],
+        "p": 0.0468543393781215,
+        "term": "group × Time"
+      },
+      {
+        "key": "F_gg",
+        "value": 4.41188641999922,
+        "df": [
+          1,
+          23
+        ],
+        "p": 0.0468543393781215,
+        "term": "group × Time"
+      },
+      {
+        "key": "F_hf",
+        "value": 4.41188641999922,
+        "df": [
+          1,
+          23
+        ],
+        "p": 0.0468543393781215,
+        "term": "group × Time"
+      },
+      {
+        "key": "epsilon_gg",
+        "value": 1,
+        "df": [],
+        "p": null,
+        "term": "Time"
+      },
+      {
+        "key": "epsilon_hf",
+        "value": 1,
+        "df": [],
+        "p": null,
+        "term": "Time"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0382991546870141,
+        "ci_lower": 0,
+        "ci_upper": 0.271127426668047,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.27112743000897,
+        "term": "group"
+      },
+      {
+        "key": "generalized_eta_sq",
+        "value": 0.0338891262825841,
+        "ci_lower": 0,
+        "ci_upper": 0.262858814539786,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.262858788886357,
+        "term": "group"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0,
+        "ci_lower": 0,
+        "ci_upper": 0,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0,
+        "term": "group"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.199560505525095,
+        "ci_lower": 0,
+        "ci_upper": 0.609903213763542,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.609903218919059,
+        "term": "group"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.674434509945296,
+        "ci_lower": 0.41949886905057,
+        "ci_upper": 0.802027616698515,
+        "effectsize_ci_lower": 0.41949886992162,
+        "effectsize_ci_upper": 0.802027615373261,
+        "term": "Time"
+      },
+      {
+        "key": "generalized_eta_sq",
+        "value": 0.19801310014523,
+        "ci_lower": 0,
+        "ci_upper": 0.461098195984979,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.461939686987734,
+        "term": "Time"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.188080664006936,
+        "ci_lower": 0,
+        "ci_upper": 0.451931696443198,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.451931695982791,
+        "term": "Time"
+      },
+      {
+        "key": "cohens_f",
+        "value": 1.4392979622407,
+        "ci_lower": 0.85008795387325,
+        "ci_upper": 2.01276168100106,
+        "effectsize_ci_lower": 0.850087955393597,
+        "effectsize_ci_upper": 2.01276167260129,
+        "term": "Time"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.160947931579798,
+        "ci_lower": 0,
+        "ci_upper": 0.425872185710898,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.425861821155237,
+        "term": "group × Time"
+      },
+      {
+        "key": "generalized_eta_sq",
+        "value": 0.0223513882884252,
+        "ci_lower": 0,
+        "ci_upper": 0.238267259987935,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.238267248007499,
+        "term": "group × Time"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.0166614055801627,
+        "ci_lower": 0,
+        "ci_upper": 0.223522927795066,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.223522947573177,
+        "term": "group × Time"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.437973913259247,
+        "ci_lower": 0,
+        "ci_upper": 0.86126211636864,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.861243862079067,
+        "term": "group × Time"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Control"
+        },
+        "n": 13,
+        "n_missing": 0,
+        "mean": 49.8507692307692,
+        "sd": 4.39294787422307,
+        "se": 1.21838452391937,
+        "ci_lower": 47.1961373985857,
+        "ci_upper": 52.5054010629528,
+        "median": 51.23,
+        "q1": 46,
+        "q3": 53.03,
+        "iqr": 7.03,
+        "min": 41.31,
+        "max": 54.88,
+        "skewness": -0.790971675104316,
+        "kurtosis": -0.594283399861836
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Control"
+        },
+        "n": 13,
+        "n_missing": 0,
+        "mean": 53.8107692307692,
+        "sd": 5.60309655687291,
+        "se": 1.55401937978315,
+        "ci_lower": 50.4248518685462,
+        "ci_upper": 57.1966865929923,
+        "median": 55.43,
+        "q1": 49.43,
+        "q3": 57.71,
+        "iqr": 8.28,
+        "min": 45.05,
+        "max": 62.24,
+        "skewness": -0.30290975344808,
+        "kurtosis": -1.19783887036904
+      },
+      {
+        "variable": "t1",
+        "group": {
+          "group": "Program"
+        },
+        "n": 12,
+        "n_missing": 0,
+        "mean": 50.2641666666667,
+        "sd": 7.10728877898449,
+        "se": 2.05169754487755,
+        "ci_lower": 45.7484108173947,
+        "ci_upper": 54.7799225159386,
+        "median": 49.46,
+        "q1": 45.98,
+        "q3": 52.4275,
+        "iqr": 6.44750000000001,
+        "min": 39.58,
+        "max": 63.02,
+        "skewness": 0.582548717904563,
+        "kurtosis": -0.17563180946288
+      },
+      {
+        "variable": "t3",
+        "group": {
+          "group": "Program"
+        },
+        "n": 12,
+        "n_missing": 2,
+        "mean": 57.6883333333333,
+        "sd": 6.56245496377043,
+        "se": 1.89441756993883,
+        "ci_lower": 53.5187483748811,
+        "ci_upper": 61.8579182917856,
+        "median": 57.62,
+        "q1": 56.025,
+        "q3": 59.4875,
+        "iqr": 3.46249999999999,
+        "min": 42.7,
+        "max": 70.76,
+        "skewness": -0.370320808391836,
+        "kurtosis": 2.88897255012658
+      }
+    ],
+    "assumptions_ext": [
+      {
+        "test": "box_m",
+        "kind": "overall",
+        "label": "all groups",
+        "n": 25,
+        "statistic": 3.60004977324171,
+        "p": 0.308015943922242,
+        "df": [
+          3
+        ]
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "kind": "group",
+        "label": "t1",
+        "n": 25,
+        "statistic": 1.6777944708045,
+        "p": 0.20806872395419,
+        "df": [
+          1,
+          23
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "kind": "residuals",
+        "label": "t1",
+        "n": 25,
+        "statistic": 0.976345805055817,
+        "p": 0.80451843155912,
+        "df": []
+      },
+      {
+        "test": "levene_brown_forsythe",
+        "kind": "group",
+        "label": "t3",
+        "n": 25,
+        "statistic": 0.0859440087471155,
+        "p": 0.772027065182871,
+        "df": [
+          1,
+          23
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "kind": "residuals",
+        "label": "t3",
+        "n": 25,
+        "statistic": 0.982160469535158,
+        "p": 0.924299621818142,
+        "df": []
+      }
+    ],
+    "sums_of_squares": {
+      "group": 57.4465348846151,
+      "Time": 404.349662166668,
+      "group × Time": 37.4414061666665,
+      "Error (between)": 1442.49609711538,
+      "Error (within)": 195.189145833333
+    },
+    "emmeans": [
+      {
+        "kind": "marginal",
+        "label": {
+          "group": "Control"
+        },
+        "emmean": 51.8307692307692,
+        "se": 1.55312614790191,
+        "df": 23,
+        "lower": 48.6178830049711,
+        "upper": 55.0436554565674
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "group": "Program"
+        },
+        "emmean": 53.97625,
+        "se": 1.61654494748461,
+        "df": 23,
+        "lower": 50.6321719918015,
+        "upper": 57.3203280081985
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "Time": "t1"
+        },
+        "emmean": 50.057467948718,
+        "se": 1.17101706999352,
+        "df": 23,
+        "lower": 47.6350345749453,
+        "upper": 52.4799013224907
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "Time": "t3"
+        },
+        "emmean": 55.7495512820513,
+        "se": 1.21714075214507,
+        "df": 23,
+        "lower": 53.2317038021752,
+        "upper": 58.2673987619274
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Control",
+          "Time": "t1"
+        },
+        "emmean": 49.8507692307692,
+        "se": 1.62260884940737,
+        "df": 23,
+        "lower": 46.4941470857094,
+        "upper": 53.2073913758291
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Program",
+          "Time": "t1"
+        },
+        "emmean": 50.2641666666667,
+        "se": 1.68886483612209,
+        "df": 23,
+        "lower": 46.7704835704536,
+        "upper": 53.7578497628798
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Control",
+          "Time": "t3"
+        },
+        "emmean": 53.8107692307693,
+        "se": 1.68651969814228,
+        "df": 23,
+        "lower": 50.3219374220856,
+        "upper": 57.2996010394529
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "group": "Program",
+          "Time": "t3"
+        },
+        "emmean": 57.6883333333333,
+        "se": 1.75538535652634,
+        "df": 23,
+        "lower": 54.057042056337,
+        "upper": 61.3196246103297
+      }
+    ],
+    "epsilon_hf_uncapped": 1,
+    "headline_correction": "none"
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

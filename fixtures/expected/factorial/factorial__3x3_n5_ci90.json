@@ -1,0 +1,565 @@
+{
+  "analysis_id": "anova.factorial",
+  "case": "factorial__3x3_n5_ci90",
+  "dataset": "fact_3x3.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "factors": [
+        "method",
+        "school"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.9,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 45,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "F",
+        "value": 10.4297709835858,
+        "df": [
+          2,
+          36
+        ],
+        "p": 0.000267291156173896,
+        "term": "method"
+      },
+      {
+        "key": "F",
+        "value": 1.67344131660784,
+        "df": [
+          2,
+          36
+        ],
+        "p": 0.201864093696654,
+        "term": "school"
+      },
+      {
+        "key": "F",
+        "value": 1.80229992278428,
+        "df": [
+          4,
+          36
+        ],
+        "p": 0.149788892126315,
+        "term": "method × school"
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "partial_eta_sq",
+        "value": 0.366860886414018,
+        "ci_lower": 0.149584332284217,
+        "ci_upper": 0.525669798965855,
+        "effectsize_ci_lower": 0.149584324452077,
+        "effectsize_ci_upper": 0.525669797403744,
+        "term": "method"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.295328487900317,
+        "ci_lower": 0.0872233424314271,
+        "ci_upper": 0.462303851392701,
+        "effectsize_ci_lower": 0.0872233395152696,
+        "effectsize_ci_upper": 0.462303849769497,
+        "term": "method"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.7612041259152,
+        "ci_lower": 0.419399035290761,
+        "ci_upper": 1.05272787935316,
+        "effectsize_ci_lower": 0.419399022379743,
+        "effectsize_ci_upper": 1.05272787605552,
+        "term": "method"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.0850609351804232,
+        "ci_lower": 0,
+        "ci_upper": 0.231681176250826,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.23168116941724,
+        "term": "school"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.0290609110406576,
+        "ci_lower": 0,
+        "ci_upper": 0.132558237314402,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.13255823698202,
+        "term": "school"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.304908120642545,
+        "ci_lower": 0,
+        "ci_upper": 0.549129326439296,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.5491293158988,
+        "term": "school"
+      },
+      {
+        "key": "partial_eta_sq",
+        "value": 0.166844092060697,
+        "ci_lower": 0,
+        "ci_upper": 0.300789817122851,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.300789817199014,
+        "term": "method × school"
+      },
+      {
+        "key": "omega_sq",
+        "value": 0.0665682009180315,
+        "ci_lower": 0,
+        "ci_upper": 0.147427411253312,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.14742740474029,
+        "term": "method × school"
+      },
+      {
+        "key": "cohens_f",
+        "value": 0.447499214497669,
+        "ci_lower": 0,
+        "ci_upper": 0.65588499067771,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.65588499079647,
+        "term": "method × school"
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "score",
+        "group": {
+          "method": "A",
+          "school": "North"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 9.266,
+        "sd": 2.09693347533964,
+        "se": 0.937777159030865,
+        "ci_lower": 7.26680277722952,
+        "ci_upper": 11.2651972227705,
+        "median": 9.86,
+        "q1": 9.56,
+        "q3": 10.21,
+        "iqr": 0.65,
+        "min": 5.65,
+        "max": 11.05,
+        "skewness": -1.83137254767552,
+        "kurtosis": 3.76786068858777
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "A",
+          "school": "South"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 9.024,
+        "sd": 2.1903378734798,
+        "se": 0.979548875758632,
+        "ci_lower": 6.93575187716408,
+        "ci_upper": 11.1122481228359,
+        "median": 9.83,
+        "q1": 6.77,
+        "q3": 10.75,
+        "iqr": 3.98,
+        "min": 6.6,
+        "max": 11.17,
+        "skewness": -0.402294841352733,
+        "kurtosis": -3.06651957387044
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "A",
+          "school": "West"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 11.92,
+        "sd": 3.01400066356993,
+        "se": 1.34790207359437,
+        "ci_lower": 9.04647929612482,
+        "ci_upper": 14.7935207038752,
+        "median": 11.99,
+        "q1": 11.05,
+        "q3": 13.77,
+        "iqr": 2.72,
+        "min": 7.42,
+        "max": 15.37,
+        "skewness": -0.67549699956315,
+        "kurtosis": 0.54338419803836
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "B",
+          "school": "North"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 11.568,
+        "sd": 3.20750214341316,
+        "se": 1.43443856612962,
+        "ci_lower": 8.50999675261356,
+        "ci_upper": 14.6260032473864,
+        "median": 11.21,
+        "q1": 9.88,
+        "q3": 13.72,
+        "iqr": 3.84,
+        "min": 7.42,
+        "max": 15.61,
+        "skewness": -0.0028067420691901,
+        "kurtosis": -1.00213256168043
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "B",
+          "school": "South"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 12.374,
+        "sd": 3.05287241790416,
+        "se": 1.36528605061357,
+        "ci_lower": 9.46341932058286,
+        "ci_upper": 15.2845806794171,
+        "median": 11.76,
+        "q1": 10.6,
+        "q3": 15.23,
+        "iqr": 4.63,
+        "min": 8.57,
+        "max": 15.71,
+        "skewness": -0.00641727699155019,
+        "kurtosis": -2.10243697846651
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "B",
+          "school": "West"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 14.24,
+        "sd": 1.5911002482559,
+        "se": 0.711561662823399,
+        "ci_lower": 12.7230595558367,
+        "ci_upper": 15.7569404441633,
+        "median": 14.7,
+        "q1": 13.59,
+        "q3": 15.15,
+        "iqr": 1.56,
+        "min": 11.83,
+        "max": 15.93,
+        "skewness": -0.889023429232523,
+        "kurtosis": 0.347708857965483
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "C",
+          "school": "North"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 15.656,
+        "sd": 3.02461237185858,
+        "se": 1.35264777381253,
+        "ci_lower": 12.7723621903659,
+        "ci_upper": 18.5396378096341,
+        "median": 16.55,
+        "q1": 14.71,
+        "q3": 17.81,
+        "iqr": 3.1,
+        "min": 10.86,
+        "max": 18.35,
+        "skewness": -1.21825385041784,
+        "kurtosis": 1.03194551268835
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "C",
+          "school": "South"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 13.246,
+        "sd": 1.80067487348494,
+        "se": 0.805286284497632,
+        "ci_lower": 11.5292530223208,
+        "ci_upper": 14.9627469776792,
+        "median": 13.8,
+        "q1": 13.03,
+        "q3": 14.08,
+        "iqr": 1.05,
+        "min": 10.29,
+        "max": 15.03,
+        "skewness": -1.38528918273656,
+        "kurtosis": 2.35124128252403
+      },
+      {
+        "variable": "score",
+        "group": {
+          "method": "C",
+          "school": "West"
+        },
+        "n": 5,
+        "n_missing": 0,
+        "mean": 13.342,
+        "sd": 1.04480620212554,
+        "se": 0.46725153825322,
+        "ci_lower": 12.3458913097687,
+        "ci_upper": 14.3381086902313,
+        "median": 13.04,
+        "q1": 12.88,
+        "q3": 13.74,
+        "iqr": 0.859999999999999,
+        "min": 12.14,
+        "max": 14.91,
+        "skewness": 0.75087738949918,
+        "kurtosis": 0.61344314138683
+      }
+    ],
+    "assumptions_ext": [
+      {
+        "test": "levene_brown_forsythe",
+        "kind": "overall",
+        "label": "all cells",
+        "n": 45,
+        "statistic": 0.764468078160664,
+        "p": 0.635697975415871,
+        "df": [
+          8,
+          36
+        ]
+      },
+      {
+        "test": "shapiro_wilk",
+        "kind": "residuals",
+        "label": "model residuals",
+        "n": 45,
+        "statistic": 0.96859886270038,
+        "p": 0.257416855173906,
+        "df": []
+      }
+    ],
+    "sums_of_squares": {
+      "method": 124.927657777778,
+      "school": 20.0444577777778,
+      "method × school": 43.1758488888889,
+      "Error": 215.60376
+    },
+    "emmeans": [
+      {
+        "kind": "marginal",
+        "label": {
+          "method": "A"
+        },
+        "emmean": 10.07,
+        "se": 0.631875163479482,
+        "df": 36,
+        "lower": 9.0032066058904,
+        "upper": 11.1367933941096
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "method": "B"
+        },
+        "emmean": 12.7273333333333,
+        "se": 0.631875163479482,
+        "df": 36,
+        "lower": 11.6605399392237,
+        "upper": 13.7941267274429
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "method": "C"
+        },
+        "emmean": 14.0813333333333,
+        "se": 0.631875163479482,
+        "df": 36,
+        "lower": 13.0145399392237,
+        "upper": 15.1481267274429
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "school": "North"
+        },
+        "emmean": 12.1633333333333,
+        "se": 0.631875163479482,
+        "df": 36,
+        "lower": 11.0965399392237,
+        "upper": 13.2301267274429
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "school": "South"
+        },
+        "emmean": 11.548,
+        "se": 0.631875163479482,
+        "df": 36,
+        "lower": 10.4812066058904,
+        "upper": 12.6147933941096
+      },
+      {
+        "kind": "marginal",
+        "label": {
+          "school": "West"
+        },
+        "emmean": 13.1673333333333,
+        "se": 0.631875163479482,
+        "df": 36,
+        "lower": 12.1005399392237,
+        "upper": 14.2341267274429
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "A",
+          "school": "North"
+        },
+        "emmean": 9.266,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 7.41825964022332,
+        "upper": 11.1137403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "B",
+          "school": "North"
+        },
+        "emmean": 11.568,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 9.72025964022332,
+        "upper": 13.4157403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "C",
+          "school": "North"
+        },
+        "emmean": 15.656,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 13.8082596402233,
+        "upper": 17.5037403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "A",
+          "school": "South"
+        },
+        "emmean": 9.024,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 7.17625964022332,
+        "upper": 10.8717403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "B",
+          "school": "South"
+        },
+        "emmean": 12.374,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 10.5262596402233,
+        "upper": 14.2217403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "C",
+          "school": "South"
+        },
+        "emmean": 13.246,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 11.3982596402233,
+        "upper": 15.0937403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "A",
+          "school": "West"
+        },
+        "emmean": 11.92,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 10.0722596402233,
+        "upper": 13.7677403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "B",
+          "school": "West"
+        },
+        "emmean": 14.24,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 12.3922596402233,
+        "upper": 16.0877403597767
+      },
+      {
+        "kind": "cell",
+        "label": {
+          "method": "C",
+          "school": "West"
+        },
+        "emmean": 13.342,
+        "se": 1.09443988718735,
+        "df": 36,
+        "lower": 11.4942596402233,
+        "upper": 15.1897403597767
+      }
+    ]
+  },
+  "error": null,
+  "r_factorial_packages": {
+    "afex": "1.5.1",
+    "emmeans": "2.0.4",
+    "effectsize": "1.0.3",
+    "car": "3.1.5",
+    "psych": "2.6.5",
+    "ARTool": "0.11.2",
+    "heplots": "1.8.5"
+  },
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
