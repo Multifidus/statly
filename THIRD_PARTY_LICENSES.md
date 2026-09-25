@@ -77,46 +77,234 @@ regenerate instead. Covers runtime dependencies across the Python
 | js | @tanstack/react-virtual | 3.14.13 | MIT |
 | js | @tanstack/virtual-core | 3.17.11 | MIT |
 | js | @tauri-apps/api | 2.11.1 | Apache-2.0 OR MIT |
+| js | @tauri-apps/plugin-clipboard-manager | 2.3.3 | MIT OR Apache-2.0 |
 | js | @tauri-apps/plugin-dialog | 2.7.3 | MIT OR Apache-2.0 |
 | js | @tauri-apps/plugin-fs | 2.5.2 | MIT OR Apache-2.0 |
+| js | @types/debug | 4.1.13 | MIT |
+| js | @types/estree | 1.0.9 | MIT |
+| js | @types/estree-jsx | 1.0.5 | MIT |
+| js | @types/geojson | 7946.0.16 | MIT |
+| js | @types/hast | 3.0.5 | MIT |
+| js | @types/mdast | 4.0.4 | MIT |
+| js | @types/ms | 2.1.0 | MIT |
 | js | @types/react | 19.3.0 | MIT |
 | js | @types/react-dom | 19.3.0 | MIT |
+| js | @types/unist | 2.0.11 | MIT |
+| js | @types/unist | 3.0.3 | MIT |
+| js | @ungap/structured-clone | 1.4.0 | ISC |
+| js | ansi-regex | 6.3.0 | MIT |
+| js | ansi-styles | 6.2.3 | MIT |
 | js | aria-hidden | 1.2.6 | MIT |
+| js | bail | 2.0.2 | MIT |
+| js | ccount | 2.0.1 | MIT |
+| js | character-entities | 2.0.2 | MIT |
+| js | character-entities-html4 | 2.1.0 | MIT |
+| js | character-entities-legacy | 3.0.0 | MIT |
+| js | character-reference-invalid | 2.0.1 | MIT |
 | js | class-variance-authority | 0.7.1 | Apache-2.0 |
+| js | cliui | 9.0.1 | ISC |
 | js | clsx | 2.1.1 | MIT |
 | js | cn | 0.4.0 | MIT |
+| js | comma-separated-tokens | 2.0.3 | MIT |
+| js | commander | 2.20.3 | MIT |
+| js | commander | 7.2.0 | MIT |
 | js | csstype | 3.2.3 | MIT |
+| js | d3-array | 3.2.4 | ISC |
+| js | d3-color | 3.1.0 | ISC |
+| js | d3-delaunay | 6.0.4 | ISC |
+| js | d3-dispatch | 3.0.1 | ISC |
+| js | d3-dsv | 3.0.1 | ISC |
+| js | d3-ease | 3.0.1 | BSD-3-Clause |
+| js | d3-force | 3.0.0 | ISC |
+| js | d3-format | 3.1.2 | ISC |
+| js | d3-geo | 3.1.1 | ISC |
+| js | d3-geo-projection | 4.0.0 | ISC |
+| js | d3-hierarchy | 3.1.2 | ISC |
+| js | d3-interpolate | 3.0.1 | ISC |
+| js | d3-path | 3.1.0 | ISC |
+| js | d3-quadtree | 3.0.1 | ISC |
+| js | d3-scale | 4.0.2 | ISC |
+| js | d3-scale-chromatic | 3.1.0 | ISC |
+| js | d3-shape | 3.2.0 | ISC |
+| js | d3-time | 3.1.0 | ISC |
+| js | d3-time-format | 4.1.0 | ISC |
+| js | d3-timer | 3.0.1 | ISC |
+| js | debug | 4.4.3 | MIT |
+| js | decode-named-character-reference | 1.3.0 | MIT |
+| js | delaunator | 5.1.0 | ISC |
+| js | dequal | 2.0.3 | MIT |
 | js | detect-node-es | 1.1.0 | MIT |
+| js | devlop | 1.1.0 | MIT |
+| js | emoji-regex | 10.6.0 | MIT |
+| js | escalade | 3.2.0 | MIT |
+| js | escape-string-regexp | 5.0.0 | MIT |
+| js | estree-util-is-identifier-name | 3.0.0 | MIT |
+| js | extend | 3.0.2 | MIT |
+| js | fast-json-patch | 3.1.1 | MIT |
+| js | get-caller-file | 2.0.5 | ISC |
+| js | get-east-asian-width | 1.7.0 | MIT |
 | js | get-nonce | 1.0.1 | MIT |
+| js | hast-util-to-jsx-runtime | 2.3.6 | MIT |
+| js | hast-util-whitespace | 3.0.0 | MIT |
+| js | html-url-attributes | 3.0.1 | MIT |
+| js | iconv-lite | 0.6.3 | MIT |
+| js | inline-style-parser | 0.2.7 | MIT |
+| js | internmap | 2.0.3 | ISC |
+| js | is-alphabetical | 2.0.1 | MIT |
+| js | is-alphanumerical | 2.0.1 | MIT |
+| js | is-decimal | 2.0.1 | MIT |
+| js | is-hexadecimal | 2.0.1 | MIT |
+| js | is-plain-obj | 4.1.0 | MIT |
+| js | json-stringify-pretty-compact | 4.0.0 | MIT |
+| js | longest-streak | 3.1.0 | MIT |
 | js | lucide-react | 1.48.0 | ISC |
+| js | markdown-table | 3.0.4 | MIT |
+| js | mdast-util-find-and-replace | 3.0.2 | MIT |
+| js | mdast-util-from-markdown | 2.0.3 | MIT |
+| js | mdast-util-gfm | 3.1.0 | MIT |
+| js | mdast-util-gfm-autolink-literal | 2.0.1 | MIT |
+| js | mdast-util-gfm-footnote | 2.1.0 | MIT |
+| js | mdast-util-gfm-strikethrough | 2.0.0 | MIT |
+| js | mdast-util-gfm-table | 2.0.0 | MIT |
+| js | mdast-util-gfm-task-list-item | 2.0.0 | MIT |
+| js | mdast-util-mdx-expression | 2.0.1 | MIT |
+| js | mdast-util-mdx-jsx | 3.2.0 | MIT |
+| js | mdast-util-mdxjs-esm | 2.0.1 | MIT |
+| js | mdast-util-phrasing | 4.1.0 | MIT |
+| js | mdast-util-to-hast | 13.2.1 | MIT |
+| js | mdast-util-to-markdown | 2.1.2 | MIT |
+| js | mdast-util-to-string | 4.0.0 | MIT |
+| js | micromark | 4.0.2 | MIT |
+| js | micromark-core-commonmark | 2.0.3 | MIT |
+| js | micromark-extension-gfm | 3.0.0 | MIT |
+| js | micromark-extension-gfm-autolink-literal | 2.1.0 | MIT |
+| js | micromark-extension-gfm-footnote | 2.1.0 | MIT |
+| js | micromark-extension-gfm-strikethrough | 2.1.0 | MIT |
+| js | micromark-extension-gfm-table | 2.1.2 | MIT |
+| js | micromark-extension-gfm-tagfilter | 2.0.0 | MIT |
+| js | micromark-extension-gfm-task-list-item | 2.1.0 | MIT |
+| js | micromark-factory-destination | 2.0.1 | MIT |
+| js | micromark-factory-label | 2.0.1 | MIT |
+| js | micromark-factory-space | 2.0.1 | MIT |
+| js | micromark-factory-title | 2.0.1 | MIT |
+| js | micromark-factory-whitespace | 2.0.1 | MIT |
+| js | micromark-util-character | 2.1.1 | MIT |
+| js | micromark-util-chunked | 2.0.1 | MIT |
+| js | micromark-util-classify-character | 2.0.1 | MIT |
+| js | micromark-util-combine-extensions | 2.0.1 | MIT |
+| js | micromark-util-decode-numeric-character-reference | 2.0.2 | MIT |
+| js | micromark-util-decode-string | 2.0.1 | MIT |
+| js | micromark-util-encode | 2.0.1 | MIT |
+| js | micromark-util-html-tag-name | 2.0.1 | MIT |
+| js | micromark-util-normalize-identifier | 2.0.1 | MIT |
+| js | micromark-util-resolve-all | 2.0.1 | MIT |
+| js | micromark-util-sanitize-uri | 2.0.1 | MIT |
+| js | micromark-util-subtokenize | 2.1.0 | MIT |
+| js | micromark-util-symbol | 2.0.1 | MIT |
+| js | micromark-util-types | 2.0.2 | MIT |
+| js | ms | 2.1.3 | MIT |
+| js | parse-entities | 4.0.2 | MIT |
+| js | property-information | 7.2.0 | MIT |
 | js | radix-ui | 1.6.7 | MIT |
 | js | react | 19.3.0 | MIT |
 | js | react-dom | 19.3.0 | MIT |
+| js | react-markdown | 10.1.0 | MIT |
 | js | react-remove-scroll | 2.7.2 | MIT |
 | js | react-remove-scroll-bar | 2.3.8 | MIT |
 | js | react-style-singleton | 2.2.3 | MIT |
+| js | remark-gfm | 4.0.1 | MIT |
+| js | remark-parse | 11.0.0 | MIT |
+| js | remark-rehype | 11.1.2 | MIT |
+| js | remark-stringify | 11.0.0 | MIT |
+| js | robust-predicates | 3.0.3 | Unlicense |
+| js | rw | 1.3.3 | BSD-3-Clause |
+| js | safer-buffer | 2.1.2 | MIT |
 | js | scheduler | 0.28.0 | MIT |
+| js | semver | 7.8.5 | ISC |
+| js | space-separated-tokens | 2.0.2 | MIT |
 | js | statly | 0.1.0 | UNLICENSED |
+| js | string-width | 7.2.0 | MIT |
+| js | stringify-entities | 4.0.4 | MIT |
+| js | strip-ansi | 7.2.0 | MIT |
+| js | style-to-js | 1.1.21 | MIT |
+| js | style-to-object | 1.0.14 | MIT |
+| js | topojson-client | 3.1.0 | ISC |
+| js | trim-lines | 3.0.1 | MIT |
+| js | trough | 2.2.0 | MIT |
 | js | tslib | 2.8.1 | 0BSD |
+| js | unified | 11.0.5 | MIT |
+| js | unist-util-is | 6.0.1 | MIT |
+| js | unist-util-position | 5.0.0 | MIT |
+| js | unist-util-stringify-position | 4.0.0 | MIT |
+| js | unist-util-visit | 5.1.0 | MIT |
+| js | unist-util-visit-parents | 6.0.2 | MIT |
 | js | use-callback-ref | 1.3.3 | MIT |
 | js | use-sidecar | 1.1.3 | MIT |
+| js | vega | 6.4.0 | BSD-3-Clause |
+| js | vega-canvas | 2.0.0 | BSD-3-Clause |
+| js | vega-crossfilter | 5.1.3 | BSD-3-Clause |
+| js | vega-dataflow | 6.1.3 | BSD-3-Clause |
+| js | vega-embed | 7.3.0 | BSD-3-Clause |
+| js | vega-encode | 5.2.2 | BSD-3-Clause |
+| js | vega-event-selector | 4.0.0 | BSD-3-Clause |
+| js | vega-expression | 6.1.0 | BSD-3-Clause |
+| js | vega-expression | 6.2.2 | BSD-3-Clause |
+| js | vega-force | 5.1.3 | BSD-3-Clause |
+| js | vega-format | 2.1.3 | BSD-3-Clause |
+| js | vega-functions | 6.2.0 | BSD-3-Clause |
+| js | vega-geo | 5.1.3 | BSD-3-Clause |
+| js | vega-hierarchy | 5.1.3 | BSD-3-Clause |
+| js | vega-interpreter | 2.3.2 | BSD-3-Clause |
+| js | vega-label | 2.1.3 | BSD-3-Clause |
+| js | vega-lite | 6.4.3 | BSD-3-Clause |
+| js | vega-loader | 5.1.3 | BSD-3-Clause |
+| js | vega-parser | 7.1.3 | BSD-3-Clause |
+| js | vega-projection | 2.1.3 | BSD-3-Clause |
+| js | vega-regression | 2.1.3 | BSD-3-Clause |
+| js | vega-runtime | 7.1.3 | BSD-3-Clause |
+| js | vega-scale | 8.1.3 | BSD-3-Clause |
+| js | vega-scenegraph | 5.3.0 | BSD-3-Clause |
+| js | vega-schema-url-parser | 3.0.2 | BSD-3-Clause |
+| js | vega-selections | 6.1.5 | BSD-3-Clause |
+| js | vega-statistics | 2.0.0 | BSD-3-Clause |
+| js | vega-themes | 3.0.0 | BSD-3-Clause |
+| js | vega-time | 3.3.0 | BSD-3-Clause |
+| js | vega-tooltip | 1.1.0 | BSD-3-Clause |
+| js | vega-transforms | 5.2.2 | BSD-3-Clause |
+| js | vega-typings | 2.3.0 | BSD-3-Clause |
+| js | vega-util | 2.1.3 | BSD-3-Clause |
+| js | vega-view | 6.2.0 | BSD-3-Clause |
+| js | vega-view-transforms | 5.2.2 | BSD-3-Clause |
+| js | vega-voronoi | 5.1.3 | BSD-3-Clause |
+| js | vega-wordcloud | 5.1.3 | BSD-3-Clause |
+| js | vfile | 6.0.3 | MIT |
+| js | vfile-message | 4.0.3 | MIT |
+| js | wrap-ansi | 9.0.2 | MIT |
+| js | y18n | 5.0.8 | ISC |
+| js | yargs | 18.0.0 | MIT |
+| js | yargs-parser | 22.0.0 | ISC |
 | js | zustand | 5.0.15 | MIT |
+| js | zwitch | 2.0.4 | MIT |
 | python | annotated-types | 0.8.0 | MIT |
 | python | charset-normalizer | 3.5.1 | MIT |
 | python | et_xmlfile | 2.0.0 | MIT License |
 | python | formulaic | 1.2.2 | MIT |
 | python | interface_meta | 2.0.1 | MIT |
+| python | lxml | 6.1.3 | BSD-3-Clause |
 | python | narwhals | 2.26.0 | MIT |
 | python | numpy | 2.5.3 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |
 | python | openpyxl | 3.1.5 | MIT License |
 | python | packaging | 26.3 | Apache-2.0 OR BSD-2-Clause |
 | python | pandas | 3.0.6 | BSD License |
 | python | patsy | 1.0.3 | BSD License |
+| python | pillow | 12.3.0 | MIT-CMU |
 | python | pyarrow | 25.0.1 | Apache-2.0 |
 | python | pydantic | 2.13.5 | MIT |
 | python | pydantic_core | 2.46.5 | MIT |
 | python | python-dateutil | 2.9.0.post0 | Apache Software License; BSD License |
+| python | python-docx | 1.2.0 | MIT License |
 | python | PyYAML | 6.0.3 | MIT License |
+| python | reportlab | 5.0.1 | BSD License |
 | python | scipy | 1.18.1 | BSD License |
 | python | six | 1.17.0 | MIT License |
 | python | statly_engine | 0.1.0 | UNKNOWN |
@@ -130,6 +318,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | alloc-stdlib | 0.2.4 | BSD-3-Clause |
 | rust | android_system_properties | 0.1.6 | MIT OR Apache-2.0 |
 | rust | anyhow | 1.0.104 | MIT OR Apache-2.0 |
+| rust | arboard | 3.6.1 | MIT OR Apache-2.0 |
 | rust | atk | 0.18.2 | MIT |
 | rust | atk-sys | 0.18.2 | MIT |
 | rust | atomic-waker | 1.1.2 | Apache-2.0 OR MIT |
@@ -149,6 +338,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | bumpalo | 3.20.3 | MIT OR Apache-2.0 |
 | rust | bytemuck | 1.25.2 | Zlib OR Apache-2.0 OR MIT |
 | rust | byteorder | 1.5.0 | Unlicense OR MIT |
+| rust | byteorder-lite | 0.1.0 | Unlicense OR MIT |
 | rust | bytes | 1.12.1 | MIT |
 | rust | cairo-rs | 0.18.5 | MIT |
 | rust | cairo-sys-rs | 0.18.2 | MIT |
@@ -162,6 +352,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | cfg-expr | 0.15.8 | MIT OR Apache-2.0 |
 | rust | cfg-if | 1.0.5 | MIT OR Apache-2.0 |
 | rust | chrono | 0.4.45 | MIT OR Apache-2.0 |
+| rust | clipboard-win | 5.4.1 | BSL-1.0 |
 | rust | combine | 4.6.8 | MIT |
 | rust | cookie | 0.18.2 | MIT OR Apache-2.0 |
 | rust | core-foundation | 0.10.1 | MIT OR Apache-2.0 |
@@ -172,6 +363,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | crc32fast | 1.5.2 | MIT OR Apache-2.0 |
 | rust | crossbeam-channel | 0.5.17 | MIT OR Apache-2.0 |
 | rust | crossbeam-utils | 0.8.23 | MIT OR Apache-2.0 |
+| rust | crunchy | 0.2.4 | MIT |
 | rust | crypto-common | 0.1.7 | MIT OR Apache-2.0 |
 | rust | cssparser | 0.36.0 | MPL-2.0 |
 | rust | cssparser-macros | 0.6.1 | MPL-2.0 |
@@ -195,6 +387,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | dlopen2 | 0.8.2 | MIT |
 | rust | dlopen2_derive | 0.4.3 | MIT |
 | rust | dom_query | 0.27.0 | MIT |
+| rust | downcast-rs | 1.2.1 | MIT/Apache-2.0 |
 | rust | dpi | 0.1.2 | Apache-2.0 AND MIT |
 | rust | dtoa | 1.0.11 | MIT OR Apache-2.0 |
 | rust | dtoa-short | 0.3.5 | MPL-2.0 |
@@ -206,12 +399,17 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | embed_plist | 1.2.2 | MIT OR Apache-2.0 |
 | rust | equivalent | 1.0.2 | Apache-2.0 OR MIT |
 | rust | erased-serde | 0.4.10 | MIT OR Apache-2.0 |
+| rust | errno | 0.3.14 | MIT OR Apache-2.0 |
+| rust | error-code | 3.4.0 | BSL-1.0 |
 | rust | fastrand | 2.5.0 | Apache-2.0 OR MIT |
+| rust | fax | 0.2.7 | MIT |
 | rust | fdeflate | 0.3.7 | MIT OR Apache-2.0 |
 | rust | field-offset | 0.3.6 | MIT OR Apache-2.0 |
 | rust | find-msvc-tools | 0.1.13 | MIT OR Apache-2.0 |
+| rust | fixedbitset | 0.5.7 | MIT OR Apache-2.0 |
 | rust | flate2 | 1.1.10 | MIT OR Apache-2.0 |
 | rust | fnv | 1.0.7 | Apache-2.0 / MIT |
+| rust | foldhash | 0.1.5 | Zlib |
 | rust | foldhash | 0.2.0 | Zlib |
 | rust | foreign-types | 0.5.0 | MIT/Apache-2.0 |
 | rust | foreign-types-macros | 0.2.4 | MIT/Apache-2.0 |
@@ -233,6 +431,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | gdkx11 | 0.18.2 | MIT |
 | rust | gdkx11-sys | 0.18.2 | MIT |
 | rust | generic-array | 0.14.7 | MIT |
+| rust | gethostname | 1.1.0 | Apache-2.0 |
 | rust | getrandom | 0.3.4 | MIT OR Apache-2.0 |
 | rust | getrandom | 0.4.3 | MIT OR Apache-2.0 |
 | rust | gio | 0.18.4 | MIT |
@@ -245,7 +444,9 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | gtk | 0.18.2 | MIT |
 | rust | gtk-sys | 0.18.2 | MIT |
 | rust | gtk3-macros | 0.18.2 | MIT |
+| rust | half | 2.7.1 | MIT OR Apache-2.0 |
 | rust | hashbrown | 0.12.3 | MIT OR Apache-2.0 |
+| rust | hashbrown | 0.15.5 | MIT OR Apache-2.0 |
 | rust | hashbrown | 0.17.1 | MIT OR Apache-2.0 |
 | rust | heck | 0.4.1 | MIT OR Apache-2.0 |
 | rust | heck | 0.5.0 | MIT OR Apache-2.0 |
@@ -270,6 +471,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | ident_case | 1.0.1 | MIT/Apache-2.0 |
 | rust | idna | 1.1.0 | MIT OR Apache-2.0 |
 | rust | idna_adapter | 1.2.2 | Apache-2.0 OR MIT |
+| rust | image | 0.25.10 | MIT OR Apache-2.0 |
 | rust | indexmap | 1.9.3 | Apache-2.0 OR MIT |
 | rust | indexmap | 2.14.2 | Apache-2.0 OR MIT |
 | rust | infer | 0.19.0 | MIT |
@@ -296,6 +498,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | libdbus-sys | 0.2.7 | Apache-2.0/MIT |
 | rust | libloading | 0.7.4 | ISC |
 | rust | libredox | 0.1.25 | MIT |
+| rust | linux-raw-sys | 0.12.1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | rust | litemap | 0.8.3 | Unicode-3.0 |
 | rust | lock_api | 0.4.14 | MIT OR Apache-2.0 |
 | rust | log | 0.4.34 | MIT OR Apache-2.0 |
@@ -306,10 +509,12 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | miniz_oxide | 0.8.9 | MIT OR Zlib OR Apache-2.0 |
 | rust | miniz_oxide | 0.9.1 | MIT OR Zlib OR Apache-2.0 |
 | rust | mio | 1.2.3 | MIT |
+| rust | moxcms | 0.8.1 | BSD-3-Clause OR Apache-2.0 |
 | rust | muda | 0.19.3 | Apache-2.0 OR MIT |
 | rust | ndk | 0.9.0 | MIT OR Apache-2.0 |
 | rust | ndk-sys | 0.6.0+11769913 | MIT OR Apache-2.0 |
 | rust | new_debug_unreachable | 1.0.6 | MIT |
+| rust | nom | 8.0.0 | MIT |
 | rust | num-conv | 0.2.2 | MIT OR Apache-2.0 |
 | rust | num-traits | 0.2.19 | MIT OR Apache-2.0 |
 | rust | num_enum | 0.7.6 | BSD-3-Clause OR MIT OR Apache-2.0 |
@@ -333,11 +538,13 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | objc2-web-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
 | rust | once_cell | 1.21.4 | MIT OR Apache-2.0 |
 | rust | option-ext | 0.2.0 | MPL-2.0 |
+| rust | os_pipe | 1.2.3 | MIT |
 | rust | pango | 0.18.3 | MIT |
 | rust | pango-sys | 0.18.0 | MIT |
 | rust | parking_lot | 0.12.5 | MIT OR Apache-2.0 |
 | rust | parking_lot_core | 0.9.12 | MIT OR Apache-2.0 |
 | rust | percent-encoding | 2.3.2 | MIT OR Apache-2.0 |
+| rust | petgraph | 0.8.3 | MIT OR Apache-2.0 |
 | rust | phf | 0.13.1 | MIT |
 | rust | phf_codegen | 0.13.1 | MIT |
 | rust | phf_generator | 0.13.1 | MIT |
@@ -359,6 +566,9 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | proc-macro-error | 1.0.4 | MIT OR Apache-2.0 |
 | rust | proc-macro-error-attr | 1.0.4 | MIT OR Apache-2.0 |
 | rust | proc-macro2 | 1.0.107 | MIT OR Apache-2.0 |
+| rust | pxfm | 0.1.30 | BSD-3-Clause OR Apache-2.0 |
+| rust | quick-error | 2.0.1 | MIT/Apache-2.0 |
+| rust | quick-xml | 0.41.0 | MIT |
 | rust | quick-xml | 0.42.0 | MIT |
 | rust | quote | 1.0.47 | MIT OR Apache-2.0 |
 | rust | r-efi | 5.3.0 | MIT OR Apache-2.0 OR LGPL-2.1-or-later |
@@ -375,6 +585,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | rfd | 0.16.0 | MIT |
 | rust | rustc-hash | 2.1.3 | Apache-2.0 OR MIT |
 | rust | rustc_version | 0.4.1 | MIT OR Apache-2.0 |
+| rust | rustix | 1.1.5 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | rust | rustversion | 1.0.23 | MIT OR Apache-2.0 |
 | rust | same-file | 1.0.6 | Unlicense/MIT |
 | rust | schemars | 0.8.22 | MIT |
@@ -428,6 +639,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | tauri-codegen | 2.6.3 | Apache-2.0 OR MIT |
 | rust | tauri-macros | 2.6.3 | Apache-2.0 OR MIT |
 | rust | tauri-plugin | 2.6.3 | Apache-2.0 OR MIT |
+| rust | tauri-plugin-clipboard-manager | 2.3.3 | Apache-2.0 OR MIT |
 | rust | tauri-plugin-dialog | 2.7.3 | Apache-2.0 OR MIT |
 | rust | tauri-plugin-fs | 2.5.2 | Apache-2.0 OR MIT |
 | rust | tauri-runtime | 2.11.3 | Apache-2.0 OR MIT |
@@ -439,6 +651,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | thiserror | 2.0.21 | MIT OR Apache-2.0 |
 | rust | thiserror-impl | 1.0.69 | MIT OR Apache-2.0 |
 | rust | thiserror-impl | 2.0.21 | MIT OR Apache-2.0 |
+| rust | tiff | 0.11.3 | MIT |
 | rust | time | 0.3.55 | MIT OR Apache-2.0 |
 | rust | time-core | 0.1.9 | MIT OR Apache-2.0 |
 | rust | time-macros | 0.2.32 | MIT OR Apache-2.0 |
@@ -465,6 +678,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | tracing | 0.1.44 | MIT |
 | rust | tracing-core | 0.1.36 | MIT |
 | rust | tray-icon | 0.24.2 | MIT OR Apache-2.0 |
+| rust | tree_magic_mini | 3.2.2 | MIT |
 | rust | try-lock | 0.2.5 | MIT |
 | rust | typeid | 1.0.3 | MIT OR Apache-2.0 |
 | rust | typenum | 1.20.1 | MIT OR Apache-2.0 |
@@ -493,6 +707,12 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | wasm-bindgen-macro-support | 0.2.128 | MIT OR Apache-2.0 |
 | rust | wasm-bindgen-shared | 0.2.128 | MIT OR Apache-2.0 |
 | rust | wasm-streams | 0.5.0 | MIT OR Apache-2.0 |
+| rust | wayland-backend | 0.3.17 | MIT |
+| rust | wayland-client | 0.31.15 | MIT |
+| rust | wayland-protocols | 0.32.13 | MIT |
+| rust | wayland-protocols-wlr | 0.3.12 | MIT |
+| rust | wayland-scanner | 0.31.11 | MIT |
+| rust | wayland-sys | 0.31.11 | MIT |
 | rust | web-sys | 0.3.105 | MIT OR Apache-2.0 |
 | rust | web_atoms | 0.2.6 | MIT OR Apache-2.0 |
 | rust | webkit2gtk | 2.0.2 | MIT |
@@ -500,6 +720,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | webview2-com | 0.38.2 | MIT |
 | rust | webview2-com-macros | 0.8.1 | MIT |
 | rust | webview2-com-sys | 0.38.2 | MIT |
+| rust | weezl | 0.1.12 | MIT OR Apache-2.0 |
 | rust | winapi | 0.3.9 | MIT/Apache-2.0 |
 | rust | winapi-i686-pc-windows-gnu | 0.4.0 | MIT/Apache-2.0 |
 | rust | winapi-util | 0.1.11 | Unlicense OR MIT |
@@ -556,12 +777,17 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | winnow | 1.0.4 | MIT |
 | rust | winreg | 0.55.0 | MIT |
 | rust | wit-bindgen | 0.57.1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
+| rust | wl-clipboard-rs | 0.9.3 | MIT/Apache-2.0 |
 | rust | writeable | 0.6.4 | Unicode-3.0 |
 | rust | wry | 0.55.1 | Apache-2.0 OR MIT |
 | rust | x11 | 2.21.0 | MIT |
 | rust | x11-dl | 2.21.0 | MIT |
+| rust | x11rb | 0.13.2 | MIT OR Apache-2.0 |
+| rust | x11rb-protocol | 0.13.2 | MIT OR Apache-2.0 |
 | rust | yoke | 0.8.3 | Unicode-3.0 |
 | rust | yoke-derive | 0.8.3 | Unicode-3.0 |
+| rust | zerocopy | 0.8.59 | BSD-2-Clause OR Apache-2.0 OR MIT |
+| rust | zerocopy-derive | 0.8.59 | BSD-2-Clause OR Apache-2.0 OR MIT |
 | rust | zerofrom | 0.1.8 | Unicode-3.0 |
 | rust | zerofrom-derive | 0.1.8 | Unicode-3.0 |
 | rust | zerotrie | 0.2.5 | Unicode-3.0 |
@@ -569,3 +795,5 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | zerovec-derive | 0.11.6 | Unicode-3.0 |
 | rust | zlib-rs | 0.6.8 | Zlib |
 | rust | zmij | 1.0.23 | MIT |
+| rust | zune-core | 0.5.3 | MIT OR Apache-2.0 OR Zlib |
+| rust | zune-jpeg | 0.5.15 | MIT OR Apache-2.0 OR Zlib |

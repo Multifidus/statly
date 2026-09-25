@@ -15,7 +15,9 @@ datas = []
 binaries = []
 hiddenimports = []
 
-for pkg in ("numpy", "pandas", "scipy", "statsmodels"):
+# reportlab (PDF export) loads font metrics / modules lazily; python-docx needs its default.docx
+# template and XML part templates (Phase 8 exports).
+for pkg in ("numpy", "pandas", "scipy", "statsmodels", "reportlab", "docx"):
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
     binaries += pkg_binaries
