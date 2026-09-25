@@ -1,0 +1,63 @@
+{
+  "analysis_id": "correlation.point_biserial",
+  "case": "basic",
+  "dataset": "correlation_basic.csv",
+  "request": {
+    "variables": {
+      "binary": [
+        "group"
+      ],
+      "outcome": [
+        "y"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "r_pb",
+        "value": 0.565287172803911,
+        "df": [
+          58
+        ],
+        "p": 2.52876640930994e-06,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 5.21897103804154,
+        "df": [
+          58
+        ],
+        "p": 2.52876640930994e-06,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_pb",
+        "value": 0.565287172803911,
+        "ci_lower": 0.363546000397672,
+        "ci_upper": 0.716382116097912
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

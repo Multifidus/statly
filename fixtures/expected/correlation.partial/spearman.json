@@ -1,0 +1,68 @@
+{
+  "analysis_id": "correlation.partial",
+  "case": "spearman",
+  "dataset": "correlation_twelve.csv",
+  "request": {
+    "variables": {
+      "x": [
+        "x"
+      ],
+      "y": [
+        "y"
+      ],
+      "covariates": [
+        "z"
+      ]
+    },
+    "options": {
+      "method": "spearman"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 12,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "r_partial",
+        "value": 0.164335549530545,
+        "df": [
+          9
+        ],
+        "p": 0.629205495649136,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 0.499801705326328,
+        "df": [
+          9
+        ],
+        "p": 0.629205495649136,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_partial",
+        "value": 0.164335549530545,
+        "ci_lower": -0.483170825774845,
+        "ci_upper": 0.695634376709257
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

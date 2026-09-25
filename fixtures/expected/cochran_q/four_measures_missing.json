@@ -1,0 +1,46 @@
+{
+  "analysis_id": "cochran_q",
+  "case": "four_measures_missing",
+  "dataset": "categorical_cochran.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 32,
+    "n_excluded": 3,
+    "statistics": [
+      {
+        "key": "q",
+        "value": 2.37209302325581,
+        "df": [
+          3
+        ],
+        "p": 0.498850637851232,
+        "term": null
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

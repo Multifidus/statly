@@ -1,0 +1,69 @@
+{
+  "analysis_id": "correlation.partial",
+  "case": "two_covariates",
+  "dataset": "correlation_basic.csv",
+  "request": {
+    "variables": {
+      "x": [
+        "x"
+      ],
+      "y": [
+        "y"
+      ],
+      "covariates": [
+        "z",
+        "w"
+      ]
+    },
+    "options": {
+      "method": "pearson"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "r_partial",
+        "value": 0.325509695912813,
+        "df": [
+          56
+        ],
+        "p": 0.0126541798651621,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 2.57619440642337,
+        "df": [
+          56
+        ],
+        "p": 0.0126541798651621,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r_partial",
+        "value": 0.325509695912813,
+        "ci_lower": 0.0733838742034206,
+        "ci_upper": 0.538527292068515
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

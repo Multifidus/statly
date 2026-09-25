@@ -1,0 +1,118 @@
+{
+  "analysis_id": "reliability.cronbach_alpha",
+  "case": "zero_variance_item",
+  "dataset": "reliability_zero_var.csv",
+  "request": {
+    "variables": {
+      "items": [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5",
+        "item6"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 30,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "cronbach_alpha",
+        "value": 0.862068965517241,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "alpha_standardized",
+        "value": 0.863051918216258,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "average_r",
+        "value": 0.557601884365072,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cronbach_alpha",
+        "value": 0.862068965517241,
+        "ci_lower": 0.764943967054401,
+        "ci_upper": 0.926970584442924
+      }
+    ],
+    "items": [
+      {
+        "item": "item1",
+        "n": 30,
+        "mean": 2.9,
+        "sd": 1.18467222296383,
+        "r_drop": 0.779152534737855,
+        "alpha_if_deleted": 0.806507920824688,
+        "std_alpha_if_deleted": 0.808099973856649
+      },
+      {
+        "item": "item2",
+        "n": 30,
+        "mean": 3,
+        "sd": 0.909717652294684,
+        "r_drop": 0.634585584169987,
+        "alpha_if_deleted": 0.846320346320346,
+        "std_alpha_if_deleted": 0.847182805697029
+      },
+      {
+        "item": "item3",
+        "n": 30,
+        "mean": 3.03333333333333,
+        "sd": 1.15917132509372,
+        "r_drop": 0.577533075382571,
+        "alpha_if_deleted": 0.860734389127074,
+        "std_alpha_if_deleted": 0.860139085172747
+      },
+      {
+        "item": "item4",
+        "n": 30,
+        "mean": 2.76666666666667,
+        "sd": 1.07264845715811,
+        "r_drop": 0.671646498095499,
+        "alpha_if_deleted": 0.835560274901926,
+        "std_alpha_if_deleted": 0.839718291835568
+      },
+      {
+        "item": "item5",
+        "n": 30,
+        "mean": 2.96666666666667,
+        "sd": 1.12903172837532,
+        "r_drop": 0.761892823959668,
+        "alpha_if_deleted": 0.811748659878834,
+        "std_alpha_if_deleted": 0.813302332452379
+      }
+    ],
+    "deleted_items": [
+      "item6"
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

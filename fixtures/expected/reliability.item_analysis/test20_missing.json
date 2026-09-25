@@ -1,0 +1,191 @@
+{
+  "analysis_id": "reliability.item_analysis",
+  "case": "test20_missing",
+  "dataset": "reliability_test20_missing.csv",
+  "request": {
+    "variables": {
+      "items": [
+        "Q4_1",
+        "Q4_2",
+        "Q4_3",
+        "Q4_4",
+        "Q4_5",
+        "Q4_6",
+        "Q4_7",
+        "Q4_8",
+        "Q4_9",
+        "Q4_10",
+        "Q4_11",
+        "Q4_12",
+        "Q4_13",
+        "Q4_14",
+        "Q4_15",
+        "Q4_16",
+        "Q4_17",
+        "Q4_18",
+        "Q4_19",
+        "Q4_20"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 129,
+    "n_excluded": 6,
+    "statistics": [
+      {
+        "key": "kr20",
+        "value": 0.493454750426256,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "mean_difficulty",
+        "value": 0.51046511627907,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "n_upper": 43,
+    "n_lower": 36,
+    "items": [
+      {
+        "item": "Q4_1",
+        "difficulty": 0.418604651162791,
+        "r_pb_corrected": 0.131652922958735,
+        "d_index": 0.359173126614987
+      },
+      {
+        "item": "Q4_2",
+        "difficulty": 0.426356589147287,
+        "r_pb_corrected": 0.288124689050581,
+        "d_index": 0.484496124031008
+      },
+      {
+        "item": "Q4_3",
+        "difficulty": 0.62015503875969,
+        "r_pb_corrected": 0.188068560492332,
+        "d_index": 0.392764857881137
+      },
+      {
+        "item": "Q4_4",
+        "difficulty": 0.465116279069767,
+        "r_pb_corrected": 0.0547677478472114,
+        "d_index": 0.229328165374677
+      },
+      {
+        "item": "Q4_5",
+        "difficulty": 0.635658914728682,
+        "r_pb_corrected": 0.272148931390136,
+        "d_index": 0.471576227390181
+      },
+      {
+        "item": "Q4_6",
+        "difficulty": 0.395348837209302,
+        "r_pb_corrected": 0.062052518205257,
+        "d_index": 0.233850129198966
+      },
+      {
+        "item": "Q4_7",
+        "difficulty": 0.457364341085271,
+        "r_pb_corrected": 0.0886443892557842,
+        "d_index": 0.257105943152455
+      },
+      {
+        "item": "Q4_8",
+        "difficulty": 0.651162790697674,
+        "r_pb_corrected": 0.204559245971564,
+        "d_index": 0.401808785529716
+      },
+      {
+        "item": "Q4_9",
+        "difficulty": 0.682170542635659,
+        "r_pb_corrected": 0.236296038741813,
+        "d_index": 0.47609819121447
+      },
+      {
+        "item": "Q4_10",
+        "difficulty": 0.496124031007752,
+        "r_pb_corrected": 0.141204195798144,
+        "d_index": 0.406330749354005
+      },
+      {
+        "item": "Q4_11",
+        "difficulty": 0.550387596899225,
+        "r_pb_corrected": 0.135623005054618,
+        "d_index": 0.359819121447028
+      },
+      {
+        "item": "Q4_12",
+        "difficulty": 0.51937984496124,
+        "r_pb_corrected": 0.0945484726873795,
+        "d_index": 0.364341085271318
+      },
+      {
+        "item": "Q4_13",
+        "difficulty": 0.589147286821705,
+        "r_pb_corrected": 0.112991842164877,
+        "d_index": 0.299741602067183
+      },
+      {
+        "item": "Q4_14",
+        "difficulty": 0.573643410852713,
+        "r_pb_corrected": 0.0639199817367747,
+        "d_index": 0.225452196382429
+      },
+      {
+        "item": "Q4_15",
+        "difficulty": 0.542635658914729,
+        "r_pb_corrected": 0.231038078401271,
+        "d_index": 0.387596899224806
+      },
+      {
+        "item": "Q4_16",
+        "difficulty": 0.27906976744186,
+        "r_pb_corrected": 0.151792950855897,
+        "d_index": 0.293927648578811
+      },
+      {
+        "item": "Q4_17",
+        "difficulty": 0.434108527131783,
+        "r_pb_corrected": 0.193952992833288,
+        "d_index": 0.475452196382429
+      },
+      {
+        "item": "Q4_18",
+        "difficulty": 0.48062015503876,
+        "r_pb_corrected": 0.138366989303717,
+        "d_index": 0.401162790697674
+      },
+      {
+        "item": "Q4_19",
+        "difficulty": 0.581395348837209,
+        "r_pb_corrected": 0.0101238734190016,
+        "d_index": 0.146640826873385
+      },
+      {
+        "item": "Q4_20",
+        "difficulty": 0.410852713178295,
+        "r_pb_corrected": 0.218659716919311,
+        "d_index": 0.410206718346253
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

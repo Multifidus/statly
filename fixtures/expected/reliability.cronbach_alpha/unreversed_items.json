@@ -1,0 +1,165 @@
+{
+  "analysis_id": "reliability.cronbach_alpha",
+  "case": "unreversed_items",
+  "dataset": "reliability_likert10_unreversed.csv",
+  "request": {
+    "variables": {
+      "items": [
+        "Q3_1",
+        "Q3_2",
+        "Q3_3",
+        "Q3_4",
+        "Q3_5",
+        "Q3_6",
+        "Q3_7",
+        "Q3_8",
+        "Q3_9",
+        "Q3_10"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "cronbach_alpha",
+        "value": 0.602876969706758,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "alpha_standardized",
+        "value": 0.661395780376213,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "average_r",
+        "value": 0.163410973607929,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cronbach_alpha",
+        "value": 0.602876969706758,
+        "ci_lower": 0.43432017381946,
+        "ci_upper": 0.737234361845474
+      }
+    ],
+    "items": [
+      {
+        "item": "Q3_1",
+        "n": 60,
+        "mean": 3.08333333333333,
+        "sd": 0.907439434719263,
+        "r_drop": 0.75090138817692,
+        "alpha_if_deleted": 0.469554095400512,
+        "std_alpha_if_deleted": 0.542309800117216
+      },
+      {
+        "item": "Q3_2",
+        "n": 60,
+        "mean": 2.91666666666667,
+        "sd": 1.06232343165645,
+        "r_drop": 0.713969332350339,
+        "alpha_if_deleted": 0.458674641735805,
+        "std_alpha_if_deleted": 0.549420291622609
+      },
+      {
+        "item": "Q3_3",
+        "n": 60,
+        "mean": 2.91666666666667,
+        "sd": 1.19733696978296,
+        "r_drop": -0.80288303734185,
+        "alpha_if_deleted": 0.809436973852451,
+        "std_alpha_if_deleted": 0.817203064419604
+      },
+      {
+        "item": "Q3_4",
+        "n": 60,
+        "mean": 2.93333333333333,
+        "sd": 0.98920729548782,
+        "r_drop": 0.655888222076265,
+        "alpha_if_deleted": 0.483580191502095,
+        "std_alpha_if_deleted": 0.564270636300203
+      },
+      {
+        "item": "Q3_5",
+        "n": 60,
+        "mean": 2.86666666666667,
+        "sd": 1.14190840362084,
+        "r_drop": 0.670294554267428,
+        "alpha_if_deleted": 0.46295096228961,
+        "std_alpha_if_deleted": 0.559637383044652
+      },
+      {
+        "item": "Q3_6",
+        "n": 60,
+        "mean": 2.81666666666667,
+        "sd": 0.965360504658649,
+        "r_drop": 0.686888525868595,
+        "alpha_if_deleted": 0.478161130482657,
+        "std_alpha_if_deleted": 0.55878788666634
+      },
+      {
+        "item": "Q3_7",
+        "n": 60,
+        "mean": 2.98333333333333,
+        "sd": 1.04948198144538,
+        "r_drop": 0.790428865244783,
+        "alpha_if_deleted": 0.43758458290478,
+        "std_alpha_if_deleted": 0.532476924821877
+      },
+      {
+        "item": "Q3_8",
+        "n": 60,
+        "mean": 3.1,
+        "sd": 1.05284119233206,
+        "r_drop": -0.791290848999474,
+        "alpha_if_deleted": 0.784428231462926,
+        "std_alpha_if_deleted": 0.81611632573206
+      },
+      {
+        "item": "Q3_9",
+        "n": 60,
+        "mean": 3.11666666666667,
+        "sd": 0.958311839601757,
+        "r_drop": 0.658971154095342,
+        "alpha_if_deleted": 0.486212343079024,
+        "std_alpha_if_deleted": 0.56460061290235
+      },
+      {
+        "item": "Q3_10",
+        "n": 60,
+        "mean": 2.9,
+        "sd": 0.969011378079462,
+        "r_drop": 0.661925411760925,
+        "alpha_if_deleted": 0.484242689865044,
+        "std_alpha_if_deleted": 0.562847940502633
+      }
+    ],
+    "deleted_items": []
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "analysis_id": "reliability.split_half",
+  "case": "small_n5_odd_items",
+  "dataset": "reliability_small.csv",
+  "request": {
+    "variables": {
+      "items": [
+        "i1",
+        "i2",
+        "i3",
+        "i4"
+      ]
+    },
+    "options": {
+      "split": "odd_even"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 5,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "spearman_brown_odd_even",
+        "value": 0.927014977116679,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "guttman_odd_even",
+        "value": 0.914675767918089,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "r_halves_odd_even",
+        "value": 0.863958915871544,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "spearman_brown_first_second",
+        "value": 0.956154231642519,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "guttman_first_second",
+        "value": 0.955631399317406,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "r_halves_first_second",
+        "value": 0.915991864532874,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

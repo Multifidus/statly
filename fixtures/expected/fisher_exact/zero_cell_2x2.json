@@ -1,0 +1,70 @@
+{
+  "analysis_id": "fisher_exact",
+  "case": "zero_cell_2x2",
+  "dataset": "categorical_zero_cell.csv",
+  "request": {
+    "variables": {
+      "row": [
+        "group"
+      ],
+      "column": [
+        "passed"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 14,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "fisher_p",
+        "value": null,
+        "df": [],
+        "p": 0.030969030969031,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "odds_ratio",
+        "value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "bound_when_infinite": [
+          0.949435837312887,
+          null
+        ],
+        "fisher_test_ci_lower": 0.949411640775638
+      },
+      {
+        "key": "sample_odds_ratio",
+        "value": null,
+        "ci_lower": null,
+        "ci_upper": null
+      },
+      {
+        "key": "phi",
+        "value": 0.645497224367903,
+        "ci_lower": 0.203961274986838,
+        "ci_upper": 1,
+        "effectsize_ci_lower": 0.203961276253926
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

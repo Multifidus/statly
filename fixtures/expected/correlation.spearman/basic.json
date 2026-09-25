@@ -1,0 +1,61 @@
+{
+  "analysis_id": "correlation.spearman",
+  "case": "basic",
+  "dataset": "correlation_basic.csv",
+  "request": {
+    "variables": {
+      "x": [
+        "x"
+      ],
+      "y": [
+        "y"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "rho",
+        "value": 0.650514031675466,
+        "df": [
+          58
+        ],
+        "p": 4.80001689245308e-08,
+        "term": null
+      },
+      {
+        "key": "S",
+        "value": 12578,
+        "df": [],
+        "p": 4.80001689245308e-08,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "rho",
+        "value": 0.650514031675466,
+        "ci_lower": 0.469096334479809,
+        "ci_upper": 0.779253681078137
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

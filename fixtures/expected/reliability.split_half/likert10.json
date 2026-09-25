@@ -1,0 +1,87 @@
+{
+  "analysis_id": "reliability.split_half",
+  "case": "likert10",
+  "dataset": "reliability_likert10.csv",
+  "request": {
+    "variables": {
+      "items": [
+        "Q3_1",
+        "Q3_2",
+        "Q3_3",
+        "Q3_4",
+        "Q3_5",
+        "Q3_6",
+        "Q3_7",
+        "Q3_8",
+        "Q3_9",
+        "Q3_10"
+      ]
+    },
+    "options": {
+      "split": "odd_even"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "spearman_brown_odd_even",
+        "value": 0.941035663547777,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "guttman_odd_even",
+        "value": 0.939634579378914,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "r_halves_odd_even",
+        "value": 0.888637729482435,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "spearman_brown_first_second",
+        "value": 0.94245061173819,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "guttman_first_second",
+        "value": 0.940360901284783,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "r_halves_first_second",
+        "value": 0.891164632308287,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "analysis_id": "correlation.matrix",
+  "case": "pairwise_missing_bonferroni",
+  "dataset": "correlation_missing.csv",
+  "request": {
+    "variables": {
+      "variables": [
+        "x",
+        "y",
+        "z",
+        "w"
+      ]
+    },
+    "options": {
+      "method": "pearson",
+      "adjust": "bonferroni"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 45,
+    "n_excluded": 0,
+    "pairs": [
+      {
+        "x": "x",
+        "y": "y",
+        "n": 40,
+        "r": 0.357806254614876,
+        "p": 0.0234002359856093,
+        "ci_lower": 0.0521044694623819,
+        "ci_upper": 0.602194957573878,
+        "p_adjusted": 0.140401415913656
+      },
+      {
+        "x": "x",
+        "y": "z",
+        "n": 40,
+        "r": -0.000229798502565392,
+        "p": 0.99887714921868,
+        "ci_lower": -0.311716833422407,
+        "ci_upper": 0.311301834823573,
+        "p_adjusted": 1
+      },
+      {
+        "x": "x",
+        "y": "w",
+        "n": 40,
+        "r": -0.0952330612512765,
+        "p": 0.558857907058183,
+        "ci_lower": -0.395023643208786,
+        "ci_upper": 0.222888495357177,
+        "p_adjusted": 1
+      },
+      {
+        "x": "y",
+        "y": "z",
+        "n": 40,
+        "r": 0.0996558772095246,
+        "p": 0.540657465145698,
+        "ci_lower": -0.218640902537271,
+        "ci_upper": 0.398785435825067,
+        "p_adjusted": 1
+      },
+      {
+        "x": "y",
+        "y": "w",
+        "n": 40,
+        "r": 0.456484492062431,
+        "p": 0.00306943496710556,
+        "ci_lower": 0.169007933868264,
+        "ci_upper": 0.672381708742411,
+        "p_adjusted": 0.0184166098026334
+      },
+      {
+        "x": "z",
+        "y": "w",
+        "n": 41,
+        "r": 0.0826856854823279,
+        "p": 0.607283494628196,
+        "ci_lower": -0.230836853313198,
+        "ci_upper": 0.380652970108123,
+        "p_adjusted": 1
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

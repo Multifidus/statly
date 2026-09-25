@@ -1,0 +1,72 @@
+{
+  "analysis_id": "chi_square.goodness_of_fit",
+  "case": "specified",
+  "dataset": "categorical_gof.csv",
+  "request": {
+    "variables": {
+      "variable": [
+        "favorite"
+      ]
+    },
+    "options": {
+      "expected_proportions": {
+        "Art": 0.1,
+        "Math": 0.4,
+        "Reading": 0.3,
+        "Science": 0.2
+      }
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 120,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "chi2",
+        "value": 37.6041666666667,
+        "df": [
+          3
+        ],
+        "p": 3.42797098027865e-08,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_w",
+        "value": 0.55979286843935,
+        "ci_lower": 0.39183692233836,
+        "ci_upper": 3,
+        "effectsize_ci_lower": 0.391836926331541
+      },
+      {
+        "key": "fei",
+        "value": 0.186597622813117,
+        "ci_lower": 0.13061230744612,
+        "ci_upper": 1,
+        "effectsize_ci_lower": 0.13061230877718
+      }
+    ],
+    "expected_counts": [
+      12,
+      48,
+      36,
+      24
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

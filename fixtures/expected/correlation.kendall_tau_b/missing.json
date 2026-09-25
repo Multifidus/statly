@@ -1,0 +1,59 @@
+{
+  "analysis_id": "correlation.kendall_tau_b",
+  "case": "missing",
+  "dataset": "correlation_missing.csv",
+  "request": {
+    "variables": {
+      "x": [
+        "x"
+      ],
+      "y": [
+        "y"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 40,
+    "n_excluded": 5,
+    "statistics": [
+      {
+        "key": "tau_b",
+        "value": 0.271794871794872,
+        "df": [],
+        "p": 0.0132820589407421,
+        "term": null
+      },
+      {
+        "key": "T",
+        "value": 496,
+        "df": [],
+        "p": 0.0132820589407421,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "tau_b",
+        "value": 0.271794871794872,
+        "ci_lower": 0.0627759671260119,
+        "ci_upper": 0.457972821275766
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

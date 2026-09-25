@@ -1,0 +1,78 @@
+{
+  "analysis_id": "mcnemar",
+  "case": "small",
+  "dataset": "categorical_paired_small.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "pre",
+        "post"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 8,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "chi2",
+        "value": 1.33333333333333,
+        "df": [
+          1
+        ],
+        "p": 0.248213078989924,
+        "term": null
+      },
+      {
+        "key": "chi2_uncorrected",
+        "value": 3,
+        "df": [
+          1
+        ],
+        "p": 0.0832645166635504,
+        "term": null
+      },
+      {
+        "key": "binomial_exact",
+        "value": 3,
+        "df": [],
+        "p": 0.25,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_g",
+        "value": 0.5,
+        "ci_lower": -0.0614970317550453,
+        "ci_upper": 0.5
+      },
+      {
+        "key": "odds_ratio",
+        "value": null,
+        "ci_lower": null,
+        "ci_upper": null,
+        "bound_when_infinite": [
+          0.413231355030894,
+          null
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "analysis_id": "chi_square.goodness_of_fit",
+  "case": "equal",
+  "dataset": "categorical_gof.csv",
+  "request": {
+    "variables": {
+      "variable": [
+        "favorite"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 120,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "chi2",
+        "value": 6.86666666666667,
+        "df": [
+          3
+        ],
+        "p": 0.076271192515613,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cohens_w",
+        "value": 0.239211668240122,
+        "ci_lower": 0,
+        "ci_upper": 1.73205080756888,
+        "effectsize_ci_lower": 0
+      },
+      {
+        "key": "fei",
+        "value": 0.138108921051734,
+        "ci_lower": 0,
+        "ci_upper": 1,
+        "effectsize_ci_lower": 0
+      }
+    ],
+    "expected_counts": [
+      30,
+      30,
+      30,
+      30
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

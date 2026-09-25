@@ -1,0 +1,165 @@
+{
+  "analysis_id": "reliability.cronbach_alpha",
+  "case": "likert10",
+  "dataset": "reliability_likert10.csv",
+  "request": {
+    "variables": {
+      "items": [
+        "Q3_1",
+        "Q3_2",
+        "Q3_3",
+        "Q3_4",
+        "Q3_5",
+        "Q3_6",
+        "Q3_7",
+        "Q3_8",
+        "Q3_9",
+        "Q3_10"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "cronbach_alpha",
+        "value": 0.941806371546833,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "alpha_standardized",
+        "value": 0.942522803749437,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "average_r",
+        "value": 0.621186353971114,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cronbach_alpha",
+        "value": 0.941806371546833,
+        "ci_lower": 0.91710638991676,
+        "ci_upper": 0.961494839758519
+      }
+    ],
+    "items": [
+      {
+        "item": "Q3_1",
+        "n": 60,
+        "mean": 3.08333333333333,
+        "sd": 0.907439434719263,
+        "r_drop": 0.823950621408314,
+        "alpha_if_deleted": 0.933447832736405,
+        "std_alpha_if_deleted": 0.933705080915583
+      },
+      {
+        "item": "Q3_2",
+        "n": 60,
+        "mean": 2.91666666666667,
+        "sd": 1.06232343165645,
+        "r_drop": 0.808814634664064,
+        "alpha_if_deleted": 0.933431333491344,
+        "std_alpha_if_deleted": 0.934411533751381
+      },
+      {
+        "item": "Q3_3",
+        "n": 60,
+        "mean": 3.08333333333333,
+        "sd": 1.19733696978296,
+        "r_drop": 0.790131854394885,
+        "alpha_if_deleted": 0.934722315648948,
+        "std_alpha_if_deleted": 0.935319455187007
+      },
+      {
+        "item": "Q3_4",
+        "n": 60,
+        "mean": 2.93333333333333,
+        "sd": 0.98920729548782,
+        "r_drop": 0.732760918219022,
+        "alpha_if_deleted": 0.937035999610288,
+        "std_alpha_if_deleted": 0.937934484425526
+      },
+      {
+        "item": "Q3_5",
+        "n": 60,
+        "mean": 2.86666666666667,
+        "sd": 1.14190840362084,
+        "r_drop": 0.750193920911812,
+        "alpha_if_deleted": 0.936541007965067,
+        "std_alpha_if_deleted": 0.937147339391791
+      },
+      {
+        "item": "Q3_6",
+        "n": 60,
+        "mean": 2.81666666666667,
+        "sd": 0.965360504658649,
+        "r_drop": 0.677882154674973,
+        "alpha_if_deleted": 0.939432157027918,
+        "std_alpha_if_deleted": 0.940477549599723
+      },
+      {
+        "item": "Q3_7",
+        "n": 60,
+        "mean": 2.98333333333333,
+        "sd": 1.04948198144538,
+        "r_drop": 0.828626996766305,
+        "alpha_if_deleted": 0.932490613519564,
+        "std_alpha_if_deleted": 0.933537577622167
+      },
+      {
+        "item": "Q3_8",
+        "n": 60,
+        "mean": 2.9,
+        "sd": 1.05284119233206,
+        "r_drop": 0.777275128376527,
+        "alpha_if_deleted": 0.934961510812916,
+        "std_alpha_if_deleted": 0.935729820707496
+      },
+      {
+        "item": "Q3_9",
+        "n": 60,
+        "mean": 3.11666666666667,
+        "sd": 0.958311839601757,
+        "r_drop": 0.712873190006686,
+        "alpha_if_deleted": 0.937927329321236,
+        "std_alpha_if_deleted": 0.938840364661929
+      },
+      {
+        "item": "Q3_10",
+        "n": 60,
+        "mean": 2.9,
+        "sd": 0.969011378079462,
+        "r_drop": 0.729045214425092,
+        "alpha_if_deleted": 0.937216454370965,
+        "std_alpha_if_deleted": 0.938052715516376
+      }
+    ],
+    "deleted_items": []
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

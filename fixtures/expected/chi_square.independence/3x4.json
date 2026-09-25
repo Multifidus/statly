@@ -1,0 +1,79 @@
+{
+  "analysis_id": "chi_square.independence",
+  "case": "3x4",
+  "dataset": "categorical_3x4.csv",
+  "request": {
+    "variables": {
+      "row": [
+        "school"
+      ],
+      "column": [
+        "band"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 240,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "chi2",
+        "value": 11.6497624817196,
+        "df": [
+          6
+        ],
+        "p": 0.0702540830364879,
+        "term": null
+      },
+      {
+        "key": "likelihood_ratio",
+        "value": 12.0885449056723,
+        "df": [
+          6
+        ],
+        "p": 0.0600223776321545,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "cramers_v",
+        "value": 0.155789404336696,
+        "ci_lower": 0,
+        "ci_upper": 1,
+        "effectsize_ci_lower": 0
+      }
+    ],
+    "expected_counts": [
+      21.375,
+      24,
+      29.25,
+      15.375,
+      20.425,
+      22.9333333333333,
+      27.95,
+      14.6916666666667,
+      15.2,
+      17.0666666666667,
+      20.8,
+      10.9333333333333
+    ],
+    "low_expected": false
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

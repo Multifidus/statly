@@ -1,0 +1,158 @@
+{
+  "analysis_id": "reliability.mcdonald_omega",
+  "case": "test20",
+  "dataset": "reliability_test20.csv",
+  "request": {
+    "variables": {
+      "items": [
+        "Q4_1",
+        "Q4_2",
+        "Q4_3",
+        "Q4_4",
+        "Q4_5",
+        "Q4_6",
+        "Q4_7",
+        "Q4_8",
+        "Q4_9",
+        "Q4_10",
+        "Q4_11",
+        "Q4_12",
+        "Q4_13",
+        "Q4_14",
+        "Q4_15",
+        "Q4_16",
+        "Q4_17",
+        "Q4_18",
+        "Q4_19",
+        "Q4_20"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 135,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "omega_total",
+        "value": 0.509695319579643,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "omega_h",
+        "value": 0.505695720355545,
+        "df": [],
+        "p": null,
+        "term": null
+      },
+      {
+        "key": "alpha_standardized",
+        "value": 0.50399096822114,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "loadings": [
+      {
+        "item": "Q4_1",
+        "loading": 0.199504795908744
+      },
+      {
+        "item": "Q4_2",
+        "loading": 0.3899762796692
+      },
+      {
+        "item": "Q4_3",
+        "loading": 0.235168494741174
+      },
+      {
+        "item": "Q4_4",
+        "loading": 0.0620269970296683
+      },
+      {
+        "item": "Q4_5",
+        "loading": 0.393163533783251
+      },
+      {
+        "item": "Q4_6",
+        "loading": 0.0589942029932419
+      },
+      {
+        "item": "Q4_7",
+        "loading": 0.180879355486164
+      },
+      {
+        "item": "Q4_8",
+        "loading": 0.313504566062485
+      },
+      {
+        "item": "Q4_9",
+        "loading": 0.241694704435237
+      },
+      {
+        "item": "Q4_10",
+        "loading": 0.107517642664571
+      },
+      {
+        "item": "Q4_11",
+        "loading": 0.286863480525086
+      },
+      {
+        "item": "Q4_12",
+        "loading": 0.122388573008327
+      },
+      {
+        "item": "Q4_13",
+        "loading": 0.302400281374719
+      },
+      {
+        "item": "Q4_14",
+        "loading": 0.102013443760763
+      },
+      {
+        "item": "Q4_15",
+        "loading": 0.259579816741129
+      },
+      {
+        "item": "Q4_16",
+        "loading": 0.205760180570081
+      },
+      {
+        "item": "Q4_17",
+        "loading": 0.27389560993059
+      },
+      {
+        "item": "Q4_18",
+        "loading": 0.229274367626628
+      },
+      {
+        "item": "Q4_19",
+        "loading": 0.074724461022686
+      },
+      {
+        "item": "Q4_20",
+        "loading": 0.365749808439147
+      }
+    ],
+    "flipped": [],
+    "heywood": false
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

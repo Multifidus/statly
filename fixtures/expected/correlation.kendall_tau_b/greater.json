@@ -1,0 +1,59 @@
+{
+  "analysis_id": "correlation.kendall_tau_b",
+  "case": "greater",
+  "dataset": "correlation_basic.csv",
+  "request": {
+    "variables": {
+      "x": [
+        "x"
+      ],
+      "y": [
+        "y"
+      ]
+    },
+    "options": {},
+    "tails": "greater",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 60,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "tau_b",
+        "value": 0.453107344632768,
+        "df": [],
+        "p": 1.56788813301961e-07,
+        "term": null
+      },
+      {
+        "key": "z",
+        "value": 5.11509828922911,
+        "df": [],
+        "p": 1.56788813301961e-07,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "tau_b",
+        "value": 0.453107344632768,
+        "ci_lower": 0.330420936157142,
+        "ci_upper": 1
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

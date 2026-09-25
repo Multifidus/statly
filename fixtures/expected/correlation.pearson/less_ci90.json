@@ -1,0 +1,63 @@
+{
+  "analysis_id": "correlation.pearson",
+  "case": "less_ci90",
+  "dataset": "correlation_twelve.csv",
+  "request": {
+    "variables": {
+      "x": [
+        "x"
+      ],
+      "y": [
+        "y"
+      ]
+    },
+    "options": {},
+    "tails": "less",
+    "ci_level": 0.9,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 12,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "r",
+        "value": 0.0209932649312485,
+        "df": [
+          10
+        ],
+        "p": 0.525816383263844,
+        "term": null
+      },
+      {
+        "key": "t",
+        "value": 0.0664011663857387,
+        "df": [
+          10
+        ],
+        "p": 0.525816383263844,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r",
+        "value": 0.0209932649312485,
+        "ci_lower": -1,
+        "ci_upper": 0.420401983774167
+      }
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
