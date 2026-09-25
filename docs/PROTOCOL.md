@@ -27,3 +27,48 @@ the app correlates by `id`. Notifications (no `id`) are ignored in Phase 0.
 ## Startup UX
 The app shows a "Warming up the statistics engine…" state until the first `ping` succeeds
 (timeout 30 s, then a plain-language error with a Retry button).
+
+## Phase 1 methods (data layer)
+Params/results are `contracts/Rpc.json#/$defs/<Name>`; the engine validates both with the
+generated pydantic models. The engine holds one `DatasetStore` per session (datasets, the
+latest import preview, autosave paths); every other function is pure.
+
+| Method | Params | Result |
+|---|---|---|
+| `dataset.import_preview` | `DatasetImportPreviewParams` | `DatasetImportPreviewResult` |
+| `dataset.import` | `DatasetImportParams` | `DatasetResult` |
+| `dataset.stack` | `DatasetStackParams` | `DatasetResult` |
+| `dataset.link` | `DatasetLinkParams` | `DatasetLinkResult` |
+| `dataset.rows` | `DatasetRowsParams` | `DatasetRowsResult` |
+| `dataset.missing_summary` | `DatasetIdParams` | `DatasetMissingSummaryResult` |
+| `project.save` | `ProjectSaveParams` | `ProjectSaveResult` |
+| `project.load` | `ProjectLoadParams` | `ProjectLoadResult` |
+| `project.autosave` | `ProjectAutosaveParams` | `ProjectAutosaveResult` |
+| `project.recoverable` | `ProjectRecoverableParams` | `ProjectRecoverableResult` |
+| `project.discard_autosave` | `ProjectDiscardAutosaveParams` | `OkResult` |
+
+Semantics (see `contracts/README.md` for the table notes):
+- `dataset.import_preview` stages a parse under `preview_id`; only the latest preview is kept.
+- `dataset.import` `variables`: empty = accept proposals. Entries override proposals matched by
+  `name`, else by `sources[0]` (`file_id`, `original_column_name`); unmentioned columns keep their
+  proposal. Choice-text answers are recoded through `value_labels` when the variable's dtype is
+  numeric. A conversion that would lose a non-empty value is rejected with `-32003`.
+- Multi-select split: add one indicator variable per option with `sources[0]` pointing at the
+  multi-select column and `label` = the option text (the proposed multi-select variable lists its
+  options in `value_labels`). Indicators are 1 = selected, 0 = not selected, null = question blank.
+- Suggested scales are kept when at least two final variables still carry their `scale_id`.
+- Row filters apply in the given order; `rows_removed` is recomputed per filter.
+- Stacking: `ColumnMatch` columns not referenced by any match are dropped (logged as `user`).
+  For `dataset.stack`, existing data is referenced by `file_id` = the `dataset_id`.
+- `dataset.link` in linked mode needs a stacked dataset; IDs are trimmed and upper-cased by default.
+- `project.save` deletes the autosave this session wrote for the same `project_id`.
+- `project.discard_autosave` only deletes files that contain `autosave.json`.
+
+Application errors (`error.data.type` is the short name):
+
+| Code | `data.type` | Meaning |
+|---|---|---|
+| `-32001` | `FileUnreadable` | File missing, unreadable, or unsupported format |
+| `-32002` | `StaleOrUnknown` | Stale `snapshot_id` or unknown `preview_id` / `dataset_id` |
+| `-32003` | `InvalidParams` | Params fail contract validation (`data.errors` lists problems) |
+| `-32004` | `IncompatibleProject` | Project file has a newer `schema_version` than this build supports |

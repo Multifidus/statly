@@ -9,6 +9,9 @@ Contract highlights (see docs/PROTOCOL.md for the authoritative spec):
 - Unknown method -> error -32601. Malformed JSON line -> error -32700,
   id: null. Uncaught handler exception -> error -32000 with a `data`
   payload carrying the exception type and traceback.
+- Phase 1 application errors (EngineError subclasses) -> -32001..-32004.
+- The session's DatasetStore is created in `serve()` and passed to the
+  Phase 1 handlers; it is the engine's only state.
 """
 
 from __future__ import annotations
@@ -45,12 +48,17 @@ import pandas  # noqa: E402
 import scipy  # noqa: E402
 import statsmodels  # noqa: E402
 
+from statly_engine import ENGINE_VERSION  # noqa: E402
+from statly_engine.data.store import DatasetStore  # noqa: E402
+from statly_engine.errors import EngineError  # noqa: E402
+from statly_engine.rpc_methods import session_handlers  # noqa: E402
+
+SESSION_HANDLERS = session_handlers()
+
 # Restore stdout for protocol frames only, and force UTF-8 line-buffered mode
 # (Windows/PyInstaller may otherwise pick a non-UTF-8 or block-buffered mode).
 sys.stdout = _real_stdout
 sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
-
-ENGINE_VERSION = "0.1.0"
 
 # JSON-RPC 2.0 error codes
 PARSE_ERROR = -32700
@@ -131,6 +139,7 @@ def serve(stdin=None, stdout=None) -> int:
     """Run the JSON-RPC loop until EOF or `shutdown`. Returns the exit code."""
     stdin = stdin if stdin is not None else sys.stdin
     stdout = stdout if stdout is not None else sys.stdout
+    store = DatasetStore()
 
     for raw_line in stdin:
         # Handle Windows CRLF input lines defensively even though Python's
@@ -165,6 +174,9 @@ def serve(stdin=None, stdout=None) -> int:
         params = msg.get("params") or {}
 
         handler = HANDLERS.get(method)
+        session_handler = SESSION_HANDLERS.get(method)
+        if handler is None and session_handler is not None:
+            handler = lambda p, _h=session_handler: _h(store, p)  # noqa: E731
         if handler is None:
             if is_notification:
                 continue
@@ -174,6 +186,12 @@ def serve(stdin=None, stdout=None) -> int:
 
         try:
             result = handler(params)
+        except EngineError as exc:
+            if is_notification:
+                continue
+            _write_error(stdout, req_id, exc.code, exc.message, exc.to_error_data())
+            _log_request(method, req_id, f"error -{-exc.code}", (time.monotonic() - start) * 1000)
+            continue
         except Exception as exc:  # noqa: BLE001 - must report any handler failure
             if is_notification:
                 continue

@@ -70,7 +70,11 @@ regenerate instead. Covers runtime dependencies across the Python
 | js | @radix-ui/react-use-size | 1.1.4 | MIT |
 | js | @radix-ui/react-visually-hidden | 1.2.11 | MIT |
 | js | @radix-ui/rect | 1.1.3 | MIT |
+| js | @tanstack/react-virtual | 3.14.13 | MIT |
+| js | @tanstack/virtual-core | 3.17.11 | MIT |
 | js | @tauri-apps/api | 2.11.1 | Apache-2.0 OR MIT |
+| js | @tauri-apps/plugin-dialog | 2.7.3 | MIT OR Apache-2.0 |
+| js | @tauri-apps/plugin-fs | 2.5.2 | MIT OR Apache-2.0 |
 | js | @types/react | 19.3.0 | MIT |
 | js | @types/react-dom | 19.3.0 | MIT |
 | js | aria-hidden | 1.2.6 | MIT |
@@ -94,13 +98,17 @@ regenerate instead. Covers runtime dependencies across the Python
 | js | use-sidecar | 1.1.3 | MIT |
 | js | zustand | 5.0.15 | MIT |
 | python | annotated-types | 0.8.0 | MIT |
+| python | charset-normalizer | 3.5.1 | MIT |
+| python | et_xmlfile | 2.0.0 | MIT License |
 | python | formulaic | 1.2.2 | MIT |
 | python | interface_meta | 2.0.1 | MIT |
 | python | narwhals | 2.26.0 | MIT |
 | python | numpy | 2.5.3 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |
+| python | openpyxl | 3.1.5 | MIT License |
 | python | packaging | 26.3 | Apache-2.0 OR BSD-2-Clause |
 | python | pandas | 3.0.6 | BSD License |
 | python | patsy | 1.0.3 | BSD License |
+| python | pyarrow | 25.0.1 | Apache-2.0 |
 | python | pydantic | 2.13.5 | MIT |
 | python | pydantic_core | 2.46.5 | MIT |
 | python | python-dateutil | 2.9.0.post0 | Apache Software License; BSD License |
@@ -359,6 +367,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | regex-automata | 0.4.18 | MIT OR Apache-2.0 |
 | rust | regex-syntax | 0.8.11 | MIT OR Apache-2.0 |
 | rust | reqwest | 0.13.5 | MIT OR Apache-2.0 |
+| rust | rfd | 0.16.0 | MIT |
 | rust | rustc-hash | 2.1.3 | Apache-2.0 OR MIT |
 | rust | rustc_version | 0.4.1 | MIT OR Apache-2.0 |
 | rust | rustversion | 1.0.23 | MIT OR Apache-2.0 |
@@ -413,6 +422,9 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | tauri-build | 2.6.3 | Apache-2.0 OR MIT |
 | rust | tauri-codegen | 2.6.3 | Apache-2.0 OR MIT |
 | rust | tauri-macros | 2.6.3 | Apache-2.0 OR MIT |
+| rust | tauri-plugin | 2.6.3 | Apache-2.0 OR MIT |
+| rust | tauri-plugin-dialog | 2.7.3 | Apache-2.0 OR MIT |
+| rust | tauri-plugin-fs | 2.5.2 | Apache-2.0 OR MIT |
 | rust | tauri-runtime | 2.11.3 | Apache-2.0 OR MIT |
 | rust | tauri-runtime-wry | 2.11.4 | Apache-2.0 OR MIT |
 | rust | tauri-utils | 2.9.3 | Apache-2.0 OR MIT |
@@ -504,26 +516,36 @@ regenerate instead. Covers runtime dependencies across the Python
 | rust | windows-strings | 0.5.1 | MIT OR Apache-2.0 |
 | rust | windows-sys | 0.45.0 | MIT OR Apache-2.0 |
 | rust | windows-sys | 0.59.0 | MIT OR Apache-2.0 |
+| rust | windows-sys | 0.60.2 | MIT OR Apache-2.0 |
 | rust | windows-sys | 0.61.2 | MIT OR Apache-2.0 |
 | rust | windows-targets | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows-targets | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows-targets | 0.53.5 | MIT OR Apache-2.0 |
 | rust | windows-threading | 0.1.0 | MIT OR Apache-2.0 |
 | rust | windows-version | 0.1.7 | MIT OR Apache-2.0 |
 | rust | windows_aarch64_gnullvm | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows_aarch64_gnullvm | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_aarch64_gnullvm | 0.53.1 | MIT OR Apache-2.0 |
 | rust | windows_aarch64_msvc | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows_aarch64_msvc | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_aarch64_msvc | 0.53.1 | MIT OR Apache-2.0 |
 | rust | windows_i686_gnu | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows_i686_gnu | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_i686_gnu | 0.53.1 | MIT OR Apache-2.0 |
 | rust | windows_i686_gnullvm | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_i686_gnullvm | 0.53.1 | MIT OR Apache-2.0 |
 | rust | windows_i686_msvc | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows_i686_msvc | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_i686_msvc | 0.53.1 | MIT OR Apache-2.0 |
 | rust | windows_x86_64_gnu | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows_x86_64_gnu | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_x86_64_gnu | 0.53.1 | MIT OR Apache-2.0 |
 | rust | windows_x86_64_gnullvm | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows_x86_64_gnullvm | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_x86_64_gnullvm | 0.53.1 | MIT OR Apache-2.0 |
 | rust | windows_x86_64_msvc | 0.42.2 | MIT OR Apache-2.0 |
 | rust | windows_x86_64_msvc | 0.52.6 | MIT OR Apache-2.0 |
+| rust | windows_x86_64_msvc | 0.53.1 | MIT OR Apache-2.0 |
 | rust | winnow | 0.5.40 | MIT |
 | rust | winnow | 0.7.15 | MIT |
 | rust | winnow | 1.0.4 | MIT |
