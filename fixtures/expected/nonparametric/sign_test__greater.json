@@ -1,0 +1,99 @@
+{
+  "analysis_id": "sign_test",
+  "case": "greater",
+  "dataset": "np_paired_large.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "pre",
+        "post"
+      ]
+    },
+    "options": {},
+    "tails": "greater",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 70,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "s",
+        "value": 18,
+        "df": [],
+        "p": 0.999467117110428,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "prop_positive",
+        "value": 0.3,
+        "ci_lower": 0.203705534446223,
+        "ci_upper": 1
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "pre",
+        "group": {},
+        "n": 70,
+        "n_missing": 0,
+        "mean": 8,
+        "sd": 5.74582394036079,
+        "se": 0.686757315771769,
+        "ci_lower": 6.62995664160976,
+        "ci_upper": 9.37004335839024,
+        "median": 8,
+        "q1": 3,
+        "q3": 11.75,
+        "iqr": 8.75,
+        "min": 0,
+        "max": 19,
+        "skewness": 0.306723958236016,
+        "kurtosis": -1.06963609052715
+      },
+      {
+        "variable": "post",
+        "group": {},
+        "n": 70,
+        "n_missing": 0,
+        "mean": 9.28571428571429,
+        "sd": 6.60948562348382,
+        "se": 0.789984631017224,
+        "ci_lower": 7.70973806806129,
+        "ci_upper": 10.8616905033673,
+        "median": 8,
+        "q1": 4,
+        "q3": 14,
+        "iqr": 10,
+        "min": 0,
+        "max": 23,
+        "skewness": 0.219942657667541,
+        "kurtosis": -0.890268294574623
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "binom.test(#positive, #nonzero, p = 0.5); zeros dropped; Clopper-Pearson CI",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

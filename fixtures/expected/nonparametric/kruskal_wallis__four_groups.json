@@ -1,0 +1,153 @@
+{
+  "analysis_id": "kruskal_wallis",
+  "case": "four_groups",
+  "dataset": "np_four.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 42,
+    "n_excluded": 3,
+    "statistics": [
+      {
+        "key": "h",
+        "value": 6.91083807887352,
+        "df": [
+          3
+        ],
+        "p": 0.0747946221649062,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "epsilon_sq",
+        "value": 0.168557026313988,
+        "ci_lower": 0.0686042807024771,
+        "ci_upper": 1
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "G1"
+        },
+        "n": 7,
+        "n_missing": 1,
+        "mean": 4.85714285714286,
+        "sd": 2.26778683805536,
+        "se": 0.857142857142857,
+        "ci_lower": 2.75978984187574,
+        "ci_upper": 6.95449587240997,
+        "median": 6,
+        "q1": 3.5,
+        "q3": 6.5,
+        "iqr": 3,
+        "min": 1,
+        "max": 7,
+        "skewness": -0.835371478771319,
+        "kurtosis": -0.470987654320989
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "G2"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 3.81818181818182,
+        "sd": 1.77866139656663,
+        "se": 0.536286589227368,
+        "ci_lower": 2.62326083292512,
+        "ci_upper": 5.01310280343852,
+        "median": 3,
+        "q1": 2.5,
+        "q3": 5,
+        "iqr": 2.5,
+        "min": 2,
+        "max": 7,
+        "skewness": 0.723778187531408,
+        "kurtosis": -0.833828775267539
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "G3"
+        },
+        "n": 9,
+        "n_missing": 1,
+        "mean": 5.44444444444444,
+        "sd": 1.0137937550497,
+        "se": 0.337931251683234,
+        "ci_lower": 4.66517358064819,
+        "ci_upper": 6.2237153082407,
+        "median": 6,
+        "q1": 5,
+        "q3": 6,
+        "iqr": 1,
+        "min": 4,
+        "max": 7,
+        "skewness": -0.270401423135453,
+        "kurtosis": -0.762600438276114
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "G4"
+        },
+        "n": 15,
+        "n_missing": 0,
+        "mean": 3.6,
+        "sd": 1.88224789622864,
+        "se": 0.485994317035165,
+        "ci_lower": 2.55764585841927,
+        "ci_upper": 4.64235414158073,
+        "median": 3,
+        "q1": 2.5,
+        "q3": 4,
+        "iqr": 1.5,
+        "min": 1,
+        "max": 7,
+        "skewness": 0.599172704899885,
+        "kurtosis": -0.218522372528617
+      }
+    ],
+    "bootstrap": {
+      "seed": 12345,
+      "iterations": 200
+    }
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "kruskal.test (tie-corrected H); epsilon^2 = H/(n-1), percentile bootstrap CI (set.seed(12345), R = 200, one-sided greater)",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "analysis_id": "friedman",
+  "case": "rm5_long",
+  "dataset": "np_rm5_long.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "time": [
+        "time"
+      ],
+      "subject_id": [
+        "id"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 10,
+    "n_excluded": 9,
+    "statistics": [
+      {
+        "key": "chi_sq",
+        "value": 19.92,
+        "df": [
+          4
+        ],
+        "p": 0.000517889987046316,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "kendall_w",
+        "value": 0.498,
+        "ci_lower": 0.284829555402736,
+        "ci_upper": 1
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "score",
+        "group": {
+          "time": "T1"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 21.37,
+        "sd": 4.32024947839307,
+        "se": 1.36618284118765,
+        "ci_lower": 18.2794797001154,
+        "ci_upper": 24.4605202998846,
+        "median": 22.65,
+        "q1": 21.2,
+        "q3": 23.35,
+        "iqr": 2.15,
+        "min": 12.4,
+        "max": 26.9,
+        "skewness": -1.25859252458753,
+        "kurtosis": 1.22586075269055
+      },
+      {
+        "variable": "score",
+        "group": {
+          "time": "T2"
+        },
+        "n": 10,
+        "n_missing": 1,
+        "mean": 21.07,
+        "sd": 3.77949144139202,
+        "se": 1.19518013519116,
+        "ci_lower": 18.3663146963432,
+        "ci_upper": 23.7736853036568,
+        "median": 21.5,
+        "q1": 19.025,
+        "q3": 24.175,
+        "iqr": 5.15,
+        "min": 15.3,
+        "max": 25.9,
+        "skewness": -0.332865606137615,
+        "kurtosis": -1.40023374859595
+      },
+      {
+        "variable": "score",
+        "group": {
+          "time": "T3"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 24.12,
+        "sd": 2.87394425059978,
+        "se": 0.908820970024105,
+        "ci_lower": 22.0641041329588,
+        "ci_upper": 26.1758958670412,
+        "median": 24.55,
+        "q1": 22.05,
+        "q3": 25.95,
+        "iqr": 3.9,
+        "min": 19.2,
+        "max": 27.9,
+        "skewness": -0.324101777912146,
+        "kurtosis": -0.951318786266719
+      },
+      {
+        "variable": "score",
+        "group": {
+          "time": "T4"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 25.96,
+        "sd": 3.30427332740835,
+        "se": 1.04490297263536,
+        "ci_lower": 23.5962652560238,
+        "ci_upper": 28.3237347439762,
+        "median": 25.9,
+        "q1": 24.65,
+        "q3": 26.8,
+        "iqr": 2.15,
+        "min": 19.9,
+        "max": 32.9,
+        "skewness": 0.423164952695795,
+        "kurtosis": 2.45953112000533
+      },
+      {
+        "variable": "score",
+        "group": {
+          "time": "T5"
+        },
+        "n": 10,
+        "n_missing": 0,
+        "mean": 29.07,
+        "sd": 3.90357386107768,
+        "se": 1.23441844157032,
+        "ci_lower": 26.2775514805115,
+        "ci_upper": 31.8624485194885,
+        "median": 28.5,
+        "q1": 27.95,
+        "q3": 31.2,
+        "iqr": 3.25,
+        "min": 21.1,
+        "max": 36,
+        "skewness": -0.351005981186278,
+        "kurtosis": 1.76157617446138
+      }
+    ],
+    "bootstrap": {
+      "seed": 12345,
+      "iterations": 200
+    }
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "friedman.test on complete cases (tie-corrected); Kendall's W (effectsize, tie-corrected), percentile bootstrap over blocks",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

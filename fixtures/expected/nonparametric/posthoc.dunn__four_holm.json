@@ -1,0 +1,146 @@
+{
+  "analysis_id": "posthoc.dunn",
+  "case": "four_holm",
+  "dataset": "np_four.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {
+      "adjust": "holm"
+    },
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 42,
+    "n_excluded": 3,
+    "statistics": [
+      {
+        "key": "z",
+        "value": 1.2378823340024,
+        "df": [],
+        "p": 0.647279080932504,
+        "term": "G1 - G2"
+      },
+      {
+        "key": "z",
+        "value": -0.602528404625761,
+        "df": [],
+        "p": 1,
+        "term": "G1 - G3"
+      },
+      {
+        "key": "z",
+        "value": 1.46542683319475,
+        "df": [],
+        "p": 0.57121800385704,
+        "term": "G1 - G4"
+      },
+      {
+        "key": "z",
+        "value": -2.00716634272398,
+        "df": [],
+        "p": 0.223659770400367,
+        "term": "G2 - G3"
+      },
+      {
+        "key": "z",
+        "value": 0.182066338200116,
+        "df": [],
+        "p": 1,
+        "term": "G2 - G4"
+      },
+      {
+        "key": "z",
+        "value": 2.31105630056634,
+        "df": [],
+        "p": 0.124978471883835,
+        "term": "G3 - G4"
+      }
+    ],
+    "pairs": [
+      {
+        "term": "G1 - G2",
+        "statistic": 1.2378823340024,
+        "p_unadjusted": 0.215759693644168,
+        "p_adjusted": 0.647279080932504,
+        "rank_biserial": 0.311688311688312,
+        "ci_lower": -0.235205356686334,
+        "ci_upper": 0.708677078716063
+      },
+      {
+        "term": "G1 - G3",
+        "statistic": -0.602528404625761,
+        "p_unadjusted": 0.546822461541585,
+        "p_adjusted": 1,
+        "rank_biserial": -0.0476190476190477,
+        "ci_lower": -0.561808210112112,
+        "ci_upper": 0.493110012480915
+      },
+      {
+        "term": "G1 - G4",
+        "statistic": 1.46542683319475,
+        "p_unadjusted": 0.14280450096426,
+        "p_adjusted": 0.57121800385704,
+        "rank_biserial": 0.333333333333333,
+        "ci_lower": -0.181020041879798,
+        "ci_upper": 0.704502588982568
+      },
+      {
+        "term": "G2 - G3",
+        "statistic": -2.00716634272398,
+        "p_unadjusted": 0.0447319540800735,
+        "p_adjusted": 0.223659770400367,
+        "rank_biserial": -0.545454545454545,
+        "ci_lower": -0.81206320946029,
+        "ci_upper": -0.090469547150698
+      },
+      {
+        "term": "G2 - G4",
+        "statistic": 0.182066338200116,
+        "p_unadjusted": 0.855530665400525,
+        "p_adjusted": 1,
+        "rank_biserial": 0.0424242424242425,
+        "ci_lower": -0.392962925766922,
+        "ci_upper": 0.462273401945317
+      },
+      {
+        "term": "G3 - G4",
+        "statistic": 2.31105630056634,
+        "p_unadjusted": 0.0208297453139725,
+        "p_adjusted": 0.124978471883835,
+        "rank_biserial": 0.6,
+        "ci_lower": 0.20331704607606,
+        "ci_upper": 0.827484448381754
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "PMCMRplus::kwAllPairsDunnTest (tie-corrected); z = (mean rank A - mean rank B)/SE; rank-biserial per pair",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

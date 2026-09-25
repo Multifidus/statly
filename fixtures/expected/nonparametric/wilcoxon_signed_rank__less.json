@@ -1,0 +1,113 @@
+{
+  "analysis_id": "wilcoxon_signed_rank",
+  "case": "less",
+  "dataset": "np_paired.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "pre",
+        "post"
+      ]
+    },
+    "options": {},
+    "tails": "less",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 22,
+    "n_excluded": 2,
+    "statistics": [
+      {
+        "key": "v",
+        "value": 23,
+        "df": [],
+        "p": 0.000946044921875,
+        "term": null
+      },
+      {
+        "key": "z",
+        "value": -3.03811020806745,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r",
+        "value": -0.759527552016862,
+        "ci_lower": -1,
+        "ci_upper": -0.574111154913117
+      },
+      {
+        "key": "rank_biserial",
+        "value": -0.838235294117647,
+        "ci_lower": -1,
+        "ci_upper": -0.633604707975274
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "pre",
+        "group": {},
+        "n": 22,
+        "n_missing": 1,
+        "mean": 5.81818181818182,
+        "sd": 2.68392682528105,
+        "se": 0.572215121795959,
+        "ci_lower": 4.62819532873241,
+        "ci_upper": 7.00816830763123,
+        "median": 7,
+        "q1": 3,
+        "q3": 8,
+        "iqr": 5,
+        "min": 2,
+        "max": 9,
+        "skewness": -0.323372696181935,
+        "kurtosis": -1.57630369268968
+      },
+      {
+        "variable": "post",
+        "group": {},
+        "n": 22,
+        "n_missing": 1,
+        "mean": 6.72727272727273,
+        "sd": 3.02657779681494,
+        "se": 0.64526855438693,
+        "ci_lower": 5.38536330800225,
+        "ci_upper": 8.0691821465432,
+        "median": 7.5,
+        "q1": 4,
+        "q3": 9.75,
+        "iqr": 5.75,
+        "min": 1,
+        "max": 10,
+        "skewness": -0.40463826452251,
+        "kurtosis": -1.28223970792437
+      }
+    ],
+    "p_method": "Wilcoxon signed rank exact test"
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "wilcox.test(paired = TRUE) defaults; r = z/sqrt(number of nonzero differences)",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

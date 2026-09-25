@@ -1,0 +1,119 @@
+{
+  "analysis_id": "mann_whitney",
+  "case": "missing",
+  "dataset": "np_two_missing.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 33,
+    "n_excluded": 5,
+    "statistics": [
+      {
+        "key": "u",
+        "value": 87,
+        "df": [],
+        "p": 0.0788833430517682,
+        "term": null
+      },
+      {
+        "key": "z",
+        "value": -1.7652209923553,
+        "df": [],
+        "p": null,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "r",
+        "value": -0.307285532593001,
+        "ci_lower": -0.555352524937308,
+        "ci_upper": 0.0194865898638884
+      },
+      {
+        "key": "rank_biserial",
+        "value": -0.360294117647059,
+        "ci_lower": -0.651154144052635,
+        "ci_upper": 0.0228481427085569
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "A"
+        },
+        "n": 17,
+        "n_missing": 2,
+        "mean": 50.8647058823529,
+        "sd": 9.94333578184848,
+        "se": 2.41161315879675,
+        "ci_lower": 45.752314367348,
+        "ci_upper": 55.9770973973579,
+        "median": 52.3,
+        "q1": 41.5,
+        "q3": 59.6,
+        "iqr": 18.1,
+        "min": 32.8,
+        "max": 62.3,
+        "skewness": -0.518440977164235,
+        "kurtosis": -1.18563485492414
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "B"
+        },
+        "n": 16,
+        "n_missing": 1,
+        "mean": 57.86875,
+        "sd": 11.0842662514635,
+        "se": 2.77106656286588,
+        "ci_lower": 51.9623614338636,
+        "ci_upper": 63.7751385661364,
+        "median": 56.1,
+        "q1": 51.925,
+        "q3": 64.5,
+        "iqr": 12.575,
+        "min": 40,
+        "max": 78,
+        "skewness": 0.0790307650545308,
+        "kurtosis": -0.501607823736065
+      }
+    ],
+    "p_method": "Wilcoxon rank sum exact test"
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "wilcox.test defaults; U = W of the first level; r = z/sqrt(n1+n2)",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

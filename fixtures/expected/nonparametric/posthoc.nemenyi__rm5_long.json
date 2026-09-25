@@ -1,0 +1,211 @@
+{
+  "analysis_id": "posthoc.nemenyi",
+  "case": "rm5_long",
+  "dataset": "np_rm5_long.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "score"
+      ],
+      "time": [
+        "time"
+      ],
+      "subject_id": [
+        "id"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 10,
+    "n_excluded": 9,
+    "statistics": [
+      {
+        "key": "q",
+        "value": -0.6,
+        "df": [],
+        "p": 0.993247099822604,
+        "term": "T1 - T2"
+      },
+      {
+        "key": "q",
+        "value": -2.6,
+        "df": [],
+        "p": 0.351294506769278,
+        "term": "T1 - T3"
+      },
+      {
+        "key": "q",
+        "value": -3.2,
+        "df": [],
+        "p": 0.157114656896755,
+        "term": "T1 - T4"
+      },
+      {
+        "key": "q",
+        "value": -5.6,
+        "df": [],
+        "p": 0.00071546046269555,
+        "term": "T1 - T5"
+      },
+      {
+        "key": "q",
+        "value": -2,
+        "df": [],
+        "p": 0.618449480551994,
+        "term": "T2 - T3"
+      },
+      {
+        "key": "q",
+        "value": -2.6,
+        "df": [],
+        "p": 0.351294506769279,
+        "term": "T2 - T4"
+      },
+      {
+        "key": "q",
+        "value": -5,
+        "df": [],
+        "p": 0.00373027380519442,
+        "term": "T2 - T5"
+      },
+      {
+        "key": "q",
+        "value": -0.6,
+        "df": [],
+        "p": 0.993247099822604,
+        "term": "T3 - T4"
+      },
+      {
+        "key": "q",
+        "value": -3,
+        "df": [],
+        "p": 0.21087650496352,
+        "term": "T3 - T5"
+      },
+      {
+        "key": "q",
+        "value": -2.4,
+        "df": [],
+        "p": 0.435708219540409,
+        "term": "T4 - T5"
+      }
+    ],
+    "pairs": [
+      {
+        "term": "T1 - T2",
+        "statistic": -0.6,
+        "p_unadjusted": 0.993247099822604,
+        "p_adjusted": 0.993247099822604,
+        "rank_biserial": 0.127272727272727,
+        "ci_lower": -0.516281394706359,
+        "ci_upper": 0.678964167376392
+      },
+      {
+        "term": "T1 - T3",
+        "statistic": -2.6,
+        "p_unadjusted": 0.351294506769278,
+        "p_adjusted": 0.351294506769278,
+        "rank_biserial": -0.709090909090909,
+        "ci_lower": -0.919313552817529,
+        "ci_upper": -0.184009856338513
+      },
+      {
+        "term": "T1 - T4",
+        "statistic": -3.2,
+        "p_unadjusted": 0.157114656896755,
+        "p_adjusted": 0.157114656896755,
+        "rank_biserial": -0.836363636363636,
+        "ci_lower": -0.95693154394323,
+        "ci_upper": -0.469730804607148
+      },
+      {
+        "term": "T1 - T5",
+        "statistic": -5.6,
+        "p_unadjusted": 0.00071546046269555,
+        "p_adjusted": 0.00071546046269555,
+        "rank_biserial": -0.927272727272727,
+        "ci_lower": -0.98153208914158,
+        "ci_upper": -0.734923132392975
+      },
+      {
+        "term": "T2 - T3",
+        "statistic": -2,
+        "p_unadjusted": 0.618449480551994,
+        "p_adjusted": 0.618449480551994,
+        "rank_biserial": -0.636363636363636,
+        "ci_lower": -0.895942092448953,
+        "ci_upper": -0.0527665456064871
+      },
+      {
+        "term": "T2 - T4",
+        "statistic": -2.6,
+        "p_unadjusted": 0.351294506769279,
+        "p_adjusted": 0.351294506769279,
+        "rank_biserial": -0.781818181818182,
+        "ci_lower": -0.941290519457896,
+        "ci_upper": -0.337091319570582
+      },
+      {
+        "term": "T2 - T5",
+        "statistic": -5,
+        "p_unadjusted": 0.00373027380519442,
+        "p_adjusted": 0.00373027380519442,
+        "rank_biserial": -0.927272727272727,
+        "ci_lower": -0.98153208914158,
+        "ci_upper": -0.734923132392975
+      },
+      {
+        "term": "T3 - T4",
+        "statistic": -0.6,
+        "p_unadjusted": 0.993247099822604,
+        "p_adjusted": 0.993247099822604,
+        "rank_biserial": -0.272727272727273,
+        "ci_lower": -0.75264612311094,
+        "ci_upper": 0.396437658540905
+      },
+      {
+        "term": "T3 - T5",
+        "statistic": -3,
+        "p_unadjusted": 0.21087650496352,
+        "p_adjusted": 0.21087650496352,
+        "rank_biserial": -0.854545454545454,
+        "ci_lower": -0.961994183720667,
+        "ci_upper": -0.517956182824959
+      },
+      {
+        "term": "T4 - T5",
+        "statistic": -2.4,
+        "p_unadjusted": 0.435708219540409,
+        "p_adjusted": 0.435708219540409,
+        "rank_biserial": -0.781818181818182,
+        "ci_lower": -0.941290519457896,
+        "ci_upper": -0.337091319570582
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "PMCMRplus frdAllPairs*Test on complete cases; statistic sign = first minus second condition",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

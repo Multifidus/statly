@@ -1,0 +1,95 @@
+{
+  "analysis_id": "posthoc.nemenyi",
+  "case": "rm3",
+  "dataset": "np_rm3_wide.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "t1",
+        "t2",
+        "t3"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 16,
+    "n_excluded": 2,
+    "statistics": [
+      {
+        "key": "q",
+        "value": -1.75,
+        "df": [],
+        "p": 0.431044972613205,
+        "term": "t1 - t2"
+      },
+      {
+        "key": "q",
+        "value": -4.25,
+        "df": [],
+        "p": 0.0074821457740184,
+        "term": "t1 - t3"
+      },
+      {
+        "key": "q",
+        "value": -2.5,
+        "df": [],
+        "p": 0.180508937206692,
+        "term": "t2 - t3"
+      }
+    ],
+    "pairs": [
+      {
+        "term": "t1 - t2",
+        "statistic": -1.75,
+        "p_unadjusted": 0.431044972613205,
+        "p_adjusted": 0.431044972613205,
+        "rank_biserial": -1,
+        "ci_lower": -1,
+        "ci_upper": -1
+      },
+      {
+        "term": "t1 - t3",
+        "statistic": -4.25,
+        "p_unadjusted": 0.0074821457740184,
+        "p_adjusted": 0.0074821457740184,
+        "rank_biserial": -1,
+        "ci_lower": -1,
+        "ci_upper": -1
+      },
+      {
+        "term": "t2 - t3",
+        "statistic": -2.5,
+        "p_unadjusted": 0.180508937206692,
+        "p_adjusted": 0.180508937206692,
+        "rank_biserial": -0.696969696969697,
+        "ci_lower": -0.910319778108118,
+        "ci_upper": -0.191003789560127
+      }
+    ]
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "PMCMRplus frdAllPairs*Test on complete cases; statistic sign = first minus second condition",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

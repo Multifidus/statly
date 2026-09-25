@@ -1,0 +1,111 @@
+{
+  "analysis_id": "kruskal_wallis",
+  "case": "two_groups",
+  "dataset": "np_two_ties.csv",
+  "request": {
+    "variables": {
+      "outcome": [
+        "y"
+      ],
+      "group": [
+        "group"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 25,
+    "n_excluded": 0,
+    "statistics": [
+      {
+        "key": "h",
+        "value": 3.48346235045741,
+        "df": [
+          1
+        ],
+        "p": 0.0619849216217202,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "epsilon_sq",
+        "value": 0.145144264602392,
+        "ci_lower": 0.00762488310058424,
+        "ci_upper": 1
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "y",
+        "group": {
+          "group": "Control"
+        },
+        "n": 14,
+        "n_missing": 0,
+        "mean": 2.64285714285714,
+        "sd": 1.27744594087896,
+        "se": 0.341411788635296,
+        "ci_lower": 1.90528181574255,
+        "ci_upper": 3.38043246997174,
+        "median": 3,
+        "q1": 2,
+        "q3": 3,
+        "iqr": 1,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.532417582905079,
+        "kurtosis": 0.028698370296167
+      },
+      {
+        "variable": "y",
+        "group": {
+          "group": "Program"
+        },
+        "n": 11,
+        "n_missing": 0,
+        "mean": 3.54545454545455,
+        "sd": 1.03572548135463,
+        "se": 0.312282982496685,
+        "ci_lower": 2.84964469933953,
+        "ci_upper": 4.24126439156956,
+        "median": 4,
+        "q1": 3,
+        "q3": 4,
+        "iqr": 1,
+        "min": 2,
+        "max": 5,
+        "skewness": -0.147280699014806,
+        "kurtosis": -0.853203102556737
+      }
+    ],
+    "bootstrap": {
+      "seed": 12345,
+      "iterations": 200
+    }
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "kruskal.test (tie-corrected H); epsilon^2 = H/(n-1), percentile bootstrap CI (set.seed(12345), R = 200, one-sided greater)",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "analysis_id": "friedman",
+  "case": "rm3_wide",
+  "dataset": "np_rm3_wide.csv",
+  "request": {
+    "variables": {
+      "measures": [
+        "t1",
+        "t2",
+        "t3"
+      ]
+    },
+    "options": {},
+    "tails": "two_sided",
+    "ci_level": 0.95,
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_used": 16,
+    "n_excluded": 2,
+    "statistics": [
+      {
+        "key": "chi_sq",
+        "value": 14.6,
+        "df": [
+          2
+        ],
+        "p": 0.000675538775193844,
+        "term": null
+      }
+    ],
+    "effect_sizes": [
+      {
+        "key": "kendall_w",
+        "value": 0.45625,
+        "ci_lower": 0.293317867929335,
+        "ci_upper": 1
+      }
+    ],
+    "descriptives": [
+      {
+        "variable": "t1",
+        "group": {},
+        "n": 16,
+        "n_missing": 0,
+        "mean": 2.9375,
+        "sd": 1.18145390656315,
+        "se": 0.295363476640788,
+        "ci_lower": 2.30794765193904,
+        "ci_upper": 3.56705234806096,
+        "median": 3,
+        "q1": 2,
+        "q3": 3.25,
+        "iqr": 1.25,
+        "min": 1,
+        "max": 5,
+        "skewness": 0.135354169354528,
+        "kurtosis": -0.167959285090049
+      },
+      {
+        "variable": "t2",
+        "group": {},
+        "n": 16,
+        "n_missing": 1,
+        "mean": 3.25,
+        "sd": 1.23827837473378,
+        "se": 0.309569593683445,
+        "ci_lower": 2.5901680302243,
+        "ci_upper": 3.9098319697757,
+        "median": 3,
+        "q1": 2,
+        "q3": 4,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.0601917654474968,
+        "kurtosis": -0.962213589812834
+      },
+      {
+        "variable": "t3",
+        "group": {},
+        "n": 16,
+        "n_missing": 1,
+        "mean": 3.8125,
+        "sd": 1.10867789130417,
+        "se": 0.277169472826043,
+        "ci_lower": 3.22172725310189,
+        "ci_upper": 4.40327274689811,
+        "median": 4,
+        "q1": 3,
+        "q3": 5,
+        "iqr": 2,
+        "min": 1,
+        "max": 5,
+        "skewness": -0.923814827637375,
+        "kurtosis": 1.21723263808871
+      }
+    ],
+    "bootstrap": {
+      "seed": 12345,
+      "iterations": 200
+    }
+  },
+  "error": null,
+  "r_packages_used": {
+    "stats": "4.6.1",
+    "effectsize": "1.0.3",
+    "boot": "1.3.32",
+    "PMCMRplus": "1.9.12",
+    "psych": "2.6.5",
+    "jsonlite": "2.0.0"
+  },
+  "conventions": "friedman.test on complete cases (tie-corrected); Kendall's W (effectsize, tie-corrected), percentile bootstrap over blocks",
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}
