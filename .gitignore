@@ -18,3 +18,4 @@ test-results/
 *.egg-info/
 .claude/settings.local.json
 builds/
+sample-data/
