@@ -6,6 +6,7 @@ import { Badge, CheckboxField, Input, NativeSelect, Notice } from "@/components/
 import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { WhyItMatters } from "@/components/ui/why";
 import { SortableLabels } from "@/components/variables/SortableLabels";
+import { applyChoicePreset, labelsAreJustCodes, presetsForCount } from "@/lib/choicePresets";
 import type { MeasurementLevel, VariableRole, VariableSchema } from "@/contracts";
 import { pickAnswerKeyFile } from "@/lib/dialogs";
 import {
@@ -178,13 +179,36 @@ export function StepLabels({ unitId }: { unitId: string }) {
   const labelsFor = useInterview((s) => s.labelsFor);
   if (!u || !answer) return null;
   const labels = answer.valueLabels ?? labelsFor(u.unit) ?? [];
+  const justCodes = labelsAreJustCodes(labels);
+  const presets = presetsForCount(labels.length);
+  const applyPreset = (id: string) => {
+    const preset = presets.find((p) => p.id === id);
+    if (preset) setAnswer(unitId, { valueLabels: applyChoicePreset(labels, preset) });
+  };
   return (
     <div className="grid gap-4">
       <UnitCard unit={u.unit} vars={u.vars} />
-      <p className="text-sm">
-        Put the answer choices in their natural order (for example, lowest to highest agreement) and give each a clear label. Drag a
-        row, or use the arrow buttons.
-      </p>
+      {justCodes ? (
+        <Notice data-testid="numeric-codes-notice">
+          Your file stores these answers as numbers. Tell Statly what each number meant on the survey, for example 1 = Strongly
+          disagree and 5 = Strongly agree. Numbers still work for every test, so you can skip this.
+        </Notice>
+      ) : (
+        <p className="text-sm">
+          Put the answer choices in their natural order (for example, lowest to highest agreement) and give each a clear label. Drag a
+          row, or use the arrow buttons.
+        </p>
+      )}
+      {presets.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2" data-testid="choice-presets">
+          <span className="text-xs text-muted-foreground">Use a common scale:</span>
+          {presets.map((p) => (
+            <Button key={p.id} type="button" variant="outline" size="sm" onClick={() => applyPreset(p.id)}>
+              {p.name}
+            </Button>
+          ))}
+        </div>
+      )}
       <SortableLabels labels={labels} onChange={(next) => setAnswer(unitId, { valueLabels: next })} ariaLabel={`Answer choices for ${u.unit.title}`} />
       {u.unit.kind !== "single" && <p className="text-xs text-muted-foreground">These labels apply to all {u.vars.length} parts of the question.</p>}
       <WhyItMatters>
