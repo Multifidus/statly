@@ -59,7 +59,7 @@ function WarningNote({ w }: { w: ResultWarning }) {
  * first, key numbers, APA sentence (copy), APA tables, effect sizes, assumptions,
  * descriptives, warnings and "How to report this" from the Learn page.
  */
-export function ResultsView({ result, title }: { result: AnalysisResult; title: string }) {
+export function ResultsView({ result, title, badge }: { result: AnalysisResult; title: string; badge?: React.ReactNode }) {
   const stat = primaryStatistic(result);
   const effect = primaryEffect(result);
   const page = learnPageFor(result.analysis_id);
@@ -77,6 +77,7 @@ export function ResultsView({ result, title }: { result: AnalysisResult; title: 
           {result.inputs.n_excluded > 0 && `, ${result.inputs.n_excluded} left out for missing answers`}
           {groupCount > 1 && ` (${result.inputs.n_by_group.map((g) => `${Object.values(g.group).join(", ")}: ${g.n}`).join("; ")})`}.
         </p>
+        {badge && <div className="mt-2">{badge}</div>}
       </div>
 
       <Section id="result-summary" title="What this means" className="border-primary/30 bg-accent/30">

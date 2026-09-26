@@ -9,11 +9,11 @@ import type { AnalysisRequest, AnalysisResult } from "@/contracts";
 import type { AdvisorRecommendation, AnalysisInfo } from "@/lib/analysisRpc";
 import { prefillRoles, roleProblem } from "@/lib/datasetContext";
 import { labelFor } from "@/lib/content/labels";
-import { makeTestLogEntry, newRequestId } from "@/lib/resultSummary";
+import { newRequestId } from "@/lib/resultSummary";
 import { describeRpcError, rpc, RpcErrorCode } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
-import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
+import { logRun } from "@/stores/testLog";
 
 export type FlowStage = "roles" | "assumptions" | "decision" | "done";
 export type Choice = "recommended" | "alternative";
@@ -100,9 +100,7 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
 
   function log(request: AnalysisRequest, result: AnalysisResult): string {
     const label = labelFor(result.analysis_id, catalogLabels(get().catalog));
-    const entry = makeTestLogEntry(request, result, label);
-    useProjectStore.getState().appendTestLog(entry);
-    useResults.getState().put(entry.id, result);
+    const entry = logRun(request, result, label);
     useResults.getState().show(entry.id);
     return entry.id;
   }

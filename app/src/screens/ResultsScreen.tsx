@@ -5,6 +5,7 @@ import { Notice } from "@/components/ui/form";
 import { CopyButton } from "@/components/results/CopyButton";
 import { RichText } from "@/components/results/RichText";
 import { ResultsView } from "@/components/results/ResultsView";
+import { FamilyBadge } from "@/components/testlog/FamilyBadge";
 import { sentencePayload } from "@/lib/apa";
 import { useNav } from "@/stores/nav";
 import { useProjectStore } from "@/stores/project";
@@ -34,7 +35,7 @@ export function ResultsScreen() {
   const actions = (
     <div className="flex flex-wrap gap-2">
       <Button variant="outline" size="sm" onClick={() => go("analyses")} data-testid="to-analyses">
-        <ListChecks aria-hidden /> All analyses
+        <ListChecks aria-hidden /> Test Log
       </Button>
       <Button variant="outline" size="sm" onClick={() => go("advisor")}>
         <Wand2 aria-hidden /> Start another analysis
@@ -55,7 +56,7 @@ export function ResultsScreen() {
     <div className="mx-auto grid w-full max-w-3xl gap-4" data-testid="results-screen">
       {actions}
       {result ? (
-        <ResultsView result={result} title={entry.result_summary.analysis_label} />
+        <ResultsView result={result} title={entry.result_summary.analysis_label} badge={entry.family_id ? <FamilyBadge entry={entry} /> : undefined} />
       ) : loading ? (
         <p className="flex items-center gap-2 text-muted-foreground" role="status">
           <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden /> Loading the full results…
@@ -65,6 +66,7 @@ export function ResultsScreen() {
           <h1 id="results-title" tabIndex={-1} className="text-2xl font-semibold tracking-tight outline-none">
             {entry.result_summary.analysis_label}
           </h1>
+          {entry.family_id && <FamilyBadge entry={entry} />}
           <Notice tone="info">
             {error ?? "Your data has changed since this analysis was run, so Statly is showing the summary it saved. Run the analysis again to see the full tables and checks."}
           </Notice>

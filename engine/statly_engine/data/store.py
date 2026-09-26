@@ -106,6 +106,9 @@ class DatasetStore:
     datasets: dict[str, DatasetState] = field(default_factory=dict)
     preview: object | None = None  # importer.Preview (latest only)
     autosave_paths: dict[str, str] = field(default_factory=dict)  # project_id -> autosave path
+    # Test Log results (Phase 6): request_id -> full AnalysisResult JSON bytes, from `results.put` or a
+    # loaded project; `project.save`/`autosave` write the logged ones to results/<id>.json.
+    results: dict[str, bytes] = field(default_factory=dict)
 
     def get(self, dataset_id: str) -> DatasetState:
         state = self.datasets.get(dataset_id)

@@ -1,0 +1,49 @@
+{
+  "analysis_id": "corrections",
+  "case": "with_na",
+  "dataset": null,
+  "request": {
+    "p_values": [
+      0.01,
+      null,
+      0.03,
+      0.5,
+      null
+    ]
+  },
+  "expected": {
+    "bonferroni": [
+      0.03,
+      null,
+      0.09,
+      1,
+      null
+    ],
+    "holm": [
+      0.03,
+      null,
+      0.06,
+      0.5,
+      null
+    ],
+    "fdr_bh": [
+      0.03,
+      null,
+      0.045,
+      0.5,
+      null
+    ]
+  },
+  "error": null,
+  "r": {
+    "r_version": "R version 4.6.1 (2026-06-24)",
+    "packages": {
+      "stats": "4.6.1",
+      "effectsize": "1.0.3",
+      "car": "3.1.5",
+      "psych": "2.6.5",
+      "nortest": "1.0.4",
+      "jsonlite": "2.0.0"
+    }
+  }
+}

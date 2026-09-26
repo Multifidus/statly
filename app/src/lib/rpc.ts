@@ -48,7 +48,17 @@ import type {
   AdvisorStep,
   AnalysisListResult,
 } from "@/lib/analysisRpc";
-import type { AnalysisRequest, AnalysisResult } from "@/contracts";
+import type { AnalysisRequest, AnalysisResult, CorrectionMethod } from "@/contracts";
+
+/** Phase 6 (docs/PROTOCOL.md "Phase 6 methods"): Test Log results and family corrections. */
+export interface ResultsPutResult {
+  ok: boolean;
+  result_path: string;
+}
+export interface CorrectionsAdjustParams {
+  p_values: (number | null)[];
+  method: CorrectionMethod;
+}
 
 /** Anything that can answer a JSON-RPC method call. Rejects with an `EngineError`. */
 export interface Transport {
@@ -120,6 +130,11 @@ export const rpc = {
   advisorPaths: () => call<{ paths: AdvisorPath[] }>("advisor.paths", {}),
   analysisList: () => call<AnalysisListResult>("analysis.list", {}),
   analysisRun: (p: AnalysisRequest) => call<AnalysisResult>("analysis.run", p),
+
+  // Phase 6: Test Log results + multiple-comparison corrections (SPEC §9).
+  resultsPut: (p: { request_id: string; result: AnalysisResult }) => call<ResultsPutResult>("results.put", p),
+  resultsGet: (p: { request_id: string }) => call<{ result: AnalysisResult }>("results.get", p),
+  correctionsAdjust: (p: CorrectionsAdjustParams) => call<{ adjusted: (number | null)[] }>("corrections.adjust", p),
 };
 
 export type Rpc = typeof rpc;

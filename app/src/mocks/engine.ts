@@ -5,9 +5,11 @@
  * into production builds because every import of this module sits behind that flag.
  */
 import exampleProject from "../../../contracts/examples/ProjectFile.json";
+import exampleResult from "../../../contracts/examples/AnalysisResult.json";
 import type {
   AnalysisRequest,
   AnalysisResult,
+  CorrectionMethod,
   CellValue,
   ColumnMatch,
   ComputedDefinition,
@@ -68,7 +70,8 @@ import type {
   VariablePatch,
   VariablesUpdateParams,
 } from "@/lib/variablesRpc";
-import { answerKeyForPath, MOCK_EXAMPLE_PROJECT_PATH, shapeForPath, type FileShape } from "./shapes";
+import { answerKeyForPath, MOCK_EXAMPLE_PROJECT_PATH, MOCK_TEST_LOG_PROJECT_PATH, shapeForPath, type FileShape } from "./shapes";
+import { pAdjust } from "./corrections";
 import { mockAdvisorEvaluate, mockAdvisorPaths } from "./advisor";
 import { MOCK_ANALYSES, mockAnalysisRun } from "./analysis";
 
@@ -1020,6 +1023,8 @@ export class MockEngine implements Transport {
   private datasets = new Map<string, DatasetState>();
   private saved = new Map<string, SavedProject>();
   private autosaves = new Map<string, { project: ProjectFile; marker: ProjectLoadResult["autosave_marker"] & object }>();
+  /** Test Log results (results.put / results.get), keyed by request id; "saved" with every project. */
+  private results = new Map<string, AnalysisResult>();
   private counter = 0;
   readonly calls: { method: string; params: unknown }[] = [];
   private latency: number;
@@ -1028,6 +1033,8 @@ export class MockEngine implements Transport {
     this.latency = opts.latencyMs ?? 40;
     const example = exampleProject as unknown as ProjectFile;
     this.saved.set(MOCK_EXAMPLE_PROJECT_PATH, { project: example, savedAt: example.modified_at });
+    const seeded = this.testLogProject(example);
+    this.saved.set(MOCK_TEST_LOG_PROJECT_PATH, { project: seeded, savedAt: seeded.modified_at });
     if (opts.seedAutosave) {
       const p = clone(example);
       p.name = "Example project (unsaved changes)";
@@ -1101,6 +1108,24 @@ export class MockEngine implements Transport {
         return { analyses: clone(MOCK_ANALYSES) } as T;
       case "analysis.run":
         return this.runAnalysis(p) as T;
+      case "results.put": {
+        const r = params as { request_id: string; result: AnalysisResult };
+        this.results.set(r.request_id, clone(r.result));
+        return { ok: true, result_path: `results/${r.request_id}.json` } as T;
+      }
+      case "results.get": {
+        const r = this.results.get((params as { request_id: string }).request_id);
+        if (!r) throw rpcError(-32002, "That result isn't stored in this project.", "StaleOrUnknown");
+        return { result: clone(r) } as T;
+      }
+      case "corrections.adjust": {
+        const c = params as { p_values: (number | null)[]; method: CorrectionMethod };
+        try {
+          return { adjusted: pAdjust(c.p_values, c.method) } as T;
+        } catch (e) {
+          throw rpcError(-32003, String((e as Error).message), "InvalidParams");
+        }
+      }
       default:
         throw rpcError(-32601, `Method not found: ${method}`, "MethodNotFound");
     }
@@ -1840,9 +1865,53 @@ export class MockEngine implements Transport {
     }
     project.data_path = project.dataset_meta ? "data/dataset.parquet" : null;
     project.modified_at = nowIso();
+    this.attachResults(project);
     this.saved.set(p.path, { project, savedAt: project.modified_at });
     for (const [k, a] of this.autosaves) if (a.project.project_id === project.project_id) this.autosaves.delete(k);
     return { path: p.path, saved_at: project.modified_at, size_bytes: 4096 + (project.dataset_meta?.n_rows ?? 0) * 64, project: clone(project) };
+  }
+
+  /** Mirrors the engine: result_path is set iff the engine holds that entry's full result. */
+  private attachResults(project: ProjectFile) {
+    project.test_log = project.test_log.map((e) => ({ ...e, result_path: this.results.has(e.id) ? `results/${e.id}.json` : null }));
+  }
+
+  /** The example project with three ungrouped t tests on the same data and one post hoc test. */
+  private testLogProject(example: ProjectFile): ProjectFile {
+    const p = clone(example);
+    p.project_id = "4d1e7b52-9a8c-4f0e-8b6a-6c2f1e3a7d10";
+    p.name = "Attitude items";
+    p.test_families = [];
+    const base = example.test_log[0];
+    const rows: [string, string, string, number][] = [
+      ["req_item1", "t_test.independent", "Q5_1", 0.012],
+      ["req_item2", "t_test.independent", "Q5_2", 0.034],
+      ["req_scale", "t_test.independent", "math_attitude", 0.21],
+      ["req_tukey", "posthoc.tukey", "math_attitude", 0.004],
+    ];
+    p.test_log = rows.map(([id, analysis, outcome, pv], i) => {
+      const e = clone(base);
+      e.id = id;
+      e.timestamp = `2026-09-24T21:0${i}:00Z`;
+      e.request = { ...e.request, request_id: id, analysis_id: analysis, variables: { ...e.request.variables, outcome: [outcome] } };
+      e.result_summary = {
+        ...e.result_summary,
+        analysis_label: analysis === "posthoc.tukey" ? "Tukey HSD comparisons" : e.result_summary.analysis_label,
+        outcome_variables: [outcome],
+        p: pv,
+        primary_statistic: e.result_summary.primary_statistic ? { ...e.result_summary.primary_statistic, p: pv } : null,
+      };
+      e.family_id = null;
+      e.correction_method = "none";
+      e.adjusted_p = null;
+      e.result_path = `results/${id}.json`;
+      const r = clone(exampleResult as unknown as AnalysisResult);
+      r.analysis_id = analysis;
+      r.statistics = r.statistics.map((st, k) => (k === 0 ? { ...st, p: pv } : st));
+      this.results.set(id, r);
+      return e;
+    });
+    return p;
   }
 
   load(p: ProjectLoadParams): ProjectLoadResult {
@@ -1865,6 +1934,7 @@ export class MockEngine implements Transport {
       const ds = this.datasets.get(project.dataset_meta.dataset_id);
       if (ds) project.dataset_meta = clone(ds.meta);
     }
+    this.attachResults(project);
     this.autosaves.set(path, { project, marker: { schema_version: 1, project_id: project.project_id, original_path: p.original_path, saved_at } });
     return { autosave_path: path, saved_at };
   }

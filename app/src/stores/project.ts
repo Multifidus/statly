@@ -28,6 +28,8 @@ interface ProjectState {
   markDirty: () => void;
   /** Append one analysis run to the project's Test Log (SPEC §9) and mark the project dirty. */
   appendTestLog: (entry: TestLogEntry) => void;
+  /** Replace the project through `fn` and mark it dirty (Test Log families, stores/testLog.ts). */
+  updateProject: (fn: (p: ProjectFile) => ProjectFile) => void;
   /** Build the ProjectFile to send with save/autosave (current dataset meta folded in). */
   snapshot: () => ProjectFile | null;
   saveTo: (path: string) => Promise<void>;
@@ -100,6 +102,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     const p = get().project;
     if (!p) return;
     set({ project: { ...p, test_log: [...p.test_log.filter((e) => e.id !== entry.id), entry] }, dirty: true });
+  },
+
+  updateProject: (fn) => {
+    const p = get().project;
+    if (!p) return;
+    set({ project: fn(p), dirty: true });
   },
 
   snapshot: () => {

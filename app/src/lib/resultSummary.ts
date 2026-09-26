@@ -77,9 +77,7 @@ export function makeTestLogEntry(request: AnalysisRequest, result: AnalysisResul
       plain_language_summary: result.plain_language_summary,
       engine_version: result.engine_version,
     },
-    // The engine has no RPC yet to store the full result inside the .statly zip, so the
-    // entry points nowhere; the app keeps full results in memory and re-runs the stored
-    // request (pure, same snapshot) to reopen older entries.
+    // Set by the engine on save once it holds the full result (`results.put`, stores/testLog.ts).
     result_path: null,
     family_id: null,
     correction_method: "none",

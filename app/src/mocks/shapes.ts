@@ -52,6 +52,8 @@ export const MOCK_FILES: { path: string; group: string }[] = [
 ];
 
 export const MOCK_EXAMPLE_PROJECT_PATH = "/mock/projects/Example project.statly";
+/** Seeded project with three ungrouped t tests and a post hoc test (Test Log families, SPEC §9). */
+export const MOCK_TEST_LOG_PROJECT_PATH = "/mock/projects/Attitude items.statly";
 
 // ---------------------------------------------------------------------------------------
 

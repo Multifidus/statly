@@ -128,7 +128,34 @@ App usage (SPEC §7.2, §9): the guided flow runs the recommended analysis once 
 `assumptions[]` and `chart_data`, then runs the user's final choice (the same run when they keep
 the recommended test). Only the chosen run is appended to `ProjectFile.test_log` as a
 `TestLogEntry` with `family_id: null`, `correction_method: "none"`, `adjusted_p: null`.
-`result_path` is `null` for now: no RPC yet writes `results/<entry_id>.json` into the zip (the
-engine only carries results it loaded). The app keeps full results in memory for the session
-and reopens older entries by re-running `entry.request` when the snapshot is unchanged
-(analyses are pure), else shows the stored `result_summary`.
+Since Phase 6 the app pushes each logged result with `results.put`; `project.save`/`autosave`
+write it to `results/<entry_id>.json` and set `result_path`, and older entries reopen via
+`results.get` (fallbacks: re-run `entry.request` on an unchanged snapshot, else the stored
+`result_summary`).
+
+## Phase 6 RPC methods (Test Log families, SPEC §9)
+Engine-side pydantic models, not yet in `Rpc.json`; shapes in `docs/PROTOCOL.md` "Phase 6 methods".
+
+| Method | Params | Result | Notes |
+|---|---|---|---|
+| `results.put` | `{request_id, result: AnalysisResult}` | `{ok, result_path}` | Hold a logged run's full result for save/autosave. |
+| `results.get` | `{request_id}` | `{result: AnalysisResult}` | Stored result (pushed or loaded); unknown -> `-32002`. |
+| `corrections.adjust` | `{p_values, method}` | `{adjusted}` | Pure; equals R `p.adjust` (bonferroni, holm, BH). |
+
+Families: `ProjectFile.test_families[] = {id, name}`; each member entry carries `family_id`, the
+family's `correction_method` (identical across members) and its `adjusted_p`. Post hoc analyses
+(`posthoc.*`) and entries without a single p-value cannot join a family.
+
+## Phase 8 RPC methods (exports, SPEC §10.3)
+Engine-side validation, not yet in `Rpc.json`; full shapes and rules in `docs/PROTOCOL.md` "Phase 8 methods".
+
+| Method | Params | Result | Notes |
+|---|---|---|---|
+| `export.table_html` | `{apa_table, number?}` | `{html, plain_text}` | Clipboard HTML (inline styles) + tab-separated fallback. |
+| `export.report` | `{title, author?, results: AnalysisResult[], include?, charts?, format: docx\|pdf, path, overwrite?}` | `{path, bytes}` | Charts are PNGs from the WebView keyed by `request_id`. |
+| `export.data` | `{dataset_id, format: xlsx\|csv, path, include_metadata_columns?, options?, overwrite?}` | `{path, bytes, snapshot_id, n_rows, n_columns, pii_columns}` | `options`: `label_row`, `blank_missing_codes` (default true), `exclude_pii`. |
+| `export.codebook` | `{dataset_id, format: xlsx\|docx, path, overwrite?}` | `{path, bytes}` | From `DatasetMeta.variables` + `scales`. |
+| `export.test_log` | `{entries: TestLogEntry[], format: xlsx\|csv\|docx, path, overwrite?}` | `{path, bytes}` | |
+
+`path` must be absolute with the format's extension in an existing folder; an existing file needs
+`overwrite: true` (else `-32003`, `data.reason: "file_exists"`).

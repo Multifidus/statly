@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { CheckboxField, Input } from "@/components/ui/form";
 import { useMockDialog } from "./dialogStore";
-import { MOCK_EXAMPLE_PROJECT_PATH, MOCK_FILES } from "./shapes";
+import { MOCK_EXAMPLE_PROJECT_PATH, MOCK_FILES, MOCK_TEST_LOG_PROJECT_PATH } from "./shapes";
 
 const base = (p: string) => p.split("/").pop() ?? p;
 
@@ -21,7 +21,8 @@ export function MockDialogHost() {
   }, [pending]);
 
   const groups = [...new Set(MOCK_FILES.map((f) => f.group))];
-  const projects = [MOCK_EXAMPLE_PROJECT_PATH, ...saved.filter((p) => p !== MOCK_EXAMPLE_PROJECT_PATH)];
+  const seeded = [MOCK_EXAMPLE_PROJECT_PATH, MOCK_TEST_LOG_PROJECT_PATH];
+  const projects = [...seeded, ...saved.filter((p) => !seeded.includes(p))];
 
   return (
     <Dialog open={!!pending} onOpenChange={(o) => !o && finish(null)}>

@@ -205,3 +205,75 @@ Semantics:
   older ones keep only their label. `project.save` writes `history.json` (labels up to the current
   entry) into the `.statly` zip; after `project.load` only the current snapshot is restorable and the
   earlier entries are a read-only change log.
+
+## Phase 6 methods (Test Log and multiple comparisons, SPEC §9)
+Engine-side closed pydantic models (not yet in `contracts/Rpc.json`): `rpc_methods/project.py`
+(`results.*`) and `rpc_methods/corrections.py`. The app mirrors them in `app/src/lib/rpc.ts`.
+
+| Method | Params | Result |
+|---|---|---|
+| `results.put` | `{request_id, result: AnalysisResult}` | `{ok: true, result_path: "results/<request_id>.json"}` |
+| `results.get` | `{request_id}` | `{result: AnalysisResult}`; unknown id -> `-32002` |
+| `corrections.adjust` | `{p_values: (number\|null)[], method: none\|bonferroni\|holm\|fdr_bh}` | `{adjusted: (number\|null)[]}` |
+
+- The app calls `results.put` right after it logs a run (only logged runs, never the assumption
+  check run). The engine holds the JSON in `DatasetStore.results` (session-wide, so dataset-free
+  runs such as power analyses work too). `project.save` / `project.autosave` write
+  `results/<id>.json` for every `test_log` entry it holds and set that entry's `result_path`
+  (null when the engine has no result for it). `project.load` reads every `results/*.json` back
+  into the store and sets `result_path` from what is present, so `results.get` reopens a past run
+  without re-running it (the app still falls back to re-running on an unchanged snapshot, then to
+  the stored `result_summary`). `request_id` must match `[A-Za-z0-9._-]+` (`-32003` otherwise).
+- `corrections.adjust` is pure and reproduces R `p.adjust` exactly (`fdr_bh` = `"BH"`); null
+  p-values pass through and don't count towards n; p outside [0, 1] -> `-32003`. Statly never
+  corrects automatically: the app calls it only for a user-made family and stores the result on
+  each member (`TestLogEntry.family_id`, `correction_method`, `adjusted_p`) and the family in
+  `ProjectFile.test_families`.
+
+## Phase 8 methods (exports, SPEC §10.3)
+Handlers in `rpc_methods/export.py`, renderers in `statly_engine/export/`. Params are validated in the
+handler (not yet in `contracts/Rpc.json`); `AnalysisResult`, `ApaTable` and `TestLogEntry` payloads are
+validated against the generated contract models (`-32003` with `data.errors` on mismatch).
+
+| Method | Params | Result |
+|---|---|---|
+| `export.table_html` | `{apa_table: ApaTable, number?: int\|null}` | `{html, plain_text}` |
+| `export.report` | `{title, author?: string\|null, results: AnalysisResult[], include?: {tables?, sentences?, assumptions?, charts?: bool}, charts?: {request_id, png_base64, title?, note?}[], format: docx\|pdf, path, overwrite?: bool}` | `{path, bytes}` |
+| `export.data` | `{dataset_id, format: xlsx\|csv, path, include_metadata_columns?: bool, options?: {label_row?, blank_missing_codes?, exclude_pii?: bool}, overwrite?: bool}` | `{path, bytes, snapshot_id, n_rows, n_columns, pii_columns}` |
+| `export.codebook` | `{dataset_id, format: xlsx\|docx, path, overwrite?: bool}` | `{path, bytes}` |
+| `export.test_log` | `{entries: TestLogEntry[], format: xlsx\|csv\|docx, path, overwrite?: bool}` | `{path, bytes}` |
+
+- **Paths** come from the app's save dialog. The engine requires an absolute path without `..`, an
+  extension matching `format`, and an existing parent folder; an existing file is replaced only with
+  `overwrite: true`. Refusals are `-32003` with `data.reason` in `missing_path`, `relative_path`,
+  `wrong_extension`, `missing_folder`, `is_directory`, `file_exists` (the app asks "Replace?" and
+  retries with `overwrite: true`). Files are written to `<path>.tmp` then renamed; write failures are
+  `-32001`. Unknown `dataset_id` is `-32002`. Everything renders offline.
+- **APA rendering**: tables and sentences are rendered from the engine's `display` strings and
+  RichText runs verbatim (italic symbols, sub/superscripts). Table number bold, title italic,
+  horizontal rules only (top, under the column headers, bottom; a rule under each spanning column
+  group), `Note.` italic followed by general, specific and probability notes.
+  `export.table_html` returns an inline-styled fragment (Times New Roman 12pt) for the rich-text
+  clipboard plus a tab-separated `plain_text` fallback; the app writes both flavours.
+- **Report**: one section per result in the given order: centered bold heading (the analysis label),
+  plain-language summary, APA sentence, `apa_table` then `additional_tables`, "Assumption Checks"
+  (label, scope, test, statistic, p, Met/Caution/Not met, explanation; numbers formatted by
+  `stats/apa.py`), then the figure. Tables and figures are renumbered consecutively across the
+  report. A figure is included only when `include.charts` is not false and `charts[]` has a PNG whose
+  `request_id` equals the result's `inputs.request.request_id` (the WebView renders the chart and
+  sends the PNG, optionally as a `data:` URL); `title` defaults to the result's table title.
+  DOCX uses a real Word table style `APA Table`; PDF uses the system Times New Roman (Liberation
+  Serif on Linux; built-in Times, Latin-1 only, as a last resort) so Greek symbols render.
+  `results` are passed by the app for now (the report does not yet read `results.get` storage).
+- **Data**: the current snapshot in Variables-screen order, without the internal row id. Metadata
+  columns are dropped unless `include_metadata_columns`; `label_row` adds variable labels (name as
+  fallback) as a second header row; `blank_missing_codes` (default true) writes declared missing codes
+  as empty cells; `exclude_pii` (default false) drops PII-flagged columns, and `pii_columns` lists the
+  PII columns that were written so the app can warn. CSV is UTF-8 with BOM. XLSX text starting with
+  `=` is stored as text, never as a formula.
+- **Codebook**: name, label, question text, role, level, value labels, reverse-scored (with the
+  `min + max - x` rule), scale membership and scoring rule, missing codes, and the computed-variable
+  definition in words; XLSX adds a `Scales` sheet, DOCX a Scales table.
+- **Test Log**: #, date, analysis, outcome(s), statistic, p, effect size (with CI), N, family,
+  correction, adjusted p, APA sentence, plain-language summary, engine version (the DOCX, landscape,
+  omits family id, summary and engine version).
