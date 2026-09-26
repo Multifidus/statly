@@ -81,11 +81,13 @@ def test_multi_answer_mc_expands_per_choice_with_other_text(survey):
 def test_matrix_expands_rows_ordinal_and_scale(survey):
     q5 = _q(survey, "Q5")
     assert q5.kind == "matrix"
-    assert q5.text == "Please rate how much you agree with each statement about your classroom experience."
+    assert q5.text == "Please say how much you agree with each statement about your classroom experience."
     assert [c.name for c in q5.columns] == GT["matrix_block"]["columns"]
     assert all(c.level == "ordinal" and c.group == "Q5" for c in q5.columns)
     assert [v["label"] for v in q5.columns[0].value_labels] == AGREE
-    assert "reverse-worded" in q5.columns[3].label
+    # No textual "(reverse-worded)" marker on purpose: the learner must judge Q5_4's wording
+    # ("I often feel lost in this class") for themselves, so it no longer trips REVERSE_RE.
+    assert q5.columns[3].label == "I often feel lost in this class"
     assert survey.suggested_scales() == [{"name": "Q5", "label": q5.text, "items": GT["matrix_block"]["columns"]}]
 
 
@@ -231,15 +233,25 @@ def test_apply_matrix_labels_and_scale(applied, survey):
     _, out = applied
     by = {c["name"]: c for c in out["columns"]}
     items = GT["matrix_block"]["columns"]
-    for i, name in enumerate(items, 1):
+    statements = [
+        "I enjoy coming to this class",
+        "The teacher explains things clearly",
+        "I feel comfortable asking questions",
+        "I often feel lost in this class",
+        "The activities help me learn",
+        "I would recommend this class to a friend",
+    ]
+    for (i, name), statement in zip(enumerate(items, 1), statements):
         s = by[name]
-        assert s["label"].startswith(f"Matrix statement {i} ")
+        assert s["label"] == statement
         assert s["level"] == "ordinal" and s["role"] == "likert_item"
         assert [v["label"] for v in s["value_labels"]] == AGREE
-        assert s.get("reverse_hint", False) == (name in GT["matrix_block"]["reverse_worded_items"])
+        # No "(reverse-worded)" marker in the text anymore, so REVERSE_RE no longer flags
+        # Q5_4 automatically -- the learner has to judge the wording themselves.
+        assert s.get("reverse_hint", False) is False
     assert out["scales"] == [{"name": "Q5", "label": _q(survey, "Q5").text, "items": items,
                               "origin": "matrix_suggestion",
-                              "reverse_hint_items": GT["matrix_block"]["reverse_worded_items"]}]
+                              "reverse_hint_items": []}]
 
 
 def test_apply_other_columns_and_unmatched(applied):

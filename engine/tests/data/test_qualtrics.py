@@ -37,7 +37,10 @@ def test_detection_matches_ground_truth(store, name):
     names = [v["name"] for v in fp["proposed_variables"]]
     assert "Q10" in names and names[0] == "StartDate"
     q5 = _var(fp, "Q5_1")
-    assert q5["question_text"] == "Matrix statement 1 about classroom experience"
+    assert q5["question_text"] == (
+        "Please say how much you agree with each statement about your classroom experience."
+        " - I enjoy coming to this class"
+    )
     assert q5["sources"][0]["qualtrics_import_id"] == ("Q5_1" if gt["header_rows"] == 3 else None)
     assert len(q5["sources"][0]["header_texts"]) == gt["header_rows"]
 

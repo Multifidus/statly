@@ -353,9 +353,18 @@ def gen_messy_qualtrics(rng: np.random.Generator, outdir: Path):
 
     matrix_ids = [f"Q5_{i}" for i in range(1, 7)]
     reverse_items = {"Q5_4"}
+    q5_stem = "Please say how much you agree with each statement about your classroom experience."
+    q5_statements = {
+        1: "I enjoy coming to this class",
+        2: "The teacher explains things clearly",
+        3: "I feel comfortable asking questions",
+        4: "I often feel lost in this class",
+        5: "The activities help me learn",
+        6: "I would recommend this class to a friend",
+    }
+    # Qualtrics formats a matrix column's question text as "<stem> - <statement>".
     matrix_text = {
-        iid: f"Matrix statement {i} about classroom experience"
-        f"{' (reverse-worded)' if iid in reverse_items else ''}"
+        iid: f"{q5_stem} - {q5_statements[i]}"
         for i, iid in enumerate(matrix_ids, start=1)
     }
 

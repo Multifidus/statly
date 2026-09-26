@@ -310,25 +310,25 @@
     "QuestionType": "Matrix",
     "Selector": "Likert",
     "SubSelector": "SingleAnswer",
-    "QuestionText": "<div>Please rate how much you <em>agree</em> with each statement about your classroom&nbsp;experience.</div>",
+    "QuestionText": "<div>Please say how much you agree with each statement about your classroom&nbsp;experience.</div>",
     "Choices": {
      "1": {
-      "Display": "Matrix statement 1 about classroom experience"
+      "Display": "I enjoy coming to this class"
      },
      "2": {
-      "Display": "Matrix statement 2 about classroom experience"
+      "Display": "The teacher explains things clearly"
      },
      "3": {
-      "Display": "Matrix statement 3 about classroom experience"
+      "Display": "I feel comfortable asking questions"
      },
      "4": {
-      "Display": "Matrix statement 4 about classroom experience (reverse-worded)"
+      "Display": "I often feel lost in this class"
      },
      "5": {
-      "Display": "Matrix statement 5 about classroom experience"
+      "Display": "The activities help me learn"
      },
      "6": {
-      "Display": "Matrix statement 6 about classroom experience"
+      "Display": "I would recommend this class to a friend"
      }
     },
     "ChoiceOrder": [
