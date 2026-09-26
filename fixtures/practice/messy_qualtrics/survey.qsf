@@ -1,0 +1,621 @@
+{
+ "SurveyEntry": {
+  "SurveyID": "SV_3kPqzXw8mTcRb4a",
+  "SurveyName": "Course Experience Survey &ndash; Fall",
+  "SurveyDescription": null,
+  "SurveyOwnerID": "UR_9XyZabc123",
+  "SurveyBrandID": "statlydemo",
+  "DivisionID": null,
+  "SurveyLanguage": "EN",
+  "SurveyActiveResponseSet": "RS_1",
+  "SurveyStatus": "Active",
+  "SurveyStartDate": "0000-00-00 00:00:00",
+  "SurveyExpirationDate": "0000-00-00 00:00:00",
+  "SurveyCreationDate": "2025-08-20 14:02:11",
+  "CreatorID": "UR_9XyZabc123",
+  "LastModified": "2025-09-02 09:41:37",
+  "LastAccessed": "0000-00-00 00:00:00",
+  "LastActivated": "2025-09-02 09:41:37",
+  "Deleted": null
+ },
+ "SurveyElements": [
+  {
+   "Element": "BL",
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "PrimaryAttribute": "Survey Blocks",
+   "SecondaryAttribute": null,
+   "TertiaryAttribute": null,
+   "Payload": {
+    "0": {
+     "Type": "Default",
+     "Description": "Consent",
+     "ID": "BL_1",
+     "BlockElements": [
+      {
+       "Type": "Question",
+       "QuestionID": "QID1"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID2"
+      }
+     ]
+    },
+    "1": {
+     "Type": "Trash",
+     "Description": "Trash / Unused Questions",
+     "ID": "BL_2",
+     "BlockElements": [
+      {
+       "Type": "Question",
+       "QuestionID": "QID8"
+      }
+     ]
+    },
+    "2": {
+     "Type": "Standard",
+     "Description": "Classroom experience",
+     "ID": "BL_3",
+     "BlockElements": [
+      {
+       "Type": "Question",
+       "QuestionID": "QID3"
+      },
+      {
+       "Type": "Page Break"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID5"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID6"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID7"
+      }
+     ]
+    },
+    "3": {
+     "Type": "Standard",
+     "Description": "Open comments",
+     "ID": "BL_4",
+     "BlockElements": [
+      {
+       "Type": "Question",
+       "QuestionID": "QID9"
+      },
+      {
+       "Type": "Question",
+       "QuestionID": "QID10"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "FL",
+   "PrimaryAttribute": "Survey Flow",
+   "SecondaryAttribute": null,
+   "TertiaryAttribute": null,
+   "Payload": {
+    "Type": "Root",
+    "FlowID": "FL_1",
+    "Flow": [
+     {
+      "Type": "Block",
+      "ID": "BL_1",
+      "FlowID": "FL_2"
+     },
+     {
+      "Type": "Block",
+      "ID": "BL_3",
+      "FlowID": "FL_3"
+     },
+     {
+      "Type": "Block",
+      "ID": "BL_4",
+      "FlowID": "FL_4"
+     }
+    ],
+    "Properties": {
+     "Count": 4
+    }
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SO",
+   "PrimaryAttribute": "Survey Options",
+   "SecondaryAttribute": null,
+   "TertiaryAttribute": null,
+   "Payload": {
+    "BackButton": "false",
+    "SaveAndContinue": "true",
+    "SurveyProtection": "PublicSurvey",
+    "SurveyLanguage": "EN",
+    "ProgressBarDisplay": "None"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SCO",
+   "PrimaryAttribute": "Scoring",
+   "SecondaryAttribute": null,
+   "TertiaryAttribute": null,
+   "Payload": {
+    "ScoringCategories": [
+     {
+      "ID": "SC_0",
+      "Name": "Score",
+      "Description": ""
+     }
+    ],
+    "ScoringCategoryGroups": [],
+    "ScoringSummaryCategory": null,
+    "DefaultScoringCategory": "SC_0"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "QC",
+   "PrimaryAttribute": "Survey Question Count",
+   "SecondaryAttribute": "8",
+   "TertiaryAttribute": null,
+   "Payload": null
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID1",
+   "SecondaryAttribute": "Q1",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID1",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q1",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "QuestionText": "<p><strong>Informed consent</strong></p><p>Do you consent to participate?</p>",
+    "Choices": {
+     "1": {
+      "Display": "Yes"
+     },
+     "2": {
+      "Display": "No"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "ON",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "<p><strong>Informed consent</strong></p><p>Do you consent to participate?</p>"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID2",
+   "SecondaryAttribute": "Q1",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID2",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q1",
+    "QuestionType": "Timing",
+    "Selector": "PageTimer",
+    "QuestionText": "Timing",
+    "Choices": {
+     "1": {
+      "Display": "First Click"
+     },
+     "2": {
+      "Display": "Last Click"
+     },
+     "3": {
+      "Display": "Page Submit"
+     },
+     "4": {
+      "Display": "Click Count"
+     }
+    },
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "Timing"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID3",
+   "SecondaryAttribute": "Q2",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID3",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q2",
+    "QuestionType": "DB",
+    "Selector": "TB",
+    "QuestionText": "<div>Thank you! The next questions ask about your classroom experience &amp; study habits this term.</div>",
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "<div>Thank you! The next questions ask about your classroom experience &amp; study habits this term.</div>"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID5",
+   "SecondaryAttribute": "Q5",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID5",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q5",
+    "QuestionType": "Matrix",
+    "Selector": "Likert",
+    "SubSelector": "SingleAnswer",
+    "QuestionText": "<div>Please rate how much you <em>agree</em> with each statement about your classroom&nbsp;experience.</div>",
+    "Choices": {
+     "1": {
+      "Display": "Matrix statement 1 about classroom experience"
+     },
+     "2": {
+      "Display": "Matrix statement 2 about classroom experience"
+     },
+     "3": {
+      "Display": "Matrix statement 3 about classroom experience"
+     },
+     "4": {
+      "Display": "Matrix statement 4 about classroom experience (reverse-worded)"
+     },
+     "5": {
+      "Display": "Matrix statement 5 about classroom experience"
+     },
+     "6": {
+      "Display": "Matrix statement 6 about classroom experience"
+     }
+    },
+    "ChoiceOrder": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "Answers": {
+     "1": {
+      "Display": "Strongly disagree"
+     },
+     "2": {
+      "Display": "Disagree"
+     },
+     "3": {
+      "Display": "Neutral"
+     },
+     "4": {
+      "Display": "Agree"
+     },
+     "5": {
+      "Display": "Strongly agree"
+     }
+    },
+    "AnswerOrder": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "ChoiceDataExportTags": false,
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "ON",
+      "ForceResponseType": "ON",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "<div>Please rate how much you <em>agree</em> with each statement about your classroom&nbsp;experience.</div>"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID6",
+   "SecondaryAttribute": "Q6",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID6",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q6",
+    "QuestionType": "MC",
+    "Selector": "SAHR",
+    "SubSelector": "TX",
+    "QuestionText": "How satisfied are you with the course overall?",
+    "Choices": {
+     "1": {
+      "Display": "Strongly disagree"
+     },
+     "2": {
+      "Display": "Disagree"
+     },
+     "3": {
+      "Display": "Neutral"
+     },
+     "4": {
+      "Display": "Agree"
+     },
+     "5": {
+      "Display": "Strongly agree"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5"
+    ],
+    "RecodeValues": {
+     "1": "1",
+     "2": "2",
+     "3": "4",
+     "4": "5",
+     "5": "7"
+    },
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "How satisfied are you with the course overall?"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID7",
+   "SecondaryAttribute": "Q7",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID7",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q7",
+    "QuestionType": "MC",
+    "Selector": "MAVR",
+    "SubSelector": "TX",
+    "QuestionText": "Which study strategies did you use? <span style=\"font-size:11px\">(select all that apply)</span>",
+    "Choices": {
+     "1": {
+      "Display": "Textbook"
+     },
+     "2": {
+      "Display": "Online videos"
+     },
+     "3": {
+      "Display": "Study group"
+     },
+     "4": {
+      "Display": "Tutor"
+     },
+     "5": {
+      "Display": "Practice problems"
+     },
+     "6": {
+      "Display": "Office hours"
+     },
+     "7": {
+      "Display": "Flashcards"
+     },
+     "8": {
+      "Display": "Other",
+      "TextEntry": "true",
+      "TextEntrySize": "Small"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "Which study strategies did you use? <span style=\"font-size:11px\">(select all that apply)</span>"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID9",
+   "SecondaryAttribute": "Q9",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID9",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q9",
+    "QuestionType": "TE",
+    "Selector": "SL",
+    "QuestionText": "Is there anything else you'd like to share? (open-ended)",
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "Is there anything else you'd like to share? (open-ended)"
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID10",
+   "SecondaryAttribute": "Q10",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID10",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q10",
+    "QuestionType": "TE",
+    "Selector": "ML",
+    "QuestionText": "Please describe your overall experience.",
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "Please describe your overall experience."
+   }
+  },
+  {
+   "SurveyID": "SV_3kPqzXw8mTcRb4a",
+   "Element": "SQ",
+   "PrimaryAttribute": "QID8",
+   "SecondaryAttribute": "Q8",
+   "TertiaryAttribute": null,
+   "Payload": {
+    "QuestionID": "QID8",
+    "DataVisibility": {
+     "Private": false,
+     "Hidden": false
+    },
+    "Configuration": {
+     "QuestionDescriptionOption": "UseText"
+    },
+    "Language": [],
+    "NextChoiceId": 4,
+    "NextAnswerId": 1,
+    "DataExportTag": "Q8",
+    "QuestionType": "MC",
+    "Selector": "SAVR",
+    "SubSelector": "TX",
+    "QuestionText": "Deleted draft question: preferred class time",
+    "Choices": {
+     "1": {
+      "Display": "Morning"
+     },
+     "2": {
+      "Display": "Afternoon"
+     },
+     "3": {
+      "Display": "Evening"
+     }
+    },
+    "ChoiceOrder": [
+     "1",
+     "2",
+     "3"
+    ],
+    "Validation": {
+     "Settings": {
+      "ForceResponse": "OFF",
+      "Type": "None"
+     }
+    },
+    "QuestionDescription": "Deleted draft question: preferred class time"
+   }
+  }
+ ]
+}
