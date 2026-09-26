@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useImportFlow } from "@/stores/importFlow";
 
 /** Top-level screens. A tiny state router. */
 export type View =
@@ -27,6 +28,12 @@ interface NavState {
 export const useNav = create<NavState>((set, get) => ({
   view: "home",
   prev: null,
-  go: (view) => set({ view, prev: get().view === view ? get().prev : get().view }),
+  go: (view) => {
+    // Entering the import wizard always starts clean, no matter which menu/route sent us here
+    // (previously only DataScreen's "Import a file" button reset the flow, so a stale preview
+    // or file list from a prior visit could resurface through any other entry point).
+    if (view === "import") useImportFlow.getState().reset();
+    set({ view, prev: get().view === view ? get().prev : get().view });
+  },
   back: () => set({ view: get().prev ?? "home", prev: null }),
 }));

@@ -29,7 +29,7 @@ export function DatasetTabs() {
             aria-current={active ? "page" : undefined}
             data-testid={`tab-${t.view}`}
             className={cn(
-              "rounded-md px-3 py-1 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              "whitespace-nowrap rounded-md px-3 py-1 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
               active ? "bg-accent font-semibold" : "text-muted-foreground hover:text-foreground",
             )}
           >

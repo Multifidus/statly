@@ -39,8 +39,13 @@ interface ImportFlowState {
   error: string | null;
   /** Set after a successful import. */
   result: { meta: DatasetMeta; linkReport: LinkReport | null } | null;
+  /** Pending "replace this project's data?" prompt (ProjectMenu's "Import data…"), answered via answerGuard. */
+  guard: { resolve: (ok: boolean) => void } | null;
 
   reset: () => void;
+  /** Ask the user to confirm before an import that would replace an already-loaded dataset. */
+  confirmReplace: () => Promise<boolean>;
+  answerGuard: (ok: boolean) => void;
   addFiles: (paths: string[]) => void;
   removeFile: (path: string) => void;
   setQualtricsMode: (m: QualtricsMode) => void;
@@ -64,8 +69,21 @@ const initial = {
 
 export const useImportFlow = create<ImportFlowState>((set, get) => ({
   ...initial,
+  guard: null,
 
   reset: () => set({ ...initial }),
+
+  confirmReplace: () =>
+    new Promise<boolean>((resolve) => {
+      get().guard?.resolve(false);
+      set({ guard: { resolve } });
+    }),
+
+  answerGuard: (ok) => {
+    const g = get().guard;
+    set({ guard: null });
+    g?.resolve(ok);
+  },
 
   addFiles: (paths) => {
     const have = new Set(get().files.map((f) => f.path));

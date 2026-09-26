@@ -1,4 +1,4 @@
-import { ChevronDown, FilePlus, FolderOpen, Save, SaveAll } from "lucide-react";
+import { ChevronDown, FilePlus, FolderOpen, Home, Save, SaveAll, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +9,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { newProject, openProject, saveProject, saveProjectAs } from "@/lib/projectActions";
+import { useDatasetStore } from "@/stores/dataset";
+import { useImportFlow } from "@/stores/importFlow";
+import { useNav } from "@/stores/nav";
 import { useProjectStore } from "@/stores/project";
 
 const mod = typeof navigator !== "undefined" && /Mac/i.test(navigator.platform) ? "⌘" : "Ctrl+";
@@ -36,6 +39,14 @@ export function AutosaveIndicator() {
 export function ProjectMenu() {
   const project = useProjectStore((s) => s.project);
   const dirty = useProjectStore((s) => s.dirty);
+  const hasData = useDatasetStore((s) => !!s.meta);
+  const go = useNav((s) => s.go);
+
+  const startImport = async () => {
+    if (hasData && !(await useImportFlow.getState().confirmReplace())) return;
+    go("import");
+  };
+
   return (
     <div className="flex shrink-0 items-center gap-3">
       <DropdownMenu>
@@ -64,6 +75,13 @@ export function ProjectMenu() {
           <DropdownMenuItem disabled={!project} onSelect={() => void saveProjectAs()}>
             <SaveAll aria-hidden /> Save As…
             <DropdownMenuShortcut>⇧{mod}S</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => go("home")} data-testid="project-menu-home">
+            <Home aria-hidden /> Home
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => void startImport()} data-testid="project-menu-import">
+            <Upload aria-hidden /> Import data…
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

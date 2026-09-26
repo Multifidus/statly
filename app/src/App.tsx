@@ -6,6 +6,7 @@ import { Tour } from "@/components/onboarding/Tour";
 import { useOnboarding } from "@/components/onboarding/store";
 import { Button } from "@/components/ui/button";
 import { ProjectMenu } from "@/components/project/ProjectMenu";
+import { ImportReplaceDialog } from "@/components/project/ImportReplaceDialog";
 import { UnsavedChangesDialog } from "@/components/project/UnsavedChangesDialog";
 import { ExportMenu } from "@/components/export/ExportMenu";
 import { IS_MOCK } from "@/lib/engineMode";
@@ -149,7 +150,14 @@ export default function App() {
         Skip to content
       </a>
       <header className="flex flex-wrap items-center gap-4 border-b px-4 py-2">
-        <span className="shrink-0 text-base font-semibold tracking-tight">Statly</span>
+        <button
+          type="button"
+          onClick={() => useNav.getState().go("home")}
+          aria-label="Home"
+          className="shrink-0 rounded text-base font-semibold tracking-tight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        >
+          Statly
+        </button>
         <ProjectMenu />
         <ExportMenu />
         <DatasetTabs />
@@ -193,6 +201,7 @@ export default function App() {
         </EngineStartup>
       </main>
       <UnsavedChangesDialog />
+      <ImportReplaceDialog />
       <Tour />
       <Notification />
       {MockDialogHost && (
