@@ -94,3 +94,18 @@ file alongside a dependency change.
 ```bash
 cd app && STATLY_ENGINE_DEV=1 npm run tauri dev
 ```
+
+## Releasing
+
+1. On a clean tree, bump the version (updates `app/package.json`,
+   `app/src-tauri/tauri.conf.json`, `app/src-tauri/Cargo.toml`,
+   `engine/pyproject.toml`, and `app/src-tauri/Cargo.lock`):
+   ```bash
+   python3 scripts/bump-version.py 0.1.1
+   ```
+2. Update `CHANGELOG.md`: move the `[Unreleased]` entries under a new
+   `[0.1.1]` heading, commit.
+3. Tag and push: `git tag v0.1.1 && git push origin v0.1.1`.
+4. The `build` job in `.github/workflows/build.yml` builds the macOS/Windows
+   installers, then the `release` job attaches them to a new GitHub Release
+   (draft: false; prerelease if the tag has a `-` suffix, e.g. `v0.1.1-rc1`).

@@ -18,10 +18,10 @@ below get you past it.
   - `statly-aarch64-apple-darwin.dmg` (Apple Silicon Mac: M1/M2/M3/M4)
   - `statly-x86_64-apple-darwin.dmg` (Intel Mac)
   - `statly-x86_64-pc-windows-msvc-setup` (Windows 10/11)
-- **From GitHub Releases:** *(placeholder - once the project owner cuts a
-  release, the same three files will be attached to a numbered release on
-  the repository's Releases page, so people don't need a GitHub account or
-  Actions access to download.)*
+- **From GitHub Releases:** the same three files are attached to each
+  numbered release on the repository's
+  [Releases page](https://github.com/Multifidus/statly/releases), so people
+  don't need a GitHub account or Actions access to download.
 
 ## Sharing the installer
 
