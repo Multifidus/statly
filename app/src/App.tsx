@@ -10,7 +10,7 @@ import { UnsavedChangesDialog } from "@/components/project/UnsavedChangesDialog"
 import { ExportMenu } from "@/components/export/ExportMenu";
 import { IS_MOCK } from "@/lib/engineMode";
 import { openProject, runAutosave, saveProject, saveProjectAs } from "@/lib/projectActions";
-import { closeWindowNow, guardWindowClose } from "@/lib/window";
+import { closeWindowNow, guardWindowClose, onQuitRequested, quitNow } from "@/lib/window";
 import { DataScreen } from "@/screens/DataScreen";
 import { InterviewScreen } from "@/screens/InterviewScreen";
 import { VariablesScreen } from "@/screens/VariablesScreen";
@@ -63,6 +63,20 @@ function useAppEffects() {
           await closeWindowNow();
         },
       ),
+    [],
+  );
+
+  // Same unsaved-changes guard for Cmd+Q / the app menu's Quit, which bypasses the
+  // window's close-requested event on macOS.
+  useEffect(
+    () =>
+      onQuitRequested(async () => {
+        const choice = await useProjectStore.getState().confirmUnsaved("Quit Statly");
+        if (choice === "cancel") return;
+        if (choice === "save" && !(await saveProject())) return;
+        useProjectStore.setState({ dirty: false });
+        await quitNow();
+      }),
     [],
   );
 
