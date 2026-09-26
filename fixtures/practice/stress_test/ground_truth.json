@@ -1,0 +1,20 @@
+{
+  "dataset": "stress_test",
+  "n_rows": 2000,
+  "n_columns": 300,
+  "header_rows": 3,
+  "metadata_columns": 17,
+  "demographic_columns": [
+    "Q2",
+    "Q3"
+  ],
+  "n_matrix_blocks": 14,
+  "items_per_block": 20,
+  "open_text_column": "Q99",
+  "purpose": "performance testing only \u2014 shape matters, not planted effects.",
+  "gotchas": [
+    "2,000 rows x 300 columns \u2014 import, Variable Interview, and matrix auto-detection should stay responsive at this size.",
+    "14 separate 20-item matrix blocks (Q10_1..Q23_20) for matrix-grouping/scale-suggestion performance.",
+    "Q99 is a free-text open-ended column (qualitative module performance)."
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "dataset": "rater_agreement",
+  "n_essays": 60,
+  "files": {
+    "essay_ratings.csv": {
+      "format": "plain CSV, one row per essay",
+      "raters": 3,
+      "scale": "1-5"
+    },
+    "nominal_coding.csv": {
+      "format": "plain CSV",
+      "raters": 2,
+      "n_categories": 4,
+      "categories": [
+        "Thesis clarity",
+        "Evidence use",
+        "Organization",
+        "Mechanics"
+      ]
+    }
+  },
+  "essay_ratings": {
+    "target_agreement": "moderate (planted via shared true-quality score + rater noise SD 0.8)",
+    "achieved_pairwise_pearson_r": {
+      "r1_r2": 0.5319,
+      "r1_r3": 0.5519,
+      "r2_r3": 0.5417
+    },
+    "n_missing_cells": 5,
+    "missing_cells": [
+      {
+        "row_essay_id": "E004",
+        "column": "rater2"
+      },
+      {
+        "row_essay_id": "E011",
+        "column": "rater1"
+      },
+      {
+        "row_essay_id": "E026",
+        "column": "rater3"
+      },
+      {
+        "row_essay_id": "E041",
+        "column": "rater2"
+      },
+      {
+        "row_essay_id": "E056",
+        "column": "rater1"
+      }
+    ]
+  },
+  "nominal_coding": {
+    "target_agreement_rate": 0.75,
+    "achieved_observed_agreement": 0.7167,
+    "achieved_expected_agreement": 0.2725,
+    "achieved_cohens_kappa": 0.6105
+  },
+  "gotchas": [
+    "essay_ratings.csv is a plain CSV (no Qualtrics header) with 3 raters scoring 60 essays 1-5; ICC(2,1) should land in the moderate range.",
+    "5 rating cells are blank (missing) \u2014 ICC must handle incomplete raters per essay.",
+    "nominal_coding.csv has 2 raters coding essays into 4 unordered categories for Cohen's kappa (achieved kappa 0.611)."
+  ]
+}

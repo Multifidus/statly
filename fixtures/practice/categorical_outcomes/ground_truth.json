@@ -1,0 +1,68 @@
+{
+  "dataset": "categorical_outcomes",
+  "n": 300,
+  "files": [
+    "survey.csv"
+  ],
+  "header_rows": 3,
+  "program_x_passfail": {
+    "columns": [
+      "Q2",
+      "Q3"
+    ],
+    "target_pass_rate_by_program": {
+      "Education": 0.55,
+      "Psychology": 0.75,
+      "Business": 0.85
+    },
+    "achieved_contingency_table": {
+      "Fail": {
+        "Business": 12,
+        "Education": 68,
+        "Psychology": 19
+      },
+      "Pass": {
+        "Business": 60,
+        "Education": 71,
+        "Psychology": 70
+      }
+    }
+  },
+  "sparse_2x2": {
+    "columns": [
+      "Q4",
+      "Q3"
+    ],
+    "target_rare_event_rate": 0.03,
+    "achieved_min_expected_count": 3.3,
+    "note": "expected count(s) < 5 -> Fisher's exact test recommended over chi-square."
+  },
+  "mcnemar_pair": {
+    "columns": [
+      "Q5_pre",
+      "Q5_post"
+    ],
+    "discordant_no_to_yes": 66,
+    "discordant_yes_to_no": 3,
+    "note": "linked yes/no pre/post pair (same respondents, same row) for McNemar's test."
+  },
+  "cochran_q_items": {
+    "columns": [
+      "Q6_1",
+      "Q6_2",
+      "Q6_3"
+    ],
+    "achieved_endorsement_rate": {
+      "Q6_1": 0.4433,
+      "Q6_2": 0.5367,
+      "Q6_3": 0.6933
+    },
+    "note": "three repeated yes/no items with increasing endorsement -> Cochran's Q."
+  },
+  "gotchas": [
+    "Q2 x Q3 (program x pass/fail) is a 3x2 table with a planted association (pass rate rises Education < Psychology < Business).",
+    "Q4 x Q3 is a sparse 2x2 (min expected count 3.3 < 5) \u2014 use Fisher's exact test, not chi-square.",
+    "Q5_pre/Q5_post is a linked yes/no pair (same respondents) for McNemar's test, with 66 No->Yes switches vs 3 Yes->No switches.",
+    "Q6_1/Q6_2/Q6_3 are three repeated yes/no items (same respondents) for Cochran's Q, with rising endorsement across items."
+  ]
+}

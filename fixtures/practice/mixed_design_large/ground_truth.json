@@ -1,0 +1,139 @@
+{
+  "dataset": "mixed_design_large",
+  "id_column": "Q1",
+  "group_column": "Q2",
+  "groups": [
+    "Control",
+    "Intervention A",
+    "Intervention B"
+  ],
+  "linked": true,
+  "n_per_group_per_time": {
+    "Control": {
+      "pre": 150,
+      "post": 140,
+      "followup": 125
+    },
+    "Intervention A": {
+      "pre": 150,
+      "post": 142,
+      "followup": 128
+    },
+    "Intervention B": {
+      "pre": 150,
+      "post": 145,
+      "followup": 132
+    }
+  },
+  "n_total_per_time": {
+    "pre": 450,
+    "post": 427,
+    "followup": 385
+  },
+  "scale_items": [
+    "Q3_1",
+    "Q3_2",
+    "Q3_3",
+    "Q3_4",
+    "Q3_5",
+    "Q3_6",
+    "Q3_7",
+    "Q3_8"
+  ],
+  "test_items": [
+    "Q4_1",
+    "Q4_2",
+    "Q4_3",
+    "Q4_4",
+    "Q4_5",
+    "Q4_6",
+    "Q4_7",
+    "Q4_8",
+    "Q4_9",
+    "Q4_10",
+    "Q4_11",
+    "Q4_12",
+    "Q4_13",
+    "Q4_14",
+    "Q4_15",
+    "Q4_16",
+    "Q4_17",
+    "Q4_18",
+    "Q4_19",
+    "Q4_20",
+    "Q4_21",
+    "Q4_22",
+    "Q4_23",
+    "Q4_24",
+    "Q4_25"
+  ],
+  "score_column": "SC0",
+  "duration_column": "Duration (in seconds)",
+  "speeder_threshold_seconds": 60,
+  "n_speeders_post": 19,
+  "speeder_response_ids_post": [
+    "R_I_POST_00488",
+    "R_I_POST_00495",
+    "R_I_POST_00533",
+    "R_I_POST_00549",
+    "R_I_POST_00589",
+    "R_I_POST_00600",
+    "R_I_POST_00601",
+    "R_I_POST_00650",
+    "R_I_POST_00711",
+    "R_I_POST_00728",
+    "R_I_POST_00738",
+    "R_I_POST_00751",
+    "R_I_POST_00787",
+    "R_I_POST_00814",
+    "R_I_POST_00835",
+    "R_I_POST_00844",
+    "R_I_POST_00857",
+    "R_I_POST_00864",
+    "R_I_POST_00877"
+  ],
+  "true_design": {
+    "scale_mean_target_by_group_time": {
+      "Control": {
+        "pre": 3.0,
+        "post": 3.0,
+        "fu": 3.0
+      },
+      "Intervention A": {
+        "pre": 3.0,
+        "post": 3.4,
+        "fu": 3.5
+      },
+      "Intervention B": {
+        "pre": 3.0,
+        "post": 4.0,
+        "fu": 4.1
+      }
+    },
+    "test_proportion_correct_target_by_group_time": {
+      "Control": {
+        "pre": 0.5,
+        "post": 0.51,
+        "fu": 0.5
+      },
+      "Intervention A": {
+        "pre": 0.5,
+        "post": 0.6,
+        "fu": 0.58
+      },
+      "Intervention B": {
+        "pre": 0.5,
+        "post": 0.72,
+        "fu": 0.68
+      }
+    },
+    "pattern": "group x time interaction: Intervention B improves most, Intervention A improves moderately, Control stays flat."
+  },
+  "gotchas": [
+    "3 groups (Q2) x 3 time points (pre.csv/post.csv/followup.csv), linked by self-generated ID Q1 -> a genuine mixed (between x within) ANOVA design.",
+    "Realistic dropout: fewer rows at post/followup than pre, per group (see n_per_group_per_time); followup respondents are a subset of post respondents.",
+    "8-item engagement scale (Q3_1..Q3_8) and a 25-item test (Q4_1..Q4_25, item-level 0/1 with SC0 total).",
+    "Planted group x time interaction: Intervention B improves most, Control is flat.",
+    "19 post-timepoint rows have Duration (in seconds) < 60 (speeders) for a row-filter demo."
+  ]
+}

@@ -4,22 +4,19 @@ Reload every practice dataset file and assert it matches its
 ground_truth.json. Prints only a final pass/fail summary line per SPEC.
 
 CSV/TSV files are read with pandas using the correct encoding/delimiter for
-that variant. messy.xlsx has no engine (openpyxl) installed in
-engine/.venv, so it is read with a small stdlib-only OOXML reader instead
-(mirrors the writer in generate.py).
+that variant. messy.xlsx is read with openpyxl.
 """
 from __future__ import annotations
 
 import json
 import sys
-import xml.etree.ElementTree as ET
-import zipfile
 from pathlib import Path
 
+import numpy as np
+import openpyxl
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
 passed = 0
 failed = 0
@@ -44,27 +41,19 @@ def read_qualtrics_csv(path, encoding="utf-8", delimiter=",", header_rows=3):
 
 
 def read_xlsx_sheet(path, sheet_name):
-    """Minimal stdlib OOXML reader matching generate.py's write_xlsx."""
-    with zipfile.ZipFile(path) as z:
-        wb = ET.fromstring(z.read("xl/workbook.xml"))
-        sheets = wb.find("m:sheets", NS)
-        names = [s.get("name") for s in sheets.findall("m:sheet", NS)]
-        idx = names.index(sheet_name) + 1
-        sheet_xml = ET.fromstring(z.read(f"xl/worksheets/sheet{idx}.xml"))
-        rows = []
-        for row_el in sheet_xml.find("m:sheetData", NS).findall("m:row", NS):
-            cells = []
-            for c in row_el.findall("m:c", NS):
-                t = c.get("t")
-                if t == "inlineStr":
-                    is_el = c.find("m:is", NS)
-                    t_el = is_el.find("m:t", NS) if is_el is not None else None
-                    cells.append(t_el.text if t_el is not None and t_el.text else "")
-                else:
-                    v_el = c.find("m:v", NS)
-                    cells.append(v_el.text if v_el is not None else "")
-            rows.append(cells)
-        return rows
+    """Read a sheet's rows (as lists) with openpyxl."""
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    ws = wb[sheet_name]
+    rows = [["" if v is None else v for v in row] for row in ws.iter_rows(values_only=True)]
+    wb.close()
+    return rows
+
+
+def read_xlsx_sheet_names(path):
+    wb = openpyxl.load_workbook(path, read_only=True)
+    names = wb.sheetnames
+    wb.close()
+    return names
 
 
 def verify_one_group():
@@ -115,10 +104,7 @@ def verify_messy():
 
     xlsx_data = read_xlsx_sheet(base / "messy.xlsx", "Data")
     check("messy: xlsx sheet names include Notes/Data",
-          set(("Notes", "Data")) <= set(
-              [s.get("name") for s in ET.fromstring(
-                  zipfile.ZipFile(base / "messy.xlsx").read("xl/workbook.xml")
-              ).find("m:sheets", NS).findall("m:sheet", NS)]))
+          set(("Notes", "Data")) <= set(read_xlsx_sheet_names(base / "messy.xlsx")))
     check("messy: xlsx data rows = header_rows + n_rows_total",
           len(xlsx_data) == 3 + d["n_rows_total"])
 
@@ -197,11 +183,128 @@ def verify_linked():
     check("linked: outcome in 0-100 range", q4.between(0, 100).all())
 
 
+def verify_regression_predictors():
+    base = HERE / "regression_predictors"
+    d = json.loads((base / "ground_truth.json").read_text())
+    df = read_qualtrics_csv(base / "survey.csv", header_rows=d["header_rows"])
+    check("regression_predictors: n", len(df) == d["n"])
+    check("regression_predictors: outcome column present", d["outcome_column"] in df.columns)
+    for c in d["predictor_columns"] + d["motivation_scale_items"]:
+        check(f"regression_predictors: column present {c}", c in df.columns)
+
+    hours = pd.to_numeric(df[d["collinear_pair"]["hours_column"]], errors="coerce")
+    minutes = pd.to_numeric(df[d["collinear_pair"]["minutes_column"]], errors="coerce")
+    r = float(np.corrcoef(hours, minutes)[0, 1])
+    check("regression_predictors: hours/minutes strongly collinear", r > 0.9)
+
+    n_gpa_missing = int((df["Q5"].isna() | (df["Q5"].astype(str).str.strip() == "")).sum())
+    check("regression_predictors: n_missing_gpa matches",
+          n_gpa_missing == d["missing"]["gpa_missing_cells"])
+
+    outcome = pd.to_numeric(df[d["outcome_column"]], errors="coerce")
+    for rid in d["outliers"]["response_ids"]:
+        check(f"regression_predictors: outlier row present {rid}",
+              (df["ResponseId"] == rid).any())
+
+
+def verify_categorical_outcomes():
+    base = HERE / "categorical_outcomes"
+    d = json.loads((base / "ground_truth.json").read_text())
+    df = read_qualtrics_csv(base / "survey.csv", header_rows=d["header_rows"])
+    check("categorical_outcomes: n", len(df) == d["n"])
+    for c in ["Q2", "Q3", "Q4", "Q5_pre", "Q5_post", "Q6_1", "Q6_2", "Q6_3"]:
+        check(f"categorical_outcomes: column present {c}", c in df.columns)
+    check("categorical_outcomes: sparse 2x2 min expected < 5",
+          d["sparse_2x2"]["achieved_min_expected_count"] < 5)
+    check("categorical_outcomes: pass/fail values valid",
+          set(df["Q3"].unique()) <= {"Pass", "Fail"})
+
+
+def verify_scale_validation():
+    base = HERE / "scale_validation"
+    d = json.loads((base / "ground_truth.json").read_text())
+    df = read_qualtrics_csv(base / "survey.csv", header_rows=d["header_rows"])
+    check("scale_validation: n", len(df) == d["n"])
+    likert_items = d["likert_scale"]["items"]
+    quiz_items = d["quiz"]["items"]
+    for c in likert_items + quiz_items + ["SC0"]:
+        check(f"scale_validation: column present {c}", c in df.columns)
+    vals = pd.concat([df[c] for c in likert_items]).dropna().astype(int)
+    check("scale_validation: likert values in 1-5", vals.between(1, 5).all())
+    quiz_vals = pd.concat([df[c] for c in quiz_items]).dropna().astype(int)
+    check("scale_validation: quiz values in {0,1}", set(quiz_vals.unique()) <= {0, 1})
+    sc0 = pd.to_numeric(df["SC0"], errors="coerce")
+    row_sum = df[quiz_items].astype(int).sum(axis=1)
+    check("scale_validation: SC0 equals row sum of quiz items", (sc0 == row_sum).all())
+    check("scale_validation: KR-20 in plausible range", 0.5 < d["quiz"]["achieved_kr20"] < 0.95)
+
+
+def verify_rater_agreement():
+    base = HERE / "rater_agreement"
+    d = json.loads((base / "ground_truth.json").read_text())
+    ratings = pd.read_csv(base / "essay_ratings.csv", dtype=str)
+    nominal = pd.read_csv(base / "nominal_coding.csv", dtype=str)
+    check("rater_agreement: essay_ratings n", len(ratings) == d["n_essays"])
+    check("rater_agreement: nominal_coding n", len(nominal) == d["n_essays"])
+    n_missing = sum((ratings[c].isna() | (ratings[c].astype(str).str.strip() == "")).sum()
+                     for c in ["rater1", "rater2", "rater3"])
+    check("rater_agreement: n_missing_cells matches",
+          n_missing == d["essay_ratings"]["n_missing_cells"])
+    for c in ["rater1", "rater2", "rater3"]:
+        vals = pd.to_numeric(ratings[c], errors="coerce").dropna()
+        check(f"rater_agreement: {c} in 1-5", vals.between(1, 5).all())
+    categories = set(d["files"]["nominal_coding.csv"]["categories"])
+    check("rater_agreement: nominal categories valid",
+          set(nominal["rater_a_category"]) <= categories and
+          set(nominal["rater_b_category"]) <= categories)
+    check("rater_agreement: kappa in plausible moderate-substantial range",
+          0.3 < d["nominal_coding"]["achieved_cohens_kappa"] < 0.9)
+
+
+def verify_mixed_design_large():
+    base = HERE / "mixed_design_large"
+    d = json.loads((base / "ground_truth.json").read_text())
+    pre = read_qualtrics_csv(base / "pre.csv")
+    post = read_qualtrics_csv(base / "post.csv")
+    fu = read_qualtrics_csv(base / "followup.csv")
+    check("mixed_design_large: n_total pre", len(pre) == d["n_total_per_time"]["pre"])
+    check("mixed_design_large: n_total post", len(post) == d["n_total_per_time"]["post"])
+    check("mixed_design_large: n_total followup", len(fu) == d["n_total_per_time"]["followup"])
+    for g, counts in d["n_per_group_per_time"].items():
+        check(f"mixed_design_large: {g} n_pre", (pre["Q2"] == g).sum() == counts["pre"])
+        check(f"mixed_design_large: {g} n_post", (post["Q2"] == g).sum() == counts["post"])
+        check(f"mixed_design_large: {g} n_followup", (fu["Q2"] == g).sum() == counts["followup"])
+    post_ids = set(post["Q1"])
+    fu_ids = set(fu["Q1"])
+    check("mixed_design_large: followup IDs are a subset of post IDs", fu_ids <= post_ids)
+    dur = pd.to_numeric(post[d["duration_column"]], errors="coerce")
+    check("mixed_design_large: n_speeders_post matches",
+          (dur < d["speeder_threshold_seconds"]).sum() == d["n_speeders_post"])
+    sc0 = pd.to_numeric(pre["SC0"], errors="coerce")
+    row_sum = pre[d["test_items"]].astype(int).sum(axis=1)
+    check("mixed_design_large: pre SC0 equals row sum of test items", (sc0 == row_sum).all())
+
+
+def verify_stress_test():
+    base = HERE / "stress_test"
+    d = json.loads((base / "ground_truth.json").read_text())
+    df = read_qualtrics_csv(base / "survey.csv", header_rows=d["header_rows"])
+    check("stress_test: n_rows", len(df) == d["n_rows"])
+    check("stress_test: n_columns", len(df.columns) == d["n_columns"])
+    check("stress_test: open text column present", d["open_text_column"] in df.columns)
+
+
 def main():
     verify_one_group()
     verify_three_groups()
     verify_messy()
     verify_linked()
+    verify_regression_predictors()
+    verify_categorical_outcomes()
+    verify_scale_validation()
+    verify_rater_agreement()
+    verify_mixed_design_large()
+    verify_stress_test()
     print(f"{passed} passed, {failed} failed")
     if failed:
         for f in failures:

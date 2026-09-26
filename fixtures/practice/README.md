@@ -86,8 +86,7 @@ exercise Qualtrics-format parsing edge cases (SPEC 5.1, 5.2, 12).
 - `messy_text_choices.csv` — UTF-8, 3-row header; `Q5_1..Q5_6` and `Q6` use
   text choice labels instead of numeric codes.
 - `messy.xlsx` — two sheets; sheet 1 (`Notes`) is instructions, sheet 2
-  (`Data`) holds the 3-row-header table. Written by a small stdlib-only OOXML
-  writer in `generate.py` (openpyxl is not installed in `engine/.venv`).
+  (`Data`) holds the 3-row-header table. Written with `openpyxl`.
 
 **Gotchas planted (see `ground_truth.json` for exact counts):**
 - 3 `Survey Preview` and 2 `Spam` rows in `Status` (row filter target).
@@ -129,6 +128,147 @@ return (5 pre-only); 4 IDs appear only in post
 - `Q4` is a simple continuous 0-100 outcome, simulated with a true mean gain
   of 5 points (SD
   8) for matched respondents.
+
+## e. regression_predictors/
+
+**Purpose:** multiple/hierarchical regression and logistic regression practice
+— one file, one cohort, continuous outcome plus a derived pass/fail outcome.
+
+**Files:** `survey.csv` — 3-row Qualtrics header, 220 undergraduates.
+
+**Columns:** metadata + gender `Q2`, program `Q3` (3 levels), hours_studied
+`Q4`, GPA `Q5`, pretest `Q6`, posttest `Q7`, motivation Likert `Q8_1..Q8_6`,
+pass/fail `Q9`, minutes_studied `Q10`.
+
+**Ground-truth design:** `Q7 ~ intercept + b_pretest*Q6 + b_hours*Q4 + program_effect + noise` with
+intercept=15.0,
+b_pretest=0.6,
+b_hours=1.5, program effects
+{'Education': 0.0, 'Psychology': 3.0, 'Business': -2.0}, residual SD=8.0.
+
+**Gotchas planted:**
+- Q10 (minutes_studied) is near-collinear with Q4 (hours_studied), achieved
+  r=0.9989 (VIF/multicollinearity demo).
+- Two planted outliers (see `ground_truth.json['outliers']`): a residual
+  outlier and a leverage outlier.
+- Q5 (GPA) and the Q8 motivation items have missing cells.
+- Q9 (pass/fail) is derived from posttest >= 60 (logistic regression outcome).
+
+## f. categorical_outcomes/
+
+**Purpose:** chi-square, Fisher's exact, McNemar, and Cochran's Q practice.
+
+**Files:** `survey.csv` — 3-row Qualtrics header, 300 respondents.
+
+**Columns:** metadata + program `Q2`, pass/fail `Q3`, rare-event extra-credit
+flag `Q4`, linked office-hours pre/post pair `Q5_pre`/`Q5_post`, three
+repeated yes/no items `Q6_1..Q6_3`.
+
+**Gotchas planted:**
+- Q2 x Q3 is a 3x2 table with a planted association (pass rate rises
+  Education < Psychology < Business).
+- Q4 x Q3 is a sparse 2x2, achieved minimum expected count
+  3.3 (< 5) — use Fisher's exact.
+- Q5_pre/Q5_post is a linked yes/no pair (McNemar), with
+  66 No->Yes vs
+  3 Yes->No switches.
+- Q6_1/Q6_2/Q6_3 are three repeated yes/no items (Cochran's Q) with rising
+  endorsement.
+
+## g. scale_validation/
+
+**Purpose:** EFA/CFA and KR-20/item-analysis practice.
+
+**Files:** `survey.csv` — 3-row Qualtrics header, 320 respondents.
+
+**Columns:** metadata + 15-item Likert matrix `Q4_1..Q4_15` + 20-item
+right/wrong quiz `Q5_1..Q5_20` + `SC0` (quiz total).
+
+**Ground-truth design:** 3 planted factors of 5 items each
+(Factor1, Factor2, Factor3), target loadings
+0.6-0.8; Q4_11 cross-loads on Factor1;
+Q4_3 and Q4_9 are reverse-worded. Quiz: Q5_1/Q5_2 very easy, Q5_19/Q5_20 very
+hard, Q5_10 negatively discriminating
+(achieved item-total r
+-0.317).
+Achieved KR-20 = 0.7419.
+
+**Gotchas planted:**
+- Q4_3 and Q4_9 must be reverse-scored before EFA/alpha.
+- Q4_11 cross-loads — EFA suppression threshold should show it on 2 factors.
+- The negatively-discriminating quiz item should be flagged by item analysis.
+
+## h. rater_agreement/
+
+**Purpose:** ICC and Cohen's kappa practice.
+
+**Files:** `essay_ratings.csv` (plain CSV, 60 essays x 3 raters,
+1-5 scale) + `nominal_coding.csv` (plain CSV, 2 raters x 4 unordered
+categories).
+
+**Ground-truth design:** essay ratings share a per-essay true-quality score
+plus independent rater noise (SD 0.8) for moderate agreement (achieved
+pairwise Pearson r: {'r1_r2': 0.5319, 'r1_r3': 0.5519, 'r2_r3': 0.5417}).
+Nominal coding: raters agree with probability
+0.75, achieved Cohen's kappa
+0.6105.
+
+**Gotchas planted:**
+- 5 rating cells in `essay_ratings.csv`
+  are blank — ICC must handle incomplete raters per essay.
+- Both files are plain CSV, not Qualtrics exports.
+
+## i. mixed_design_large/
+
+**Purpose:** mixed (between x within) ANOVA at a realistic sample size, with
+dropout and a row-filter (speeder) demo.
+
+**Files:** `pre.csv`, `post.csv`, `followup.csv` (3-row Qualtrics header),
+linked by self-generated ID `Q1`.
+
+**Columns:** metadata + `Q1` (ID) + group `Q2` (3 levels) + 8-item scale
+`Q3_1..Q3_8` + 25-item test `Q4_1..Q4_25` (item-level 0/1) + `SC0`.
+
+**n per group/time (realistic dropout, followup subset of post):**
+{
+  "Control": {
+    "pre": 150,
+    "post": 140,
+    "followup": 125
+  },
+  "Intervention A": {
+    "pre": 150,
+    "post": 142,
+    "followup": 128
+  },
+  "Intervention B": {
+    "pre": 150,
+    "post": 145,
+    "followup": 132
+  }
+}
+
+**Gotchas planted:**
+- Planted group x time interaction: Intervention B improves most,
+  Intervention A improves moderately, Control stays flat.
+- 19 post-timepoint rows have `Duration (in seconds)` < 60
+  (speeders) for a row-filter demo.
+- Followup respondents are a subset of post respondents (real dropout, not
+  independent resampling).
+
+## j. stress_test/
+
+**Purpose:** performance testing with a large, wide Qualtrics export.
+
+**Files:** `survey.csv` — 3-row Qualtrics header, 2000 respondents x
+300 columns.
+
+**Columns:** 17 metadata + demographics `Q2`/`Q3` + 14
+matrix blocks of 20 items each + one open-text column
+`Q99`.
+
+**Note:** no planted statistical effects — this dataset exists to exercise
+import, Variable Interview, and matrix auto-detection performance at scale.
 
 ## Regenerating
 

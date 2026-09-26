@@ -1,0 +1,69 @@
+{
+  "dataset": "regression_predictors",
+  "n": 220,
+  "files": [
+    "survey.csv"
+  ],
+  "header_rows": 3,
+  "outcome_column": "Q7",
+  "predictor_columns": [
+    "Q6",
+    "Q4",
+    "Q3"
+  ],
+  "group_columns": [
+    "Q2",
+    "Q3"
+  ],
+  "pass_fail_column": "Q9",
+  "motivation_scale_items": [
+    "Q8_1",
+    "Q8_2",
+    "Q8_3",
+    "Q8_4",
+    "Q8_5",
+    "Q8_6"
+  ],
+  "collinear_pair": {
+    "hours_column": "Q4",
+    "minutes_column": "Q10",
+    "achieved_correlation": 0.9989
+  },
+  "true_design": {
+    "model": "Q7 ~ intercept + b_pretest*Q6 + b_hours*Q4 + program_effect + noise",
+    "intercept": 15.0,
+    "b_pretest": 0.6,
+    "b_hours": 1.5,
+    "program_effect": {
+      "Education": 0.0,
+      "Psychology": 3.0,
+      "Business": -2.0
+    },
+    "residual_sd": 8.0
+  },
+  "outliers": {
+    "indices_0based": [
+      17,
+      188
+    ],
+    "response_ids": [
+      "R_E_0017",
+      "R_E_0188"
+    ],
+    "description": [
+      "residual outlier: posttest far below model prediction",
+      "leverage outlier: hours_studied implausibly high (42)"
+    ]
+  },
+  "missing": {
+    "gpa_missing_cells": 9,
+    "motivation_missing_cells": 51
+  },
+  "gotchas": [
+    "Posttest (Q7) is planted as a linear function of pretest (Q6) + hours_studied (Q4) + a small program (Q3) effect, plus noise.",
+    "Q10 (minutes_studied) is near-collinear with Q4 (hours_studied) \u2014 a multicollinearity/VIF demo for multiple regression.",
+    "Two planted outliers: a residual outlier (row with ResponseId R_E_0017) and a leverage outlier (R_E_0188).",
+    "Q5 (GPA) and the Q8_1..Q8_6 motivation items have missing cells (blank in CSV).",
+    "Q9 (pass/fail) is derived from posttest >= 60 \u2014 usable as a logistic regression outcome."
+  ]
+}
