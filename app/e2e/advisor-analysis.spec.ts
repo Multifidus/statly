@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 /** Capture rich clipboard writes (text/html + text/plain) so the copy payload can be checked. */
 async function stubClipboard(page: Page) {

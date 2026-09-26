@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 async function pick(page: Page, heading: string, option: string | RegExp) {
   const q = page.getByTestId("planner-question");

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 /** SPEC §9: suggested family -> guided method choice -> adjusted p beside the original -> save/reopen. */
 test("Test Log: group related tests, choose a correction, and keep adjusted p across save/reopen", async ({ page }) => {

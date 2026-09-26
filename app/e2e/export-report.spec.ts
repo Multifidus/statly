@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 /** SPEC §10.3: Export > Report… lets you pick logged tests, then saves a DOCX report through the
  * mock save dialog. */

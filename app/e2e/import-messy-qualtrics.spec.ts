@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("imports the messy Qualtrics export through the wizard and reaches the data grid", async ({ page }) => {
   await page.goto("/");

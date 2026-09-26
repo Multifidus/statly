@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 /** SPEC §10.2: build a bar chart with error bars from shelves, switch to the APA preset, save, reopen. */
 test("Chart builder: bar chart with error bars, APA preset, saved in the project", async ({ page }) => {
