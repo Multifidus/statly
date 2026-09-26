@@ -48,6 +48,12 @@ def _tag(store, d, name, **kw):
     return call(store, "tags.codebook.upsert", dataset_id=d, tag={"name": name, **kw})["tag"]
 
 
+def _has_text(series: pd.Series) -> pd.Series:
+    """Mirrors statly_engine.data.tags._responses_mask: a Q10 row with blank text
+    (some rows are intentionally blank) doesn't count as an answered response."""
+    return series.notna() & (series.astype("string").str.strip().fillna("") != "")
+
+
 def test_codebook_crud(store, ds):
     d = ds["dataset_id"]
     assert call(store, "tags.codebook.get", dataset_id=d)["codebook"] == tags.empty_codebook()
@@ -91,15 +97,29 @@ def test_apply_and_unapply(store, ds):
 def test_paged_search_with_spans(store, ds):
     d = ds["dataset_id"]
     df = store.get(d).df
-    text = df["Q10"].iloc[0]
+    both_mask = (df["Q10"].str.contains("pacing", case=False, na=False)
+                 & df["Q10"].str.contains("extra practice", case=False, na=False))
+    both_rids = [int(r) for r in df.loc[both_mask, ROW_ID].tolist()]
+    assert both_rids  # sanity: at least one Q10 comment has both terms
+    first_rid = both_rids[0]
+    text = df.loc[df[ROW_ID] == first_rid, "Q10"].iloc[0]
     page1 = call(store, "tags.responses", dataset_id=d, variable="Q10", search='PACING "extra practice"',
                  context_variables=["Q6"], offset=0, limit=50)
-    assert page1["total"] == page1["total_responses"] == len(df) and len(page1["items"]) == 50
+    assert page1["total"] == len(both_rids)
+    assert page1["total_responses"] == int(_has_text(df["Q10"]).sum())
+    assert len(page1["items"]) == min(len(both_rids), 50)
     first = page1["items"][0]
-    assert first["row_id"] == int(df[ROW_ID].iloc[0]) and first["context"]["Q6"] == int(df["Q6"].iloc[0])
+    assert first["row_id"] == first_rid
+    assert first["context"]["Q6"] == int(df.loc[df[ROW_ID] == first_rid, "Q6"].iloc[0])
     assert [text[s:e] for s, e in first["matches"]] == ["pacing", '"extra practice"'[1:-1]]
-    page3 = call(store, "tags.responses", dataset_id=d, variable="Q10", search="pacing", offset=100, limit=50)
-    assert [i["row_id"] for i in page3["items"]] == [int(x) for x in df[ROW_ID].iloc[100:]]
+
+    pacing_mask = df["Q10"].str.contains("pacing", case=False, na=False)
+    pacing_rids = [int(r) for r in df.loc[pacing_mask, ROW_ID].tolist()]
+    all_pacing = call(store, "tags.responses", dataset_id=d, variable="Q10", search="pacing", offset=0, limit=50)
+    assert [i["row_id"] for i in all_pacing["items"]] == pacing_rids
+    page_tail = call(store, "tags.responses", dataset_id=d, variable="Q10", search="pacing",
+                      offset=len(pacing_rids) - 1, limit=50)
+    assert [i["row_id"] for i in page_tail["items"]] == pacing_rids[-1:]
     none = call(store, "tags.responses", dataset_id=d, variable="Q10", search="pacing zebra")
     assert none["total"] == 0 and none["items"] == []
     # Q9 (distinct answers): a search narrows the list.
@@ -111,11 +131,13 @@ def test_filters_and_tag_filter(store, ds):
     d = ds["dataset_id"]
     df = store.get(d).df
     a = _tag(store, d, "A")
-    rows_q6_4 = df.loc[df["Q6"] == 4, ROW_ID].tolist()
+    # Pick a Q6-in-{4} row with a non-blank Q10 answer, or it wouldn't appear
+    # in tags.responses at all (blank Q10 rows are excluded there).
+    rows_q6_4 = df.loc[(df["Q6"] == 4) & _has_text(df["Q10"]), ROW_ID].tolist()
     call(store, "tags.apply", dataset_id=d, row_id=int(rows_q6_4[0]), variable="Q10", tag_ids=[a["id"]])
     f = [{"variable": "Q6", "values": [4, 5]}]
     res = call(store, "tags.responses", dataset_id=d, variable="Q10", filters=f)
-    assert res["total"] == int(df["Q6"].isin([4, 5]).sum())
+    assert res["total"] == int((df["Q6"].isin([4, 5]) & _has_text(df["Q10"])).sum())
     tagged = call(store, "tags.responses", dataset_id=d, variable="Q10", filters=f, tag_filter=a["id"])
     assert [i["row_id"] for i in tagged["items"]] == [int(rows_q6_4[0])]
     assert tagged["items"][0]["tag_ids"] == [a["id"]]
@@ -137,14 +159,16 @@ def test_summary_by_group_matches_pandas(store, ds):
     d = ds["dataset_id"]
     df = store.get(d).df
     a, b = _tag(store, d, "Pacing"), _tag(store, d, "Recommends")
-    rows = df[ROW_ID].tolist()
+    # Only tag rows with a non-blank Q10 answer: tags.summary excludes blank
+    # rows from n_responses/n_coded, so tagging one would desync the expected counts.
+    rows = df.loc[_has_text(df["Q10"]), ROW_ID].tolist()
     tag_a, tag_b = set(rows[0:40:3]), set(rows[5:90:4])
     for r in tag_a | tag_b:
         ids = [t for t, s in ((a["id"], tag_a), (b["id"], tag_b)) if r in s]
         call(store, "tags.apply", dataset_id=d, row_id=int(r), variable="Q10", tag_ids=ids)
     res = call(store, "tags.summary", dataset_id=d, variable="Q10", by="Q6")
 
-    ref = df[[ROW_ID, "Q6"]].copy()
+    ref = df.loc[_has_text(df["Q10"]), [ROW_ID, "Q6"]].copy()
     ref["A"] = ref[ROW_ID].isin(tag_a)
     ref["B"] = ref[ROW_ID].isin(tag_b)
     n = len(ref)
@@ -173,7 +197,9 @@ def test_to_variables_snapshot_roundtrip(store, ds, tmp_path):
     meta = res["dataset_meta"]
     assert meta["snapshot_id"] != before
     assert [c["variable"] for c in res["created"]] == ["Q10_pacing", "Q10_peer_help"]
-    assert (res["created"][0]["n_yes"], res["created"][0]["n_no"]) == (4, len(store.get(d).df) - 4)
+    df = store.get(d).df
+    n_answered = int(_has_text(df["Q10"]).sum())  # blank Q10 rows count toward n_missing, not n_no
+    assert (res["created"][0]["n_yes"], res["created"][0]["n_no"]) == (4, n_answered - 4)
     v = next(x for x in meta["variables"] if x["name"] == "Q10_pacing")
     assert v["level"] == "nominal" and v["dtype"] == "integer" and [x["label"] for x in v["value_labels"]] == ["No", "Yes"]
     df = store.get(d).df
@@ -187,7 +213,7 @@ def test_to_variables_snapshot_roundtrip(store, ds, tmp_path):
     again = call(store, "tags.to_variables", dataset_id=d, snapshot_id=meta["snapshot_id"], variable="Q10",
                  tag_ids=[b["id"]])
     assert again["created"] == [{"tag_id": b["id"], "variable": "Q10_peer_help", "n_yes": 2,
-                                 "n_no": len(df) - 2, "n_missing": 0, "updated": True}]
+                                 "n_no": n_answered - 2, "n_missing": len(df) - n_answered, "updated": True}]
     assert sum(1 for x in again["dataset_meta"]["variables"] if x["name"].startswith("Q10_peer")) == 1
     # undo goes back to the pre-variable snapshot
     restored = store.restore(d, before)
@@ -237,7 +263,11 @@ def test_exports(store, ds, tmp_path):
     a, b = _tag(store, d, "Pacing", definition="Speed"), _tag(store, d, "Recommends")
     call(store, "tags.apply", dataset_id=d, row_id=0, variable="Q10", tag_ids=[a["id"], b["id"]])
     call(store, "tags.apply", dataset_id=d, row_id=1, variable="Q10", tag_ids=[b["id"]])
-    n = len(store.get(d).df)
+    df = store.get(d).df
+    # Rows 0 and 1 must have real (non-blank) Q10 text, or they'd be excluded
+    # from the exported responses entirely.
+    assert df.loc[df[ROW_ID].isin([0, 1]), "Q10"].str.strip().ne("").all()
+    n = int(df["Q10"].astype("string").str.strip().fillna("").ne("").sum())  # non-blank responses only
     x = call(store, "export.qualitative", dataset_id=d, variable="Q10", kind="responses", format="xlsx",
              path=str(tmp_path / "coded.xlsx"), context_variables=["Q6"])
     assert x["n_responses"] == n and x["bytes"] == (tmp_path / "coded.xlsx").stat().st_size
@@ -250,10 +280,13 @@ def test_exports(store, ds, tmp_path):
     call(store, "export.qualitative", dataset_id=d, variable="Q10", kind="responses", format="docx",
          path=str(tmp_path / "coded.docx"))
     heads = [p.text for p in Document(str(tmp_path / "coded.docx")).paragraphs if p.style.name == "Heading 1"]
-    assert heads == ["Pacing (1 responses, 0.9%)", "Recommends (2 responses, 1.8%)", f"Not tagged yet ({n - 2} responses)"]
+    pct1, pct2 = round(100 * 1 / n, 1), round(100 * 2 / n, 1)
+    assert heads == [f"Pacing (1 responses, {pct1}%)", f"Recommends (2 responses, {pct2}%)",
+                      f"Not tagged yet ({n - 2} responses)"]
     call(store, "export.qualitative", dataset_id=d, variable="Q10", kind="codebook", format="xlsx",
          path=str(tmp_path / "book.xlsx"))
-    assert list(load_workbook(tmp_path / "book.xlsx")["Tag codebook"].values)[1] == ("Pacing", "Speed", "#0072B2", 1, "0.9%")
+    assert list(load_workbook(tmp_path / "book.xlsx")["Tag codebook"].values)[1] == \
+        ("Pacing", "Speed", "#0072B2", 1, f"{pct1}%")
     call(store, "export.qualitative", dataset_id=d, variable="Q10", kind="codebook", format="docx",
          path=str(tmp_path / "book.docx"))
     assert Document(str(tmp_path / "book.docx")).tables[0].rows[2].cells[0].text == "Recommends"

@@ -57,7 +57,13 @@ describe("qualitative coding on messy_qualtrics Q10", () => {
     await q().init(meta);
     await q().setVariable("Q10");
     expect(q().error).toBeNull();
-    expect(q().total).toBe(meta.n_rows); // every kept respondent answered Q10
+    // A few Q10 responses are intentionally blank, so not every kept respondent
+    // answered it; `total` (no search/filter applied) should equal the count of
+    // non-blank answers, which is strictly fewer than the row count.
+    expect(q().total).toBe(q().totalResponses);
+    expect(q().totalResponses).toBeGreaterThan(0);
+    expect(q().totalResponses).toBeLessThan(meta.n_rows);
+    const totalResponses = q().totalResponses;
 
     expect(await q().saveTag({ name: "Pacing", definition: "Talks about the speed of the course." })).toBe(true);
     expect(await q().saveTag({ name: "Recommends" })).toBe(true);
@@ -89,7 +95,7 @@ describe("qualitative coding on messy_qualtrics Q10", () => {
 
     const xlsx = path.join(tmp, "coded.xlsx");
     const exp = await qualRpc.exportQualitative({ dataset_id: after.dataset_id, variable: "Q10", kind: "responses", format: "xlsx", path: xlsx });
-    expect(exp.n_responses).toBe(meta.n_rows);
+    expect(exp.n_responses).toBe(totalResponses);
     expect(existsSync(xlsx)).toBe(true);
 
     const file = path.join(tmp, "coded.statly");

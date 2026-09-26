@@ -92,6 +92,10 @@
     "Q9",
     "Q10"
   ],
+  "q10_pool_size": 25,
+  "n_q10_distinct_values": 22,
+  "n_q10_blank": 19,
+  "n_q10_email_lookalike_hits": 7,
   "duplicate_identity": {
     "first_name": "Jordan",
     "last_name": "Reyes",
@@ -109,7 +113,7 @@
     "SC0 is a scored-test total column.",
     "Q6 uses non-contiguous Qualtrics recode values {1,2,4,5,7}, not 1-5.",
     "-99 used as a missing-value code in Q5_* and Q6.",
-    "Q10 is multi-line free text containing commas and quotes (CSV-quoting test).",
+    "Q10 is drawn from a pool of ~25 realistic student comments (CSV-quoting test: commas, embedded double quotes, embedded newlines); a few rows are blank, and a couple contain an email look-alike string though Q10 is not flagged as a PII column.",
     "Two respondents share identical first/last name and email (not duplicate ResponseIds).",
     "Same underlying data across messy_3header/2header/utf16/text_choices/xlsx so parsers can be cross-checked for identical row/col counts."
   ]

@@ -370,6 +370,40 @@ def gen_messy_qualtrics(rng: np.random.Generator, outdir: Path):
 
     duplicate_identity = {"first": "Jordan", "last": "Reyes", "email": "jordan.reyes@example.edu"}
 
+    # Q10: pool of ~25 realistic student comments about the math class.
+    # Drawn from a dedicated RNG stream (seeded independently of `rng`) so
+    # adding this pool does not shift any other column's random draws, nor
+    # the draws made by datasets generated after this one in main().
+    q10_comments = [
+        'I liked the pacing, the examples, and the "extra practice" set.\n'
+        'Overall: solid, would recommend, 9/10.',
+        "This class was really helpful, especially the office hours.",
+        "I struggled with the pace at first, but it got better.",
+        "",
+        "Loved the group projects, hated the exams.",
+        "Too much homework, not enough review before tests.",
+        "The professor explained things clearly, and the TA was great too.",
+        "Honestly, I think this was one of my favorite math classes.",
+        "It was fine. Nothing special, nothing terrible.",
+        'The "flipped classroom" approach didn\'t work for me.',
+        "More practice problems would help, please add some.",
+        "",
+        "I wish we had more time on word problems, graphs, and functions.",
+        "Great class overall, thanks for a good semester.",
+        "The online videos were confusing, but the textbook helped.",
+        "If you have questions about the final, email me at jsmith@school.edu.",
+        "Not enough feedback on homework, exams were tough, and grading was slow.",
+        "I really enjoyed working through proofs step by step.",
+        "This was hard for me,\nbut I learned a lot in the end.",
+        "The pacing was uneven: too slow in week 1, too fast by week 10.",
+        "Best math teacher I've had, would take another class with them.",
+        "",
+        "Study groups were helpful, especially before quizzes.",
+        "I'd recommend adding more review sessions, practice quizzes, and examples.",
+        "Feel free to reach out at abarnes@school.edu with any follow-up questions.",
+    ]
+    q10_rng = np.random.default_rng(SEED + 10)
+
     def make_row(i, *, status="IP Address", finished=True, progress=100, is_dup=False):
         d = metadata_row(rng, i, f"R_C_{i:05d}", finished=finished, progress=progress,
                           status=status, pii=True)
@@ -413,9 +447,9 @@ def gen_messy_qualtrics(rng: np.random.Generator, outdir: Path):
         # Q9: open-ended that happens to contain email-like text (PII trap)
         d["Q9"] = f"You can reach me at student{i}@example.edu if you need more detail."
 
-        # Q10: open-ended, multi-line with commas and quotes
-        d["Q10"] = (f'I liked the pacing, the examples, and the "extra practice" set.\n'
-                     f'Overall: solid, would recommend, 9/10.')
+        # Q10: open-ended, drawn from a pool of ~25 realistic comments
+        # (commas, quotes, embedded newlines, blanks, email look-alikes).
+        d["Q10"] = q10_comments[int(q10_rng.integers(0, len(q10_comments)))]
 
         d["SC0"] = int(rng.integers(60, 100))
         return d
@@ -496,6 +530,9 @@ def gen_messy_qualtrics(rng: np.random.Generator, outdir: Path):
     n_missing99 = sum(
         1 for d in rows for iid in matrix_ids + ["Q6"] if d[iid] == -99
     )
+    n_q10_blank = sum(1 for d in rows if not d["Q10"])
+    n_q10_distinct = len({d["Q10"] for d in rows})
+    n_q10_email_hits = sum(1 for d in rows if "@" in d["Q10"])
 
     gt = {
         "dataset": "messy_qualtrics",
@@ -525,6 +562,10 @@ def gen_messy_qualtrics(rng: np.random.Generator, outdir: Path):
         "missing_code": -99,
         "n_missing_code_cells": n_missing99,
         "open_ended_columns": ["Q9", "Q10"],
+        "q10_pool_size": len(q10_comments),
+        "n_q10_distinct_values": n_q10_distinct,
+        "n_q10_blank": n_q10_blank,
+        "n_q10_email_lookalike_hits": n_q10_email_hits,
         "duplicate_identity": {
             "first_name": duplicate_identity["first"],
             "last_name": duplicate_identity["last"],
@@ -542,7 +583,10 @@ def gen_messy_qualtrics(rng: np.random.Generator, outdir: Path):
             "SC0 is a scored-test total column.",
             "Q6 uses non-contiguous Qualtrics recode values {1,2,4,5,7}, not 1-5.",
             "-99 used as a missing-value code in Q5_* and Q6.",
-            "Q10 is multi-line free text containing commas and quotes (CSV-quoting test).",
+            "Q10 is drawn from a pool of ~25 realistic student comments (CSV-quoting test:"
+            " commas, embedded double quotes, embedded newlines); a few rows are blank,"
+            " and a couple contain an email look-alike string though Q10 is not flagged"
+            " as a PII column.",
             "Two respondents share identical first/last name and email (not duplicate ResponseIds).",
             "Same underlying data across messy_3header/2header/utf16/text_choices/xlsx"
             " so parsers can be cross-checked for identical row/col counts.",

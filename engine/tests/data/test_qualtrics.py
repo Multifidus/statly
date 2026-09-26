@@ -127,8 +127,11 @@ def test_all_five_variants_yield_identical_data(store):
                [(v["name"], v["dtype"]) for v in metas["messy_3header.csv"]["variables"]]
     # -99 kept as stored in every variant.
     assert int((ref[[f"Q5_{i}" for i in range(1, 7)] + ["Q6"]] == -99).sum().sum()) == GT["n_missing_code_cells"]
-    # Multi-line quoted open text survives intact.
-    assert "\n" in ref["Q10"].iloc[0] and '"extra practice"' in ref["Q10"].iloc[0]
+    # Multi-line quoted open text survives intact (some Q10 responses contain
+    # embedded newlines and embedded double quotes; CSV round-trip must not corrupt them).
+    assert ref["Q10"].str.contains("\n", na=False).any()
+    assert ref["Q10"].str.contains('"extra practice"', regex=False, na=False).any()
+    assert ref["Q10"].isna().any()  # a few blank responses (empty CSV field -> NA)
 
 
 def test_row_filters_applied_in_order(store):
