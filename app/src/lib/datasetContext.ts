@@ -92,6 +92,10 @@ export function prefillRoles(info: AnalysisInfo, meta: DatasetMeta, outcome: str
       case "binary":
         // Aggregate pre/post: time points are compared as independent groups (SPEC §5.4).
         return group ? [group] : time && meta.link.mode !== "linked" ? [time] : [];
+      case "between":
+        // Mixed ANOVA's between-subjects factor is always a real grouping variable, never the
+        // within-subjects time factor (unlike "group"/"binary" above).
+        return group ? [group] : [];
       case "time":
         return time ? [time] : [];
       case "subject_id":

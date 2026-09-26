@@ -103,6 +103,29 @@ export const MOCK_ANALYSES: AnalysisInfo[] = [
     ],
     options: { levels: "Group (or long-layout time) values to include, in display order." },
   },
+  {
+    analysis_id: "anova.mixed",
+    label: "Mixed ANOVA (between x within)",
+    layouts: [
+      {
+        name: "wide",
+        roles: [
+          { role: "measures", min: 2, max: null, description: "Score columns for the same people, in time order" },
+          { role: "between", min: 1, max: 1, description: "Grouping variable (e.g. program vs control)" },
+        ],
+      },
+      {
+        name: "long",
+        roles: [
+          { role: "outcome", min: 1, max: 1, description: "Scores" },
+          { role: "time", min: 1, max: 1, description: "Time point (two or more levels)" },
+          { role: "subject_id", min: 1, max: 1, description: "Participant ID linking rows across time" },
+          { role: "between", min: 1, max: 1, description: "Grouping variable (e.g. program vs control)" },
+        ],
+      },
+    ],
+    options: {},
+  },
 ];
 
 // --- small numeric toolkit -------------------------------------------------------------------
@@ -1048,6 +1071,208 @@ function oneWayAnovaRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRo
   return out;
 }
 
+// --- Mixed ANOVA (between x within) -----------------------------------------------------------
+// Mock approximation: classic univariate mixed-design sums of squares (assumes sphericity),
+// not the MANOVA-based approach the real engine uses. Supports both layouts: wide ("measures" +
+// "between") and long ("outcome" + "time" + "subject_id" + "between", pairing rows by normalized
+// subject id, mirroring pairedLong).
+
+/** Wide layout ("measures" + "between"): one row per subject already. */
+function mixedWideSubjects(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number, gname: string): { subjects: { g: string; y: number[] }[]; timeLabels: string[] } {
+  const cols = req.variables.measures;
+  if (!cols || cols.length < 2) invalid("Mixed ANOVA needs two or more time-point columns.");
+  if (new Set(cols).size !== cols.length) invalid("Each measure can be chosen only once.");
+  if (cols.includes(gname)) invalid("The grouping variable can't also be one of the measures.");
+  const subjects: { g: string; y: number[] }[] = [];
+  for (let r = 0; r < nRows; r++) {
+    const g = cell(r, gname);
+    if (g === null || g === "") continue;
+    const y: number[] = [];
+    let ok = true;
+    for (const c of cols) {
+      const raw = cell(r, c);
+      if (raw === null || raw === "") { ok = false; break; }
+      const x = Number(raw);
+      if (!Number.isFinite(x)) { ok = false; break; }
+      y.push(x);
+    }
+    if (ok) subjects.push({ g: String(g), y });
+  }
+  return { subjects, timeLabels: cols.map((c) => prep_label(meta, c)) };
+}
+
+function prep_label(meta: DatasetMeta, name: string): string {
+  const v = meta.variables.find((x) => x.name === name);
+  return v?.label && v.label !== name ? v.label : name;
+}
+
+/** Long layout (outcome + time + subject_id + between, on a linked/stacked dataset): pairs rows by
+ * normalized subject id across every time level present. Mirrors pairedLong's id matching. */
+function mixedLongSubjects(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number, gname: string): { subjects: { g: string; y: number[] }[]; timeLabels: string[] } {
+  const outcome = req.variables.outcome?.[0];
+  const tname = req.variables.time?.[0];
+  const sname = req.variables.subject_id?.[0];
+  if (!outcome || !tname || !sname) invalid("Mixed ANOVA needs measures (wide layout) or outcome/time/subject_id (long layout).");
+  const tv = meta.variables.find((x) => x.name === tname);
+  const orderPref = [...(tv?.value_labels.map((l) => String(l.value)) ?? []), ...(meta.stacking?.time_variable === tname ? meta.stacking.levels.map((l) => l.label) : [])];
+  const seen = new Set<string>();
+  for (let r = 0; r < nRows; r++) {
+    const tRaw = cell(r, tname);
+    if (tRaw !== null && tRaw !== "") seen.add(String(tRaw));
+  }
+  const timeLabels = [...seen].sort((a, b) => {
+    const ia = orderPref.indexOf(a);
+    const ib = orderPref.indexOf(b);
+    return (ia < 0 ? 1e9 : ia) - (ib < 0 ? 1e9 : ib) || a.localeCompare(b);
+  });
+  const link = meta.link;
+  const norm = link && link.mode === "linked" && link.id_variable === sname && link.normalization ? link.normalization : { trim_whitespace: true, case_insensitive: false };
+  const bySubject = new Map<string, { g: string; vals: Map<string, number[]> }>();
+  for (let r = 0; r < nRows; r++) {
+    const tRaw = cell(r, tname);
+    if (tRaw === null || tRaw === "") continue;
+    const t = String(tRaw);
+    const g = cell(r, gname);
+    const yRaw = cell(r, outcome);
+    if (g === null || g === "" || yRaw === null || yRaw === "") continue;
+    const y = Number(yRaw);
+    if (!Number.isFinite(y)) continue;
+    const id = normalizeIdCell(cell(r, sname), norm.trim_whitespace, norm.case_insensitive);
+    if (id === null) continue;
+    if (!bySubject.has(id)) bySubject.set(id, { g: String(g), vals: new Map() });
+    const rec = bySubject.get(id)!;
+    const list = rec.vals.get(t) ?? [];
+    list.push(y);
+    rec.vals.set(t, list);
+  }
+  const subjects: { g: string; y: number[] }[] = [];
+  for (const rec of bySubject.values()) {
+    if (timeLabels.every((t) => rec.vals.get(t)?.length === 1)) subjects.push({ g: rec.g, y: timeLabels.map((t) => rec.vals.get(t)![0]) });
+  }
+  return { subjects, timeLabels };
+}
+
+function mixedAnovaRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const gname = req.variables.between?.[0];
+  if (!gname) invalid("Mixed ANOVA needs a between-subjects grouping variable.");
+  const { subjects, timeLabels } = "measures" in req.variables ? mixedWideSubjects(req, meta, cell, nRows, gname) : mixedLongSubjects(req, meta, cell, nRows, gname);
+  const k = timeLabels.length;
+  if (k < 2) invalid("Mixed ANOVA needs two or more time points.");
+  const excluded = nRows - subjects.length;
+
+  const v = meta.variables.find((x) => x.name === gname);
+  const order = v?.value_labels.map((l) => String(l.value)) ?? [];
+  const levels = [...new Set(subjects.map((s) => s.g))].sort((a, b) => {
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+    return (ia < 0 ? 1e9 : ia) - (ib < 0 ? 1e9 : ib) || a.localeCompare(b);
+  });
+  if (levels.length < 2) invalid(`Mixed ANOVA needs at least two groups, but "${gname}" has ${levels.length}.`);
+  const groupSubjects = levels.map((lv) => subjects.filter((s) => s.g === lv));
+  if (groupSubjects.some((gs) => gs.length < 2)) invalid("Each group needs at least two people.");
+
+  const G = levels.length;
+  const N = subjects.length;
+  const allY = subjects.flatMap((s) => s.y);
+  const grand = mean(allY);
+
+  const subjMean = (s: { y: number[] }) => mean(s.y);
+  const ssBetweenSubj = k * sum(subjects.map((s) => (subjMean(s) - grand) ** 2));
+  const ssTotal = sum(subjects.flatMap((s) => s.y.map((yv) => (yv - grand) ** 2)));
+  const ssWithinSubj = ssTotal - ssBetweenSubj;
+
+  const groupMean = (gs: { y: number[] }[]) => mean(gs.flatMap((s) => s.y));
+  const groupMeans = groupSubjects.map(groupMean);
+  const ssA = k * sum(groupSubjects.map((gs, i) => gs.length * (groupMeans[i] - grand) ** 2));
+  const ssSA = ssBetweenSubj - ssA;
+
+  const timeMean = (t: number) => mean(subjects.map((s) => s.y[t]));
+  const timeMeans = timeLabels.map((_, t) => timeMean(t));
+  const ssB = N * sum(timeMeans.map((m) => (m - grand) ** 2));
+
+  const cellMean = (gs: { y: number[] }[], t: number) => mean(gs.map((s) => s.y[t]));
+  const ssAB = sum(
+    groupSubjects.flatMap((gs, gi) => timeLabels.map((_, t) => gs.length * (cellMean(gs, t) - groupMeans[gi] - timeMeans[t] + grand) ** 2)),
+  );
+  const ssErr = ssWithinSubj - ssB - ssAB;
+
+  const dfA = G - 1;
+  const dfSA = N - G;
+  const dfB = k - 1;
+  const dfAB = (G - 1) * (k - 1);
+  const dfErr = (N - G) * (k - 1);
+
+  const msA = ssA / dfA;
+  const msSA = dfSA > 0 ? ssSA / dfSA : null;
+  const msB = ssB / dfB;
+  const msAB = ssAB / dfAB;
+  const msErr = dfErr > 0 ? ssErr / dfErr : null;
+
+  const FA = msSA ? msA / msSA : null;
+  const FB = msErr ? msB / msErr : null;
+  const FAB = msErr ? msAB / msErr : null;
+  const pA = FA !== null ? pF(FA, dfA, dfSA) : null;
+  const pB = FB !== null ? pF(FB, dfB, dfErr) : null;
+  const pAB = FAB !== null ? pF(FAB, dfAB, dfErr) : null;
+
+  const etaA = FA !== null ? ssA / (ssA + ssSA) : null;
+  const etaB = FB !== null ? ssB / (ssB + ssErr) : null;
+  const etaAB = FAB !== null ? ssAB / (ssAB + ssErr) : null;
+
+  out.statistics = [
+    { key: "F_between", label: `F (${gname})`, symbol: "F", value: FA, df: FA !== null ? [dfA, dfSA] : [], p: pA, term: gname },
+    { key: "F_within", label: "F (time)", symbol: "F", value: FB, df: FB !== null ? [dfB, dfErr] : [], p: pB, term: "time" },
+    { key: "F_interaction", label: `F (${gname} x time)`, symbol: "F", value: FAB, df: FAB !== null ? [dfAB, dfErr] : [], p: pAB, term: `${gname}:time` },
+  ];
+  out.effect_sizes = [
+    { key: "partial_eta_sq_between", label: "Partial eta squared (group)", symbol: "η²p", value: etaA, ci: etaA !== null ? boundedCi(etaA, Math.sqrt((etaA * (1 - etaA)) / Math.max(1, dfSA))) : null, term: gname, interpretation: etaA !== null ? magnitude(etaA, "eta") : null },
+    { key: "partial_eta_sq_within", label: "Partial eta squared (time)", symbol: "η²p", value: etaB, ci: etaB !== null ? boundedCi(etaB, Math.sqrt((etaB * (1 - etaB)) / Math.max(1, dfErr))) : null, term: "time", interpretation: etaB !== null ? magnitude(etaB, "eta") : null },
+    { key: "partial_eta_sq_interaction", label: "Partial eta squared (interaction)", symbol: "η²p", value: etaAB, ci: etaAB !== null ? boundedCi(etaAB, Math.sqrt((etaAB * (1 - etaAB)) / Math.max(1, dfErr))) : null, term: `${gname}:time`, interpretation: etaAB !== null ? magnitude(etaAB, "eta") : null },
+  ];
+
+  out.descriptives.continuous = levels.flatMap((lv, gi) =>
+    timeLabels.map((c, t) => describe(c, { [gname]: lv }, `${lv}, ${c}`, groupSubjects[gi].map((s) => s.y[t]), 0)),
+  );
+
+  out.inputs = { ...out.inputs, n_used: N, n_excluded: excluded, n_by_group: levels.map((lv, gi) => ({ group: { [gname]: lv }, n: groupSubjects[gi].length })) };
+  if (levels.some((_, gi) => groupSubjects[gi].length < 20)) out.warnings.push({ code: "small_sample", severity: "caution", message: "At least one group has fewer than 20 people, so results may be unstable." });
+
+  if (FAB === null) {
+    out.plain_language_summary = `A mixed ANOVA could not be computed because ${timeLabels.join(", ")} did not vary enough within the groups of ${gname}.`;
+    out.apa_sentence = [R("A mixed ANOVA could not be computed for "), R(timeLabels.join(", ")), R(` across the groups of ${gname}.`)];
+  } else {
+    const sigAB = pAB! < req.alpha;
+    out.plain_language_summary = `Scores on ${timeLabels.join(", ")} were compared across the ${G} groups of ${gname} over ${k} time points. ${
+      sigAB ? `The groups changed differently over time (a significant ${gname} x time interaction)` : "The groups changed similarly over time (no significant interaction)"
+    } (p ${pAB! < 0.001 ? "< .001" : `= ${fmtP(pAB!)}`}).`;
+    out.apa_sentence = [
+      R("A mixed ANOVA showed a "),
+      R(`${sigAB ? "significant" : "non-significant"} ${gname} x time interaction, `),
+      R("F", true),
+      R(`(${dfAB}, ${dfErr}) = ${f2(FAB)}, `),
+      ...pRun(pAB!),
+      ...(etaAB !== null ? [R(", "), R("η²p", true), R(` = ${noZero(etaAB.toFixed(2))}.`)] : [R(".")]),
+    ];
+  }
+
+  out.apa_table = {
+    number: 1,
+    title: `Mixed ANOVA of ${timeLabels.join(", ")} by ${gname} x time`,
+    columns: columns(["Source", "SS", "df", "MS", "F", "p", "η²p"]),
+    column_groups: [],
+    rows: [
+      { cells: [textCell(gname), numCell(ssA), numCell(dfA, String(dfA)), numCell(msA), numCell(FA), pA === null ? { type: "p_value", value: null, display: "—" } : { type: "p_value", value: pA, display: fmtP(pA) }, numCell(etaA)], indent: 0, kind: "data" },
+      { cells: [textCell(`Error (${gname})`), numCell(ssSA), numCell(dfSA, String(dfSA)), numCell(msSA), numCell(null), { type: "p_value", value: null, display: "" }, numCell(null)], indent: 0, kind: "data" },
+      { cells: [textCell("Time"), numCell(ssB), numCell(dfB, String(dfB)), numCell(msB), numCell(FB), pB === null ? { type: "p_value", value: null, display: "—" } : { type: "p_value", value: pB, display: fmtP(pB) }, numCell(etaB)], indent: 0, kind: "data" },
+      { cells: [textCell(`${gname} x time`), numCell(ssAB), numCell(dfAB, String(dfAB)), numCell(msAB), numCell(FAB), pAB === null ? { type: "p_value", value: null, display: "—" } : { type: "p_value", value: pAB, display: fmtP(pAB) }, numCell(etaAB)], indent: 0, kind: "data" },
+      { cells: [textCell("Error (within)"), numCell(ssErr), numCell(dfErr, String(dfErr)), numCell(msErr), numCell(null), { type: "p_value", value: null, display: "" }, numCell(null)], indent: 0, kind: "data" },
+    ],
+    notes: { general: [R("Mock approximation: classic univariate mixed-design sums of squares (assumes sphericity). "), R("η²p", true), R(" = partial eta squared.")], specific: [], probability: [] },
+  };
+  return out;
+}
+
 // --- Kruskal-Wallis --------------------------------------------------------------------------------
 
 function kruskalWallisRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
@@ -1236,6 +1461,8 @@ export function mockAnalysisRun(req: AnalysisRequest, meta: DatasetMeta, cell: C
       return wilcoxonSignedRank(req, meta, cell, nRows);
     case "anova.one_way":
       return oneWayAnovaRun(req, meta, cell, nRows);
+    case "anova.mixed":
+      return mixedAnovaRun(req, meta, cell, nRows);
     case "kruskal_wallis":
       return kruskalWallisRun(req, meta, cell, nRows);
     case "posthoc.tukey":

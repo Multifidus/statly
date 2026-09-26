@@ -48,6 +48,9 @@ export const MOCK_FILES: { path: string; group: string }[] = [
   { path: `${MOCK_ROOT}/three_groups_prepost_followup/pre.csv`, group: "Three groups, three times" },
   { path: `${MOCK_ROOT}/three_groups_prepost_followup/post.csv`, group: "Three groups, three times" },
   { path: `${MOCK_ROOT}/three_groups_prepost_followup/followup.csv`, group: "Three groups, three times" },
+  { path: `${MOCK_ROOT}/mixed_design_large/pre.csv`, group: "Mixed design, linked, three groups" },
+  { path: `${MOCK_ROOT}/mixed_design_large/post.csv`, group: "Mixed design, linked, three groups" },
+  { path: `${MOCK_ROOT}/mixed_design_large/followup.csv`, group: "Mixed design, linked, three groups" },
   { path: `/mock/perf/wide_5000x300.csv`, group: "Performance (5,000 rows x 300 columns)" },
 ];
 
@@ -393,6 +396,62 @@ function threeGroups(which: "pre" | "post" | "followup"): FileShape {
   };
 }
 
+// --- mixed_design_large (linked, three groups x three time points) ----------------------------
+// Stand-in for fixtures/practice/mixed_design_large: same subjects (Q1, linked) answer the same
+// engagement scale (Q3_1..8) and knowledge test (Q4_1..25, summed to SC0) at pre/post/followup,
+// split into three between-subjects groups (Q2). Every subject appears in every file (no
+// attrition), so the Test Advisor's mixed-ANOVA path ("Same respondents, measured more than
+// once" + "a between-subjects grouping variable") has real data to reach.
+
+const MIXED_GROUPS = ["Control", "Intervention A", "Intervention B"] as const;
+const MIXED_N_PER_GROUP = 30;
+
+function mixedDesignLarge(which: "pre" | "post" | "followup"): FileShape {
+  const shift = which === "pre" ? 0 : which === "post" ? 1 : 2;
+  const groupOf = (r: number) => Math.floor(r / MIXED_N_PER_GROUP) % MIXED_GROUPS.length;
+  const cols: ColSpec[] = [
+    ...metadataCols(which.slice(0, 2).toUpperCase()),
+    {
+      name: "Q1",
+      text: "Please enter your unique ID (first two initials + birth day, e.g. AB05)",
+      var: { role: "identifier", level: "nominal" },
+      gen: (r) => `S${pad(r + 1)}`,
+    },
+    { name: "Q2", text: "Group", var: { role: "group", level: "nominal" }, gen: (r) => MIXED_GROUPS[groupOf(r)] },
+    ...Array.from({ length: 8 }, (_, i): ColSpec => ({
+      name: `Q3_${i + 1}`,
+      text: `Scale item ${i + 1}: engagement statement`,
+      var: { role: "likert_item", level: "ordinal", dtype: "integer", value_labels: numLabels([1, 2, 3, 4, 5]), response_range: { min: 1, max: 5 } },
+      gen: (r, h) => Math.min(5, Math.max(1, Math.round(1 + (h() + shift * (groupOf(r) === 1 ? 0.35 : groupOf(r) === 2 ? 0.15 : 0.05)) * 4))),
+    })),
+    ...Array.from({ length: 25 }, (_, i): ColSpec => ({
+      name: `Q4_${i + 1}`,
+      text: `Test item ${i + 1} (correct=1, incorrect=0)`,
+      var: { role: "test_item", level: "nominal", dtype: "integer" },
+      gen: (r, h) => (h() < 0.5 + shift * (groupOf(r) === 1 ? 0.08 : groupOf(r) === 2 ? 0.04 : 0.01) ? 1 : 0),
+    })),
+    {
+      name: "SC0",
+      text: "Total correct (0-25)",
+      var: { role: "test_total", dtype: "integer", level: "continuous" },
+      gen: (r, h) => Math.max(0, Math.min(25, Math.round(10 + shift * (groupOf(r) === 1 ? 2.5 : groupOf(r) === 2 ? 1.2 : 0.3) + (h() - 0.5) * 8))),
+    },
+  ];
+  return {
+    key: `mixed_${which}`,
+    nRows: MIXED_N_PER_GROUP * MIXED_GROUPS.length,
+    headerRows: 3,
+    qualtrics: true,
+    encoding: "utf-8-sig",
+    delimiter: ",",
+    format: "csv",
+    sheets: [],
+    cols,
+    multiselect: [],
+    scales: [matrixScale("Q3", [1, 2, 3, 4, 5, 6, 7, 8])],
+  };
+}
+
 // --- performance -------------------------------------------------------------------------
 
 function wide(): FileShape {
@@ -443,6 +502,7 @@ export function shapeForPath(path: string, sheet: string | null): FileShape | nu
   if (name === "messy_text_choices.csv") return messy("text");
   if (name.startsWith("wide")) return wide();
   const time = name.includes("follow") ? "followup" : name.includes("post") ? "post" : name.includes("pre") ? "pre" : null;
+  if (time && dir.includes("mixed_design")) return mixedDesignLarge(time);
   if (time && dir.includes("three_groups")) return threeGroups(time);
   if (time && time !== "followup" && dir.includes("linked")) return linkedPrePost(time);
   if (time && time !== "followup") return likertPrePost(time);

@@ -75,7 +75,16 @@ const TREE: { root: string; nodes: Record<string, Node> } = {
       auto: COUNT("num_time_points"),
       options: [
         { value: "two", label: "Two", next: "rec_t_paired" },
-        { value: "three_plus", label: "Three or more", next: "rec_anova_rm" },
+        { value: "three_plus", label: "Three or more", next: "q_compare_between_factor_rm" },
+      ],
+    },
+    q_compare_between_factor_rm: {
+      type: "question",
+      text: "Do you also have a between-subjects grouping variable (e.g. control vs. intervention)?",
+      why: "Repeated measures on their own is a different design from a mixed design, where you also want to know whether different groups change differently over time.",
+      options: [
+        { value: "no", label: "No, just repeated measures", next: "rec_anova_rm" },
+        { value: "yes", label: "Yes, groups measured across the same time points", next: "rec_anova_mixed" },
       ],
     },
     q_compare_aggregate_groups: {
@@ -101,6 +110,14 @@ const TREE: { root: string; nodes: Record<string, Node> } = {
     rec_t_paired: rec({ primary_test: "t_test.paired", nonparametric_alternative: "wilcoxon_signed_rank", assumptions: ["normality_of_differences"], effect_size: ["cohens_d_z"], why_this_test: "A paired-samples t-test compares the same people at two time points." }),
     rec_anova_one_way: rec({ primary_test: "anova.one_way", nonparametric_alternative: "kruskal_wallis", assumptions: ["normality", "homogeneity_of_variance"], effect_size: ["eta_squared"], post_hoc: ["posthoc.tukey"], why_this_test: "A one-way ANOVA compares three or more group averages in one test." }),
     rec_anova_rm: rec({ primary_test: "anova.repeated_measures", nonparametric_alternative: "friedman", assumptions: ["normality", "sphericity"], effect_size: ["partial_eta_squared"], why_this_test: "A repeated-measures ANOVA compares the same people across three or more time points." }),
+    rec_anova_mixed: rec({
+      primary_test: "anova.mixed",
+      nonparametric_alternative: "anova.art",
+      assumptions: ["normality", "sphericity", "homogeneity_of_variance"],
+      effect_size: ["partial_eta_squared", "omega_squared"],
+      post_hoc: ["posthoc.pairwise"],
+      why_this_test: "A mixed ANOVA combines a between-subjects grouping variable (e.g. control vs. intervention) with a within-subjects factor (time), so you can see the group x time interaction.",
+    }),
     rec_mann_whitney: rec({ primary_test: "mann_whitney", assumptions: ["similar_shape_of_distributions"], effect_size: ["rank_biserial"], why_this_test: "A Mann-Whitney U test compares two groups using ranks.", likert_note: "A single Likert item is ordinal: the gaps between answer choices aren't guaranteed to be equal, so a rank-based test is recommended." }),
     rec_chi_square: rec({ primary_test: "chi_square.independence", nonparametric_alternative: "fisher_exact", assumptions: ["expected_cell_counts"], effect_size: ["cramers_v"], why_this_test: "A chi-square test checks whether two categorical variables are related." }),
     rec_pearson: rec({ primary_test: "correlation.pearson", nonparametric_alternative: "correlation.spearman", assumptions: ["linearity", "normality"], effect_size: ["pearson_r"], why_this_test: "A Pearson correlation measures how strongly two scores move together." }),

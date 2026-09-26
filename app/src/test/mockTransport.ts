@@ -8,6 +8,7 @@ export const MESSY = "/mock/fixtures/messy_qualtrics/messy_3header.csv";
 export const MESSY_TEXT = "/mock/fixtures/messy_qualtrics/messy_text_choices.csv";
 export const THREE = ["pre", "post", "followup"].map((t) => `/mock/fixtures/three_groups_prepost_followup/${t}.csv`);
 export const LINKED = ["pre", "post"].map((t) => `/mock/fixtures/linked_id_prepost/${t}.csv`);
+export const MIXED_DESIGN = ["pre", "post", "followup"].map((t) => `/mock/fixtures/mixed_design_large/${t}.csv`);
 
 /** Fresh zero-latency MockEngine as the RPC transport, and reset stores. */
 export function useFreshMock(opts: { seedAutosave?: boolean } = {}): MockEngine {
@@ -40,4 +41,24 @@ export async function importMockOneGroup(): Promise<import("@/contracts").Datase
   const res = await rpc.upsertScale({ dataset_id: meta.dataset_id, scale: { name: "Reading attitude", items, scoring_method: "mean" } });
   useDatasetStore.getState().setMeta(res.dataset_meta);
   return res.dataset_meta;
+}
+
+/** Import the mock linked mixed-design files (three groups x three linked time points, stand-in
+ * for fixtures/practice/mixed_design_large): stacked and linked by Q1, so the resulting dataset
+ * has a "long" layout (outcome/time/subject_id/between) for the Test Advisor's mixed-ANOVA path. */
+export async function importMockMixedDesign(): Promise<import("@/contracts").DatasetMeta> {
+  const { findNoncontiguous, findResponseSets } = await import("@/lib/importLogic");
+  useProjectStore.getState().newProject("Mixed design study");
+  const s = useImportFlow.getState();
+  s.addFiles(MIXED_DESIGN);
+  if (!(await s.runPreview())) throw new Error(useImportFlow.getState().error ?? "preview failed");
+  const { preview, update } = useImportFlow.getState();
+  update({
+    responseConfirmed: Object.fromEntries(findResponseSets(preview!.files).map((x) => [x.key, true])),
+    noncontiguousAck: Object.fromEntries(findNoncontiguous(preview!.files).map((v) => [v.variable, true])),
+    linkMode: "linked",
+    idVariable: "Q1",
+  });
+  if (!(await useImportFlow.getState().commit())) throw new Error(useImportFlow.getState().error ?? "import failed");
+  return useDatasetStore.getState().meta!;
 }
