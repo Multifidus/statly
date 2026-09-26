@@ -146,20 +146,6 @@ Families: `ProjectFile.test_families[] = {id, name}`; each member entry carries 
 family's `correction_method` (identical across members) and its `adjusted_p`. Post hoc analyses
 (`posthoc.*`) and entries without a single p-value cannot join a family.
 
-## Phase 8 RPC methods (exports, SPEC §10.3)
-Engine-side validation, not yet in `Rpc.json`; full shapes and rules in `docs/PROTOCOL.md` "Phase 8 methods".
-
-| Method | Params | Result | Notes |
-|---|---|---|---|
-| `export.table_html` | `{apa_table, number?}` | `{html, plain_text}` | Clipboard HTML (inline styles) + tab-separated fallback. |
-| `export.report` | `{title, author?, results: AnalysisResult[], include?, charts?, test_log?: TestLogEntry[], test_families?: {id,name}[], format: docx\|pdf, path, overwrite?}` | `{path, bytes}` | Charts are PNGs from the WebView keyed by `request_id`. `test_log`/`test_families` add "Holm-adjusted p = .xxx (family: …)" beside a family member's APA sentence. |
-| `export.data` | `{dataset_id, format: xlsx\|csv, path, include_metadata_columns?, options?, overwrite?}` | `{path, bytes, snapshot_id, n_rows, n_columns, pii_columns}` | `options`: `label_row`, `blank_missing_codes` (default true), `exclude_pii`. |
-| `export.codebook` | `{dataset_id, format: xlsx\|docx, path, overwrite?}` | `{path, bytes}` | From `DatasetMeta.variables` + `scales`. |
-| `export.test_log` | `{entries: TestLogEntry[], format: xlsx\|csv\|docx, path, overwrite?}` | `{path, bytes}` | |
-
-`path` must be absolute with the format's extension in an existing folder; an existing file needs
-`overwrite: true` (else `-32003`, `data.reason: "file_exists"`).
-
 ## Phase 7 RPC methods (chart builder, SPEC §10.2)
 
 `charts.data {dataset_id, snapshot_id, spec: ChartSpec} -> {rows, meta}`. Saved specs live in
@@ -186,3 +172,33 @@ charts `n_used` / `n_excluded`.
 Customization keys Statly adds (the schema is open): `custom_colors`, `greyscale`, `figure_number`,
 `figure_note`, `bins`, `correlation_method`, `bandwidth_adjust`. Default palette `colorblind_safe`
 (Okabe-Ito); `tol_bright`, `greyscale`, `custom` also accepted.
+
+## Phase 8 RPC methods (exports, SPEC §10.3)
+Engine-side validation, not yet in `Rpc.json`; full shapes and rules in `docs/PROTOCOL.md` "Phase 8 methods".
+
+| Method | Params | Result | Notes |
+|---|---|---|---|
+| `export.table_html` | `{apa_table, number?}` | `{html, plain_text}` | Clipboard HTML (inline styles) + tab-separated fallback. |
+| `export.report` | `{title, author?, results: AnalysisResult[], include?, charts?, test_log?: TestLogEntry[], test_families?: {id,name}[], format: docx\|pdf, path, overwrite?}` | `{path, bytes}` | Charts are PNGs from the WebView keyed by `request_id`; a chart whose `request_id` matches no result gets its own figure-only section, so `results` may be empty when charts are sent (Chart Builder "Save figure > PDF"). `test_log`/`test_families` add "Holm-adjusted p = .xxx (family: …)" beside a family member's APA sentence. |
+| `export.data` | `{dataset_id, format: xlsx\|csv, path, include_metadata_columns?, options?, overwrite?}` | `{path, bytes, snapshot_id, n_rows, n_columns, pii_columns}` | `options`: `label_row`, `blank_missing_codes` (default true), `exclude_pii`. |
+| `export.codebook` | `{dataset_id, format: xlsx\|docx, path, overwrite?}` | `{path, bytes}` | From `DatasetMeta.variables` + `scales`. |
+| `export.test_log` | `{entries: TestLogEntry[], format: xlsx\|csv\|docx, path, overwrite?}` | `{path, bytes}` | |
+| `export.plan` | `{plan: StudyPlan, labels?, interview?, format: docx, path, overwrite?}` | `{path, bytes}` | Study Planner write-up (SPEC §11.2); see `docs/PROTOCOL.md` "Phase 8 methods" for layout. |
+
+`path` must be absolute with the format's extension in an existing folder; an existing file needs
+`overwrite: true` (else `-32003`, `data.reason: "file_exists"`).
+
+## Phase 9 RPC methods (qualitative coding, SPEC §11.1)
+Engine-side pydantic models in `rpc_methods/tags.py`, codebook contract `TagCodebook.json`; full
+shapes and rules in `docs/PROTOCOL.md` "Phase 9 methods".
+
+| Method | Params | Result | Notes |
+|---|---|---|---|
+| `tags.codebook.get` | `{dataset_id}` | `{codebook}` | |
+| `tags.codebook.upsert` | `{dataset_id, tag: {id?, name, color?, definition?}}` | `{codebook, tag}` | New ids `tag_<slug>`; colors from Okabe-Ito. |
+| `tags.codebook.delete` | `{dataset_id, tag_id}` | `{codebook}` | Removes the tag from every response. |
+| `tags.apply` | `{dataset_id, row_id, variable, tag_ids}` | `{row_id, variable, tag_ids}` | Replaces that response's tags (`[]` clears). |
+| `tags.responses` | `{dataset_id, variable, filters?, search?, tag_filter?, context_variables?, offset?, limit?}` | `{snapshot_id, variable, offset, total, total_responses, items}` | Paged; `matches` are UTF-16 spans. |
+| `tags.summary` | `{dataset_id, variable, by?}` | `{snapshot_id, variable, n_responses, n_coded, n_uncoded, tags, overall, by, groups, n_missing_group}` | |
+| `tags.to_variables` | `{dataset_id, snapshot_id?, variable, tag_ids?}` | `DatasetEditResult` + `created` | Adds one 0/1 variable per tag; undoable. |
+| `export.qualitative` | `{dataset_id, variable, kind: responses\|codebook, format: xlsx\|docx, path, context_variables?, title?, overwrite?}` | `{path, bytes, n_responses}` | |

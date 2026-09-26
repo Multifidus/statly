@@ -47,85 +47,6 @@ latest import preview, autosave paths); every other function is pure.
 | `project.recoverable` | `ProjectRecoverableParams` | `ProjectRecoverableResult` |
 | `project.discard_autosave` | `ProjectDiscardAutosaveParams` | `OkResult` |
 
-## Test Advisor methods (SPEC §7.1)
-
-Stateless and pure: each handler loads `content/decision_tree.yaml` (cached, validated
-against `content/decision_tree.schema.json` at first load) and evaluates it fresh from
-`answers`/`dataset_context` given in the request - no session state, no `dataset_id`.
-Params/results are plain JSON objects (not yet in `contracts/Rpc.json`); malformed params
-raise `-32003` `InvalidParams` the same way Phase 1 methods do.
-
-| Method | Params | Result |
-|---|---|---|
-| `advisor.start` | `{"dataset_context"?: DatasetContext}` | `AdvisorStep` |
-| `advisor.answer` | `{"answers": {question_id: value}, "dataset_context"?: DatasetContext}` | `AdvisorStep` |
-| `advisor.paths` | `{}` | `{"paths": AdvisorPath[]}` |
-
-`DatasetContext` (all optional; auto-fills a question only when the field the question
-declares `auto.field: <name>` for is present and one of its `auto.rules` matches):
-- `outcome_level`: `"nominal" \| "ordinal" \| "continuous"`
-- `num_groups`: integer
-- `num_time_points`: integer
-- `linked_mode`: boolean
-- `covariates_present`: boolean
-
-`AdvisorStep` (exactly one of `next_question`/`recommendation` is non-null):
-- `next_question`: `{"id", "text", "why", "options": [{"value", "label"}], "auto_answer"}`
-  or `null`. `auto_answer` is the value `dataset_context` would supply for this question
-  (informational; the caller still answers explicitly via `advisor.answer`).
-- `recommendation`: `{"id", "primary_test", "nonparametric_alternative", "assumptions"[],
-  "effect_size"[], "post_hoc"[], "why_this_test", "likert_note", "caveats"[]}` or `null`.
-- `path`: `[{"question", "value", "source": "user"\|"auto"}]` - every question answered
-  (explicitly or via `dataset_context`) to reach this step, in order.
-
-`advisor.answer`'s `answers` is the *full* set of question id -> value answered so far
-(not just the newest one), so the handler stays a pure function of its params instead of
-holding conversation state. `AdvisorPath` (from `advisor.paths`, e.g. for the Study
-Planner, SPEC §11.2): `{"answers": [{"question", "value", "label"}], "recommendation":
-<same shape as AdvisorStep.recommendation>}`, ignoring auto/dataset_context - it
-enumerates every root-to-recommendation path.
-
-Semantics (see `contracts/README.md` for the table notes):
-- `dataset.import_preview` stages a parse under `preview_id`; only the latest preview is kept.
-- `file_id` is deterministic: `f_` + first 12 hex of sha256(normalized absolute path). It is the
-  same across re-previews of the same path (e.g. after choosing another xlsx sheet), so the app
-  can key its decisions on it. The same path twice in one preview, or a path whose id is already
-  used by the dataset being stacked onto, gets a `_2`, `_3`, ... suffix.
-- `dataset.import` `variables`: empty = accept proposals. Entries override proposals matched by
-  `name`, else by `sources[0]` (`file_id`, `original_column_name`); unmentioned columns keep their
-  proposal. The app sends only the variables the user changed. Choice-text answers are recoded
-  through `value_labels` when the variable's dtype is numeric. A conversion that would lose a
-  non-empty value is rejected with `-32003`.
-- Choice text (answers exported as words): the preview proposes `dtype: integer` with
-  `value_labels` coding the known response set 1..k low-to-high and a `choice_text_detected`
-  issue on the column. The app confirms order and codes (default 1..k; the user may enter the
-  survey's own recode values, e.g. 1, 2, 4, 5, 7) and sends them back in `value_labels`, with
-  `response_range` = min/max code. Matrix items (same `scale_id`) share one confirmation.
-- Numeric exports whose codes skip values get a `noncontiguous_codes` issue and `value_labels`
-  listing the observed codes (label = the number, since the answer text is unknown).
-- Multi-select split: add one indicator variable per option with `sources[0]` pointing at the
-  multi-select column and `label` = the option text (the proposed multi-select variable lists its
-  options in `value_labels`). Indicators are 1 = selected, 0 = not selected, null = question blank.
-  Cells are split by matching the known options greedily (longest first, spacing around commas
-  ignored), so an option that contains a comma ("Other, please specify") counts as one choice;
-  detection merges a lowercase token that always follows the same token into one option.
-- Suggested scales are kept when at least two final variables still carry their `scale_id`.
-- Row filters apply in the given order; `rows_removed` is recomputed per filter.
-- Stacking: `ColumnMatch` columns not referenced by any match are dropped (logged as `user`).
-  For `dataset.stack`, existing data is referenced by `file_id` = the `dataset_id`.
-- `dataset.link` in linked mode needs a stacked dataset; IDs are trimmed and upper-cased by default.
-- `project.save` deletes the autosave this session wrote for the same `project_id`.
-- `project.discard_autosave` only deletes files that contain `autosave.json`.
-
-Application errors (`error.data.type` is the short name):
-
-| Code | `data.type` | Meaning |
-|---|---|---|
-| `-32001` | `FileUnreadable` | File missing, unreadable, or unsupported format |
-| `-32002` | `StaleOrUnknown` | Stale `snapshot_id` or unknown `preview_id` / `dataset_id` |
-| `-32003` | `InvalidParams` | Params fail contract validation (`data.errors` lists problems) |
-| `-32004` | `IncompatibleProject` | Project file has a newer `schema_version` than this build supports |
-
 ## Phase 2 methods (Variable Interview, SPEC §6)
 `contracts/Rpc.json` does not define these yet; the engine validates them with closed pydantic
 models in `engine/statly_engine/rpc_methods/variables.py` built from the generated contract
@@ -206,6 +127,101 @@ Semantics:
   entry) into the `.statly` zip; after `project.load` only the current snapshot is restorable and the
   earlier entries are a read-only change log.
 
+## Test Advisor methods (SPEC §7.1)
+
+Stateless and pure: each handler loads `content/decision_tree.yaml` (cached, validated
+against `content/decision_tree.schema.json` at first load) and evaluates it fresh from
+`answers`/`dataset_context` given in the request - no session state, no `dataset_id`.
+Params/results are plain JSON objects (not yet in `contracts/Rpc.json`); malformed params
+raise `-32003` `InvalidParams` the same way Phase 1 methods do.
+
+| Method | Params | Result |
+|---|---|---|
+| `advisor.start` | `{"dataset_context"?: DatasetContext}` | `AdvisorStep` |
+| `advisor.answer` | `{"answers": {question_id: value}, "dataset_context"?: DatasetContext}` | `AdvisorStep` |
+| `advisor.paths` | `{}` | `{"paths": AdvisorPath[]}` |
+
+`DatasetContext` (all optional; auto-fills a question only when the field the question
+declares `auto.field: <name>` for is present and one of its `auto.rules` matches):
+- `outcome_level`: `"nominal" \| "ordinal" \| "continuous"`
+- `num_groups`: integer
+- `num_time_points`: integer
+- `linked_mode`: boolean
+- `covariates_present`: boolean
+
+`AdvisorStep` (exactly one of `next_question`/`recommendation` is non-null):
+- `next_question`: `{"id", "text", "why", "options": [{"value", "label"}], "auto_answer"}`
+  or `null`. `auto_answer` is the value `dataset_context` would supply for this question
+  (informational; the caller still answers explicitly via `advisor.answer`).
+- `recommendation`: `{"id", "primary_test", "nonparametric_alternative", "assumptions"[],
+  "effect_size"[], "post_hoc"[], "why_this_test", "likert_note", "caveats"[]}` or `null`.
+- `path`: `[{"question", "value", "source": "user"\|"auto"}]` - every question answered
+  (explicitly or via `dataset_context`) to reach this step, in order.
+
+`advisor.answer`'s `answers` is the *full* set of question id -> value answered so far
+(not just the newest one), so the handler stays a pure function of its params instead of
+holding conversation state. `AdvisorPath` (from `advisor.paths`, e.g. for the Study
+Planner, SPEC §11.2): `{"answers": [{"question", "value", "label"}], "recommendation":
+<same shape as AdvisorStep.recommendation>}`, ignoring auto/dataset_context - it
+enumerates every root-to-recommendation path.
+
+Semantics (see `contracts/README.md` for the table notes):
+- `dataset.import_preview` stages a parse under `preview_id`; only the latest preview is kept.
+- `file_id` is deterministic: `f_` + first 12 hex of sha256(normalized absolute path). It is the
+  same across re-previews of the same path (e.g. after choosing another xlsx sheet), so the app
+  can key its decisions on it. The same path twice in one preview, or a path whose id is already
+  used by the dataset being stacked onto, gets a `_2`, `_3`, ... suffix.
+- `dataset.import` `variables`: empty = accept proposals. Entries override proposals matched by
+  `name`, else by `sources[0]` (`file_id`, `original_column_name`); unmentioned columns keep their
+  proposal. The app sends only the variables the user changed. Choice-text answers are recoded
+  through `value_labels` when the variable's dtype is numeric. A conversion that would lose a
+  non-empty value is rejected with `-32003`.
+- Choice text (answers exported as words): the preview proposes `dtype: integer` with
+  `value_labels` coding the known response set 1..k low-to-high and a `choice_text_detected`
+  issue on the column. The app confirms order and codes (default 1..k; the user may enter the
+  survey's own recode values, e.g. 1, 2, 4, 5, 7) and sends them back in `value_labels`, with
+  `response_range` = min/max code. Matrix items (same `scale_id`) share one confirmation.
+- Numeric exports whose codes skip values get a `noncontiguous_codes` issue and `value_labels`
+  listing the observed codes (label = the number, since the answer text is unknown).
+- Multi-select split: add one indicator variable per option with `sources[0]` pointing at the
+  multi-select column and `label` = the option text (the proposed multi-select variable lists its
+  options in `value_labels`). Indicators are 1 = selected, 0 = not selected, null = question blank.
+  Cells are split by matching the known options greedily (longest first, spacing around commas
+  ignored), so an option that contains a comma ("Other, please specify") counts as one choice;
+  detection merges a lowercase token that always follows the same token into one option.
+- Suggested scales are kept when at least two final variables still carry their `scale_id`.
+- Row filters apply in the given order; `rows_removed` is recomputed per filter.
+- Stacking: `ColumnMatch` columns not referenced by any match are dropped (logged as `user`).
+  For `dataset.stack`, existing data is referenced by `file_id` = the `dataset_id`.
+- `dataset.link` in linked mode needs a stacked dataset; IDs are trimmed and upper-cased by default.
+- `project.save` deletes the autosave this session wrote for the same `project_id`.
+- `project.discard_autosave` only deletes files that contain `autosave.json`.
+
+Application errors (`error.data.type` is the short name):
+
+| Code | `data.type` | Meaning |
+|---|---|---|
+| `-32001` | `FileUnreadable` | File missing, unreadable, or unsupported format |
+| `-32002` | `StaleOrUnknown` | Stale `snapshot_id` or unknown `preview_id` / `dataset_id` |
+| `-32003` | `InvalidParams` | Params fail contract validation (`data.errors` lists problems) |
+| `-32004` | `IncompatibleProject` | Project file has a newer `schema_version` than this build supports |
+
+## Analysis methods (Phases 3-4, SPEC §7.2, §9)
+Params/results are not yet in `contracts/Rpc.json`; the app mirrors them in
+`app/src/lib/analysisRpc.ts`. Full `AnalysisInfo` shape and app usage notes live in
+`contracts/README.md` "Analysis and Test Advisor RPC methods".
+
+| Method | Params | Result |
+|---|---|---|
+| `analysis.run` | `AnalysisRequest` | `AnalysisResult` |
+| `analysis.list` | `{}` | `{"analyses": [AnalysisInfo]}` |
+
+- `analysis.run` is pure on the dataset's current snapshot: `snapshot_id` != current -> `-32002`;
+  variables that don't fit any layout, a design the test can't analyse, or no rows after `subset`
+  -> `-32003` with a plain-language `message` the app shows as is.
+- `analysis.list` returns registered analyses sorted by id; ids not yet registered are simply
+  absent (the app says "can't run this yet").
+
 ## Phase 6 methods (Test Log and multiple comparisons, SPEC §9)
 Engine-side closed pydantic models (not yet in `contracts/Rpc.json`): `rpc_methods/project.py`
 (`results.*`) and `rpc_methods/corrections.py`. The app mirrors them in `app/src/lib/rpc.ts`.
@@ -230,6 +246,21 @@ Engine-side closed pydantic models (not yet in `contracts/Rpc.json`): `rpc_metho
   each member (`TestLogEntry.family_id`, `correction_method`, `adjusted_p`) and the family in
   `ProjectFile.test_families`.
 
+## Phase 7 methods (chart builder, SPEC §10.2)
+
+| Method | Params | Result |
+|---|---|---|
+| `charts.data` | `{dataset_id: string\|null, snapshot_id: string\|null, spec: ChartSpec}` | `{rows: object[], meta: object}` |
+
+- The engine aggregates; the WebView never receives the dataset (scatter and Q-Q return one row per
+  plotted point, nothing else). `spec.subset` is applied first; missing values are dropped per chart.
+- Dataset charts need the current `snapshot_id` (else `-32002`). `scree` / `cfa_path` read the stored
+  Test Log result `spec.source.test_log_entry_id` (from `results.put` or a loaded project; `-32002`
+  if absent); the ids may then be null. Unusable shelves (text on a score shelf, missing X, wrong
+  analysis type) are `-32003` with a plain-language message the app shows as is.
+- Row shapes per chart type are listed in contracts/README.md "Phase 7". The app compiles
+  `{rows, meta}` + the spec to Vega-Lite (`app/src/lib/chartbuilder/compile.ts`).
+
 ## Phase 8 methods (exports, SPEC §10.3)
 Handlers in `rpc_methods/export.py`, renderers in `statly_engine/export/`. Params are validated in the
 handler (not yet in `contracts/Rpc.json`); `AnalysisResult`, `ApaTable` and `TestLogEntry` payloads are
@@ -244,6 +275,10 @@ validated against the generated contract models (`-32003` with `data.errors` on 
 | `export.test_log` | `{entries: TestLogEntry[], format: xlsx\|csv\|docx, path, overwrite?: bool}` | `{path, bytes}` |
 | `export.plan` | `{plan: StudyPlan, labels?: {id: label}, interview?: {question, answer}[], format: docx, path, overwrite?: bool}` | `{path, bytes}` |
 
+- **Figure-only reports**: a `charts[]` entry whose `request_id` matches none of `results` becomes its own
+  section (heading = chart title, then the numbered figure). `results` may therefore be `[]` when at least one chart
+  is sent with `include.charts` on (Chart Builder "Save figure > PDF"); with no results and no charts the call is
+  `-32602`.
 - **Study plan** (SPEC §11.2, `export/plan.py`): Title, research question (`design.answers.planner_research_question`),
   design summary + interview table, planned analyses (why, backup test, effect size, assumptions, follow-ups),
   one "Sample size" block per `power_analyses[]` entry (sentence + inputs/results grid), recommendations grouped
@@ -324,18 +359,3 @@ engine holds none) and `project.load` makes the saved one live.
   response, tag names, one 1/0 column per tag), `Codebook`, `Summary`; DOCX: responses grouped
   under a heading per tag, then the untagged ones. Codebook XLSX/DOCX: tag, definition, color,
   responses tagged, percent.
-
-## Phase 7 methods (chart builder, SPEC §10.2)
-
-| Method | Params | Result |
-|---|---|---|
-| `charts.data` | `{dataset_id: string\|null, snapshot_id: string\|null, spec: ChartSpec}` | `{rows: object[], meta: object}` |
-
-- The engine aggregates; the WebView never receives the dataset (scatter and Q-Q return one row per
-  plotted point, nothing else). `spec.subset` is applied first; missing values are dropped per chart.
-- Dataset charts need the current `snapshot_id` (else `-32002`). `scree` / `cfa_path` read the stored
-  Test Log result `spec.source.test_log_entry_id` (from `results.put` or a loaded project; `-32002`
-  if absent); the ids may then be null. Unusable shelves (text on a score shelf, missing X, wrong
-  analysis type) are `-32003` with a plain-language message the app shows as is.
-- Row shapes per chart type are listed in contracts/README.md "Phase 7". The app compiles
-  `{rows, meta}` + the spec to Vega-Lite (`app/src/lib/chartbuilder/compile.ts`).
