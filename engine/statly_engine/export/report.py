@@ -86,6 +86,7 @@ def sections(results: list[dict], include: dict, charts: dict[str, dict],
              test_log: dict[str, dict] | None = None,
              family_names: dict[str, str] | None = None) -> list[Section]:
     out, t_no, f_no = [], 0, 0
+    used: set[str] = set()
     for res in results:
         sec = Section(analysis_label(res), res.get("plain_language_summary", ""),
                       res.get("apa_sentence") or [])
@@ -106,10 +107,22 @@ def sections(results: list[dict], include: dict, charts: dict[str, dict],
             req_id = ((res.get("inputs") or {}).get("request") or {}).get("request_id")
             chart = charts.get(req_id) if req_id else None
             if chart is not None:
+                used.add(req_id)
                 f_no += 1
                 title = chart.get("title") or (res["apa_table"]["title"] if res.get("apa_table") else sec.heading)
                 sec.figures.append((chart["png"], f_no, title, chart.get("note")))
         out.append(sec)
+    if include.get("charts", True):
+        # Charts not tied to any analysis in `results` (Chart Builder figures) get their own
+        # figure-only section, headed by the chart title, in the order they were sent.
+        for req_id, chart in charts.items():
+            if req_id in used:
+                continue
+            f_no += 1
+            title = chart.get("title") or "Figure"
+            sec = Section(title, "", [])
+            sec.figures.append((chart["png"], f_no, title, chart.get("note")))
+            out.append(sec)
     return out
 
 

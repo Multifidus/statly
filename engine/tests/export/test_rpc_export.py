@@ -136,3 +136,29 @@ def test_report_shows_holm_adjusted_p_for_family_member(engine, tmp_path):
     assert "Holm-adjusted p = .048 (family: Attitude items)." in text
     # the second (non-family) result must not get an adjusted-p note
     assert text.count("Holm-adjusted") == 1
+
+
+def test_chart_only_report_for_chart_builder(engine, tmp_path):
+    """Chart Builder's "Save figure > PDF" sends charts with no analyses (results: [])."""
+    buf = io.BytesIO()
+    Image.new("RGB", (600, 400), "white").save(buf, "PNG")
+    chart = {"request_id": "chart-builder", "png_base64": base64.b64encode(buf.getvalue()).decode(),
+             "title": "Math attitude by score band"}
+    include = {"tables": False, "sentences": False, "assumptions": False, "charts": True}
+    for fmt in ("pdf", "docx"):
+        out = engine.call("export.report", {"title": "Math attitude by score band", "results": [],
+                                            "include": include, "charts": [chart], "format": fmt,
+                                            "path": str(tmp_path / f"figure.{fmt}")})
+        assert out["bytes"] == Path(out["path"]).stat().st_size
+    pages = PdfReader(str(tmp_path / "figure.pdf")).pages
+    assert sum(len(p.images) for p in pages) == 1
+    assert "Figure 1" in " ".join(p.extract_text() for p in pages)
+    assert len(Document(str(tmp_path / "figure.docx")).inline_shapes) == 1
+
+    # Still an error when there is nothing to put in the document.
+    err = engine.error("export.report", {"title": "Empty", "results": [], "include": include, "charts": [],
+                                         "format": "pdf", "path": str(tmp_path / "empty.pdf")})
+    assert "at least one analysis" in err["message"]
+    err = engine.error("export.report", {"title": "Empty", "results": [], "include": {"charts": False},
+                                         "charts": [chart], "format": "pdf", "path": str(tmp_path / "e2.pdf")})
+    assert "at least one analysis" in err["message"]

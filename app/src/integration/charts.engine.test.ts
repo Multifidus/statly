@@ -5,7 +5,8 @@
  * which Vega then runs. Numbers are checked against the practice CSVs.
  * STATLY_CHART_SVG_DIR=<dir> writes each rendered chart as SVG for a visual check.
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { compile } from "vega-lite";
@@ -135,6 +136,28 @@ describe("charts.data on one_group_prepost_likert (real engine)", () => {
       const data = await chartsRpc.data({ dataset_id: null, snapshot_id: null, spec: s });
       expect(data.meta.source).toBe("analysis");
       await render(s, data, type);
+    }
+  });
+});
+
+describe("Chart Builder Save figure > PDF (real engine)", () => {
+  it("export.report accepts a figure-only request (results: []) like saveBuilderFigurePdf sends", async () => {
+    // 1x1 white PNG; Node has no canvas to rasterise the Vega view, and the engine only needs a PNG.
+    const png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC";
+    const dir = mkdtempSync(path.join(os.tmpdir(), "statly-builder-pdf-"));
+    try {
+      const out = await rpc.exportReport({
+        title: "Q3_1 by Time",
+        results: [],
+        include: { tables: false, sentences: false, assumptions: false, charts: true },
+        charts: [{ request_id: "chart-builder", png_base64: png, title: "Q3_1 by Time" }],
+        format: "pdf",
+        path: path.join(dir, "figure.pdf"),
+      } as never);
+      expect(out.bytes).toBe(statSync(out.path).size);
+      expect(readFileSync(out.path).subarray(0, 5).toString()).toBe("%PDF-");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
   });
 });

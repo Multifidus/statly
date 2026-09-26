@@ -135,7 +135,7 @@ def report(store: DatasetStore, params: dict) -> dict:
     if author is not None and not isinstance(author, str):
         raise InvalidParams("author must be text or null.")
     results = params.get("results")
-    if not isinstance(results, list) or not results:
+    if not isinstance(results, list):
         raise InvalidParams("Choose at least one analysis to include in the report.")
     for i, r in enumerate(results):
         _validate(AnalysisResult, r, f"results[{i}]")
@@ -144,6 +144,9 @@ def report(store: DatasetStore, params: dict) -> dict:
                                             for k, v in include.items()):
         raise InvalidParams(f"include takes true/false for: {', '.join(INCLUDE_KEYS)}.")
     charts = _charts(params.get("charts"))
+    # A figure-only document (e.g. Chart Builder "Save figure > PDF") has charts but no analyses.
+    if not results and not (charts and include.get("charts", True)):
+        raise InvalidParams("Choose at least one analysis to include in the report.")
     test_log_by_id = _test_log_index(params.get("test_log"))
     family_names = _family_names(params.get("test_families"))
     target = check_target(params.get("path"), fmt, _overwrite(params))

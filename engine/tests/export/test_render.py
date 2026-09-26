@@ -144,7 +144,7 @@ def test_report_pdf_smoke(store, tmp_path):
 
 def test_report_rejects_bad_input(store, tmp_path):
     with pytest.raises(InvalidParams):
-        _report(store, tmp_path, "docx", results=[])
+        _report(store, tmp_path, "docx", results=[], charts=[])  # nothing to put in the document
     with pytest.raises(InvalidParams):
         _report(store, tmp_path, "docx", charts=[{"request_id": "x", "png_base64": base64.b64encode(b"GIF89a").decode()}])
     with pytest.raises(InvalidParams):
