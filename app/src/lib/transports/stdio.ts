@@ -8,9 +8,12 @@
  *   STATLY_ENGINE_BIN     path to a packaged `statly-engine` executable
  *   STATLY_ENGINE_PYTHON  python interpreter with statly_engine importable
  *   <repo>/engine/.venv/bin/python (Windows: Scripts\python.exe)
+ *
+ * STATLY_RPC_TRACE=<file> appends "<method>\t<ok|error>" per response, so a run of the whole
+ * suite against a packaged binary can prove which RPC methods were exercised inside the bundle.
  */
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { existsSync } from "node:fs";
+import { appendFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
 import type { EngineError } from "@/lib/engine";
@@ -91,6 +94,9 @@ export class StdioTransport implements Transport {
     if (!p) return;
     this.pending.delete(msg.id);
     clearTimeout(p.timer);
+    if (process.env.STATLY_RPC_TRACE) {
+      appendFileSync(process.env.STATLY_RPC_TRACE, `${p.method}\t${msg.error ? "error" : "ok"}\n`);
+    }
     if (msg.error) p.reject({ kind: "rpc", code: msg.error.code, message: msg.error.message, data: msg.error.data });
     else p.resolve(msg.result);
   }

@@ -9,7 +9,7 @@ Onedir (not onefile) per docs/PROTOCOL.md: fast startup (no temp extraction
 of numpy/scipy) and codesign-friendly on Apple Silicon.
 """
 
-from PyInstaller.utils.hooks import collect_all
+from PyInstaller.utils.hooks import collect_all, collect_submodules
 
 datas = []
 binaries = []
@@ -22,6 +22,19 @@ for pkg in ("numpy", "pandas", "scipy", "statsmodels", "reportlab", "docx"):
     datas += pkg_datas
     binaries += pkg_binaries
     hiddenimports += pkg_hiddenimports
+
+# stats/registry.py imports analysis modules by name (importlib), which static analysis can't
+# follow; collect every engine submodule so new families (charts KDE, export, tags/qualitative,
+# planner) are always in the bundle.
+hiddenimports += collect_submodules("statly_engine")
+
+# The Test Advisor reads the decision tree (plus its schema and the canonical analysis ids) at
+# runtime; advisor/loader.py resolves them under sys._MEIPASS with this same layout when frozen.
+datas += [
+    ("../content/decision_tree.yaml", "content"),
+    ("../content/decision_tree.schema.json", "content"),
+    ("../contracts/analysis_ids.json", "contracts"),
+]
 
 a = Analysis(
     ["statly_engine/__main__.py"],

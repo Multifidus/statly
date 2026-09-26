@@ -9,6 +9,7 @@ Validation happens at load time and fails loudly:
 from __future__ import annotations
 
 import json
+import sys
 from functools import lru_cache
 from pathlib import Path
 
@@ -16,7 +17,10 @@ import yaml
 
 from statly_engine.advisor.schema_validate import SchemaValidationError, validate
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+# In the PyInstaller bundle the spec copies content/ and contracts/analysis_ids.json under
+# sys._MEIPASS with the same relative layout; in a source checkout they live at the repo root.
+REPO_ROOT = (Path(getattr(sys, "_MEIPASS")) if getattr(sys, "frozen", False)
+             else Path(__file__).resolve().parents[3])
 DEFAULT_TREE_PATH = REPO_ROOT / "content" / "decision_tree.yaml"
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "content" / "decision_tree.schema.json"
 DEFAULT_ANALYSIS_IDS_PATH = REPO_ROOT / "contracts" / "analysis_ids.json"
