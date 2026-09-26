@@ -138,8 +138,27 @@ function FileCard({ f }: { f: FilePreview }) {
   );
 }
 
+/** The words file of a numbers + words pair: shown so the user sees where it went, but not a data source. */
+function LabelsFileCard({ f }: { f: FilePreview }) {
+  return (
+    <section className="grid gap-2 rounded-lg border border-dashed p-4" aria-labelledby={`fp-${f.file_id}`} data-testid="labels-file">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 id={`fp-${f.file_id}`} className="font-semibold">
+          {f.name}
+        </h3>
+        <Badge tone="info">Answer labels only</Badge>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Same {f.n_rows.toLocaleString()} responses written out as words. Statly reads the words to label each number;
+        no rows are added from this file. An untouched copy is kept in your project.
+      </p>
+    </section>
+  );
+}
+
 export function StepDetect() {
   const preview = useImportFlow((s) => s.preview);
+  const labelsFile = useImportFlow((s) => s.labelsFile);
   if (!preview) return <Notice>Statly is still reading your files…</Notice>;
   return (
     <div className="grid gap-5">
@@ -158,6 +177,7 @@ export function StepDetect() {
       {preview.files.map((f) => (
         <FileCard key={f.file_id} f={f} />
       ))}
+      {labelsFile && <LabelsFileCard f={labelsFile} />}
     </div>
   );
 }

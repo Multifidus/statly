@@ -77,7 +77,8 @@
         "n_rows_read": { "type": "integer", "minimum": 0, "description": "Data rows read, after header rows." },
         "n_rows_kept": { "type": "integer", "minimum": 0, "description": "Rows kept after row filters." },
         "stored_path": { "type": "string", "description": "Path of the untouched original inside the .statly zip, e.g. 'originals/<file_id>/<name>'." },
-        "imported_at": { "type": "string", "format": "date-time" }
+        "imported_at": { "type": "string", "format": "date-time" },
+        "role": { "type": "string", "enum": ["data", "value_labels"], "description": "Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows)." }
       }
     },
     "FileFormat": { "title": "FileFormat", "type": "string", "enum": ["csv", "xlsx"] },

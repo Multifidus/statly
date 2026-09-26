@@ -60,6 +60,27 @@ export interface ImportDecisions {
   normalization: IdNormalization;
 }
 
+/**
+ * When the engine found a companion pair (the same responses exported once as numbers and once as
+ * answer text), the wizard treats the import as a single file: the numbers file is the data and
+ * the words file only supplies value labels (already attached to the numbers file's proposals).
+ * Returns the preview the wizard works with plus the words file, which is set aside.
+ */
+export function companionView(preview: DatasetImportPreviewResult): {
+  preview: DatasetImportPreviewResult;
+  labelsFile: FilePreview | null;
+} {
+  const pair = preview.companion_pair;
+  const labelsFile = pair ? preview.files.find((f) => f.file_id === pair.labels_file_id) : undefined;
+  if (!pair || !labelsFile || !preview.files.some((f) => f.file_id === pair.values_file_id)) {
+    return { preview, labelsFile: null };
+  }
+  return {
+    preview: { ...preview, files: preview.files.filter((f) => f.file_id !== pair.labels_file_id), stack_proposal: null },
+    labelsFile,
+  };
+}
+
 /** All proposed variables across files, first occurrence of each name wins. */
 export function unionVariables(files: FilePreview[]): VariableSchema[] {
   const seen = new Map<string, VariableSchema>();
@@ -298,8 +319,13 @@ export function multiselectIndicators(v: VariableSchema, taken: Set<string>): Va
   });
 }
 
-/** Turn preview + decisions into the `dataset.import` params. */
-export function buildImportParams(preview: DatasetImportPreviewResult, d: ImportDecisions): DatasetImportParams {
+/**
+ * Turn preview + decisions into the `dataset.import` params. A companion pair (see companionView;
+ * a raw preview is narrowed here too) is sent as one file plus `companion`, never as two waves.
+ */
+export function buildImportParams(raw: DatasetImportPreviewResult, d: ImportDecisions): DatasetImportParams {
+  const preview = companionView(raw).preview;
+  const pair = preview.companion_pair ?? null;
   const files = preview.files;
   const multi = files.length > 1;
 
@@ -359,5 +385,8 @@ export function buildImportParams(preview: DatasetImportPreviewResult, d: Import
     row_filters,
     variables,
     stack,
+    ...(pair && files.length === 1
+      ? { companion: { values_file_id: pair.values_file_id, labels_file_id: pair.labels_file_id } }
+      : {}),
   };
 }

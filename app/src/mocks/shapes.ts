@@ -20,6 +20,8 @@ export interface ColSpec {
 
 export interface FileShape {
   key: string;
+  /** Hash seed override: shapes that share one (e.g. the numbers and words exports of one survey) generate the same responses. */
+  seedKey?: string;
   nRows: number;
   headerRows: 1 | 2 | 3;
   qualtrics: boolean;
@@ -240,6 +242,8 @@ function messy(variant: "3header" | "2header" | "utf16" | "text" | "xlsx"): File
   ];
   return {
     key: `messy_${variant}`,
+    // The words export is the same 113 responses as the numbers export (a companion pair).
+    seedKey: text ? "messy_3header" : undefined,
     nRows: 113,
     headerRows: variant === "2header" ? 2 : 3,
     qualtrics: true,

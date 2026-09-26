@@ -105,6 +105,50 @@
         }
       }
     },
+    "CompanionPair": {
+      "title": "CompanionPair",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "values_file_id",
+        "labels_file_id",
+        "columns_matched"
+      ],
+      "description": "Two files holding the same responses exported twice: once with numeric codes (values) and once with answer text (labels).",
+      "properties": {
+        "values_file_id": {
+          "type": "string",
+          "description": "File whose numeric codes become the data."
+        },
+        "labels_file_id": {
+          "type": "string",
+          "description": "File whose answer text becomes value labels; contributes no rows."
+        },
+        "columns_matched": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Columns that are numbers in one file and text in the other."
+        }
+      }
+    },
+    "CompanionChoice": {
+      "title": "CompanionChoice",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "values_file_id",
+        "labels_file_id"
+      ],
+      "description": "Import values_file_id as the dataset and take value labels from labels_file_id (must match the preview's companion_pair).",
+      "properties": {
+        "values_file_id": {
+          "type": "string"
+        },
+        "labels_file_id": {
+          "type": "string"
+        }
+      }
+    },
     "FilePreview": {
       "title": "FilePreview",
       "type": "object",
@@ -320,6 +364,17 @@
             }
           ],
           "description": "Column matching across files (or against stack_onto_dataset_id); null for a single new file."
+        },
+        "companion_pair": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CompanionPair"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional. Set when exactly two new files are the same responses exported as numbers and as text; the UI should import them as one dataset (DatasetImportParams.companion) rather than stack them."
         }
       }
     },
@@ -452,6 +507,17 @@
             }
           ],
           "description": "Required when importing 2+ files at once."
+        },
+        "companion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CompanionChoice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional. Import a companion pair as one dataset: `files` holds the values file's decision (a decision for the labels file is ignored) and `stack` must be null."
         }
       }
     },

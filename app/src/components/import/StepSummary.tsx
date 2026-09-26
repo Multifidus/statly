@@ -8,6 +8,7 @@ export function StepSummary() {
   const preview = useImportFlow((s) => s.preview);
   const d = useImportFlow((s) => s.decisions);
   const result = useImportFlow((s) => s.result);
+  const labelsFile = useImportFlow((s) => s.labelsFile);
   if (!preview || !d) return <Notice>Statly is still reading your files…</Notice>;
 
   if (result) {
@@ -37,6 +38,7 @@ export function StepSummary() {
   const multiSplit = Object.entries(d.multiselectSplit).filter(([, v]) => v).map(([k]) => k);
   const items: [string, string][] = [
     ["Files", preview.files.map((f) => f.name).join(", ")],
+    ...(labelsFile ? ([["Answer labels", `words from ${labelsFile.name} attached to the numbers`]] as [string, string][]) : []),
     ["Responses read", `${rowsRead.toLocaleString()} rows`],
     ["Columns", `${cols.size - d.dropColumns.length} kept${d.dropColumns.length ? `, ${d.dropColumns.length} removed (${d.dropColumns.join(", ")})` : ""}`],
     [

@@ -146,6 +146,104 @@ interface StagedFile {
 
 interface Staged {
   files: StagedFile[];
+  companion?: { values_file_id: string; labels_file_id: string } | null;
+}
+
+// --- companion pair (numbers export + words export of the same responses; mirrors engine data/companion.py) ---
+
+interface CompanionMatch {
+  values: StagedFile;
+  labels: StagedFile;
+  columns: string[];
+  /** labels-file row for each values-file row */
+  order: number[];
+}
+
+const cellText = (v: CellValue): string => (v === null || v === undefined ? "" : String(v).trim());
+const isNum = (t: string) => t !== "" && Number.isFinite(Number(t));
+
+function detectCompanion(a: StagedFile, b: StagedFile): CompanionMatch | null {
+  const ca = a.shape.cols.map((c) => c.name);
+  const cb = b.shape.cols.map((c) => c.name);
+  const n = a.shape.nRows;
+  if (ca.join("\u0001") !== cb.join("\u0001") || n !== b.shape.nRows || n === 0) return null;
+  let order = Array.from({ length: n }, (_, i) => i);
+  if (ca.includes("ResponseId")) {
+    const ib = new Map<string, number>();
+    for (let r = 0; r < n; r++) ib.set(cellText(b.cell(r, "ResponseId")), r);
+    if (ib.size !== n || ib.has("")) return null;
+    order = [];
+    for (let r = 0; r < n; r++) {
+      const j = ib.get(cellText(a.cell(r, "ResponseId")));
+      if (j === undefined) return null;
+      order.push(j);
+    }
+  }
+  const aToB: string[] = [];
+  const bToA: string[] = [];
+  for (const col of ca) {
+    const va = order.map((_, r) => cellText(a.cell(r, col)));
+    const vb = order.map((j) => cellText(b.cell(j, col)));
+    if (va.every((x, i) => x === vb[i])) continue;
+    const codes = (v: string[]) => v.every((x) => x === "" || x.split(",").every((t) => isNum(t.trim())));
+    const text = (v: string[]) => v.some((x) => x !== "" && !isNum(x));
+    if (codes(va) && text(vb)) aToB.push(col);
+    else if (codes(vb) && text(va)) bToA.push(col);
+    else return null;
+  }
+  if (aToB.length && !bToA.length) return { values: a, labels: b, columns: aToB, order };
+  if (bToA.length && !aToB.length) {
+    const inverse: number[] = [];
+    order.forEach((j, i) => (inverse[j] = i));
+    return { values: b, labels: a, columns: bToA, order: inverse };
+  }
+  return null;
+}
+
+/** Pair each numeric code with the words in the same row; attach as value labels on the numbers file. */
+function applyCompanion(m: CompanionMatch) {
+  const vp = m.values.preview;
+  for (const col of m.columns) {
+    const v = vp.proposed_variables.find((x) => x.name === col);
+    if (!v || v.dtype !== "integer") continue;
+    const missing = new Set(v.missing_codes.map(Number));
+    const perCode = new Map<number, Set<string>>();
+    const perText = new Map<string, Set<number>>();
+    m.order.forEach((j, r) => {
+      const c = cellText(m.values.cell(r, col));
+      const t = cellText(m.labels.cell(j, col));
+      if (!c || !t || !isNum(c)) return;
+      const code = Number(c);
+      if (missing.has(code) || !Number.isInteger(code) || (isNum(t) && Number(t) === code)) return;
+      perCode.set(code, (perCode.get(code) ?? new Set()).add(t));
+      perText.set(t.toLowerCase(), (perText.get(t.toLowerCase()) ?? new Set()).add(code));
+    });
+    if (!perCode.size) continue;
+    if ([...perCode.values()].some((s) => s.size > 1) || [...perText.values()].some((s) => s.size > 1)) {
+      vp.issues.push({
+        code: "companion_labels_conflict",
+        severity: "caution",
+        message: `Statly could not attach the words from ${m.labels.preview.name} to '${col}'. '${col}' is kept as numbers without labels; check the answer choices in your survey.`,
+        file_id: vp.file_id,
+        column: col,
+      });
+      continue;
+    }
+    const codes = [...perCode.keys()].sort((x, y) => x - y);
+    v.value_labels = codes.map((c) => ({ value: c, label: [...perCode.get(c)!][0] }));
+    if (codes.every((c, i) => c === i + 1)) {
+      v.level = "ordinal";
+      v.response_range = { min: 1, max: codes.length };
+    }
+  }
+  vp.issues = vp.issues.filter((i) => !(i.code === "confirm_numeric_codes" && vp.proposed_variables.find((x) => x.name === i.column)?.value_labels.length));
+  vp.issues.unshift({
+    code: "companion_pair",
+    severity: "info",
+    message: `${vp.name} and ${m.labels.preview.name} look like the same responses exported twice, once with numbers and once with words. Statly will keep the numbers and attach the words as labels.`,
+    file_id: vp.file_id,
+    column: null,
+  });
 }
 
 /** One entry in a dataset's undo/redo history; meta/computed are null once evicted (> MAX_RESTORABLE old). */
@@ -182,7 +280,7 @@ function stageFile(path: string, sheet: string | null, idx: number): StagedFile 
   }
   // Like the engine: derived from the path, so it is stable across re-previews (sheet changes).
   const fileId = `f_${(strHash(path) >>> 0).toString(36)}${idx > 0 && dupIndex(path, idx) ? `_${dupIndex(path, idx) + 1}` : ""}`;
-  const seed = strHash(shape.key);
+  const seed = strHash(shape.seedKey ?? shape.key);
   const colIdx = new Map(shape.cols.map((c, i) => [c.name, i]));
   const cache = new Map<string, CellValue>();
   const cell = (r: number, col: string): CellValue => {
@@ -1233,7 +1331,10 @@ export class MockEngine implements Transport {
       }
     }
     const previewId = this.nextId("preview");
-    this.previews.set(previewId, { files });
+    const pair = files.length === 2 && !p.stack_onto_dataset_id ? detectCompanion(files[0], files[1]) : null;
+    if (pair) applyCompanion(pair);
+    const companion = pair ? { values_file_id: pair.values.preview.file_id, labels_file_id: pair.labels.preview.file_id } : null;
+    this.previews.set(previewId, { files, companion });
     const previews = files.map((f) => f.preview);
     let stack: ColumnMatch[] | null = null;
     if (files.length > 1) stack = proposeStack(previews);
@@ -1242,7 +1343,12 @@ export class MockEngine implements Transport {
       const existing: FilePreview = { ...previews[0], file_id: "existing", proposed_variables: ds.meta.variables };
       stack = proposeStack([existing, ...previews]).map((m) => ({ ...m, columns: m.columns.filter((c) => c.file_id !== "existing") }));
     }
-    return { preview_id: previewId, files: clone(previews), stack_proposal: stack };
+    return {
+      preview_id: previewId,
+      files: clone(previews),
+      stack_proposal: stack,
+      companion_pair: pair && companion ? { ...companion, columns_matched: pair.columns.length } : null,
+    };
   }
 
   private getDataset(id: string): DatasetState {
@@ -1466,7 +1572,38 @@ export class MockEngine implements Transport {
   importDataset(p: DatasetImportParams): DatasetResult {
     const staged = this.previews.get(p.preview_id);
     if (!staged) throw rpcError(-32002, `Unknown preview_id ${p.preview_id}`, "StalePreview");
-    const built = this.build(staged, p.files, p.row_filters, p.variables, p.stack, this.nextId("ds"));
+    let files = p.files;
+    let labels: StagedFile | undefined;
+    if (p.companion) {
+      const c = staged.companion;
+      if (!c || c.values_file_id !== p.companion.values_file_id || c.labels_file_id !== p.companion.labels_file_id) {
+        throw rpcError(-32003, "These files were not recognised as the same responses exported with numbers and with words.", "InvalidParams");
+      }
+      if (p.stack) throw rpcError(-32003, "A numbers-and-words pair is imported as one dataset; stack must be null.", "InvalidParams");
+      files = p.files.filter((d) => d.file_id !== c.labels_file_id) as DatasetImportParams["files"];
+      labels = staged.files.find((f) => f.preview.file_id === c.labels_file_id);
+    }
+    const built = this.build(staged, files, p.row_filters, p.variables, p.stack, this.nextId("ds"));
+    if (labels) {
+      const f = labels.preview;
+      built.meta.import_log.files.push({
+        file_id: f.file_id,
+        name: f.name,
+        sha256: f.sha256,
+        size_bytes: f.size_bytes,
+        format: f.format,
+        encoding: f.encoding,
+        delimiter: f.delimiter,
+        sheet_name: f.sheet_name,
+        qualtrics: { ...f.qualtrics },
+        time_label: null,
+        n_rows_read: labels.shape.nRows,
+        n_rows_kept: 0,
+        stored_path: `originals/${f.file_id}/${f.name}`,
+        imported_at: nowIso(),
+        role: "value_labels",
+      });
+    }
     const ds = this.makeDatasetState(built.meta, built.nRows, built.cell);
     this.datasets.set(ds.meta.dataset_id, ds);
     this.pushHistory(ds, "Imported data");

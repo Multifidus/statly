@@ -26,6 +26,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from statly_engine.data import companion as cx
 from statly_engine.data import qualtrics as qx
 from statly_engine.data.columns import (
     STRING_DTYPE, CoercionError, coerce, frame_to_rows, infer_dtype, multiselect_indicator,
@@ -84,6 +85,7 @@ class Preview:
     stack_onto_dataset_id: str | None
     stack_proposal: list[dict] | None
     extra_issues: list[dict] = field(default_factory=list)
+    companion: tuple[str, str] | None = None  # (values_file_id, labels_file_id)
 
     def file(self, file_id: str) -> StagedFile:
         for f in self.files:
@@ -309,10 +311,49 @@ def preview(store: DatasetStore, params: dict) -> dict:
             (f.file_id, [(n, f.header.question_texts[j]) for j, n in enumerate(f.header.names)]) for f in files]
         proposal, extra = propose_matches(sources)
         files[0].issues.extend(extra)
+    pair = _detect_companion(files) if existing is None and len(files) >= 2 else None
     pv = Preview(preview_id=_new_id("pv"), qualtrics_mode=mode, files=files, stack_onto_dataset_id=onto,
-                 stack_proposal=proposal, extra_issues=extra)
+                 stack_proposal=proposal, extra_issues=extra, companion=pair[0] if pair else None)
     store.preview = pv
-    return {"preview_id": pv.preview_id, "files": [file_preview(f) for f in files], "stack_proposal": proposal}
+    return {"preview_id": pv.preview_id, "files": [file_preview(f) for f in files], "stack_proposal": proposal,
+            "companion_pair": pair[1] if pair else None}
+
+
+def _companion_labels(m: cx.CompanionMatch, values: StagedFile) -> list[dict]:
+    """Attach paired labels to `values`' proposals; returns caution issues for unpaired columns."""
+    labels_by_col, problems = cx.pair_labels(m, values.proposed_by_name)
+    cx.apply_labels(values.proposed_by_name, labels_by_col)
+    return [_issue(
+        "companion_labels_conflict", "caution",
+        f"Statly could not attach the words from {m.labels.name} to '{col}': {why}. '{col}' is kept as "
+        "numbers without labels; check the answer choices in your survey.", values.file_id, col)
+        for col, why in problems]
+
+
+def _detect_companion(files: list[StagedFile]):
+    """((values_id, labels_id), CompanionPair) for a two-file companion pair, else None.
+
+    With 3+ files a pair is only flagged (caution): stacking it as two time points would be wrong."""
+    m = cx.find(files)
+    if m is None:
+        return None
+    values, labels = m.values, m.labels
+    if len(files) > 2:
+        msg = (f"{values.name} and {labels.name} look like the same responses exported twice, once with numbers "
+               "and once with words. Import those two files on their own so Statly can combine them; together "
+               "with other files they would be stacked as separate time points.")
+        values.issues.insert(0, _issue("companion_pair_not_combined", "caution", msg, values.file_id))
+        return None
+    cautions = _companion_labels(m, values)
+    values.issues = [i for i in values.issues if not (
+        i["code"] == "confirm_numeric_codes" and values.proposed_by_name.get(i["column"] or "", {}).get("value_labels"))]
+    values.issues.insert(0, _issue(
+        "companion_pair", "info",
+        f"{values.name} and {labels.name} look like the same responses exported twice, once with numbers and once "
+        "with words. Statly will keep the numbers and attach the words as labels.", values.file_id))
+    values.issues[1:1] = cautions
+    return ((values.file_id, labels.file_id),
+            {"values_file_id": values.file_id, "labels_file_id": labels.file_id, "columns_matched": len(m.columns)})
 
 
 def multiselect_indicator_variables(variable: dict, start_order: int | None = None) -> list[dict]:
@@ -636,9 +677,37 @@ def commit_import(store: DatasetStore, params: dict) -> dict:
         raise InvalidParams("This preview was made for adding files to an existing dataset; use dataset.stack.")
     decisions = params["files"]
     stack = params.get("stack")
+    companion = params.get("companion")
+    labels_file = None
+    if companion is not None:
+        pair = (companion["values_file_id"], companion["labels_file_id"])
+        if pv.companion != pair:
+            raise InvalidParams("These files were not recognised as the same responses exported with numbers and "
+                                "with words. Preview them again, or import them as separate time points.")
+        if stack is not None:
+            raise InvalidParams("A numbers-and-words pair is imported as one dataset; stack must be null.")
+        decisions = [d for d in decisions if d["file_id"] != pair[1]]
+        if [d["file_id"] for d in decisions] != [pair[0]]:
+            raise InvalidParams("Give a decision for the numbers file only when importing a numbers-and-words pair.")
+        labels_file = pv.file(pair[1])
     if len(decisions) >= 2 and stack is None:
         raise InvalidParams("Importing several files at once requires stack settings (time labels and matching).")
     parts, imported, dropped, applied = _prepare_parts(pv, decisions, params["row_filters"])
+    if labels_file is not None:
+        # Re-pair against the (possibly re-staged) values file so its proposals carry the labels.
+        m = cx.match(parts[0].staged, labels_file)
+        if m is None or m.values is not parts[0].staged:
+            raise InvalidParams("With these header settings the two files no longer line up as the same responses.")
+        _companion_labels(m, parts[0].staged)
+        r = labels_file.read
+        imported.append({
+            "file_id": labels_file.file_id, "name": labels_file.name, "sha256": r.sha256,
+            "size_bytes": len(r.raw_bytes), "format": r.format, "encoding": r.encoding, "delimiter": r.delimiter,
+            "sheet_name": r.sheet_name, "qualtrics": {**labels_file.qualtrics},
+            "time_label": None, "n_rows_read": int(len(labels_file.data)), "n_rows_kept": 0,
+            "stored_path": f"originals/{labels_file.file_id}/{labels_file.name}", "imported_at": _now(),
+            "role": "value_labels",
+        })
     if stack is not None:
         labels = _validate_levels(stack["levels"], {p.ref_id for p in parts})
         missing = [p.ref_id for p in parts if p.ref_id not in labels]
@@ -673,6 +742,8 @@ def commit_import(store: DatasetStore, params: dict) -> dict:
         "missing_summary": [],
     }
     originals = {p.ref_id: (p.staged.name, p.staged.read.raw_bytes) for p in parts}
+    if labels_file is not None:
+        originals[labels_file.file_id] = (labels_file.name, labels_file.read.raw_bytes)
     return store.commit(_new_id("ds"), df, meta, originals)
 
 

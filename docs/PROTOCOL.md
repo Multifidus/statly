@@ -183,6 +183,27 @@ Semantics (see `contracts/README.md` for the table notes):
   `response_range` = min/max code. Matrix items (same `scale_id`) share one confirmation.
 - Numeric exports whose codes skip values get a `noncontiguous_codes` issue and `value_labels`
   listing the observed codes (label = the number, since the answer text is unknown).
+- Companion pair (numbers + words exports of the same responses): with exactly two new files
+  (no `stack_onto_dataset_id`), the preview sets optional `companion_pair: {values_file_id,
+  labels_file_id, columns_matched}` when the files have the same column names and row count,
+  the same `ResponseId` set (rows aligned by ResponseId; by position when there is no ResponseId),
+  and every differing column is numeric codes in one file and answer text in the other (always
+  the same direction). Otherwise `companion_pair` is null or absent. When set, the values file's
+  `proposed_variables` already carry `value_labels` built by pairing each code with the text in
+  the same row (cells equal in both files, e.g. -99, and `missing_codes` are skipped); level is
+  `ordinal` with `response_range` 1..k when the codes are exactly 1..k. The values file gets an
+  info `companion_pair` issue, and a caution `companion_labels_conflict` for each column where
+  one code has two texts or one text two codes (that column keeps no labels).
+  `confirm_numeric_codes` issues are dropped for labelled columns. With 3+ files a detected pair
+  is not combined; it gets a caution `companion_pair_not_combined` issue instead.
+- `dataset.import` optional `companion: {values_file_id, labels_file_id}` (must equal the
+  preview's `companion_pair`, else `-32003`) imports the values file as the dataset: `files`
+  holds its decision (a decision for the labels file is ignored), `stack` must be null. Labels are
+  re-paired at commit (so a changed header-row setting is respected). The labels file adds no
+  rows; it is recorded in `import_log.files` after the values file with `role: "value_labels"`,
+  `time_label: null`, `n_rows_kept: 0`, and its original is stored in the project like any other
+  file. `ImportedFile.role` is optional; absent means `data`. The app never sends a pair as
+  two stacked time points.
 - Multi-select split: add one indicator variable per option with `sources[0]` pointing at the
   multi-select column and `label` = the option text (the proposed multi-select variable lists its
   options in `value_labels`). Indicators are 1 = selected, 0 = not selected, null = question blank.

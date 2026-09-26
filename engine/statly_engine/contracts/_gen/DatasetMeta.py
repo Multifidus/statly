@@ -57,6 +57,15 @@ class Scale(BaseModel):
     """
 
 
+class Role(StrEnum):
+    """
+    Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows).
+    """
+
+    data = 'data'
+    value_labels = 'value_labels'
+
+
 class FileFormat(StrEnum):
     csv = 'csv'
     xlsx = 'xlsx'
@@ -200,6 +209,10 @@ class ImportedFile(BaseModel):
     Path of the untouched original inside the .statly zip, e.g. 'originals/<file_id>/<name>'.
     """
     imported_at: AwareDatetime
+    role: Role | None = None
+    """
+    Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows).
+    """
 
 
 class RowFilter(BaseModel):

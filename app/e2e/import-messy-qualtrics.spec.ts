@@ -76,3 +76,37 @@ test("imports the messy Qualtrics export through the wizard and reaches the data
   await expect(page.getByTestId("autosave-status")).toHaveText("All changes saved");
   await expect(page.getByTestId("project-menu")).toContainText("Messy study");
 });
+
+test("numbers + words exports of the same survey import as one labelled dataset", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("new-project").click();
+  await page.getByTestId("choose-files").click();
+  const dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("checkbox", { name: "messy_3header.csv" }).check();
+  await dialog.getByRole("checkbox", { name: "messy_text_choices.csv" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+
+  // Check step: the pair is explained and the words file is set aside for labels.
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByRole("heading", { name: "Check how we read them" })).toBeFocused();
+  await expect(page.getByText(/same responses exported twice, once with numbers and once with words/)).toBeVisible();
+  await expect(page.getByTestId("labels-file")).toContainText("messy_text_choices.csv");
+  // No time-point steps for a pair.
+  const steps = page.getByRole("navigation", { name: "Import steps" });
+  await expect(steps.getByRole("button", { name: /Combine time points/ })).toHaveCount(0);
+  await expect(page.getByText("Step 2 of 4")).toBeVisible();
+
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByRole("heading", { name: "Survey clean-up" })).toBeVisible();
+  await page.getByRole("checkbox", { name: /checked the codes for Q6/ }).check();
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByRole("heading", { name: "Review and import" })).toBeVisible();
+  await expect(page.getByText(/words from messy_text_choices\.csv attached to the numbers/)).toBeVisible();
+  await expect(page.getByText("113 rows", { exact: true })).toBeVisible();
+  await page.getByTestId("wizard-next").click();
+
+  await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
+  await page.getByRole("button", { name: "Skip for now" }).click();
+  await expect(page.getByTestId("data-counts")).toContainText("108 rows");
+  await expect(page.getByTestId("data-grid").getByRole("columnheader", { name: /Time/ })).toHaveCount(0);
+});

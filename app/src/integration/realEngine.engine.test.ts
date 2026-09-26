@@ -208,6 +208,36 @@ describe("messy Qualtrics export with text answer choices", () => {
   });
 });
 
+describe("numbers + words exports of the same responses", () => {
+  it("imports one dataset: the numbers, labelled with the words", async () => {
+    // Reference: the numeric export on its own.
+    await previewFiles([MESSY]);
+    confirmCleanup();
+    const numeric = await column(await commit(), "Q5_1");
+    useImportFlow.getState().reset();
+
+    const s = await previewFiles([MESSY_TEXT, MESSY]);
+    expect(s.preview!.files.map((f) => f.name)).toEqual(["messy_3header.csv"]);
+    expect(s.labelsFile?.name).toBe("messy_text_choices.csv");
+    expect(s.preview!.files[0].issues.some((i) => i.code === "companion_pair" && i.severity === "info")).toBe(true);
+    confirmCleanup();
+    const params = buildImportParams(useImportFlow.getState().preview!, useImportFlow.getState().decisions!);
+    expect(params.stack).toBeNull();
+    expect(params.companion?.labels_file_id).toBe(s.labelsFile!.file_id);
+    const meta = await commit();
+    expect(meta.n_rows).toBe(GT.n_valid_after_status_filter);
+    expect(meta.stacking).toBeNull();
+    const q = varOf(meta, "Q5_1")!;
+    expect(q.dtype).toBe("integer");
+    expect(q.level).toBe("ordinal");
+    expect(q.value_labels).toEqual(
+      ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"].map((label, i) => ({ value: i + 1, label })),
+    );
+    expect(await column(meta, "Q5_1")).toEqual(numeric);
+    expect(meta.import_log.files.map((f) => f.role ?? "data")).toEqual(["data", "value_labels"]);
+  });
+});
+
 describe("xlsx sheet choice", () => {
   it("keeps file_id across a sheet change and imports the Data sheet", async () => {
     const s = await previewFiles([MESSY_XLSX]);

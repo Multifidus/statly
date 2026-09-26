@@ -65,6 +65,40 @@ class DatasetImportPreviewParams(BaseModel):
     """
 
 
+class CompanionPair(BaseModel):
+    """
+    Two files holding the same responses exported twice: once with numeric codes (values) and once with answer text (labels).
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    values_file_id: str
+    """
+    File whose numeric codes become the data.
+    """
+    labels_file_id: str
+    """
+    File whose answer text becomes value labels; contributes no rows.
+    """
+    columns_matched: conint(ge=0)
+    """
+    Columns that are numbers in one file and text in the other.
+    """
+
+
+class CompanionChoice(BaseModel):
+    """
+    Import values_file_id as the dataset and take value labels from labels_file_id (must match the preview's companion_pair).
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    values_file_id: str
+    labels_file_id: str
+
+
 class ColumnRef(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -322,6 +356,10 @@ class DatasetImportPreviewResult(BaseModel):
     """
     Column matching across files (or against stack_onto_dataset_id); null for a single new file.
     """
+    companion_pair: CompanionPair | None = None
+    """
+    Optional. Set when exactly two new files are the same responses exported as numbers and as text; the UI should import them as one dataset (DatasetImportParams.companion) rather than stack them.
+    """
 
 
 class DatasetImportParams(BaseModel):
@@ -341,6 +379,10 @@ class DatasetImportParams(BaseModel):
     stack: StackConfig | None
     """
     Required when importing 2+ files at once.
+    """
+    companion: CompanionChoice | None = None
+    """
+    Optional. Import a companion pair as one dataset: `files` holds the values file's decision (a decision for the labels file is ignored) and `stack` must be null.
     """
 
 

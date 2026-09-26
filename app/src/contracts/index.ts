@@ -1033,6 +1033,10 @@ export interface ImportedFile {
    */
   stored_path: string;
   imported_at: string;
+  /**
+   * Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows).
+   */
+  role?: "data" | "value_labels";
 }
 /**
  * This interface was referenced by `DatasetMeta`'s JSON-Schema
@@ -1482,6 +1486,30 @@ export interface ImportIssue {
   file_id: string | null;
   column: string | null;
 }
+/**
+ * Two files holding the same responses exported twice: once with numeric codes (values) and once with answer text (labels).
+ */
+export interface CompanionPair {
+  /**
+   * File whose numeric codes become the data.
+   */
+  values_file_id: string;
+  /**
+   * File whose answer text becomes value labels; contributes no rows.
+   */
+  labels_file_id: string;
+  /**
+   * Columns that are numbers in one file and text in the other.
+   */
+  columns_matched: number;
+}
+/**
+ * Import values_file_id as the dataset and take value labels from labels_file_id (must match the preview's companion_pair).
+ */
+export interface CompanionChoice {
+  values_file_id: string;
+  labels_file_id: string;
+}
 export interface FilePreview {
   file_id: string;
   path: string;
@@ -1548,6 +1576,10 @@ export interface DatasetImportPreviewResult {
    * Column matching across files (or against stack_onto_dataset_id); null for a single new file.
    */
   stack_proposal: ColumnMatch[] | null;
+  /**
+   * Optional. Set when exactly two new files are the same responses exported as numbers and as text; the UI should import them as one dataset (DatasetImportParams.companion) rather than stack them.
+   */
+  companion_pair?: CompanionPair | null;
 }
 export interface ImportFileDecision {
   file_id: string;
@@ -1587,6 +1619,10 @@ export interface DatasetImportParams {
    * Required when importing 2+ files at once.
    */
   stack: StackConfig | null;
+  /**
+   * Optional. Import a companion pair as one dataset: `files` holds the values file's decision (a decision for the labels file is ignored) and `stack` must be null.
+   */
+  companion?: CompanionChoice | null;
 }
 export interface DatasetResult {
   dataset_meta: DatasetMeta;

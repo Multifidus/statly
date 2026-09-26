@@ -2,11 +2,12 @@ import { create } from "zustand";
 import type {
   DatasetImportPreviewResult,
   DatasetMeta,
+  FilePreview,
   ImportFileInput,
   LinkReport,
   QualtricsMode,
 } from "@/contracts";
-import { buildImportParams, defaultDecisions, type ImportDecisions } from "@/lib/importLogic";
+import { buildImportParams, companionView, defaultDecisions, type ImportDecisions } from "@/lib/importLogic";
 import { describeRpcError, rpc } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
 import { useProjectStore } from "@/stores/project";
@@ -22,7 +23,10 @@ export const STEP_TITLES: Record<StepId, string> = {
   summary: "Review and import",
 };
 
-/** Steps 4 and 5 only apply when several files are combined. */
+/**
+ * Steps 4 and 5 only apply when several files are stacked as time points. Pass the preview's file
+ * count once there is one: a numbers + words companion pair counts as one file.
+ */
 export function stepsFor(fileCount: number): StepId[] {
   return fileCount >= 2
     ? ["files", "detect", "cleanup", "stack", "link", "summary"]
@@ -33,7 +37,10 @@ interface ImportFlowState {
   step: StepId;
   files: ImportFileInput[];
   qualtricsMode: QualtricsMode;
+  /** The preview the wizard works with; a companion pair is narrowed to its numbers file (companionView). */
   preview: DatasetImportPreviewResult | null;
+  /** The words file of a companion pair: only used for value labels, contributes no rows. */
+  labelsFile: FilePreview | null;
   decisions: ImportDecisions | null;
   busy: boolean;
   error: string | null;
@@ -61,6 +68,7 @@ const initial = {
   files: [] as ImportFileInput[],
   qualtricsMode: "auto" as QualtricsMode,
   preview: null,
+  labelsFile: null as FilePreview | null,
   decisions: null,
   busy: false,
   error: null,
@@ -88,12 +96,13 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
   addFiles: (paths) => {
     const have = new Set(get().files.map((f) => f.path));
     const add = paths.filter((p) => !have.has(p)).map((path) => ({ path, sheet_name: null }));
-    set({ files: [...get().files, ...add], preview: null, decisions: null, error: null });
+    set({ files: [...get().files, ...add], preview: null, labelsFile: null, decisions: null, error: null });
   },
 
-  removeFile: (path) => set({ files: get().files.filter((f) => f.path !== path), preview: null, decisions: null }),
+  removeFile: (path) =>
+    set({ files: get().files.filter((f) => f.path !== path), preview: null, labelsFile: null, decisions: null }),
 
-  setQualtricsMode: (qualtricsMode) => set({ qualtricsMode, preview: null, decisions: null }),
+  setQualtricsMode: (qualtricsMode) => set({ qualtricsMode, preview: null, labelsFile: null, decisions: null }),
 
   goTo: (step) => set({ step, error: null }),
 
@@ -102,12 +111,13 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
     if (!files.length) return false;
     set({ busy: true, error: null });
     try {
-      const preview = await rpc.importPreview({
+      const raw = await rpc.importPreview({
         files: files as [ImportFileInput, ...ImportFileInput[]],
         qualtrics_mode: qualtricsMode,
         stack_onto_dataset_id: null,
       });
-      set({ preview, decisions: defaultDecisions(preview), busy: false });
+      const { preview, labelsFile } = companionView(raw);
+      set({ preview, labelsFile, decisions: defaultDecisions(preview), busy: false });
       return true;
     } catch (e) {
       set({ busy: false, error: describeRpcError(e) });

@@ -28,7 +28,7 @@ export function ImportWizard() {
   const s = useImportFlow();
   const go = useNav((n) => n.go);
   const hasData = useDatasetStore((d) => !!d.meta);
-  const steps = stepsFor(s.files.length);
+  const steps = stepsFor(s.preview ? s.preview.files.length : s.files.length);
   const index = Math.max(0, steps.indexOf(s.step));
   const headingRef = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
