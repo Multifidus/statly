@@ -5,6 +5,9 @@ const PORT = 1430;
 /** E2E runs against the Vite dev server in mock-engine mode (no Tauri, no Python). */
 export default defineConfig({
   testDir: "e2e",
+  // Tutorial screenshot capture has its own config (playwright.screenshots.config.ts) and writes
+  // into docs/screenshots; keep it out of the e2e suite.
+  testIgnore: ["screenshots/**"],
   timeout: 60_000,
   fullyParallel: true,
   reporter: process.env.CI ? "github" : "list",

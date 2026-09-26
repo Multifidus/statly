@@ -146,16 +146,14 @@
   {
     "tutorial": "which-intervention-worked-best",
     "step": 11,
-    "screenshot": null,
-    "status": "skipped",
-    "note": "TODO: not runnable yet - the mock engine's analysis catalog doesn't include ANOVA (or Kruskal-Wallis) yet, so role-assignment shows \"Statly can't run One-way ANOVA yet\" and Check the assumptions stays disabled. The real engine (SPEC §8) implements one-way ANOVA; this is a mock-mode-only gap."
+    "screenshot": "11-assumptions.png",
+    "status": "captured"
   },
   {
     "tutorial": "which-intervention-worked-best",
     "step": 12,
-    "screenshot": null,
-    "status": "skipped",
-    "note": "TODO: depends on step 11 (ANOVA not runnable in mock mode yet)."
+    "screenshot": "12-results.png",
+    "status": "captured"
   },
   {
     "tutorial": "which-intervention-worked-best",
@@ -233,9 +231,8 @@
   {
     "tutorial": "cleaning-a-messy-qualtrics-export",
     "step": 12,
-    "screenshot": null,
-    "status": "skipped",
-    "note": "The Qualitative module's tagging screen (SPEC §11.1) is not implemented yet."
+    "screenshot": "12-qualitative-tagging.png",
+    "status": "captured"
   },
   {
     "tutorial": "matching-students-across-time",
@@ -300,15 +297,13 @@
   {
     "tutorial": "matching-students-across-time",
     "step": 11,
-    "screenshot": null,
-    "status": "skipped",
-    "note": "TODO: not runnable yet - the paired t-test analysis only has a \"wide\" layout in the mock catalog (two separate score columns for the same people), but this practice dataset's two files get stacked into one long-format row per time point (a single Q4 column plus a Time column) during import, so no valid two-column pairing exists to check. Either the mock catalog needs a \"long\" layout option for paired designs, or the wizard needs a wide-linked-merge path as an alternative to stacking for linked datasets."
+    "screenshot": "11-assumption-normality.png",
+    "status": "captured"
   },
   {
     "tutorial": "matching-students-across-time",
     "step": 12,
-    "screenshot": null,
-    "status": "skipped",
-    "note": "TODO: depends on step 11 (paired t-test not runnable against this dataset's stacked layout in mock mode yet)."
+    "screenshot": "12-results.png",
+    "status": "captured"
   }
 ]

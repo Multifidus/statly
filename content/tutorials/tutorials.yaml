@@ -175,16 +175,14 @@ tutorials:
         screen: assumption-checks
         action: Step through the assumption checks
         why: ANOVA assumes roughly normal, similarly spread groups; Statly checks both before you see results.
-        screenshot: null
-        built: false
-        todo: "TODO: screen not built yet - the mock engine's analysis catalog doesn't include ANOVA (or Kruskal-Wallis), so role-assignment shows \"Statly can't run One-way ANOVA yet\" and this step can't be reached in mock mode. The real engine implements one-way ANOVA per SPEC §8."
+        screenshot: 11-assumptions.png
+        built: true
       - id: 12
         screen: results
         action: Read the results and the post hoc comparisons
         why: The overall ANOVA tells you the groups differ; post hoc tests tell you which specific pairs do.
-        screenshot: null
-        built: false
-        todo: "TODO: depends on step 11 (ANOVA not runnable in mock mode yet)."
+        screenshot: 12-results.png
+        built: true
       - id: 13
         screen: analyses-mixed-followup
         action: Compare all three time points across all three groups in one repeated-measures-by-group analysis
@@ -268,9 +266,8 @@ tutorials:
         screen: qualitative-tagging
         action: Open the open-ended responses and tag Q9/Q10 with a codebook
         why: Free-text answers can't be averaged, but tagging them turns themes into countable, comparable categories.
-        screenshot: null
-        built: false
-        todo: "TODO: screen not built yet - the Qualitative module (SPEC §11.1) tagging screen is not implemented. Q9/Q10 open-ended text is visible in the data grid today but has no tagging UI yet."
+        screenshot: 12-qualitative-tagging.png
+        built: true
 
   - id: matching-students-across-time
     title: "Matching students across time"
@@ -341,13 +338,11 @@ tutorials:
         screen: assumption-checks
         action: Step through the normality-of-differences assumption check
         why: A paired t-test assumes the *differences* between each student's two scores are roughly normal, not the raw scores themselves.
-        screenshot: null
-        built: false
-        todo: "TODO: screen not built yet - the mock catalog's paired t-test only has a \"wide\" layout (two separate score columns for the same people), but this dataset's two files get stacked into one long-format Q4 column plus a Time column during import, so no valid two-column pairing exists to select. Needs either a \"long\" layout option for paired designs in the catalog, or a wide-linked-merge import path."
+        screenshot: 11-assumption-normality.png
+        built: true
       - id: 12
         screen: results
         action: Read the results, including the effect size
         why: The paired t-test result plus the normalized gain variable together tell a fuller story than either alone.
-        screenshot: null
-        built: false
-        todo: "TODO: depends on step 11 (paired t-test not runnable against this dataset's stacked layout in mock mode yet)."
+        screenshot: 12-results.png
+        built: true

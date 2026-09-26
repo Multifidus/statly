@@ -613,7 +613,7 @@
       "shelves": {
         "x": [
           {
-            "variable": "condition",
+            "variable": "SC0_band",
             "aggregate": "none"
           }
         ],
@@ -634,7 +634,7 @@
       "subset": [],
       "error_bars": "ci95",
       "customization": {
-        "title": "Math attitude by condition",
+        "title": "Math attitude by score band and time",
         "y_axis": {
           "label": "Mean attitude (1-5)",
           "min": 1,

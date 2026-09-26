@@ -243,31 +243,25 @@ test("which-intervention-worked-best", async ({ page }) => {
     await page.getByTestId("flow-run").waitFor({ state: "visible" });
   });
 
-  await step(
-    page,
-    {
-      tutorial: t,
-      step: 11,
-      file: null,
-      label: "Assumption checks",
-      built: false,
-      todo: "TODO: not runnable yet - the mock engine's analysis catalog doesn't include ANOVA (or Kruskal-Wallis) yet, so role-assignment shows \"Statly can't run One-way ANOVA yet\" and Check the assumptions stays disabled. The real engine (SPEC §8) implements one-way ANOVA; this is a mock-mode-only gap.",
-    },
-    async () => {},
-  );
+  await step(page, { tutorial: t, step: 11, file: "11-assumptions.png", label: "Assumption checks", built: true }, async () => {
+    // anova.one_way and kruskal_wallis are now in the mock catalog (roles pre-fill from the
+    // interview's variable roles, single "default" layout, so no layout picker appears).
+    await page.getByTestId("flow-run").click();
+    await page.getByTestId("assumption-progress").waitFor({ state: "visible" });
+  });
 
-  await step(
-    page,
-    {
-      tutorial: t,
-      step: 12,
-      file: null,
-      label: "Results and post hoc",
-      built: false,
-      todo: "TODO: depends on step 11 (ANOVA not runnable in mock mode yet).",
-    },
-    async () => {},
-  );
+  await step(page, { tutorial: t, step: 12, file: "12-results.png", label: "Results and post hoc", built: true }, async () => {
+    // Walk through the remaining assumption screens (one per group, plus homogeneity of
+    // variance) to the decision step, then run and land on results.
+    for (let i = 0; i < 20; i++) {
+      const next = page.getByTestId("assumption-next");
+      if (!(await next.isVisible().catch(() => false))) break;
+      await next.click();
+    }
+    await page.getByTestId("decision-suggestion").waitFor({ state: "visible" });
+    await page.getByTestId("decision-confirm").click();
+    await page.getByTestId("results-view").waitFor({ state: "visible" });
+  });
 
   await step(
     page,
@@ -342,12 +336,32 @@ test("cleaning-a-messy-qualtrics-export", async ({ page }) => {
     {
       tutorial: t,
       step: 12,
-      file: null,
+      file: "12-qualitative-tagging.png",
       label: "Tag open-ended responses",
-      built: false,
-      todo: "The Qualitative module's tagging screen (SPEC §11.1) is not implemented yet.",
+      built: true,
     },
-    async () => {},
+    async () => {
+      // The Qualitative module (SPEC §11.1) is now built (src/screens/QualitativeScreen.tsx);
+      // tag Q10's open-ended responses with a small codebook, as the tutorial narrates.
+      await page.getByTestId("tab-qualitative").click();
+      await page.getByTestId("qual-title").waitFor({ state: "visible" });
+      await page.getByTestId("qual-variable").selectOption("Q10");
+      const cards = page.getByTestId("response-card");
+      await cards.first().waitFor({ state: "visible" });
+      for (const [name, def] of [
+        ["Pacing", "Talks about the speed of the course."],
+        ["Fairness", ""],
+      ]) {
+        await page.getByTestId("new-tag").click();
+        await page.getByTestId("tag-name").fill(name);
+        if (def) await page.getByTestId("tag-definition").fill(def);
+        await page.getByTestId("tag-save").click();
+      }
+      await cards.first().click();
+      await page.keyboard.press("1");
+      await page.keyboard.press("2");
+      await cards.first().getByTestId("tag-chip").first().waitFor({ state: "visible" });
+    },
   );
 });
 
@@ -423,29 +437,30 @@ test("matching-students-across-time", async ({ page }) => {
     await page.getByTestId("flow-run").waitFor({ state: "visible" });
   });
 
-  await step(
-    page,
-    {
-      tutorial: t,
-      step: 11,
-      file: null,
-      label: "Normality of differences",
-      built: false,
-      todo: 'TODO: not runnable yet - the paired t-test analysis only has a "wide" layout in the mock catalog (two separate score columns for the same people), but this practice dataset\'s two files get stacked into one long-format row per time point (a single Q4 column plus a Time column) during import, so no valid two-column pairing exists to check. Either the mock catalog needs a "long" layout option for paired designs, or the wizard needs a wide-linked-merge path as an alternative to stacking for linked datasets.',
-    },
-    async () => {},
-  );
+  await step(page, { tutorial: t, step: 11, file: "11-assumption-normality.png", label: "Normality of differences", built: true }, async () => {
+    // t_test.paired now has a "long" layout in the mock catalog (outcome + time + subject_id),
+    // matching the real engine (SPEC §8, ttests.py) - this stacked/linked dataset needs it since
+    // import stacks the two files into one Q4 column plus a Time column rather than two wide columns.
+    const longLayout = page.locator("#layout-long");
+    if (await longLayout.isVisible().catch(() => false)) await longLayout.click();
+    const outcomeRole = page.getByTestId("role-outcome");
+    if (await outcomeRole.isVisible().catch(() => false)) await outcomeRole.selectOption("Q4");
+    const timeRole = page.getByTestId("role-time");
+    if (await timeRole.isVisible().catch(() => false)) await timeRole.selectOption("Time");
+    const idRole = page.getByTestId("role-subject_id");
+    if (await idRole.isVisible().catch(() => false)) await idRole.selectOption("Q1");
+    await page.getByTestId("flow-run").click();
+    await page.getByTestId("assumption-progress").waitFor({ state: "visible" });
+  });
 
-  await step(
-    page,
-    {
-      tutorial: t,
-      step: 12,
-      file: null,
-      label: "Results",
-      built: false,
-      todo: "TODO: depends on step 11 (paired t-test not runnable against this dataset's stacked layout in mock mode yet).",
-    },
-    async () => {},
-  );
+  await step(page, { tutorial: t, step: 12, file: "12-results.png", label: "Results", built: true }, async () => {
+    for (let i = 0; i < 10; i++) {
+      const next = page.getByTestId("assumption-next");
+      if (!(await next.isVisible().catch(() => false))) break;
+      await next.click();
+    }
+    await page.getByTestId("decision-suggestion").waitFor({ state: "visible" });
+    await page.getByTestId("decision-confirm").click();
+    await page.getByTestId("results-view").waitFor({ state: "visible" });
+  });
 });

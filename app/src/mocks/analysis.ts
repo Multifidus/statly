@@ -25,7 +25,84 @@ export const MOCK_ANALYSES: AnalysisInfo[] = [
   { analysis_id: "mann_whitney", label: "Mann-Whitney U test", layouts: [{ name: "default", roles: [{ role: "outcome", min: 1, max: 1, description: "Scores to compare" }, { role: "group", min: 1, max: 1, description: "Grouping variable with exactly two groups" }] }], options: { levels: "Group values" } },
   { analysis_id: "t_test.independent", label: "Independent-samples t test", layouts: [{ name: "default", roles: [{ role: "outcome", min: 1, max: 1, description: "Scores to compare" }, { role: "group", min: 1, max: 1, description: "Grouping variable with exactly two groups" }] }], options: { variant: "welch (default) or student", levels: "Group values", reference_group: "First group" } },
   { analysis_id: "t_test.one_sample", label: "One-sample t test", layouts: [{ name: "default", roles: [{ role: "outcome", min: 1, max: 1, description: "Scores" }] }], options: { test_value: "Value to compare against" } },
-  { analysis_id: "t_test.paired", label: "Paired-samples t test", layouts: [{ name: "wide", roles: [{ role: "measures", min: 2, max: 2, description: "Two score columns for the same people" }] }], options: { levels: "Time values" } },
+  {
+    analysis_id: "t_test.paired",
+    label: "Paired-samples t test",
+    layouts: [
+      { name: "wide", roles: [{ role: "measures", min: 2, max: 2, description: "Two score columns for the same people (e.g. pre, post)" }] },
+      {
+        name: "long",
+        roles: [
+          { role: "outcome", min: 1, max: 1, description: "Scores" },
+          { role: "time", min: 1, max: 1, description: "Time point with two levels" },
+          { role: "subject_id", min: 1, max: 1, description: "Participant ID linking rows across time" },
+        ],
+      },
+    ],
+    options: { levels: "Long layout: the two time values, in the order to compare (first minus second)." },
+  },
+  {
+    analysis_id: "wilcoxon_signed_rank",
+    label: "Wilcoxon signed-rank test",
+    layouts: [
+      { name: "wide", roles: [{ role: "measures", min: 2, max: 2, description: "Two score columns for the same people (e.g. pre, post)" }] },
+      {
+        name: "long",
+        roles: [
+          { role: "outcome", min: 1, max: 1, description: "Scores" },
+          { role: "time", min: 1, max: 1, description: "Time point with two levels" },
+          { role: "subject_id", min: 1, max: 1, description: "Participant ID linking rows across time" },
+        ],
+      },
+    ],
+    options: { levels: "Long layout: the two time values, in the order to compare (first minus second)." },
+  },
+  {
+    analysis_id: "anova.one_way",
+    label: "One-way ANOVA",
+    layouts: [
+      {
+        name: "default",
+        roles: [
+          { role: "outcome", min: 1, max: 1, description: "Scores to compare" },
+          { role: "group", min: 1, max: 1, description: "Grouping variable with two or more groups" },
+        ],
+      },
+    ],
+    options: { levels: "Group (or long-layout time) values to include, in display order." },
+  },
+  {
+    analysis_id: "kruskal_wallis",
+    label: "Kruskal-Wallis test",
+    layouts: [
+      {
+        name: "default",
+        roles: [
+          { role: "outcome", min: 1, max: 1, description: "Scores to compare (ordinal or numeric)" },
+          { role: "group", min: 1, max: 1, description: "Grouping variable with two or more groups" },
+        ],
+      },
+    ],
+    options: {
+      levels: "Group values to include, in display order.",
+      bootstrap_seed: "Seed for the bootstrap CI (default 12345; R: set.seed).",
+      bootstrap_iterations: "Bootstrap resamples for the CI (default 200, as effectsize).",
+    },
+  },
+  {
+    analysis_id: "posthoc.tukey",
+    label: "Tukey HSD post hoc test",
+    layouts: [
+      {
+        name: "default",
+        roles: [
+          { role: "outcome", min: 1, max: 1, description: "Scores to compare" },
+          { role: "group", min: 1, max: 1, description: "Grouping variable with two or more groups" },
+        ],
+      },
+    ],
+    options: { levels: "Group (or long-layout time) values to include, in display order." },
+  },
 ];
 
 // --- small numeric toolkit -------------------------------------------------------------------
@@ -127,6 +204,76 @@ function qt(p2: number, df: number): number {
   return (lo + hi) / 2;
 }
 
+/** Regularized lower incomplete gamma P(a, x) via series (Numerical Recipes). */
+function gammaSeries(a: number, x: number): number {
+  if (x <= 0) return 0;
+  let ap = a;
+  let sum = 1 / a;
+  let del = sum;
+  for (let n = 1; n <= 200; n++) {
+    ap += 1;
+    del *= x / ap;
+    sum += del;
+    if (Math.abs(del) < Math.abs(sum) * 1e-14) break;
+  }
+  return sum * Math.exp(-x + a * Math.log(x) - logGamma(a));
+}
+
+/** Regularized upper incomplete gamma Q(a, x) via continued fraction (Numerical Recipes). */
+function gammaCf(a: number, x: number): number {
+  const FPMIN = 1e-300;
+  let b = x + 1 - a;
+  let c = 1 / FPMIN;
+  let d = 1 / b;
+  let h = d;
+  for (let i = 1; i <= 200; i++) {
+    const an = -i * (i - a);
+    b += 2;
+    d = an * d + b;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = b + an / c;
+    if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < 1e-14) break;
+  }
+  return Math.exp(-x + a * Math.log(x) - logGamma(a)) * h;
+}
+
+/** Chi-square survival function (upper tail), used for the Kruskal-Wallis H statistic. */
+function chi2Sf(stat: number, df: number): number {
+  if (!Number.isFinite(stat) || stat <= 0) return 1;
+  const a = df / 2;
+  const x = stat / 2;
+  return x < a + 1 ? 1 - gammaSeries(a, x) : gammaCf(a, x);
+}
+
+/** Ranks with ties averaged; also returns the tie-correction term sum(t^3 - t) over tied groups. */
+function rankWithTies(values: number[]): { ranks: number[]; tieTerm: number } {
+  const order = values.map((_, i) => i).sort((i, j) => values[i] - values[j]);
+  const ranks = new Array<number>(values.length);
+  let tieTerm = 0;
+  let i = 0;
+  while (i < order.length) {
+    let j = i;
+    while (j + 1 < order.length && values[order[j + 1]] === values[order[i]]) j++;
+    const r = (i + j) / 2 + 1;
+    for (let k = i; k <= j; k++) ranks[order[k]] = r;
+    const t = j - i + 1;
+    tieTerm += t ** 3 - t;
+    i = j + 1;
+  }
+  return { ranks, tieTerm };
+}
+
+/** Approximate normal-based CI for a bounded [0, 1] effect size (eta-family). The real engine
+ * inverts the noncentral F/chi-square distribution (effectsize package); this mock uses a
+ * simple normal-approximation SE instead, which is good enough to render but not bit-exact. */
+function boundedCi(value: number, se: number): { level: 0.95; lower: number; upper: number } {
+  return { level: 0.95, lower: Math.max(0, value - 1.96 * se), upper: Math.min(1, value + 1.96 * se) };
+}
+
 // --- APA formatting ----------------------------------------------------------------------------
 
 const f2 = (x: number | null) => (x === null || !Number.isFinite(x) ? "—" : x.toFixed(2));
@@ -141,9 +288,10 @@ const columns = (heads: string[]): ApaTable["columns"] => {
   return [cols[0], ...cols.slice(1)];
 };
 
-function magnitude(d: number, kind: "d" | "r"): EffectSize["interpretation"] {
+function magnitude(d: number, kind: "d" | "r" | "f" | "eta"): EffectSize["interpretation"] {
   const a = Math.abs(d);
-  const cut = kind === "d" ? [0.2, 0.5, 0.8] : [0.1, 0.3, 0.5];
+  const cuts = { d: [0.2, 0.5, 0.8], r: [0.1, 0.3, 0.5], f: [0.1, 0.25, 0.4], eta: [0.01, 0.06, 0.14] } as const;
+  const cut = cuts[kind];
   const m = a < cut[0] ? "negligible" : a < cut[1] ? "small" : a < cut[2] ? "medium" : "large";
   return {
     magnitude: m,
@@ -310,6 +458,34 @@ function twoGroup(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: nu
   return { outcome, gname, a, b, n: a.values.length + b.values.length, excluded: nRows - a.values.length - b.values.length };
 }
 
+function kGroups(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number) {
+  const outcome = req.variables.outcome[0];
+  const gname = req.variables.group[0];
+  const groups = groupsOf(meta, cell, nRows, outcome, gname).filter((g) => g.values.length > 0);
+  if (groups.length < 2) invalid(`This test needs at least two groups with scores, but "${gname}" has ${groups.length}.`);
+  const n = sum(groups.map((g) => g.values.length));
+  return { outcome, gname, groups, n, excluded: nRows - n };
+}
+
+/** Classical one-way ANOVA sums of squares (Type I = II = III for a single factor). */
+function classicF(xs: number[][]): { ssB: number; ssW: number; df1: number; df2: number; msB: number; msW: number | null; F: number | null; p: number | null } {
+  const ns = xs.map((x) => x.length);
+  const means = xs.map(mean);
+  const N = sum(ns);
+  const grand = sum(xs.map((_, i) => ns[i] * means[i])) / N;
+  const ssB = sum(xs.map((_, i) => ns[i] * (means[i] - grand) ** 2));
+  const ssW = sum(xs.map((x) => sum(x.map((v) => (v - mean(x)) ** 2))));
+  const df1 = xs.length - 1;
+  const df2 = N - xs.length;
+  let F: number | null = null;
+  let p: number | null = null;
+  if (df2 > 0 && ssW > 0) {
+    F = ssB / df1 / (ssW / df2);
+    p = pF(F, df1, df2);
+  }
+  return { ssB, ssW, df1, df2, msB: ssB / df1, msW: df2 > 0 ? ssW / df2 : null, F, p };
+}
+
 function independentT(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
   const out = baseResult(req, meta);
   const { outcome, gname, a, b, n, excluded } = twoGroup(req, meta, cell, nRows);
@@ -472,6 +648,555 @@ function mannWhitney(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows:
   return out;
 }
 
+// --- paired data (wide: two columns; long: outcome + time + subject_id on a linked/stacked dataset) ---------
+
+type PairedData = {
+  x: number[];
+  y: number[];
+  names: [string, string];
+  groups: [Record<string, string>, Record<string, string>];
+  outcomeLabel: string;
+  nExcluded: number;
+  notes: string[];
+};
+
+function numericColumnAligned(meta: DatasetMeta, cell: Cell, nRows: number, name: string): number[] {
+  const v = meta.variables.find((x) => x.name === name);
+  const missing = new Set((v?.missing_codes ?? []).map((m) => String(m)));
+  const out: number[] = new Array(nRows);
+  for (let r = 0; r < nRows; r++) {
+    const raw = cell(r, name);
+    if (raw === null || raw === "" || missing.has(String(raw))) {
+      out[r] = NaN;
+      continue;
+    }
+    const x = Number(raw);
+    out[r] = Number.isFinite(x) ? x : NaN;
+  }
+  return out;
+}
+
+function normalizeIdCell(raw: CellValue, trim: boolean, caseInsensitive: boolean): string | null {
+  if (raw === null || raw === undefined) return null;
+  let s = String(raw);
+  if (trim) s = s.trim();
+  if (caseInsensitive) s = s.toLowerCase();
+  return s === "" ? null : s;
+}
+
+function pairedWide(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): PairedData {
+  const [a, c] = req.variables.measures;
+  const xa = numericColumnAligned(meta, cell, nRows, a);
+  const xb = numericColumnAligned(meta, cell, nRows, c);
+  const x: number[] = [];
+  const y: number[] = [];
+  let n = 0;
+  for (let r = 0; r < nRows; r++) {
+    if (Number.isFinite(xa[r]) && Number.isFinite(xb[r])) {
+      x.push(xa[r]);
+      y.push(xb[r]);
+      n++;
+    }
+  }
+  const dropped = nRows - n;
+  return {
+    x,
+    y,
+    names: [a, c],
+    groups: [{}, {}],
+    outcomeLabel: `${a} and ${c}`,
+    nExcluded: dropped,
+    notes: dropped ? [`${dropped} people were left out because they are missing ${a} or ${c}`] : [],
+  };
+}
+
+/** Mirrors the real engine's t_test.paired "long" layout (outcome + time + subject_id on a linked
+ * dataset): pairs rows by normalized ID across exactly two time levels. The real engine (SPEC §8,
+ * ttests.py `_paired_long`) always exposes this layout; only the mock catalog was missing it. */
+function pairedLong(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): PairedData {
+  const outcome = req.variables.outcome[0];
+  const tname = req.variables.time[0];
+  const sname = req.variables.subject_id[0];
+  const y = numericColumnAligned(meta, cell, nRows, outcome);
+  const tv = meta.variables.find((v) => v.name === tname);
+  const orderPref = [...(tv?.value_labels.map((l) => String(l.value)) ?? []), ...(meta.stacking?.time_variable === tname ? meta.stacking.levels.map((l) => l.label) : [])];
+  const present: string[] = [];
+  const seen = new Set<string>();
+  for (let r = 0; r < nRows; r++) {
+    const tRaw = cell(r, tname);
+    if (tRaw === null || tRaw === "") continue;
+    const key = String(tRaw);
+    if (!seen.has(key)) {
+      seen.add(key);
+      present.push(key);
+    }
+  }
+  const rawLevels = req.options?.levels as string[] | undefined;
+  let levels: string[];
+  if (Array.isArray(rawLevels) && rawLevels.length >= 2) {
+    levels = rawLevels.slice(0, 2);
+  } else {
+    if (present.length !== 2) invalid(`A paired comparison compares exactly two time points, but "${tname}" has ${present.length}. Filter to two or choose them in the options.`);
+    levels = [...present].sort((p, q) => {
+      const ip = orderPref.indexOf(p);
+      const iq = orderPref.indexOf(q);
+      return (ip < 0 ? 1e9 : ip) - (iq < 0 ? 1e9 : iq) || p.localeCompare(q);
+    });
+  }
+  const link = meta.link;
+  const norm = link && link.mode === "linked" && link.id_variable === sname && link.normalization ? link.normalization : { trim_whitespace: true, case_insensitive: false };
+  const atLevel: [Map<string, number[]>, Map<string, number[]>] = [new Map(), new Map()];
+  let noId = 0;
+  let inLevels = 0;
+  for (let r = 0; r < nRows; r++) {
+    const tRaw = cell(r, tname);
+    if (tRaw === null || tRaw === "") continue;
+    const idx = levels.indexOf(String(tRaw));
+    if (idx < 0) continue;
+    inLevels++;
+    const id = normalizeIdCell(cell(r, sname), norm.trim_whitespace, norm.case_insensitive);
+    if (id === null) {
+      noId++;
+      continue;
+    }
+    const list = atLevel[idx].get(id) ?? [];
+    list.push(y[r]);
+    atLevel[idx].set(id, list);
+  }
+  const ids = new Set([...atLevel[0].keys(), ...atLevel[1].keys()]);
+  const x: number[] = [];
+  const yOut: number[] = [];
+  let dup = 0;
+  let oneSide = 0;
+  let missingScore = 0;
+  for (const id of ids) {
+    const l0 = atLevel[0].get(id);
+    const l1 = atLevel[1].get(id);
+    if ((l0 && l0.length > 1) || (l1 && l1.length > 1)) {
+      dup++;
+      continue;
+    }
+    if (!l0 || !l1) {
+      oneSide++;
+      continue;
+    }
+    const [v0] = l0;
+    const [v1] = l1;
+    if (!Number.isFinite(v0) || !Number.isFinite(v1)) {
+      missingScore++;
+      continue;
+    }
+    x.push(v0);
+    yOut.push(v1);
+  }
+  const notes: string[] = [];
+  if (oneSide) notes.push(`${oneSide} people have a score at only one of the two time points`);
+  if (dup) notes.push(`${dup} IDs appear more than once at the same time point, so their scores can't be paired`);
+  if (missingScore) notes.push(`${missingScore} matched people are missing a ${outcome} score`);
+  if (noId) notes.push(`${noId} rows have no ID`);
+  const n = x.length;
+  return {
+    x,
+    y: yOut,
+    names: [levels[0], levels[1]],
+    groups: [{ [tname]: levels[0] }, { [tname]: levels[1] }],
+    outcomeLabel: outcome,
+    nExcluded: inLevels - 2 * n,
+    notes,
+  };
+}
+
+function pairedData(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): PairedData {
+  return "measures" in req.variables ? pairedWide(req, meta, cell, nRows) : pairedLong(req, meta, cell, nRows);
+}
+
+function pairedTable(title: string, names: [string, string], d1: GroupDescriptives, d2: GroupDescriptives, t: number | null, df: number, p: number | null, es: number | null): ApaTable {
+  return {
+    number: 1,
+    title,
+    columns: columns(["Variable", "M", "SD", "M", "SD", "t", "df", "p", "d_av"]),
+    column_groups: [
+      { label: [R(names[0])], first_column: 1, span: 2 },
+      { label: [R(names[1])], first_column: 3, span: 2 },
+    ],
+    rows: [
+      {
+        cells: [textCell(`${names[0]} - ${names[1]}`), numCell(d1.mean), numCell(d1.sd), numCell(d2.mean), numCell(d2.sd), numCell(t), numCell(df, dfText(df)), t === null ? { type: "p_value", value: null, display: "—" } : { type: "p_value", value: p, display: fmtP(p) }, numCell(es)],
+        indent: 0,
+        kind: "data",
+      },
+    ],
+    notes: { general: [R("Paired-samples "), R("t", true), R(" test; "), R("d_av", true), R(" = Cohen's d")], specific: [], probability: [] },
+  };
+}
+
+function pairedT(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const data = pairedData(req, meta, cell, nRows);
+  const { x, y, names, groups, outcomeLabel, nExcluded, notes } = data;
+  const n = x.length;
+  if (n < 2) invalid(`A paired t test needs at least 2 people with both scores; there are ${n}.`);
+  const diffs = x.map((v, i) => v - y[i]);
+  const dlabel = `${names[0]} - ${names[1]}`;
+  const constant = Math.max(...diffs) === Math.min(...diffs);
+  const md = mean(diffs);
+  const sdDiff = constant ? 0 : Math.sqrt(variance(diffs));
+  let t: number | null = null;
+  let p: number | null = null;
+  let se = 0;
+  if (!constant) {
+    se = sdDiff / Math.sqrt(n);
+    t = md / se;
+    p = pT(t, n - 1);
+  }
+  out.statistics = [{ key: "t", label: "Paired t", symbol: "t", value: t, df: t !== null ? [n - 1] : [], p, term: null }];
+  const dz = sdDiff > 0 ? md / sdDiff : null;
+  const sdAvg = (Math.sqrt(variance(x)) + Math.sqrt(variance(y))) / 2;
+  const dav = sdAvg > 0 ? md / sdAvg : null;
+  const seD = (d: number) => Math.sqrt(1 / n + (d * d) / (2 * n));
+  const tq = qt(0.05, n - 1);
+  out.effect_sizes = [
+    dav !== null
+      ? { key: "d_av", label: "Cohen's d_av", symbol: "d_av", value: dav, ci: { level: 0.95, lower: dav - 1.96 * seD(dav), upper: dav + 1.96 * seD(dav) }, term: null, interpretation: magnitude(dav, "d") }
+      : { key: "d_av", label: "Cohen's d_av", symbol: "d_av", value: null, ci: null, term: null, interpretation: null },
+    dz !== null
+      ? { key: "d_z", label: "Cohen's d_z", symbol: "d_z", value: dz, ci: { level: 0.95, lower: dz - 1.96 * seD(dz), upper: dz + 1.96 * seD(dz) }, term: null, interpretation: magnitude(dz, "d") }
+      : { key: "d_z", label: "Cohen's d_z", symbol: "d_z", value: null, ci: null, term: null, interpretation: null },
+    { key: "mean_difference", label: "Mean difference", symbol: "Mdiff", value: md, ci: { level: 0.95, lower: md - tq * (sdDiff / Math.sqrt(n)), upper: md + tq * (sdDiff / Math.sqrt(n)) }, term: null, interpretation: null },
+  ];
+  const d1 = describe(outcomeLabel, groups[0], names[0], x, 0);
+  const d2 = describe(outcomeLabel, groups[1], names[1], y, 0);
+  out.descriptives.continuous = [d1, d2];
+  out.assumptions = [normalityCheck(diffs, "differences", { kind: "differences", label: dlabel, group: null, n }, "diff", out.chart_data as never)];
+  if (n < 20) out.warnings.push({ code: "small_sample", severity: "caution", message: `Only ${n} people have both scores; results may be less stable.` });
+  if (notes.length) out.warnings.push({ code: "pairs_dropped", severity: "info", message: `Paired tests need the same person at both times, so some people were left out: ${notes.join("; ")}. ${n} complete pairs were analysed.` });
+  out.inputs = { ...out.inputs, n_used: n, n_excluded: nExcluded, n_by_group: groups[0] && Object.keys(groups[0]).length ? [{ group: groups[0], n }, { group: groups[1], n }] : [] };
+  const sig = t !== null && p !== null && p < req.alpha;
+  if (constant) {
+    out.plain_language_summary = `Every difference (${dlabel}) was the same, so a paired t test could not be computed.`;
+    out.apa_sentence = [R(`A paired-samples `), R("t", true), R(` test could not be computed because every difference (${dlabel}) was the same.`)];
+  } else {
+    out.plain_language_summary = `For the ${n} people with both scores, scores were ${t! > 0 ? "higher" : "lower"} at ${names[0]} than at ${names[1]} on average (a difference of ${f2(Math.abs(md))} points). ${
+      sig ? `This change is unlikely to be due to chance alone (p ${p! < 0.001 ? "< .001" : `= ${fmtP(p)}`}).` : `This change could easily be due to chance (p = ${fmtP(p)}).`
+    }${dav !== null ? ` The size of the change was ${magnitude(dav, "d")!.magnitude} by common benchmarks.` : ""}`;
+    out.apa_sentence = [
+      R("A paired-samples "),
+      R("t", true),
+      R(` test showed that scores were ${sig ? "significantly" : "not significantly"} ${t! > 0 ? "higher" : "lower"} at ${names[0]} (`),
+      R("M", true),
+      R(` = ${f2(d1.mean)}, `),
+      R("SD", true),
+      R(` = ${f2(d1.sd)}) than at ${names[1]} (`),
+      R("M", true),
+      R(` = ${f2(d2.mean)}, `),
+      R("SD", true),
+      R(` = ${f2(d2.sd)}), `),
+      R("t", true),
+      R(`(${n - 1}) = ${f2(t)}, `),
+      ...pRun(p!),
+      ...(dav !== null ? [R(", "), R("d_av", true), R(` = ${f2(dav)}.`)] : [R(".")]),
+    ];
+  }
+  out.apa_table = pairedTable(`Paired-Samples t Test of ${dlabel}`, names, d1, d2, t, n - 1, p, dav);
+  return out;
+}
+
+// --- Wilcoxon signed-rank (normal approximation; the real engine uses R's exact conditional
+// distribution when n < 50 - see nonparametric.py. This mock always uses the normal approximation,
+// labelled as such, same convention as mannWhitney above.) ---------------------------------------
+
+function wilcoxonSignedRank(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const data = pairedData(req, meta, cell, nRows);
+  const { x, y, names, groups, outcomeLabel, nExcluded, notes } = data;
+  const n = x.length;
+  if (n < 1) invalid(`A Wilcoxon signed-rank test needs at least 1 person with both scores; there are 0.`);
+  const diffs = x.map((v, i) => v - y[i]);
+  const nz = diffs.map((d, i) => ({ d, i })).filter(({ d }) => d !== 0);
+  const d1 = describe(outcomeLabel, groups[0], names[0], x, 0);
+  const d2 = describe(outcomeLabel, groups[1], names[1], y, 0);
+  out.descriptives.continuous = [d1, d2];
+  let V: number | null = null;
+  let z: number | null = null;
+  let p: number | null = null;
+  let rb: number | null = null;
+  if (nz.length > 0) {
+    const abs = nz.map(({ d }) => Math.abs(d));
+    const { ranks, tieTerm } = rankWithTies(abs);
+    V = sum(nz.map(({ d }, k) => (d > 0 ? ranks[k] : 0)));
+    const m = nz.length;
+    const mu = (m * (m + 1)) / 4;
+    const sigma = Math.sqrt((m * (m + 1) * (2 * m + 1)) / 24 - tieTerm / 48);
+    z = sigma > 0 ? (V - mu) / sigma : null;
+    p = z !== null ? Math.min(1, 2 * (1 - normCdf(Math.abs(z)))) : null;
+    rb = z !== null ? z / Math.sqrt(m) : null;
+  } else {
+    out.warnings.push({ code: "constant_variable", severity: "serious", message: "Every difference was zero, so a Wilcoxon signed-rank test can't be computed." });
+  }
+  out.statistics = [
+    { key: "v", label: "Wilcoxon signed-rank V (normal approximation)", symbol: "V", value: V, df: [], p, term: null },
+    { key: "z", label: "z (normal approximation, no continuity correction)", symbol: "z", value: z, df: [], p: null, term: null },
+  ];
+  out.effect_sizes = [rb !== null ? { key: "rank_biserial", label: "Matched-pairs rank-biserial correlation", symbol: "r", value: rb, ci: { level: 0.95, lower: Math.max(-1, rb - 0.25), upper: Math.min(1, rb + 0.25) }, term: null, interpretation: magnitude(rb, "r") } : { key: "rank_biserial", label: "Matched-pairs rank-biserial correlation", symbol: "r", value: null, ci: null, term: null, interpretation: null }];
+  const zeros = diffs.length - nz.length;
+  if (zeros) out.warnings.push({ code: "zero_differences", severity: "info", message: `${zeros} people had no difference (${names[0]} = ${names[1]}). They are left out of the ranking, as in R.` });
+  if (n < 20) out.warnings.push({ code: "small_sample", severity: "caution", message: `Only ${n} people were analysed; results may be less stable.` });
+  if (notes.length) out.warnings.push({ code: "pairs_dropped", severity: "info", message: `Wilcoxon signed-rank needs the same person at both times, so some people were left out: ${notes.join("; ")}. ${n} complete pairs were analysed.` });
+  out.inputs = { ...out.inputs, n_used: n, n_excluded: nExcluded, n_by_group: groups[0] && Object.keys(groups[0]).length ? [{ group: groups[0], n }, { group: groups[1], n }] : [] };
+  const med = (arr: number[]) => quantile([...arr].sort((a, b) => a - b), 0.5);
+  if (p === null) {
+    out.plain_language_summary = "Every person had the same score both times, so there is no change to test.";
+    out.apa_sentence = [R("A Wilcoxon signed-rank test could not be computed because every difference was zero.")];
+  } else {
+    const sig = p < req.alpha;
+    const up = (rb ?? 0) > 0;
+    const [hi, lo] = up ? [names[0], names[1]] : [names[1], names[0]];
+    out.plain_language_summary = `For the ${n} people with both scores, scores tended to be higher at ${hi} than at ${lo} (medians ${f2(med(x))} and ${f2(med(y))}). ${
+      sig ? `This change is unlikely to be due to chance alone (p ${p < 0.001 ? "< .001" : `= ${fmtP(p)}`}).` : `This change could easily be due to chance (p = ${fmtP(p)}).`
+    }`;
+    out.apa_sentence = [
+      R(`A Wilcoxon signed-rank test indicated that scores were ${sig ? "significantly" : "not significantly"} ${up ? "higher" : "lower"} at ${names[0]} (`),
+      R("Mdn", true),
+      R(` = ${f2(med(x))}) than at ${names[1]} (`),
+      R("Mdn", true),
+      R(` = ${f2(med(y))}), `),
+      R("V", true),
+      R(` = ${f2(V)}, `),
+      ...pRun(p),
+      ...(rb !== null ? [R(", "), R("r", true), R(` = ${noZero(rb.toFixed(2))}.`)] : [R(".")]),
+    ];
+  }
+  out.apa_table = {
+    number: 1,
+    title: `Wilcoxon Signed-Rank Test of ${names[0]} and ${names[1]}`,
+    columns: columns(["Variable", "Mdn", "Mdn", "V", "p", "r"]),
+    column_groups: [
+      { label: [R(names[0])], first_column: 1, span: 1 },
+      { label: [R(names[1])], first_column: 2, span: 1 },
+    ],
+    rows: [{ cells: [textCell(outcomeLabel), numCell(med(x)), numCell(med(y)), numCell(V), p === null ? { type: "p_value", value: null, display: "—" } : { type: "p_value", value: p, display: fmtP(p) }, rb === null ? numCell(null) : numCell(rb, noZero(rb.toFixed(2)))], indent: 0, kind: "data" }],
+    notes: { general: [R("Rank-biserial "), R("r", true), R(" is the effect size; normal approximation (mock engine).")], specific: [], probability: [] },
+  };
+  return out;
+}
+
+// --- One-way ANOVA -------------------------------------------------------------------------------
+
+function oneWayAnovaRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const { outcome, gname, groups, n, excluded } = kGroups(req, meta, cell, nRows);
+  const xs = groups.map((g) => g.values);
+  const k = xs.length;
+  const cf = classicF(xs);
+  out.statistics = [{ key: "F", label: "F (equal variances assumed)", symbol: "F", value: cf.F, df: cf.F !== null ? [cf.df1, cf.df2] : [], p: cf.p, term: null }];
+  const etaSq = cf.F !== null ? cf.ssB / (cf.ssB + cf.ssW) : null;
+  const omegaSq = cf.F !== null && cf.msW !== null ? Math.max(0, (cf.ssB - cf.df1 * cf.msW) / (cf.ssB + cf.ssW + cf.msW)) : null;
+  const cohensF = etaSq !== null && etaSq < 1 ? Math.sqrt(etaSq / (1 - etaSq)) : null;
+  const seEta = etaSq !== null && cf.df2 > 0 ? Math.sqrt((etaSq * (1 - etaSq)) / cf.df2) : null;
+  out.effect_sizes = [
+    etaSq !== null ? { key: "eta_sq", label: "Eta squared", symbol: "η²", value: etaSq, ci: boundedCi(etaSq, seEta!), term: null, interpretation: magnitude(etaSq, "eta") } : { key: "eta_sq", label: "Eta squared", symbol: "η²", value: null, ci: null, term: null, interpretation: null },
+    omegaSq !== null ? { key: "omega_sq", label: "Omega squared", symbol: "ω²", value: omegaSq, ci: boundedCi(omegaSq, seEta!), term: null, interpretation: magnitude(omegaSq, "eta") } : { key: "omega_sq", label: "Omega squared", symbol: "ω²", value: null, ci: null, term: null, interpretation: null },
+    cohensF !== null ? { key: "cohens_f", label: "Cohen's f", symbol: "f", value: cohensF, ci: null, term: null, interpretation: magnitude(cohensF, "f") } : { key: "cohens_f", label: "Cohen's f", symbol: "f", value: null, ci: null, term: null, interpretation: null },
+  ];
+  const rows = groups.map((g) => describe(outcome, { [gname]: g.level }, g.level, g.values, 0));
+  out.descriptives.continuous = rows;
+  out.assumptions = groups.map((g) => normalityCheck(g.values, g.level, { kind: "group", label: g.level, group: { [gname]: g.level }, n: g.values.length }, slug(g.level), out.chart_data as never));
+  const lev = leveneBF(xs);
+  out.assumptions.push({
+    schema_version: 1,
+    assumption: "homogeneity_of_variance",
+    label: "Equal spread (homogeneity of variance)",
+    test_used: { key: "levene_brown_forsythe", label: "Levene's test (Brown-Forsythe)" },
+    statistic: { symbol: "F", value: lev.F, df: [lev.df1, lev.df2] },
+    p: lev.p,
+    verdict: lev.p < req.alpha ? "failed" : "passed",
+    explanation: lev.p < req.alpha ? `The groups' scores are spread out by different amounts (p = ${fmtP(lev.p)}).` : `The groups' scores are spread out by similar amounts (p = ${fmtP(lev.p)}), so this assumption looks reasonable.`,
+    applies_to: { kind: "overall", label: "all groups", group: null, n },
+    chart_refs: [],
+  });
+  if (Object.values(groups).some((g) => g.values.length < 20)) out.warnings.push({ code: "small_sample", severity: "caution", message: "At least one group has fewer than 20 people, so results may be unstable." });
+  out.inputs = { ...out.inputs, n_used: n, n_excluded: excluded, n_by_group: groups.map((g) => ({ group: { [gname]: g.level }, n: g.values.length })) };
+  if (cf.F === null) {
+    out.plain_language_summary = `A one-way ANOVA could not be computed because ${outcome} scores do not vary within the groups.`;
+    out.apa_sentence = [R("A one-way ANOVA could not be computed for "), R(outcome), R(` across the groups of ${gname}.`)];
+  } else {
+    const sig = cf.p! < req.alpha;
+    out.plain_language_summary = `Average ${outcome} scores were compared across the ${k} groups of ${gname}. ${
+      sig ? "Differences this large are unlikely to be due to chance alone" : "The differences could easily be due to chance, so there is no strong evidence that the groups really differ"
+    } (p ${cf.p! < 0.001 ? "< .001" : `= ${fmtP(cf.p)}`}).${etaSq !== null ? ` The size of the effect was ${magnitude(etaSq, "eta")!.magnitude} by common benchmarks.` : ""}${sig && k > 2 ? " A post hoc test shows which groups differ." : ""}`;
+    out.apa_sentence = [
+      R("A one-way ANOVA showed that "),
+      R(outcome),
+      R(` scores ${sig ? "differed significantly" : "did not differ significantly"} across the ${k} groups of ${gname}, `),
+      R("F", true),
+      R(`(${cf.df1}, ${cf.df2}) = ${f2(cf.F)}, `),
+      ...pRun(cf.p!),
+      ...(etaSq !== null ? [R(", "), R("η²", true), R(` = ${noZero(etaSq.toFixed(2))}.`)] : [R(".")]),
+    ];
+  }
+  out.apa_table = {
+    number: 1,
+    title: `One-Way ANOVA of ${outcome} by ${gname}`,
+    columns: columns(["Source", "SS", "df", "MS", "F", "p", "η²"]),
+    column_groups: [],
+    rows: [
+      { cells: [textCell(gname), numCell(cf.ssB), numCell(cf.df1, String(cf.df1)), numCell(cf.msB), numCell(cf.F), cf.p === null ? { type: "p_value", value: null, display: "—" } : { type: "p_value", value: cf.p, display: fmtP(cf.p) }, numCell(etaSq)], indent: 0, kind: "data" },
+      { cells: [textCell("Within groups"), numCell(cf.ssW), numCell(cf.df2, String(cf.df2)), numCell(cf.msW), numCell(null), { type: "p_value", value: null, display: "" }, numCell(null)], indent: 0, kind: "data" },
+    ],
+    notes: { general: [R("Type III sums of squares (equivalent to Type I for one factor). "), R("η²", true), R(" = eta squared.")], specific: [], probability: [] },
+  };
+  return out;
+}
+
+// --- Kruskal-Wallis --------------------------------------------------------------------------------
+
+function kruskalWallisRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const { outcome, gname, groups, n, excluded } = kGroups(req, meta, cell, nRows);
+  const xs = groups.map((g) => g.values);
+  const k = xs.length;
+  const values = xs.flat();
+  const codes = xs.flatMap((x, i) => x.map(() => i));
+  const constant = new Set(values).size <= 1;
+  let H: number | null = null;
+  let p: number | null = null;
+  const mean_ranks: number[] = new Array(k).fill(0);
+  if (!constant) {
+    const { ranks, tieTerm } = rankWithTies(values);
+    const N = values.length;
+    const Ri = new Array(k).fill(0);
+    for (let i = 0; i < values.length; i++) Ri[codes[i]] += ranks[i];
+    const Hraw = (12 / (N * (N + 1))) * sum(Ri.map((r, i) => (r * r) / xs[i].length)) - 3 * (N + 1);
+    const C = 1 - tieTerm / (N ** 3 - N);
+    H = C > 0 ? Hraw / C : Hraw;
+    p = chi2Sf(H, k - 1);
+    for (let i = 0; i < k; i++) mean_ranks[i] = Ri[i] / xs[i].length;
+  }
+  out.descriptives.continuous = groups.map((g) => describe(outcome, { [gname]: g.level }, g.level, g.values, 0));
+  if (constant) out.warnings.push({ code: "constant_variable", severity: "serious", message: `Every ${outcome} score was the same, so a Kruskal-Wallis test can't be computed.` });
+  out.statistics = [{ key: "h", label: "Kruskal-Wallis H (chi-square approximation)", symbol: "H", value: H, df: H !== null ? [k - 1] : [], p, term: null }];
+  const N = values.length;
+  const epsSq = H !== null && N > 1 ? Math.max(0, H / (N - 1)) : null;
+  const seEps = epsSq !== null ? Math.sqrt((epsSq * (1 - epsSq)) / Math.max(1, k - 1)) : null;
+  out.effect_sizes = [epsSq !== null ? { key: "epsilon_sq", label: "Rank epsilon squared", symbol: "ε²", value: epsSq, ci: boundedCi(epsSq, seEps!), term: null, interpretation: magnitude(epsSq, "eta") } : { key: "epsilon_sq", label: "Rank epsilon squared", symbol: "ε²", value: null, ci: null, term: null, interpretation: null }];
+  if (groups.some((g) => g.values.length < 5)) out.warnings.push({ code: "chi_square_approximation", severity: "caution", message: "Some groups have fewer than 5 scores, so the chi-square p-value of the Kruskal-Wallis test is only approximate." });
+  out.inputs = { ...out.inputs, n_used: n, n_excluded: excluded, n_by_group: groups.map((g) => ({ group: { [gname]: g.level }, n: g.values.length })) };
+  if (H === null) {
+    out.plain_language_summary = `Every ${outcome} score was the same, so the groups can't be compared.`;
+    out.apa_sentence = [R("A Kruskal-Wallis test could not be computed because every score was the same.")];
+  } else {
+    const sig = p! < req.alpha;
+    const top = groups[mean_ranks.indexOf(Math.max(...mean_ranks))].level;
+    const low = groups[mean_ranks.indexOf(Math.min(...mean_ranks))].level;
+    out.plain_language_summary = `Scores tended to be highest in the ${top} group and lowest in the ${low} group. ${
+      sig ? `Differences this large are unlikely to be due to chance alone (p ${p! < 0.001 ? "< .001" : `= ${fmtP(p)}`}); a follow-up test shows which groups differ.` : `These differences could easily be due to chance (p = ${fmtP(p)}).`
+    }`;
+    out.apa_sentence = [
+      R(`A Kruskal-Wallis test showed ${sig ? "a significant" : "no significant"} difference in ${outcome} scores across the ${k} groups of ${gname}, `),
+      R("H", true),
+      R(`(${k - 1}) = ${f2(H)}, `),
+      ...pRun(p!),
+      ...(epsSq !== null ? [R(", "), R("ε²", true), R(` = ${noZero(epsSq.toFixed(2))}.`)] : [R(".")]),
+    ];
+  }
+  out.apa_table = {
+    number: 1,
+    title: `${outcome} by ${gname}: Kruskal-Wallis Test`,
+    columns: columns(["Group", "n", "Mean rank"]),
+    column_groups: [],
+    rows: groups.map((g, i) => ({ cells: [textCell(g.level), numCell(g.values.length, String(g.values.length)), numCell(mean_ranks[i])], indent: 0, kind: "data" as const })),
+    notes: { general: H !== null ? [R("H", true), R(`(${k - 1}) = ${f2(H)}, `), R("p", true), R(` ${fmtP(p)}. `), R("ε²", true), R(" = rank epsilon squared.")] : null, specific: [], probability: [] },
+  };
+  return out;
+}
+
+// --- Tukey HSD post hoc (approximated in the mock as Holm-adjusted pairwise Student's t on the
+// one-way ANOVA's pooled MSE, rather than the real engine's studentized-range distribution - see
+// posthoc_param.py. Direction and roles otherwise mirror the real engine exactly.) ----------------
+
+function holmAdjust(p: (number | null)[]): (number | null)[] {
+  const idx = p.map((_, i) => i).filter((i) => p[i] !== null);
+  const out: (number | null)[] = new Array(p.length).fill(null);
+  let running = 0;
+  const sorted = [...idx].sort((a, b) => p[a]! - p[b]!);
+  const m = idx.length;
+  sorted.forEach((i, rank) => {
+    running = Math.max(running, Math.min(1, (m - rank) * p[i]!));
+    out[i] = running;
+  });
+  return out;
+}
+
+function tukeyPosthoc(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const { outcome, gname, groups, n, excluded } = kGroups(req, meta, cell, nRows);
+  const xs = groups.map((g) => g.values);
+  const k = xs.length;
+  const cf = classicF(xs);
+  const mse = cf.msW;
+  const dfE = cf.df2;
+  const pairs: [number, number][] = [];
+  for (let i = 0; i < k; i++) for (let j = i + 1; j < k; j++) pairs.push([i, j]);
+  const raw = pairs.map(([i, j]) => {
+    const ni = xs[i].length;
+    const nj = xs[j].length;
+    const diff = mean(xs[i]) - mean(xs[j]);
+    const se = mse && dfE > 0 ? Math.sqrt(mse * (1 / ni + 1 / nj)) : null;
+    const t = se && se > 0 ? diff / se : null;
+    const p = t !== null && dfE > 0 ? pT(Math.abs(t), dfE) : null;
+    return { i, j, diff, se, t, p };
+  });
+  const adjP = holmAdjust(raw.map((r) => r.p));
+  const m = pairs.length;
+  const level = 0.95;
+  const tq = dfE > 0 ? qt((1 - level) / m, dfE) : null;
+  out.descriptives.continuous = groups.map((g) => describe(outcome, { [gname]: g.level }, g.level, g.values, 0));
+  const rowsOut = raw.map((r, idx) => {
+    const a = groups[r.i];
+    const b = groups[r.j];
+    const term = `${a.level} vs ${b.level}`;
+    const pAdj = adjP[idx];
+    const half = tq !== null && r.se !== null ? tq * r.se : null;
+    const sp = Math.sqrt(((a.values.length - 1) * variance(a.values) + (b.values.length - 1) * variance(b.values)) / (a.values.length + b.values.length - 2));
+    const g = sp > 0 ? r.diff / sp : null;
+    out.statistics.push({ key: "t", label: "t (pairwise comparison, Holm-adjusted)", symbol: "t", value: r.t, df: r.t !== null ? [dfE] : [], p: pAdj, term });
+    out.effect_sizes.push({ key: "mean_difference", label: "Mean difference", symbol: "Mdiff", value: r.diff, ci: half !== null ? { level, lower: r.diff - half, upper: r.diff + half } : null, term, interpretation: null });
+    out.effect_sizes.push(g !== null ? { key: "hedges_g", label: "Hedges' g", symbol: "g", value: g, ci: null, term, interpretation: magnitude(g, "d") } : { key: "hedges_g", label: "Hedges' g", symbol: "g", value: null, ci: null, term, interpretation: null });
+    return { term, a, b, diff: r.diff, t: r.t, p: pAdj, g, half };
+  });
+  const sig = rowsOut.filter((r) => r.p !== null && r.p < req.alpha);
+  out.inputs = { ...out.inputs, n_used: n, n_excluded: excluded, n_by_group: groups.map((g) => ({ group: { [gname]: g.level }, n: g.values.length })) };
+  if (!sig.length) {
+    out.plain_language_summary = `None of the ${rowsOut.length} pairs differed clearly once the number of comparisons is taken into account (all adjusted p's ≥ ${req.alpha}).`;
+    out.apa_sentence = [R(`Tukey HSD comparisons of ${outcome} found no significant pairwise differences (all Holm-adjusted `), R("p", true), R(`s ≥ ${req.alpha}).`)];
+  } else {
+    const parts = sig.map((r) => {
+      const [hi, lo] = r.diff > 0 ? [r.a.level, r.b.level] : [r.b.level, r.a.level];
+      return `${hi} scored higher than ${lo} (${p_phrase_local(r.p!)})`;
+    });
+    out.plain_language_summary = `${sig.length} of ${rowsOut.length} pairs differed by more than chance would explain, after adjusting for the number of comparisons: ${parts.join("; ")}.`;
+    out.apa_sentence = [
+      R(`Tukey HSD comparisons of ${outcome} showed significant differences between `),
+      ...sig.flatMap((r, idx) => [R(`${idx ? "; " : ""}${r.a.level} and ${r.b.level} (`), R("Mdiff", true), R(` = ${f2(r.diff)}, `), R("p", true), R(` ${fmtP(r.p)})`)]),
+      R("."),
+    ];
+  }
+  out.apa_table = {
+    number: 1,
+    title: `Tukey HSD Comparisons of ${outcome} by ${gname}`,
+    columns: columns(["Comparison", "Mdiff", "t", "df", "p", "g"]),
+    column_groups: [],
+    rows: rowsOut.map((r) => ({ cells: [textCell(r.term), numCell(r.diff), numCell(r.t), numCell(dfE, String(dfE)), r.p === null ? { type: "p_value", value: null, display: "—" } : { type: "p_value", value: r.p, display: fmtP(r.p) }, numCell(r.g)], indent: 0, kind: "data" as const })),
+    notes: { general: [R("p"), R(" values are Holm-adjusted pairwise "), R("t", true), R(" tests on the pooled within-group variance (mock approximation of Tukey HSD's studentized range; "), R("g", true), R(" = Hedges' g).")], specific: [], probability: [] },
+  };
+  return out;
+}
+
+function p_phrase_local(p: number): string {
+  const s = fmtP(p);
+  return s[0] === "<" ? `p ${s}` : `p = ${s}`;
+}
+
 function descriptivesRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
   const out = baseResult(req, meta);
   const vars = req.variables.variables;
@@ -505,6 +1230,16 @@ export function mockAnalysisRun(req: AnalysisRequest, meta: DatasetMeta, cell: C
       return mannWhitney(req, meta, cell, nRows);
     case "descriptives":
       return descriptivesRun(req, meta, cell, nRows);
+    case "t_test.paired":
+      return pairedT(req, meta, cell, nRows);
+    case "wilcoxon_signed_rank":
+      return wilcoxonSignedRank(req, meta, cell, nRows);
+    case "anova.one_way":
+      return oneWayAnovaRun(req, meta, cell, nRows);
+    case "kruskal_wallis":
+      return kruskalWallisRun(req, meta, cell, nRows);
+    case "posthoc.tukey":
+      return tukeyPosthoc(req, meta, cell, nRows);
     default:
       invalid(`The mock engine can't run ${info.label} yet.`);
   }
