@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { loadRecoverable, newProject, openProject, recoverAutosave } from "@/lib/projectActions";
 import { useProjectStore } from "@/stores/project";
+import { useOnboarding } from "@/components/onboarding/store";
 
 const fmt = (iso: string) => new Date(iso).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
 const base = (p: string) => (p.split(/[\\/]/).pop() ?? p).replace(/\.statly$/i, "");
@@ -22,6 +23,9 @@ export function Home() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Welcome to Statly</h1>
         <p className="text-muted-foreground">Start by bringing in your survey data, or open a project you saved before.</p>
+        <Button variant="link" className="h-auto px-0" onClick={() => useOnboarding.getState().start()} data-testid="home-take-the-tour">
+          Take the tour
+        </Button>
       </div>
 
       {recoverable.length > 0 && (

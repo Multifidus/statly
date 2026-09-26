@@ -1,7 +1,9 @@
 import { lazy, Suspense, useEffect } from "react";
-import { BookOpen, X } from "lucide-react";
+import { BookOpen, HelpCircle, X } from "lucide-react";
 import { EngineStartup } from "@/components/EngineStartup";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { Tour } from "@/components/onboarding/Tour";
+import { useOnboarding } from "@/components/onboarding/store";
 import { Button } from "@/components/ui/button";
 import { ProjectMenu } from "@/components/project/ProjectMenu";
 import { UnsavedChangesDialog } from "@/components/project/UnsavedChangesDialog";
@@ -138,6 +140,9 @@ export default function App() {
           <Button variant="ghost" size="sm" onClick={() => openLearn(null)} aria-current={view === "learn" ? "page" : undefined} data-testid="open-learn">
             <BookOpen aria-hidden /> Learn
           </Button>
+          <Button variant="ghost" size="sm" onClick={() => useOnboarding.getState().start()} data-testid="take-the-tour">
+            <HelpCircle aria-hidden /> Take the tour
+          </Button>
           <ThemeSwitcher />
         </div>
       </header>
@@ -159,6 +164,7 @@ export default function App() {
         </EngineStartup>
       </main>
       <UnsavedChangesDialog />
+      <Tour />
       <Notification />
       {MockDialogHost && (
         <Suspense fallback={null}>
