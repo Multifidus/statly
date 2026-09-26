@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Upload } from "lucide-react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Notice } from "@/components/ui/form";
 import {
   StepAnswerKey,
@@ -14,6 +15,7 @@ import {
   StepSummary,
 } from "@/components/interview/InterviewSteps";
 import { useDatasetStore } from "@/stores/dataset";
+import { useImportFlow } from "@/stores/importFlow";
 import { useInterview } from "@/stores/interview";
 import { useNav } from "@/stores/nav";
 import { useNotify } from "@/stores/notify";
@@ -61,6 +63,7 @@ export function InterviewScreen() {
   const s = useInterview();
   const meta = useDatasetStore((d) => d.meta);
   const go = useNav((n) => n.go);
+  const resetImportFlow = useImportFlow((s) => s.reset);
   const notify = useNotify((n) => n.show);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
@@ -82,9 +85,13 @@ export function InterviewScreen() {
 
   if (!meta) {
     return (
-      <div className="mx-auto grid max-w-md gap-4 text-center">
-        <p className="text-muted-foreground">Import some data first, then Statly can ask about your variables.</p>
-        <Button className="justify-self-center" onClick={() => go("home")}>Go to the start page</Button>
+      <div className="mx-auto max-w-md pt-8" data-testid="interview-empty-state">
+        <EmptyState
+          icon={Upload}
+          title="No dataset yet"
+          body="Import some data first, then Statly can ask you about your variables."
+          action={{ label: "Import a file", icon: Upload, onClick: () => { resetImportFlow(); go("import"); } }}
+        />
       </div>
     );
   }

@@ -40,6 +40,15 @@ beforeEach(() => {
   void engine;
 });
 
+describe("StudyPlannerScreen: empty state", () => {
+  it("shows the 'describe your study' onboarding form and a way to start when there's no plan", () => {
+    render(<StudyPlannerScreen />);
+    expect(screen.getByText(/plan your study before you collect data/i)).toBeInTheDocument();
+    expect(screen.getByTestId("plan-title-input")).toHaveValue("");
+    expect(screen.getByTestId("planner-begin")).toBeDisabled();
+  });
+});
+
 describe("StudyPlannerScreen: guard against silently replacing an unsaved plan", () => {
   it("loads the project's saved plan straight away when the planner is blank", async () => {
     const saved = await saveStudyPlan("Project A");

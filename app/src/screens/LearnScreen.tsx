@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, BookOpen, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/form";
 import { Markdown } from "@/components/learn/Markdown";
 import { getLearnPage, LEARN_PAGES, learnPageFor, type LearnCategory } from "@/lib/content/learn";
@@ -88,31 +89,40 @@ export function LearnScreen() {
             <Search className="absolute top-2.5 left-2.5 size-4 text-muted-foreground" aria-hidden />
             <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search topics" className="pl-8" />
           </label>
-          {CATEGORIES.map((cat) => {
-            const pages = matches.filter((p) => p.category === cat);
-            if (!pages.length) return null;
-            return (
-              <section key={cat} aria-labelledby={`learn-cat-${cat}`}>
-                <h2 id={`learn-cat-${cat}`} className="mb-2 font-semibold">
-                  {categoryTitle(cat)}
-                </h2>
-                <ul className="grid gap-2 sm:grid-cols-2">
-                  {pages.map((p) => (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        onClick={() => setPage(p.id)}
-                        className="w-full rounded-md border p-3 text-left outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                      >
-                        <span className="block text-sm font-medium">{p.title}</span>
-                        <span className="block text-xs text-muted-foreground">{p.summary}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
+          {matches.length === 0 ? (
+            <EmptyState
+              icon={Search}
+              title="No matching topics"
+              body="Nothing matches that search. Try a shorter or different word."
+              action={{ label: "Clear search", onClick: () => setQuery("") }}
+            />
+          ) : (
+            CATEGORIES.map((cat) => {
+              const pages = matches.filter((p) => p.category === cat);
+              if (!pages.length) return null;
+              return (
+                <section key={cat} aria-labelledby={`learn-cat-${cat}`}>
+                  <h2 id={`learn-cat-${cat}`} className="mb-2 font-semibold">
+                    {categoryTitle(cat)}
+                  </h2>
+                  <ul className="grid gap-2 sm:grid-cols-2">
+                    {pages.map((p) => (
+                      <li key={p.id}>
+                        <button
+                          type="button"
+                          onClick={() => setPage(p.id)}
+                          className="w-full rounded-md border p-3 text-left outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        >
+                          <span className="block text-sm font-medium">{p.title}</span>
+                          <span className="block text-xs text-muted-foreground">{p.summary}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })
+          )}
         </section>
       )}
     </div>

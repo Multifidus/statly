@@ -1,6 +1,7 @@
 import { BarChart3, Copy, Plus, Trash2 } from "lucide-react";
 import type { ChartSpec } from "@/contracts";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { CHART_INFO } from "@/lib/chartbuilder/catalog";
 import { useChartBuilder } from "@/stores/chartBuilder";
 import { useProjectStore } from "@/stores/project";
@@ -29,11 +30,11 @@ export function ChartsList() {
         </Button>
       </div>
       {sorted.length === 0 ? (
-        <div className="grid justify-items-center gap-2 rounded-lg border border-dashed p-8 text-center">
-          <BarChart3 aria-hidden className="size-8 text-muted-foreground" />
-          <p className="font-medium">No charts yet</p>
-          <p className="max-w-md text-sm text-muted-foreground">Build a bar chart, box plot, Likert chart and more from your data. Statly suggests a chart when you tell it what you want to show.</p>
-        </div>
+        <EmptyState
+          icon={BarChart3}
+          title="No charts yet"
+          body="Build a bar chart, box plot, Likert chart and more from your data. Statly suggests a chart when you tell it what you want to show."
+        />
       ) : (
         <ul className="grid gap-2" data-testid="charts-list">
           {sorted.map((s) => (

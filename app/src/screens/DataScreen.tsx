@@ -6,6 +6,7 @@ import { CheckboxField, NativeSelect, Notice } from "@/components/ui/form";
 import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { DataGrid } from "@/components/data/DataGrid";
 import { MissingSummary } from "@/components/data/MissingSummary";
+import { EmptyState } from "@/components/ui/empty-state";
 import { AggregateTeachingNote, LinkReportView } from "@/components/import/StepLinking";
 import type { LinkMode, LinkReport } from "@/contracts";
 import { describeRpcError, rpc } from "@/lib/rpc";
@@ -95,12 +96,13 @@ export function DataScreen() {
 
   if (!meta) {
     return (
-      <div className="mx-auto grid max-w-md gap-4 text-center">
-        <h1 className="text-xl font-semibold">No data yet</h1>
-        <p className="text-muted-foreground">This project doesn't have any data. Import a file to get started.</p>
-        <Button className="justify-self-center" onClick={() => { resetFlow(); go("import"); }}>
-          <Upload aria-hidden /> Import data
-        </Button>
+      <div className="mx-auto max-w-md pt-8" data-testid="data-empty-state">
+        <EmptyState
+          icon={Upload}
+          title="No data yet"
+          body="This project doesn't have any data. Import a CSV or Excel file to get started."
+          action={{ label: "Import a file", icon: Upload, onClick: () => { resetFlow(); go("import"); } }}
+        />
       </div>
     );
   }
