@@ -17,3 +17,4 @@ playwright-report/
 test-results/
 *.egg-info/
 .claude/settings.local.json
+builds/
