@@ -3,7 +3,8 @@
  * `engine.ts` stays the transport; this module only adds types and a swappable transport
  * so tests and the mock engine (VITE_STATLY_MOCK=1) can stand in for the Tauri sidecar.
  */
-import { engineCall, type EngineError, type EngineInfo, type PingResult } from "@/lib/engine";
+import { engineCall, type EngineInfo, type PingResult } from "@/lib/engine";
+import { describeError, RpcErrorCode } from "@/lib/errors";
 import type {
   DatasetIdParams,
   DatasetImportParams,
@@ -142,13 +143,10 @@ export function getTransport(): Transport {
 
 const call = <T>(method: string, params: object = {}) => transport.call<T>(method, params);
 
-/** Phase 1 application error codes (contracts/README.md). */
-export const RpcErrorCode = {
-  FileUnreadable: -32001,
-  StaleOrUnknown: -32002,
-  InvalidParams: -32003,
-  ProjectIncompatible: -32004,
-} as const;
+/** Phase 1 application error codes (contracts/README.md). Defined in `@/lib/errors`
+ * (the single error-mapping module) and re-exported here since most call sites import it
+ * alongside `rpc`. */
+export { RpcErrorCode };
 
 export const rpc = {
   ping: () => call<PingResult>("ping"),
@@ -207,29 +205,11 @@ export const rpc = {
 
 export type Rpc = typeof rpc;
 
-function isEngineError(e: unknown): e is EngineError {
-  return !!e && typeof e === "object" && "kind" in e;
-}
-
-/** Plain-language, one-sentence message for any error thrown by an `rpc.*` call. */
+/** Plain-language, one-sentence message for any error thrown by an `rpc.*` call.
+ * Thin wrapper over `describeError` (the single error mapper) for call sites that only need
+ * the body text; use `describeError` directly when a title/details disclosure is also wanted. */
 export function describeRpcError(e: unknown): string {
-  if (!isEngineError(e)) return "Something went wrong. Please try again.";
-  if (e.kind === "rpc") {
-    switch (e.code) {
-      case RpcErrorCode.FileUnreadable:
-        return "Statly couldn't read that file. Check that it is a CSV or Excel (.xlsx) file and that it isn't open in another program.";
-      case RpcErrorCode.StaleOrUnknown:
-        return "Your data changed while this was loading. Please try that step again.";
-      case RpcErrorCode.InvalidParams:
-        return "Statly sent the engine something it didn't expect. Please try again, and report this if it keeps happening.";
-      case RpcErrorCode.ProjectIncompatible:
-        return "This project was saved by a newer version of Statly. Update Statly to open it.";
-      default:
-        return "The statistics engine ran into a problem with that request.";
-    }
-  }
-  if (e.kind === "timeout") return "The statistics engine took too long to answer. Please try again.";
-  return "Statly couldn't talk to its statistics engine.";
+  return describeError(e).body;
 }
 
 /** Phase 7: chart builder data (docs/PROTOCOL.md "Phase 7 methods", SPEC §10.2). */

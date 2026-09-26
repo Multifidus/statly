@@ -8,6 +8,7 @@ import { SortableLabels } from "@/components/variables/SortableLabels";
 import type { DatasetMeta, MeasurementLevel, Scale, ValueLabel, VariableRole, VariableSchema } from "@/contracts";
 import { LEVEL_OPTIONS, ROLE_OPTIONS, roleTitle } from "@/lib/interviewLogic";
 import { EditError, edits } from "@/lib/variableEdits";
+import { describeError } from "@/lib/errors";
 import type { VariablePatch } from "@/lib/variablesRpc";
 import { useNotify } from "@/stores/notify";
 
@@ -26,11 +27,19 @@ export const COLUMNS = [
 const TEMPLATE = COLUMNS.map((c) => c.width).join(" ");
 const NUMERIC = new Set(["integer", "float", "boolean"]);
 
+/** `EditError`'s own message is already plain-language; anything else goes through the
+ * general mapper so its detail isn't lost and its text isn't raw exception text. */
+function editNotice(e: unknown): { body: string; details?: string } {
+  if (e instanceof EditError) return { body: e.message };
+  return describeError(e);
+}
+
 async function save(patch: VariablePatch) {
   try {
     await edits.updateVariables([patch]);
   } catch (e) {
-    useNotify.getState().show(e instanceof EditError ? e.message : "That change couldn't be saved.", "error");
+    const notice = editNotice(e);
+    useNotify.getState().show(notice.body, "error", notice.details);
   }
 }
 
@@ -118,7 +127,8 @@ async function moveToScale(meta: DatasetMeta, v: VariableSchema, target: string)
       });
     }
   } catch (e) {
-    useNotify.getState().show(e instanceof EditError ? e.message : "That change couldn't be saved.", "error");
+    const notice = editNotice(e);
+    useNotify.getState().show(notice.body, "error", notice.details);
   }
 }
 
@@ -145,7 +155,12 @@ function Row({ v, meta, scales, onLabels, style, index }: { v: VariableSchema; m
             variant="ghost"
             size="icon-xs"
             aria-label={`Remove calculated variable ${v.name}`}
-            onClick={() => void edits.removeComputed(v.name).catch((e) => useNotify.getState().show(e instanceof EditError ? e.message : String(e), "error"))}
+            onClick={() =>
+              void edits.removeComputed(v.name).catch((e) => {
+                const notice = editNotice(e);
+                useNotify.getState().show(notice.body, "error", notice.details);
+              })
+            }
           >
             <Trash2 aria-hidden />
           </Button>

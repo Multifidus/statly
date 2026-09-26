@@ -9,6 +9,7 @@ import { VariablesTable } from "@/components/variables/VariablesTable";
 import type { DatasetMeta, Scale } from "@/contracts";
 import { defaultMinItems } from "@/lib/interviewLogic";
 import { EditError, edits, redoEdit, undoEdit } from "@/lib/variableEdits";
+import { describeError } from "@/lib/errors";
 import { useDatasetStore, visibleVariables } from "@/stores/dataset";
 import { useHistory } from "@/stores/history";
 import { useInterview } from "@/stores/interview";
@@ -64,7 +65,7 @@ function ScaleEditor({ scale, onClose }: { scale: Scale; onClose: () => void }) 
       await edits.upsertScale({ id: scale.id, name: name.trim(), items: scale.items, scoring_method: method, min_items: mi });
       onClose();
     } catch (e) {
-      setError(e instanceof EditError ? e.message : String(e));
+      setError(e instanceof EditError ? e.message : describeError(e).body);
     }
   };
   return (
@@ -126,7 +127,7 @@ function ScalesPanel({ meta }: { meta: DatasetMeta }) {
                 variant="ghost"
                 size="icon-xs"
                 aria-label={`Delete scale ${s.name}`}
-                onClick={() => void edits.deleteScale(s.id).catch((e) => setError(e instanceof EditError ? e.message : String(e)))}
+                onClick={() => void edits.deleteScale(s.id).catch((e) => setError(e instanceof EditError ? e.message : describeError(e).body))}
               >
                 <Trash2 aria-hidden />
               </Button>

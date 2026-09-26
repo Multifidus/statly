@@ -532,8 +532,10 @@ def _assemble(parts: list[Part], matches: list[dict], user_vars: list[dict], tim
                         sch.update(dtype="string", level="nominal", value_labels=[], response_range=None)
                         pieces = None
                         break
-                    raise InvalidParams(f"Variable '{sch['name']}' can't be stored as {sch['dtype']}: {exc}.",
-                                        variable=sch["name"]) from exc
+                    dtype_word = {"integer": "whole numbers", "float": "numbers", "boolean": "true/false values",
+                                  "datetime": "dates", "string": "text"}.get(sch["dtype"], sch["dtype"])
+                    raise InvalidParams(f"Variable '{sch['name']}' is set to hold {dtype_word}, but some of its "
+                                        f"values don't fit: {exc}.", variable=sch["name"]) from exc
         if pieces is None:  # widen an existing column to text
             pieces = []
             for p in parts:

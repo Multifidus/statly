@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { ProjectFile, RecoverableAutosave, TestLogEntry } from "@/contracts";
+import { describeError } from "@/lib/errors";
 import { rpc } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
 import { useHistory } from "@/stores/history";
@@ -155,7 +156,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       const res = await rpc.autosave({ autosave_dir: autosaveDir, original_path: get().path, project });
       set({ autosave: { status: "saved", at: res.saved_at, error: null } });
     } catch (e) {
-      set({ autosave: { status: "error", at: get().autosave.at, error: String((e as { message?: string })?.message ?? e) } });
+      set({ autosave: { status: "error", at: get().autosave.at, error: describeError(e).body } });
     }
   },
 

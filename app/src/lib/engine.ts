@@ -53,30 +53,5 @@ export const ping = () => engineCall<PingResult>("ping");
 export const engineInfo = () => engineCall<EngineInfo>("engine.info");
 export const engineStatus = () => invoke<EngineStatus>("engine_status");
 
-/** One-sentence, non-technical explanation for students. */
-export function describeEngineError(e: EngineError): string {
-  switch (e.kind) {
-    case "timeout":
-      return "The statistics engine is taking too long to start. This can happen the first time Statly runs on a slow or busy computer.";
-    case "spawn":
-      return "Statly couldn't find or start its statistics engine. Reinstalling Statly usually fixes this.";
-    case "exited":
-      return "The statistics engine stopped unexpectedly.";
-    case "rpc":
-    case "protocol":
-      return "The statistics engine reported a problem while starting up.";
-    case "ipc":
-      return "Statly couldn't talk to its statistics engine.";
-  }
-}
-
-export function technicalDetail(e: EngineError): string {
-  switch (e.kind) {
-    case "timeout":
-      return `${e.method} timed out after ${e.seconds}s`;
-    case "rpc":
-      return `error ${e.code}: ${e.message}`;
-    default:
-      return e.message;
-  }
-}
+// Plain-language descriptions for an `EngineError` live in `@/lib/errors` (`describeError`),
+// the single mapper every user-facing error goes through. `EngineStartup.tsx` uses it directly.

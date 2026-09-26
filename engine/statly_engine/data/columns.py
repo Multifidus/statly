@@ -73,7 +73,9 @@ def sentinel_codes(num: pd.Series) -> list[int]:
 
 class CoercionError(ValueError):
     def __init__(self, n_bad: int, examples: list[str]):
-        super().__init__(f"{n_bad} value(s) could not be converted (e.g. {', '.join(repr(e) for e in examples)})")
+        plural = "value" if n_bad == 1 else "values"
+        shown = ", ".join(repr(e) for e in examples)
+        super().__init__(f"{n_bad} {plural} couldn't be converted (for example: {shown})")
         self.n_bad = n_bad
         self.examples = examples
 

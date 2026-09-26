@@ -102,7 +102,8 @@ def decode(data: bytes, encoding: str, path: str) -> str:
         return data.decode(encoding)
     except (UnicodeDecodeError, LookupError) as exc:
         raise FileUnreadable(
-            f"The file could not be read as {encoding} text. Try another encoding.",
+            f"Statly couldn't read the text in this file (tried {encoding}). "
+            "Try saving it as a UTF-8 CSV file and import that instead.",
             path=path,
             encoding=encoding,
         ) from exc

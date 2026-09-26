@@ -108,7 +108,15 @@ function Notification() {
             (note.tone === "error" ? "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950 dark:text-red-50" : "bg-background")
           }
         >
-          <span className="flex-1">{note.text}</span>
+          <div className="flex-1 min-w-0">
+            <span>{note.text}</span>
+            {note.details && (
+              <details className="mt-1 text-xs text-muted-foreground">
+                <summary className="cursor-pointer select-none">Details</summary>
+                <code className="mt-1 block break-words font-mono">{note.details}</code>
+              </details>
+            )}
+          </div>
           <Button variant="ghost" size="icon-xs" onClick={dismiss} aria-label="Dismiss">
             <X aria-hidden />
           </Button>

@@ -16,6 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import type { AnalysisResult, ChartRef } from "@/contracts";
 import { dpiFor, type PngScale } from "@/lib/export/figure";
 import { saveBuilderFigurePdf, saveBuilderFigurePng, saveBuilderFigureSvg, saveFigurePdf, saveFigurePng, saveFigureSvg, type SaveFigureResult } from "@/lib/export/saveFigure";
+import { DescribedException, describeError } from "@/lib/errors";
 import { useNotify } from "@/stores/notify";
 import { useThemeStore } from "@/stores/theme";
 
@@ -29,8 +30,9 @@ export function SaveFigureButton(props: Source & { defaultName: string }) {
     try {
       const res = await action();
       if (res) useNotify.getState().show(res.dpi ? `Saved ${res.path} (${res.dpi} DPI).` : `Saved ${res.path}.`);
-    } catch {
-      useNotify.getState().show("Statly couldn't save that figure. Please try again.", "error");
+    } catch (e) {
+      const { body, details } = describeError(e);
+      useNotify.getState().show(body, "error", details);
     }
   }
 
@@ -42,7 +44,13 @@ export function SaveFigureButton(props: Source & { defaultName: string }) {
     const { view, title } = props;
     const liveView = () => {
       const v = view();
-      if (!v) throw new Error("This chart isn't ready to export yet.");
+      if (!v) {
+        throw new DescribedException({
+          title: "Chart not ready",
+          body: "Statly couldn't save that figure — the chart isn't finished loading yet. Wait a moment and try again.",
+          details: "getVegaView() returned null: chart not yet mounted",
+        });
+      }
       return v;
     };
     png = (scale) => () => run(() => saveBuilderFigurePng(liveView(), scale, defaultName));

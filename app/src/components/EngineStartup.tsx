@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Loader2, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { describeEngineError, type EngineError, type EngineInfo, technicalDetail } from "@/lib/engine";
+import type { EngineError, EngineInfo } from "@/lib/engine";
+import { describeError } from "@/lib/errors";
 import { rpc } from "@/lib/rpc";
 
 /** Overall startup budget (PROTOCOL.md: 30 s). */
@@ -74,6 +75,7 @@ export function EngineStartup({ children }: { children?: React.ReactNode }) {
   }
 
   if (phase.status === "error") {
+    const described = describeError(phase.error);
     return (
       <Card className="w-full max-w-md" role="alert">
         <CardHeader>
@@ -81,12 +83,12 @@ export function EngineStartup({ children }: { children?: React.ReactNode }) {
             <AlertTriangle className="size-5 text-destructive" aria-hidden />
             The statistics engine didn't start
           </CardTitle>
-          <CardDescription>{describeEngineError(phase.error)}</CardDescription>
+          <CardDescription>{described.body}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <details className="text-xs text-muted-foreground">
             <summary className="cursor-pointer select-none">Technical details</summary>
-            <code className="mt-2 block break-words font-mono">{technicalDetail(phase.error)}</code>
+            <code className="mt-2 block break-words font-mono">{described.details}</code>
           </details>
           <Button onClick={start} className="self-start">
             <RotateCw aria-hidden /> Retry

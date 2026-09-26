@@ -19,7 +19,7 @@ def rpc_method(params_model, result_model):
                 params_model.model_validate(params)
             except ValidationError as exc:
                 raise InvalidParams(
-                    "The request parameters don't match the contract.",
+                    "Statly sent the engine something it didn't expect. Please try again, and report this if it keeps happening.",
                     errors=json.loads(exc.json(include_url=False)),
                 ) from exc
             result = fn(store, params)
