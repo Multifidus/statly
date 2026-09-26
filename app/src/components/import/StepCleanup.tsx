@@ -119,51 +119,48 @@ export function StepCleanup() {
       {filters.length > 0 && (
         <Section id="sec-rows" title="Responses to leave out">
           <ul className="grid gap-3">
-            {filters.map(({ flt, file }) => (
-              <li key={flt.id}>
-                <CheckboxField
-                  label={
-                    <>
-                      {flt.kind === "exclude_values"
-                        ? `Leave out ${(flt.values ?? []).map((x) => `"${x}"`).join(" and ")} responses`
-                        : "Leave out unfinished responses"}{" "}
-                      <Badge tone={flt.rows_removed ? "warn" : "neutral"}>
-                        {plural(flt.rows_removed, "row")}
-                        {several ? ` in ${file.name}` : ""}
-                      </Badge>
-                    </>
-                  }
-                  description={flt.explanation}
-                  checked={!!d.enabledFilters[flt.id]}
-                  onChange={(e) => update({ enabledFilters: { ...d.enabledFilters, [flt.id]: e.target.checked } })}
-                />
-              </li>
-            ))}
-            {vars.some((v) => v.name === "Progress") && (
-              <li className="grid gap-2">
-                <CheckboxField
-                  label="Leave out responses that didn't get far enough into the survey"
-                  description="Useful when some people quit partway. The number removed is shown after import."
-                  checked={d.progressThreshold !== null}
-                  onChange={(e) => update({ progressThreshold: e.target.checked ? 80 : null })}
-                />
-                {d.progressThreshold !== null && (
-                  <div className="ml-6.5 flex items-center gap-2 text-sm">
-                    <label htmlFor="progress-threshold">Keep only responses with progress of at least</label>
-                    <Input
-                      id="progress-threshold"
-                      type="number"
-                      min={1}
-                      max={100}
-                      className="w-20"
-                      value={d.progressThreshold}
-                      onChange={(e) => update({ progressThreshold: e.target.value === "" ? 0 : Number(e.target.value) })}
-                    />
-                    <span>%</span>
-                  </div>
-                )}
-              </li>
-            )}
+            {filters.map(({ flt, file }) => {
+              const label =
+                flt.kind === "exclude_values"
+                  ? `Leave out ${(flt.values ?? []).map((x) => `"${x}"`).join(" and ")} responses`
+                  : flt.kind === "progress_below"
+                    ? "Leave out responses that didn't get far enough into the survey"
+                    : "Leave out unfinished responses";
+              const checked = !!d.enabledFilters[flt.id];
+              return (
+                <li key={flt.id} className="grid gap-2">
+                  <CheckboxField
+                    label={
+                      <>
+                        {label}{" "}
+                        <Badge tone={flt.rows_removed ? "warn" : "neutral"}>
+                          {plural(flt.rows_removed, "row")}
+                          {several ? ` in ${file.name}` : ""}
+                        </Badge>
+                      </>
+                    }
+                    description={flt.explanation}
+                    checked={checked}
+                    onChange={(e) => update({ enabledFilters: { ...d.enabledFilters, [flt.id]: e.target.checked } })}
+                  />
+                  {flt.kind === "progress_below" && checked && (
+                    <div className="ml-6.5 flex items-center gap-2 text-sm">
+                      <label htmlFor={`progress-threshold-${flt.id}`}>Keep only responses with progress of at least</label>
+                      <Input
+                        id={`progress-threshold-${flt.id}`}
+                        type="number"
+                        min={1}
+                        max={100}
+                        className="w-20"
+                        value={d.progressThreshold ?? flt.threshold ?? 100}
+                        onChange={(e) => update({ progressThreshold: e.target.value === "" ? 0 : Number(e.target.value) })}
+                      />
+                      <span>%</span>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </Section>
       )}

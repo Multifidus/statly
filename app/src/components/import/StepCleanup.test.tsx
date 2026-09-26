@@ -28,19 +28,26 @@ describe("StepCleanup (Qualtrics decisions)", () => {
     expect(useImportFlow.getState().decisions!.dropColumns).not.toContain("RecipientEmail");
   });
 
-  it("lists row filters with the number of rows each removes", async () => {
+  it("lists row filters with the number of rows each removes, with one distinct option per filter", async () => {
     const user = userEvent.setup();
     render(<StepCleanup />);
+    const section = screen.getByRole("heading", { name: /Responses to leave out/ }).closest("section")!;
+    const boxes = within(section).getAllByRole("checkbox");
+    expect(boxes).toHaveLength(3);
+
     const status = screen.getByRole("checkbox", { name: /Survey Preview.*Spam.*5 rows/ });
     const unfinished = screen.getByRole("checkbox", { name: /unfinished responses.*8 rows/ });
+    const progress = screen.getByRole("checkbox", { name: /didn't get far enough/ });
     expect(status).toBeChecked();
     expect(unfinished).not.toBeChecked();
+    expect(progress).not.toBeChecked();
     await user.click(unfinished);
     const d = useImportFlow.getState().decisions!;
     expect(Object.values(d.enabledFilters).filter(Boolean)).toHaveLength(2);
 
-    await user.click(screen.getByRole("checkbox", { name: /didn't get far enough/ }));
+    await user.click(progress);
     const input = screen.getByRole("spinbutton", { name: /progress of at least/ });
+    expect(input).toHaveValue(100);
     await user.clear(input);
     await user.type(input, "75");
     expect(useImportFlow.getState().decisions!.progressThreshold).toBe(75);

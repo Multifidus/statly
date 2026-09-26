@@ -244,6 +244,19 @@ function stageFile(path: string, sheet: string | null, idx: number): StagedFile 
       rows_removed: count((r) => cell(r, "Finished") === false),
     });
   }
+  if (shape.qualtrics && has("Progress")) {
+    filters.push({
+      id: `${fileId}_progress`,
+      kind: "progress_below",
+      file_id: fileId,
+      variable: "Progress",
+      values: null,
+      threshold: 100,
+      explanation:
+        "Removes responses whose Progress is below the threshold you choose (percent of the survey completed). Optional; adjust the threshold as needed.",
+      rows_removed: count((r) => Number(cell(r, "Progress")) < 100),
+    });
+  }
 
   const issues: ImportIssue[] = [];
   if (shape.format === "xlsx" && shape.sheets.length > 1 && !sheet) {

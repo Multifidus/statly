@@ -303,19 +303,9 @@ export function buildImportParams(preview: DatasetImportPreviewResult, d: Import
   const files = preview.files;
   const multi = files.length > 1;
 
-  const row_filters: RowFilter[] = files.flatMap((f) => f.suggested_row_filters.filter((flt) => d.enabledFilters[flt.id]));
-  if (d.progressThreshold !== null) {
-    row_filters.push({
-      id: "user_progress_below",
-      kind: "progress_below",
-      file_id: null,
-      variable: "Progress",
-      values: null,
-      threshold: d.progressThreshold,
-      explanation: `Removes responses where the person got through less than ${d.progressThreshold}% of the survey.`,
-      rows_removed: 0,
-    });
-  }
+  const row_filters: RowFilter[] = files
+    .flatMap((f) => f.suggested_row_filters.filter((flt) => d.enabledFilters[flt.id]))
+    .map((flt) => (flt.kind === "progress_below" && d.progressThreshold !== null ? { ...flt, threshold: d.progressThreshold } : flt));
 
   // Variables: only the ones the user changed. Unmentioned columns keep the engine's proposal,
   // which matters when stacking widened a type (e.g. integer in one file, decimal in another).
