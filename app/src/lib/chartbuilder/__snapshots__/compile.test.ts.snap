@@ -1,0 +1,576 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`compileChart > snapshot: APA Likert diverging bars 1`] = `
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "config": {
+    "axis": {
+      "domainColor": "#000000",
+      "grid": false,
+      "gridColor": "#e6e5e1",
+      "labelColor": "#000000",
+      "labelFont": "Arial, Helvetica, sans-serif",
+      "labelFontSize": 11,
+      "tickColor": "#000000",
+      "titleColor": "#000000",
+      "titleFont": "Arial, Helvetica, sans-serif",
+      "titleFontSize": 12,
+      "titleFontWeight": "normal",
+    },
+    "axisBand": {
+      "grid": false,
+    },
+    "background": "transparent",
+    "font": "Arial, Helvetica, sans-serif",
+    "header": {
+      "labelColor": "#000000",
+      "labelFont": "Arial, Helvetica, sans-serif",
+      "labelFontSize": 11,
+      "titleColor": "#000000",
+      "titleFont": "Arial, Helvetica, sans-serif",
+      "titleFontSize": 12,
+    },
+    "legend": {
+      "labelColor": "#000000",
+      "labelFont": "Arial, Helvetica, sans-serif",
+      "labelFontSize": 11,
+      "labelLimit": 260,
+      "titleColor": "#000000",
+      "titleFont": "Arial, Helvetica, sans-serif",
+      "titleFontSize": 12,
+      "titleFontWeight": "normal",
+    },
+    "text": {
+      "font": "Arial, Helvetica, sans-serif",
+    },
+    "title": {
+      "anchor": "start",
+      "color": "#000000",
+      "font": "Arial, Helvetica, sans-serif",
+      "fontSize": 13,
+      "subtitleColor": "#000000",
+      "subtitleFont": "Arial, Helvetica, sans-serif",
+      "subtitleFontSize": 12,
+    },
+    "view": {
+      "stroke": null,
+    },
+  },
+  "data": {
+    "values": [
+      {
+        "_layer": "main",
+        "count": 5,
+        "end": -25,
+        "item": "Item 1",
+        "n": 100,
+        "order": 0,
+        "percent": 5,
+        "response": "1",
+        "start": -30,
+      },
+      {
+        "_layer": "main",
+        "count": 15,
+        "end": -10,
+        "item": "Item 1",
+        "n": 100,
+        "order": 1,
+        "percent": 15,
+        "response": "2",
+        "start": -25,
+      },
+      {
+        "_layer": "main",
+        "count": 20,
+        "end": 10,
+        "item": "Item 1",
+        "n": 100,
+        "order": 2,
+        "percent": 20,
+        "response": "3",
+        "start": -10,
+      },
+      {
+        "_layer": "main",
+        "count": 40,
+        "end": 50,
+        "item": "Item 1",
+        "n": 100,
+        "order": 3,
+        "percent": 40,
+        "response": "4",
+        "start": 10,
+      },
+      {
+        "_layer": "main",
+        "count": 20,
+        "end": 70,
+        "item": "Item 1",
+        "n": 100,
+        "order": 4,
+        "percent": 20,
+        "response": "5",
+        "start": 50,
+      },
+      {
+        "_layer": "main",
+        "count": 10,
+        "end": -35,
+        "item": "Item 2",
+        "n": 100,
+        "order": 0,
+        "percent": 10,
+        "response": "1",
+        "start": -45,
+      },
+      {
+        "_layer": "main",
+        "count": 20,
+        "end": -15,
+        "item": "Item 2",
+        "n": 100,
+        "order": 1,
+        "percent": 20,
+        "response": "2",
+        "start": -35,
+      },
+      {
+        "_layer": "main",
+        "count": 30,
+        "end": 15,
+        "item": "Item 2",
+        "n": 100,
+        "order": 2,
+        "percent": 30,
+        "response": "3",
+        "start": -15,
+      },
+      {
+        "_layer": "main",
+        "count": 25,
+        "end": 40,
+        "item": "Item 2",
+        "n": 100,
+        "order": 3,
+        "percent": 25,
+        "response": "4",
+        "start": 15,
+      },
+      {
+        "_layer": "main",
+        "count": 15,
+        "end": 55,
+        "item": "Item 2",
+        "n": 100,
+        "order": 4,
+        "percent": 15,
+        "response": "5",
+        "start": 40,
+      },
+    ],
+  },
+  "description": "Responses to each item",
+  "height": 120,
+  "layer": [
+    {
+      "encoding": {
+        "color": {
+          "field": "response",
+          "legend": {
+            "direction": "horizontal",
+            "orient": "bottom",
+            "title": "Response",
+          },
+          "scale": {
+            "domain": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+            ],
+            "range": [
+              "#E66101",
+              "#FDB863",
+              "#D9D9D9",
+              "#B2ABD2",
+              "#5E3C99",
+            ],
+          },
+          "sort": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+          ],
+          "type": "ordinal",
+        },
+        "tooltip": [
+          {
+            "field": "item",
+            "title": "Item",
+          },
+          {
+            "field": "response",
+            "title": "Response",
+          },
+          {
+            "field": "count",
+            "title": "Count",
+            "type": "quantitative",
+          },
+          {
+            "field": "percent",
+            "format": ".1f",
+            "title": "Percent",
+            "type": "quantitative",
+          },
+        ],
+        "x": {
+          "axis": {
+            "labelExpr": "abs(datum.value) + '%'",
+          },
+          "field": "start",
+          "scale": {},
+          "title": "Percent of responses",
+          "type": "quantitative",
+        },
+        "x2": {
+          "field": "end",
+        },
+        "y": {
+          "axis": {
+            "labelLimit": 260,
+          },
+          "field": "item",
+          "sort": [
+            "Item 1",
+            "Item 2",
+          ],
+          "title": null,
+          "type": "nominal",
+        },
+      },
+      "mark": {
+        "stroke": "#000000",
+        "strokeWidth": 0.4,
+        "type": "bar",
+      },
+      "transform": [
+        {
+          "filter": {
+            "equal": "main",
+            "field": "_layer",
+          },
+        },
+      ],
+    },
+    {
+      "encoding": {
+        "x": {
+          "datum": 0,
+        },
+      },
+      "mark": {
+        "color": "#000000",
+        "strokeWidth": 1,
+        "type": "rule",
+      },
+    },
+  ],
+  "padding": 8,
+  "title": {
+    "fontWeight": "bold",
+    "offset": 12,
+    "subtitle": "Responses to each item",
+    "subtitleFontStyle": "italic",
+    "subtitlePadding": 6,
+    "text": "Figure 1",
+  },
+  "width": 480,
+}
+`;
+
+exports[`compileChart > snapshot: bar chart with 95% CI error bars 1`] = `
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "config": {
+    "axis": {
+      "domainColor": "#e6e5e1",
+      "grid": true,
+      "gridColor": "#e6e5e1",
+      "labelColor": "#5f5f5a",
+      "labelFont": "ui-sans-serif, system-ui, sans-serif",
+      "labelFontSize": 11,
+      "tickColor": "#e6e5e1",
+      "titleColor": "#1a1a19",
+      "titleFont": "ui-sans-serif, system-ui, sans-serif",
+      "titleFontSize": 12,
+      "titleFontWeight": 500,
+    },
+    "axisBand": {
+      "grid": false,
+    },
+    "background": "transparent",
+    "font": "ui-sans-serif, system-ui, sans-serif",
+    "header": {
+      "labelColor": "#1a1a19",
+      "labelFont": "ui-sans-serif, system-ui, sans-serif",
+      "labelFontSize": 11,
+      "titleColor": "#1a1a19",
+      "titleFont": "ui-sans-serif, system-ui, sans-serif",
+      "titleFontSize": 12,
+    },
+    "legend": {
+      "labelColor": "#1a1a19",
+      "labelFont": "ui-sans-serif, system-ui, sans-serif",
+      "labelFontSize": 11,
+      "labelLimit": 260,
+      "titleColor": "#1a1a19",
+      "titleFont": "ui-sans-serif, system-ui, sans-serif",
+      "titleFontSize": 12,
+      "titleFontWeight": 500,
+    },
+    "text": {
+      "font": "ui-sans-serif, system-ui, sans-serif",
+    },
+    "title": {
+      "anchor": "start",
+      "color": "#1a1a19",
+      "font": "ui-sans-serif, system-ui, sans-serif",
+      "fontSize": 13,
+      "subtitleColor": "#5f5f5a",
+      "subtitleFont": "ui-sans-serif, system-ui, sans-serif",
+      "subtitleFontSize": 12,
+    },
+    "view": {
+      "stroke": null,
+    },
+  },
+  "data": {
+    "values": [
+      {
+        "_layer": "main",
+        "ci_high": 3.4,
+        "ci_low": 2.8,
+        "lower": 2.8,
+        "mean": 3.1,
+        "n": 20,
+        "sd": 0.6,
+        "se": 0.13,
+        "upper": 3.4,
+        "value": 3.1,
+        "x": "Control",
+      },
+      {
+        "_layer": "main",
+        "ci_high": 4,
+        "ci_low": 3.4,
+        "lower": 3.4,
+        "mean": 3.7,
+        "n": 22,
+        "sd": 0.7,
+        "se": 0.15,
+        "upper": 4,
+        "value": 3.7,
+        "x": "Treatment",
+      },
+    ],
+  },
+  "description": "Mean attitude by Condition",
+  "height": 300,
+  "layer": [
+    {
+      "encoding": {
+        "tooltip": [
+          {
+            "field": "x",
+            "title": "Condition",
+          },
+          {
+            "field": "value",
+            "format": ".2f",
+            "title": "Mean attitude",
+            "type": "quantitative",
+          },
+          {
+            "field": "n",
+            "title": "n",
+            "type": "quantitative",
+          },
+          {
+            "field": "lower",
+            "format": ".2f",
+            "title": "Lower",
+            "type": "quantitative",
+          },
+          {
+            "field": "upper",
+            "format": ".2f",
+            "title": "Upper",
+            "type": "quantitative",
+          },
+        ],
+        "x": {
+          "axis": {
+            "labelAngle": 0,
+          },
+          "field": "x",
+          "scale": undefined,
+          "sort": [
+            "Control",
+            "Treatment",
+          ],
+          "title": "Condition",
+          "type": "nominal",
+        },
+        "y": {
+          "field": "value",
+          "scale": {},
+          "title": "Mean attitude (error bars: 95% CI)",
+          "type": "quantitative",
+        },
+      },
+      "mark": {
+        "color": "#0072B2",
+        "type": "bar",
+      },
+      "transform": [
+        {
+          "filter": {
+            "equal": "main",
+            "field": "_layer",
+          },
+        },
+      ],
+    },
+    {
+      "encoding": {
+        "x": {
+          "axis": {
+            "labelAngle": 0,
+          },
+          "field": "x",
+          "scale": undefined,
+          "sort": [
+            "Control",
+            "Treatment",
+          ],
+          "title": "Condition",
+          "type": "nominal",
+        },
+        "y": {
+          "field": "lower",
+          "type": "quantitative",
+        },
+        "y2": {
+          "field": "upper",
+        },
+      },
+      "mark": {
+        "color": "#1a1a19",
+        "strokeWidth": 1.25,
+        "type": "rule",
+      },
+      "transform": [
+        {
+          "filter": {
+            "equal": "main",
+            "field": "_layer",
+          },
+        },
+        {
+          "filter": "isValid(datum.lower)",
+        },
+      ],
+    },
+    {
+      "encoding": {
+        "x": {
+          "axis": {
+            "labelAngle": 0,
+          },
+          "field": "x",
+          "scale": undefined,
+          "sort": [
+            "Control",
+            "Treatment",
+          ],
+          "title": "Condition",
+          "type": "nominal",
+        },
+        "y": {
+          "field": "lower",
+          "type": "quantitative",
+        },
+      },
+      "mark": {
+        "color": "#1a1a19",
+        "orient": "horizontal",
+        "size": 10,
+        "thickness": 1.25,
+        "type": "tick",
+      },
+      "transform": [
+        {
+          "filter": {
+            "equal": "main",
+            "field": "_layer",
+          },
+        },
+        {
+          "filter": "isValid(datum.lower)",
+        },
+      ],
+    },
+    {
+      "encoding": {
+        "x": {
+          "axis": {
+            "labelAngle": 0,
+          },
+          "field": "x",
+          "scale": undefined,
+          "sort": [
+            "Control",
+            "Treatment",
+          ],
+          "title": "Condition",
+          "type": "nominal",
+        },
+        "y": {
+          "field": "upper",
+          "type": "quantitative",
+        },
+      },
+      "mark": {
+        "color": "#1a1a19",
+        "orient": "horizontal",
+        "size": 10,
+        "thickness": 1.25,
+        "type": "tick",
+      },
+      "transform": [
+        {
+          "filter": {
+            "equal": "main",
+            "field": "_layer",
+          },
+        },
+        {
+          "filter": "isValid(datum.lower)",
+        },
+      ],
+    },
+  ],
+  "padding": 8,
+  "title": {
+    "fontWeight": 600,
+    "offset": 10,
+    "text": "Mean attitude by Condition",
+  },
+  "width": 480,
+}
+`;

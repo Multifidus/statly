@@ -58,6 +58,20 @@ def assumption_runs(a: dict) -> list[dict]:
     return r.runs
 
 
+_CORRECTION_LABEL = {"holm": "Holm", "bonferroni": "Bonferroni", "fdr_bh": "Benjamini-Hochberg"}
+
+
+def adjusted_note_runs(entry: dict, family_names: dict[str, str] | None) -> list[dict]:
+    """' Holm-adjusted p = .034 (family: Attitude items).' appended beside a test's APA sentence."""
+    label = _CORRECTION_LABEL.get(entry.get("correction_method"), entry.get("correction_method"))
+    r = apa.Rich().t(f" {label}-adjusted ").i("p").t(apa.p_relation(entry["adjusted_p"]))
+    fam_name = (family_names or {}).get(entry.get("family_id") or "")
+    if fam_name:
+        r.t(f" (family: {fam_name})")
+    r.t(".")
+    return r.runs
+
+
 @dataclass
 class Section:
     heading: str
@@ -68,13 +82,20 @@ class Section:
     figures: list[tuple[bytes, int, str, str | None]] = field(default_factory=list)
 
 
-def sections(results: list[dict], include: dict, charts: dict[str, dict]) -> list[Section]:
+def sections(results: list[dict], include: dict, charts: dict[str, dict],
+             test_log: dict[str, dict] | None = None,
+             family_names: dict[str, str] | None = None) -> list[Section]:
     out, t_no, f_no = [], 0, 0
     for res in results:
         sec = Section(analysis_label(res), res.get("plain_language_summary", ""),
                       res.get("apa_sentence") or [])
         if not include.get("sentences", True):
             sec.sentence = []
+        elif test_log and sec.sentence:
+            req_id = ((res.get("inputs") or {}).get("request") or {}).get("request_id")
+            entry = test_log.get(req_id) if req_id else None
+            if entry and entry.get("correction_method") != "none" and entry.get("adjusted_p") is not None:
+                sec.sentence = list(sec.sentence) + adjusted_note_runs(entry, family_names)
         if include.get("tables", True):
             for tbl in ([res["apa_table"]] if res.get("apa_table") else []) + list(res.get("additional_tables") or []):
                 t_no += 1

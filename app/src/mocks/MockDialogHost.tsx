@@ -70,7 +70,13 @@ export function MockDialogHost() {
             className="grid gap-3"
             onSubmit={(e) => {
               e.preventDefault();
-              if (name.trim()) finish(`/mock/projects/${name.trim().replace(/\.statly$/i, "")}.statly`);
+              const trimmed = name.trim();
+              if (!trimmed) return;
+              // Project saves have no extension in `name`; an export's defaultName already carries
+              // its format (e.g. "Report.docx"), so keep that instead of forcing .statly onto it.
+              const ext = pending?.defaultName?.match(/\.([a-z0-9]+)$/i)?.[1] ?? "statly";
+              const stripped = trimmed.replace(new RegExp(`\\.${ext}$`, "i"), "");
+              finish(`/mock/projects/${stripped}.${ext}`);
             }}
           >
             <label htmlFor="mock-save-name" className="text-sm font-medium">File name</label>

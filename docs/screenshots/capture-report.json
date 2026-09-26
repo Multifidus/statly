@@ -1,0 +1,314 @@
+[
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 1,
+    "screenshot": "01-home.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 2,
+    "screenshot": "02-choose-files.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 3,
+    "screenshot": "03-detection.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 4,
+    "screenshot": "04-cleanup.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 5,
+    "screenshot": "05-review-import.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 6,
+    "screenshot": "06-interview-scales.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 7,
+    "screenshot": "07-variables.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 8,
+    "screenshot": "08-advisor-question.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 9,
+    "screenshot": "09-advisor-linked.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 10,
+    "screenshot": "10-recommendation.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 11,
+    "screenshot": "11-roles.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 12,
+    "screenshot": "12-assumptions.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 13,
+    "screenshot": "13-results.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "did-my-students-improve",
+    "step": 14,
+    "screenshot": "14-reliability.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 1,
+    "screenshot": "01-home.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 2,
+    "screenshot": "02-choose-files.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 3,
+    "screenshot": "03-detection.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 4,
+    "screenshot": "04-cleanup.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 5,
+    "screenshot": "05-review-import.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 6,
+    "screenshot": "06-interview-answer-key.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 7,
+    "screenshot": "07-variables.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 8,
+    "screenshot": "08-advisor-question.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 9,
+    "screenshot": "09-recommendation.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 10,
+    "screenshot": "10-roles.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 11,
+    "screenshot": null,
+    "status": "skipped",
+    "note": "TODO: not runnable yet - the mock engine's analysis catalog doesn't include ANOVA (or Kruskal-Wallis) yet, so role-assignment shows \"Statly can't run One-way ANOVA yet\" and Check the assumptions stays disabled. The real engine (SPEC §8) implements one-way ANOVA; this is a mock-mode-only gap."
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 12,
+    "screenshot": null,
+    "status": "skipped",
+    "note": "TODO: depends on step 11 (ANOVA not runnable in mock mode yet)."
+  },
+  {
+    "tutorial": "which-intervention-worked-best",
+    "step": 13,
+    "screenshot": null,
+    "status": "skipped",
+    "note": "Mixed ANOVA is not yet reachable from the Test Advisor; repeat the one-way ANOVA at each time point instead."
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 1,
+    "screenshot": "01-home.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 2,
+    "screenshot": "02-choose-files.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 3,
+    "screenshot": "03-detection.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 4,
+    "screenshot": "04-cleanup-pii.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 5,
+    "screenshot": "05-cleanup-rows.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 6,
+    "screenshot": "06-cleanup-codes.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 7,
+    "screenshot": "07-review-import.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 8,
+    "screenshot": "08-data-grid.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 9,
+    "screenshot": "09-missing-summary.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 10,
+    "screenshot": "10-interview-reverse.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 11,
+    "screenshot": "11-variables-text.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "cleaning-a-messy-qualtrics-export",
+    "step": 12,
+    "screenshot": null,
+    "status": "skipped",
+    "note": "The Qualitative module's tagging screen (SPEC §11.1) is not implemented yet."
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 1,
+    "screenshot": "01-home.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 2,
+    "screenshot": "02-choose-files.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 3,
+    "screenshot": "03-detection.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 4,
+    "screenshot": "04-linking.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 5,
+    "screenshot": "05-review-import.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 6,
+    "screenshot": "06-link-report.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 7,
+    "screenshot": "07-variables-gain.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 8,
+    "screenshot": "08-advisor-question.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 9,
+    "screenshot": "09-recommendation.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 10,
+    "screenshot": "10-roles.png",
+    "status": "captured"
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 11,
+    "screenshot": null,
+    "status": "skipped",
+    "note": "TODO: not runnable yet - the paired t-test analysis only has a \"wide\" layout in the mock catalog (two separate score columns for the same people), but this practice dataset's two files get stacked into one long-format row per time point (a single Q4 column plus a Time column) during import, so no valid two-column pairing exists to check. Either the mock catalog needs a \"long\" layout option for paired designs, or the wizard needs a wide-linked-merge path as an alternative to stacking for linked datasets."
+  },
+  {
+    "tutorial": "matching-students-across-time",
+    "step": 12,
+    "screenshot": null,
+    "status": "skipped",
+    "note": "TODO: depends on step 11 (paired t-test not runnable against this dataset's stacked layout in mock mode yet)."
+  }
+]

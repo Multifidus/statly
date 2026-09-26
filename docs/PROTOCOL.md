@@ -238,10 +238,18 @@ validated against the generated contract models (`-32003` with `data.errors` on 
 | Method | Params | Result |
 |---|---|---|
 | `export.table_html` | `{apa_table: ApaTable, number?: int\|null}` | `{html, plain_text}` |
-| `export.report` | `{title, author?: string\|null, results: AnalysisResult[], include?: {tables?, sentences?, assumptions?, charts?: bool}, charts?: {request_id, png_base64, title?, note?}[], format: docx\|pdf, path, overwrite?: bool}` | `{path, bytes}` |
+| `export.report` | `{title, author?: string\|null, results: AnalysisResult[], include?: {tables?, sentences?, assumptions?, charts?: bool}, charts?: {request_id, png_base64, title?, note?}[], test_log?: TestLogEntry[], test_families?: {id, name}[], format: docx\|pdf, path, overwrite?: bool}` | `{path, bytes}` |
 | `export.data` | `{dataset_id, format: xlsx\|csv, path, include_metadata_columns?: bool, options?: {label_row?, blank_missing_codes?, exclude_pii?: bool}, overwrite?: bool}` | `{path, bytes, snapshot_id, n_rows, n_columns, pii_columns}` |
 | `export.codebook` | `{dataset_id, format: xlsx\|docx, path, overwrite?: bool}` | `{path, bytes}` |
 | `export.test_log` | `{entries: TestLogEntry[], format: xlsx\|csv\|docx, path, overwrite?: bool}` | `{path, bytes}` |
+| `export.plan` | `{plan: StudyPlan, labels?: {id: label}, interview?: {question, answer}[], format: docx, path, overwrite?: bool}` | `{path, bytes}` |
+
+- **Study plan** (SPEC §11.2, `export/plan.py`): Title, research question (`design.answers.planner_research_question`),
+  design summary + interview table, planned analyses (why, backup test, effect size, assumptions, follow-ups),
+  one "Sample size" block per `power_analyses[]` entry (sentence + inputs/results grid), recommendations grouped
+  by category, and a checklist of assumptions to check later. `plan` is validated against `StudyPlan.json`.
+  The app computes power with dataset-free `analysis.run` (`power.*`, `dataset_id`/`snapshot_id` null) and
+  maps the advisor's `primary_test` to a power analysis in `app/src/lib/planner/powerMapping.ts`.
 
 - **Paths** come from the app's save dialog. The engine requires an absolute path without `..`, an
   extension matching `format`, and an existing parent folder; an existing file is replaced only with
@@ -265,6 +273,11 @@ validated against the generated contract models (`-32003` with `data.errors` on 
   DOCX uses a real Word table style `APA Table`; PDF uses the system Times New Roman (Liberation
   Serif on Linux; built-in Times, Latin-1 only, as a last resort) so Greek symbols render.
   `results` are passed by the app for now (the report does not yet read `results.get` storage).
+  When `test_log` is given, a result whose `inputs.request.request_id` matches a logged entry with
+  `correction_method != "none"` and a non-null `adjusted_p` gets a trailing note on its APA sentence:
+  "Holm-adjusted p = .048 (family: Attitude items)." (method label from `correction_method`; family
+  name looked up in `test_families` by `family_id`, omitted if not given). Only applies when
+  `include.sentences` is not false.
 - **Data**: the current snapshot in Variables-screen order, without the internal row id. Metadata
   columns are dropped unless `include_metadata_columns`; `label_row` adds variable labels (name as
   fallback) as a second header row; `blank_missing_codes` (default true) writes declared missing codes
@@ -277,3 +290,52 @@ validated against the generated contract models (`-32003` with `data.errors` on 
 - **Test Log**: #, date, analysis, outcome(s), statistic, p, effect size (with CI), N, family,
   correction, adjusted p, APA sentence, plain-language summary, engine version (the DOCX, landscape,
   omits family id, summary and engine version).
+
+## Phase 9 methods (qualitative coding, SPEC §11.1)
+
+Params/results are closed pydantic models in `rpc_methods/tags.py`; the codebook is
+`contracts/TagCodebook.json`. The engine holds one codebook per loaded dataset (tags reference
+rows by `_statly_row_id`, so they survive every snapshot). `project.save`/`project.autosave`
+write it into `ProjectFile.tag_codebook` (null when empty; the frontend's copy is kept if the
+engine holds none) and `project.load` makes the saved one live.
+
+| Method | Params | Result |
+|---|---|---|
+| `tags.codebook.get` | `{dataset_id}` | `{codebook}` |
+| `tags.codebook.upsert` | `{dataset_id, tag: {id?, name, color?, definition?}}` | `{codebook, tag}`; new ids `tag_<slug>`, colors from the Okabe-Ito palette; names unique ignoring case |
+| `tags.codebook.delete` | `{dataset_id, tag_id}` | `{codebook}` (the tag is removed from every response) |
+| `tags.apply` | `{dataset_id, row_id, variable, tag_ids}` | `{row_id, variable, tag_ids}`; replaces that response's tags (`[]` clears), codebook order |
+| `tags.responses` | `{dataset_id, variable, filters?: [{variable, values}], search?, tag_filter?: "untagged"\|tag_id, context_variables?, offset?, limit? (1..500, default 100)}` | `{snapshot_id, variable, offset, total, total_responses, items: [{row_id, text, matches, tag_ids, context}]}` |
+| `tags.summary` | `{dataset_id, variable, by?}` | `{snapshot_id, variable, n_responses, n_coded, n_uncoded, tags, overall: [{tag_id, count, percent}], by, groups: [{value, label, n_responses, counts}], n_missing_group}` |
+| `tags.to_variables` | `{dataset_id, snapshot_id?, variable, tag_ids?}` | `DatasetEditResult` + `created: [{tag_id, variable, n_yes, n_no, n_missing, updated}]` |
+| `export.qualitative` | `{dataset_id, variable, kind: responses\|codebook, format: xlsx\|docx, path, context_variables?, title?, overwrite?}` | `{path, bytes, n_responses}` |
+
+- Responses are the non-blank values of a string variable, in row order. `search` terms are
+  case-insensitive words or `"quoted phrases"`; a response must contain every term. `matches` are
+  merged `[start, end)` spans in **UTF-16 code units** (JavaScript string indices).
+- `filters` keep rows whose value is in `values` (numbers compare numerically). Percentages are of
+  responses with text (overall or within the group); one response can carry several tags.
+  Group levels follow value-label order; missing / missing-code group values are counted in
+  `n_missing_group`.
+- `tags.to_variables` adds one integer, nominal variable per tag named `<variable>_<tag slug>`
+  (value labels 0 = No, 1 = Yes; missing when the response is blank) right after the text
+  variable, as one undoable snapshot. Re-running updates variables it made earlier in place.
+- `export.qualitative` responses XLSX: sheets `Coded responses` (row id, context variables,
+  response, tag names, one 1/0 column per tag), `Codebook`, `Summary`; DOCX: responses grouped
+  under a heading per tag, then the untagged ones. Codebook XLSX/DOCX: tag, definition, color,
+  responses tagged, percent.
+
+## Phase 7 methods (chart builder, SPEC §10.2)
+
+| Method | Params | Result |
+|---|---|---|
+| `charts.data` | `{dataset_id: string\|null, snapshot_id: string\|null, spec: ChartSpec}` | `{rows: object[], meta: object}` |
+
+- The engine aggregates; the WebView never receives the dataset (scatter and Q-Q return one row per
+  plotted point, nothing else). `spec.subset` is applied first; missing values are dropped per chart.
+- Dataset charts need the current `snapshot_id` (else `-32002`). `scree` / `cfa_path` read the stored
+  Test Log result `spec.source.test_log_entry_id` (from `results.put` or a loaded project; `-32002`
+  if absent); the ids may then be null. Unusable shelves (text on a score shelf, missing X, wrong
+  analysis type) are `-32003` with a plain-language message the app shows as is.
+- Row shapes per chart type are listed in contracts/README.md "Phase 7". The app compiles
+  `{rows, meta}` + the spec to Vega-Lite (`app/src/lib/chartbuilder/compile.ts`).

@@ -1,0 +1,353 @@
+# Statly in-app tutorial index (SPEC §11.4)
+#
+# One entry per tutorial. `steps` is the source of truth for both the narration
+# scripts in content/tutorials/*.md and the screenshot capture script in
+# app/e2e/screenshots/capture.spec.ts. Keep step `id` and `screenshot` values in
+# sync across all three: this file, the narration Markdown, and the capture
+# script's per-tutorial step table.
+#
+# Fields per step:
+#   id           - stable step number within the tutorial (1-based)
+#   screen       - which app screen the step is on (matches the app's tab/screen names)
+#   action       - what the learner clicks or does
+#   why          - the "why this test" / "why this matters" line shown in the narration
+#   screenshot   - filename under docs/screenshots/<tutorial-id>/, or null if not built yet
+#   built        - whether the screen exists in the app today (false => capture script
+#                  skips it and marks a "TODO: screen not built yet" note instead of failing)
+
+tutorials:
+  - id: did-my-students-improve
+    title: "Did my students improve?"
+    dataset: one_group_prepost_likert
+    narration: content/tutorials/did-my-students-improve.md
+    steps:
+      - id: 1
+        screen: home
+        action: Click "New project"
+        why: Every tutorial starts from a blank project so you can see the whole workflow.
+        screenshot: 01-home.png
+        built: true
+      - id: 2
+        screen: import-files
+        action: Choose pre.csv and post.csv from the one-group pre/post practice files and click Open
+        why: These are two separate Qualtrics exports for the same reading-attitude survey, taken before and after a lesson.
+        screenshot: 02-choose-files.png
+        built: true
+      - id: 3
+        screen: import-detect
+        action: Review the "Check how we read them" screen
+        why: Statly shows you exactly how it parsed the files before anything is imported, so mistakes get caught early.
+        screenshot: 03-detection.png
+        built: true
+      - id: 4
+        screen: import-cleanup
+        action: Review the "Survey clean-up" screen
+        why: Statly flags personal-information columns and unusual answer codes before you commit to an import.
+        screenshot: 04-cleanup.png
+        built: true
+      - id: 5
+        screen: import-summary
+        action: Click "Import" on the "Review and import" screen
+        why: A last look at row and column counts before the data lands in your project.
+        screenshot: 05-review-import.png
+        built: true
+      - id: 6
+        screen: interview-scales
+        action: In the Variable Interview, open the Scales step and check the reverse-worded items
+        why: Two of the ten survey questions are worded negatively, so Statly needs to flip their scoring before averaging the scale.
+        screenshot: 06-interview-scales.png
+        built: true
+      - id: 7
+        screen: variables
+        action: Open the Variables screen and find the new scale score column
+        why: This one combined score is what you will actually test, instead of ten separate questions.
+        screenshot: 07-variables.png
+        built: true
+      - id: 8
+        screen: advisor-question
+        action: 'On the Analyze tab, answer "What do you want to know?" with "Did scores change over time, or differ between groups?"'
+        why: Statly picks a test by first understanding the shape of your question.
+        screenshot: 08-advisor-question.png
+        built: true
+      - id: 9
+        screen: advisor-question
+        action: Answer that respondents are NOT linked across the two files
+        why: Pre and post came from two separate, unlinked Qualtrics exports, so Statly can't match individual students across time.
+        screenshot: 09-advisor-linked.png
+        built: true
+      - id: 10
+        screen: advisor-recommendation
+        action: Read the recommendation card
+        why: Statly recommends an independent-samples t-test, with a caveat explaining that treating pre/post as two groups is a real limitation, not a paired comparison.
+        screenshot: 10-recommendation.png
+        built: true
+      - id: 11
+        screen: role-assignment
+        action: Confirm the pre-filled outcome and group roles, then click "Run"
+        why: The scale score and the Time column were filled in automatically from your data.
+        screenshot: 11-roles.png
+        built: true
+      - id: 12
+        screen: assumption-checks
+        action: Step through the normality and equal-spread assumption checks
+        why: Statly checks the assumptions behind the test before showing results, with a chart for each one.
+        screenshot: 12-assumptions.png
+        built: true
+      - id: 13
+        screen: results
+        action: Read the plain-language summary and the APA-style sentence, then copy it
+        why: You get a result you can paste straight into a report, plus a plain-English version for yourself.
+        screenshot: 13-results.png
+        built: true
+      - id: 14
+        screen: advisor-reliability
+        action: 'Go back to the Analyze tab and answer "Do my survey questions hang together?"'
+        why: Before trusting the scale score, check that the ten items are measuring one thing consistently (Cronbach's alpha).
+        screenshot: 14-reliability.png
+        built: true
+
+  - id: which-intervention-worked-best
+    title: "Which intervention worked best?"
+    dataset: three_groups_prepost_followup
+    narration: content/tutorials/which-intervention-worked-best.md
+    steps:
+      - id: 1
+        screen: home
+        action: Click "New project"
+        why: Start clean so you can see the whole import-to-results path.
+        screenshot: 01-home.png
+        built: true
+      - id: 2
+        screen: import-files
+        action: Choose pre.csv, post.csv, and followup.csv and click Open
+        why: This study has three groups (Control, Intervention A, Intervention B) measured at three time points.
+        screenshot: 02-choose-files.png
+        built: true
+      - id: 3
+        screen: import-detect
+        action: Review the detection screen
+        why: Confirms Statly read all three files as one linked import.
+        screenshot: 03-detection.png
+        built: true
+      - id: 4
+        screen: import-cleanup
+        action: Review "Survey clean-up", noting the group column uses text labels, not numeric codes
+        why: Q2 stores "Control" / "Intervention A" / "Intervention B" as text, so Statly reads it as a grouping variable, not a number to average.
+        screenshot: 04-cleanup.png
+        built: true
+      - id: 5
+        screen: import-summary
+        action: Click "Import"
+        why: A last check on row counts before committing (they shrink from pre to post to follow-up as students dropped out).
+        screenshot: 05-review-import.png
+        built: true
+      - id: 6
+        screen: interview-answer-key
+        action: In the Variable Interview, open the "Test scoring" step and confirm the answer key
+        why: The 20 knowledge-test items are raw answer choices (A-D), so Statly needs the answer key to turn them into a score.
+        screenshot: 06-interview-answer-key.png
+        built: true
+      - id: 7
+        screen: variables
+        action: Open the Variables screen and find the new total-score column
+        why: This is the score you compare across groups, built from the raw items plus the answer key.
+        screenshot: 07-variables.png
+        built: true
+      - id: 8
+        screen: advisor-question
+        action: 'Answer "What do you want to know?" then "Independent groups", then "Three or more"'
+        why: Three or more independent groups call for an ANOVA instead of running several t-tests, which would inflate false positives.
+        screenshot: 08-advisor-question.png
+        built: true
+      - id: 9
+        screen: advisor-recommendation
+        action: Read the recommendation card
+        why: Statly recommends a one-way ANOVA with Tukey post hoc comparisons, since you'll want to know which pairs of groups actually differ.
+        screenshot: 09-recommendation.png
+        built: true
+      - id: 10
+        screen: role-assignment
+        action: Confirm the outcome (post-test score) and group roles, then click "Run"
+        why: You are comparing the post-test score across the three groups.
+        screenshot: 10-roles.png
+        built: true
+      - id: 11
+        screen: assumption-checks
+        action: Step through the assumption checks
+        why: ANOVA assumes roughly normal, similarly spread groups; Statly checks both before you see results.
+        screenshot: null
+        built: false
+        todo: "TODO: screen not built yet - the mock engine's analysis catalog doesn't include ANOVA (or Kruskal-Wallis), so role-assignment shows \"Statly can't run One-way ANOVA yet\" and this step can't be reached in mock mode. The real engine implements one-way ANOVA per SPEC §8."
+      - id: 12
+        screen: results
+        action: Read the results and the post hoc comparisons
+        why: The overall ANOVA tells you the groups differ; post hoc tests tell you which specific pairs do.
+        screenshot: null
+        built: false
+        todo: "TODO: depends on step 11 (ANOVA not runnable in mock mode yet)."
+      - id: 13
+        screen: analyses-mixed-followup
+        action: Compare all three time points across all three groups in one repeated-measures-by-group analysis
+        why: A full mixed design (time within students, group between students) is the most complete way to see whether gains held up at follow-up.
+        screenshot: null
+        built: false
+        todo: "TODO: screen not built yet - mixed/repeated-measures ANOVA is not yet reachable from the Test Advisor. For now, repeat the one-way ANOVA at each time point (post, then follow-up) to see whether the group ordering holds."
+
+  - id: cleaning-a-messy-qualtrics-export
+    title: "Cleaning a messy Qualtrics export"
+    dataset: messy_qualtrics
+    narration: content/tutorials/cleaning-a-messy-qualtrics-export.md
+    steps:
+      - id: 1
+        screen: home
+        action: Click "New project"
+        why: This tutorial is about the import wizard itself, so it starts the same way as any project.
+        screenshot: 01-home.png
+        built: true
+      - id: 2
+        screen: import-files
+        action: Choose messy_3header.csv and click Open
+        why: A real Qualtrics export, three-row header, with every messy-data gotcha planted on purpose.
+        screenshot: 02-choose-files.png
+        built: true
+      - id: 3
+        screen: import-detect
+        action: Review the detection screen
+        why: Statly correctly reads the 3-row Qualtrics header, the UTF-8 byte-order mark, and the row/column counts before you commit to anything.
+        screenshot: 03-detection.png
+        built: true
+      - id: 4
+        screen: import-cleanup-pii
+        action: 'On "Survey clean-up", confirm the pre-checked personal-information columns (IPAddress, names, email, location)'
+        why: FERPA means student survey data with names, emails, or IP addresses should not sit around unprotected; Statly finds and removes these columns by default.
+        screenshot: 04-cleanup-pii.png
+        built: true
+      - id: 5
+        screen: import-cleanup-rows
+        action: Confirm the pre-checked "Survey Preview" and "Spam" row filters
+        why: Preview runs and spam submissions from Qualtrics aren't real responses and would skew every result.
+        screenshot: 05-cleanup-rows.png
+        built: true
+      - id: 6
+        screen: import-cleanup-codes
+        action: Check the "unusual answer codes" box for Q6 and read "Why does this matter?"
+        why: Q6 uses non-contiguous Qualtrics recode values (1, 2, 4, 5, 7). Statly blocks import until you've looked at this, because it changes how later tests are run.
+        screenshot: 06-cleanup-codes.png
+        built: true
+      - id: 7
+        screen: import-summary
+        action: Click "Import"
+        why: 113 rows come in; the preview/spam rows are filtered on the way.
+        screenshot: 07-review-import.png
+        built: true
+      - id: 8
+        screen: data-grid
+        action: Skip the Variable Interview for now and open the data grid
+        why: You can see the cleaned data immediately: PII columns gone, survey-system columns hidden by default.
+        screenshot: 08-data-grid.png
+        built: true
+      - id: 9
+        screen: data-missing-summary
+        action: Check the missing-data summary
+        why: The 21 cells using Qualtrics's "-99" missing-value code and 8 unfinished responses show up here, not as silent zeros.
+        screenshot: 09-missing-summary.png
+        built: true
+      - id: 10
+        screen: interview-scales
+        action: In the Variable Interview's Scales step, mark Q5_4 as negatively worded
+        why: One item in the Q5 matrix is reverse-worded; leaving it unflipped would quietly wreck the scale average.
+        screenshot: 10-interview-reverse.png
+        built: true
+      - id: 11
+        screen: variables-text-choices
+        action: Open Variables and check how Q5/Q6 read once the multi-select and text-choice columns are recognized
+        why: Some of the messy exports store answers as text labels instead of numeric codes; Statly matches them to the same underlying question.
+        screenshot: 11-variables-text.png
+        built: true
+      - id: 12
+        screen: qualitative-tagging
+        action: Open the open-ended responses and tag Q9/Q10 with a codebook
+        why: Free-text answers can't be averaged, but tagging them turns themes into countable, comparable categories.
+        screenshot: null
+        built: false
+        todo: "TODO: screen not built yet - the Qualitative module (SPEC §11.1) tagging screen is not implemented. Q9/Q10 open-ended text is visible in the data grid today but has no tagging UI yet."
+
+  - id: matching-students-across-time
+    title: "Matching students across time"
+    dataset: linked_id_prepost
+    narration: content/tutorials/matching-students-across-time.md
+    steps:
+      - id: 1
+        screen: home
+        action: Click "New project"
+        why: Start clean to see the whole linked-ID workflow.
+        screenshot: 01-home.png
+        built: true
+      - id: 2
+        screen: import-files
+        action: Choose pre.csv and post.csv from the linked-ID practice files and click Open
+        why: Both files share a self-generated student ID column, so Statly can match individual students across time.
+        screenshot: 02-choose-files.png
+        built: true
+      - id: 3
+        screen: import-detect
+        action: Review the detection screen
+        why: Confirms both files were read as one linked import with the same question set.
+        screenshot: 03-detection.png
+        built: true
+      - id: 4
+        screen: import-linking
+        action: 'Choose "Link people by an ID" and select the Q1 ID column'
+        why: Without linking, pre and post can only be compared as two separate groups. Linking lets Statly use a more powerful paired test.
+        screenshot: 04-linking.png
+        built: true
+      - id: 5
+        screen: import-summary
+        action: Click "Import"
+        why: 80 pre rows and 81 post rows come in, and the two duplicate IDs in post.csv are about to show up in the match report.
+        screenshot: 05-review-import.png
+        built: true
+      - id: 6
+        screen: import-linking-report
+        action: Read the "How the IDs matched" report shown right after import
+        why: IDs vary in case and spacing between files ("ab12 " vs "AB12"); Statly trims and case-folds before matching, then shows you exactly how many matched, didn't match, or duplicated.
+        screenshot: 06-link-report.png
+        built: true
+      - id: 7
+        screen: variables-computed
+        action: On the Variables screen, add a new computed variable of kind "Normalized gain"
+        why: A raw point gain isn't fair to compare across students who started at different levels; normalized gain measures how much of the *possible* improvement a student actually made.
+        screenshot: 07-variables-gain.png
+        built: true
+      - id: 8
+        screen: advisor-question
+        action: 'Answer "What do you want to know?" then "Same respondents, measured more than once (linked)" then "Two" time points'
+        why: Because students are linked across time, Statly can offer the more powerful paired comparison instead of treating pre/post as separate groups.
+        screenshot: 08-advisor-question.png
+        built: true
+      - id: 9
+        screen: advisor-recommendation
+        action: Read the recommendation card
+        why: Statly recommends a paired-samples t-test, which compares each student with their own earlier score.
+        screenshot: 09-recommendation.png
+        built: true
+      - id: 10
+        screen: role-assignment
+        action: Confirm the pre/post outcome roles, then click "Run"
+        why: A paired test needs both time points for the same person, which is exactly what the link report confirmed you have.
+        screenshot: 10-roles.png
+        built: true
+      - id: 11
+        screen: assumption-checks
+        action: Step through the normality-of-differences assumption check
+        why: A paired t-test assumes the *differences* between each student's two scores are roughly normal, not the raw scores themselves.
+        screenshot: null
+        built: false
+        todo: "TODO: screen not built yet - the mock catalog's paired t-test only has a \"wide\" layout (two separate score columns for the same people), but this dataset's two files get stacked into one long-format Q4 column plus a Time column during import, so no valid two-column pairing exists to select. Needs either a \"long\" layout option for paired designs in the catalog, or a wide-linked-merge import path."
+      - id: 12
+        screen: results
+        action: Read the results, including the effect size
+        why: The paired t-test result plus the normalized gain variable together tell a fuller story than either alone.
+        screenshot: null
+        built: false
+        todo: "TODO: depends on step 11 (paired t-test not runnable against this dataset's stacked layout in mock mode yet)."

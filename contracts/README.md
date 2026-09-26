@@ -152,10 +152,37 @@ Engine-side validation, not yet in `Rpc.json`; full shapes and rules in `docs/PR
 | Method | Params | Result | Notes |
 |---|---|---|---|
 | `export.table_html` | `{apa_table, number?}` | `{html, plain_text}` | Clipboard HTML (inline styles) + tab-separated fallback. |
-| `export.report` | `{title, author?, results: AnalysisResult[], include?, charts?, format: docx\|pdf, path, overwrite?}` | `{path, bytes}` | Charts are PNGs from the WebView keyed by `request_id`. |
+| `export.report` | `{title, author?, results: AnalysisResult[], include?, charts?, test_log?: TestLogEntry[], test_families?: {id,name}[], format: docx\|pdf, path, overwrite?}` | `{path, bytes}` | Charts are PNGs from the WebView keyed by `request_id`. `test_log`/`test_families` add "Holm-adjusted p = .xxx (family: …)" beside a family member's APA sentence. |
 | `export.data` | `{dataset_id, format: xlsx\|csv, path, include_metadata_columns?, options?, overwrite?}` | `{path, bytes, snapshot_id, n_rows, n_columns, pii_columns}` | `options`: `label_row`, `blank_missing_codes` (default true), `exclude_pii`. |
 | `export.codebook` | `{dataset_id, format: xlsx\|docx, path, overwrite?}` | `{path, bytes}` | From `DatasetMeta.variables` + `scales`. |
 | `export.test_log` | `{entries: TestLogEntry[], format: xlsx\|csv\|docx, path, overwrite?}` | `{path, bytes}` | |
 
 `path` must be absolute with the format's extension in an existing folder; an existing file needs
 `overwrite: true` (else `-32003`, `data.reason: "file_exists"`).
+
+## Phase 7 RPC methods (chart builder, SPEC §10.2)
+
+`charts.data {dataset_id, snapshot_id, spec: ChartSpec} -> {rows, meta}`. Saved specs live in
+`ProjectFile.chart_specs` (unchanged schema). Grouping fields in rows are display labels:
+`x`, `color`, `facet` (facet shelf 1), `facet2` (facet shelf 2). `meta` always has `chart_type`,
+`source`, `levels` {field: ordered labels}, `labels` {field: axis/legend title}, and for dataset
+charts `n_used` / `n_excluded`.
+
+| chart_type | rows |
+|---|---|
+| bar, grouped_bar, line, interaction | `value` (per Y aggregate), `lower`/`upper` (per `error_bars`), `n, mean, median, sum, sd, se, ci_low, ci_high` (t-based 95% CI), `variable`. Several Y variables become X (or color). |
+| stacked_bar, percent_bar | `count, n, percent` (within X). Items on Y: `x` = item, `color` = response. |
+| likert_diverging | `item, item_variable, response, response_value, order, side, count, n, percent, start, end` (centred on the neutral midpoint); `meta.neutral`. |
+| histogram | `bin_start, bin_end, count, percent, density`; Freedman-Diaconis edges shared across groups (Sturges when IQR = 0; `customization.bins` overrides); `meta.bin_width, n_bins`. |
+| density | `x, density` (Gaussian KDE, Scott bandwidth × `customization.bandwidth_adjust`); `meta.bandwidths`. |
+| qq | `theoretical, sample` (R `qqnorm`); `meta.lines` = R `qqline` per group. |
+| box | `kind: "box"` (`q1, median, q3` type 7, `whisker_low/high` = furthest values within 1.5 IQR, `min, max, mean, n, n_outliers`) + `kind: "outlier"` (`value`). |
+| violin | `kind: "box"` summaries + `kind: "density"` (`value, density`, KDE trimmed to the data range). |
+| scatter | `x, y`; `meta.fits` per group: OLS `slope, intercept, r, r2, n, points` (`customization.fit_line`: linear / loess / none). |
+| correlation_heatmap | `row, col, row_variable, col_variable, row_index, col_index, r, n` (pairwise; `customization.correlation_method` pearson / spearman). |
+| scree | `number, series, eigenvalue` for correlation eigenvalues, factor eigenvalues and the parallel-analysis 95th percentile (stored `validity.efa`). |
+| cfa_path | `kind: "node"` (`id, label, node_type, x, y, residual`), `"edge"` (`x, y, x2, y2, weight, label, label_x, label_y, p`), `"curve"` points for factor covariances (stored `validity.cfa`); `meta.fit`. |
+
+Customization keys Statly adds (the schema is open): `custom_colors`, `greyscale`, `figure_number`,
+`figure_note`, `bins`, `correlation_method`, `bandwidth_adjust`. Default palette `colorblind_safe`
+(Okabe-Ito); `tol_bright`, `greyscale`, `custom` also accepted.

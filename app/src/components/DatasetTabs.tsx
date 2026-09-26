@@ -7,6 +7,8 @@ const TABS: { view: View; title: string; also: View[] }[] = [
   { view: "variables", title: "Variables", also: ["interview"] },
   { view: "advisor", title: "Analyze", also: ["analysis"] },
   { view: "analyses", title: "Test Log", also: ["results"] },
+  { view: "charts", title: "Charts", also: [] },
+  { view: "qualitative", title: "Responses", also: [] },
 ];
 
 /** Header navigation between the dataset screens (shown once a dataset is loaded). */

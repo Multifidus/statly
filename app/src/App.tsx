@@ -5,6 +5,7 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Button } from "@/components/ui/button";
 import { ProjectMenu } from "@/components/project/ProjectMenu";
 import { UnsavedChangesDialog } from "@/components/project/UnsavedChangesDialog";
+import { ExportMenu } from "@/components/export/ExportMenu";
 import { IS_MOCK } from "@/lib/engineMode";
 import { openProject, runAutosave, saveProject, saveProjectAs } from "@/lib/projectActions";
 import { closeWindowNow, guardWindowClose } from "@/lib/window";
@@ -16,9 +17,12 @@ import { redoEdit, undoEdit } from "@/lib/variableEdits";
 import { Home } from "@/screens/Home";
 import { AdvisorScreen } from "@/screens/AdvisorScreen";
 import { AnalysesScreen } from "@/screens/AnalysesScreen";
+import { ChartBuilderScreen } from "@/screens/ChartBuilderScreen";
 import { AnalysisScreen } from "@/screens/AnalysisScreen";
 import { LearnScreen } from "@/screens/LearnScreen";
 import { ResultsScreen } from "@/screens/ResultsScreen";
+import { StudyPlannerScreen } from "@/screens/StudyPlannerScreen";
+import { QualitativeScreen } from "@/screens/QualitativeScreen";
 import { openLearn } from "@/stores/learn";
 import { ImportWizard } from "@/screens/ImportWizard";
 import { useNav } from "@/stores/nav";
@@ -123,6 +127,7 @@ export default function App() {
       <header className="flex items-center gap-4 border-b px-4 py-2">
         <span className="text-base font-semibold tracking-tight">Statly</span>
         <ProjectMenu />
+        <ExportMenu />
         <DatasetTabs />
         {IS_MOCK && (
           <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-950 dark:text-amber-200">
@@ -147,7 +152,10 @@ export default function App() {
           {view === "analysis" && <AnalysisScreen />}
           {view === "results" && <ResultsScreen />}
           {view === "analyses" && <AnalysesScreen />}
+          {view === "charts" && <ChartBuilderScreen />}
+          {view === "qualitative" && <QualitativeScreen />}
           {view === "learn" && <LearnScreen />}
+          {view === "planner" && <StudyPlannerScreen />}
         </EngineStartup>
       </main>
       <UnsavedChangesDialog />

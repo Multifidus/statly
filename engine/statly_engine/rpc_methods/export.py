@@ -1,7 +1,10 @@
 """export.* RPC handlers (Phase 8, SPEC §10.3). See docs/PROTOCOL.md "Exports".
 
 - export.table_html {apa_table, number?}                               -> {html, plain_text}
-- export.report     {title, author?, results, include?, charts?, format: docx|pdf, path, overwrite?}
+- export.report     {title, author?, results, include?, charts?, test_log?, test_families?, format: docx|pdf, path, overwrite?}
+    test_log (TestLogEntry[]) and test_families ({id,name}[]) are optional: when a result's
+    request_id has a logged entry with a non-'none' correction_method, the APA sentence gets a
+    trailing "Holm-adjusted p = .xxx (family: <name>)." note (SPEC §9 / §10.3).
 - export.data       {dataset_id, format: xlsx|csv, path, include_metadata_columns?, options?, overwrite?}
 - export.codebook   {dataset_id, format: xlsx|docx, path, overwrite?}
 - export.test_log   {entries, format: xlsx|csv|docx, path, overwrite?}
@@ -96,6 +99,33 @@ def _charts(raw) -> dict[str, dict]:
     return out
 
 
+def _test_log_index(raw) -> dict[str, dict]:
+    """Optional TestLogEntry[] (SPEC §9), keyed by request_id, so a report can show each
+    logged test's Holm/Bonferroni/BH-adjusted p beside its APA sentence."""
+    if raw is None:
+        return {}
+    if not isinstance(raw, list):
+        raise InvalidParams("test_log must be a list of Test Log entries.")
+    out: dict[str, dict] = {}
+    for i, e in enumerate(raw):
+        _validate(TestLogEntry, e, f"test_log[{i}]")
+        out[e["request"]["request_id"]] = e
+    return out
+
+
+def _family_names(raw) -> dict[str, str]:
+    if raw is None:
+        return {}
+    if not isinstance(raw, list):
+        raise InvalidParams("test_families must be a list of {id, name}.")
+    out = {}
+    for i, f in enumerate(raw):
+        if not isinstance(f, dict) or not isinstance(f.get("id"), str) or not isinstance(f.get("name"), str):
+            raise InvalidParams(f"test_families[{i}] needs an id and a name.")
+        out[f["id"]] = f["name"]
+    return out
+
+
 def report(store: DatasetStore, params: dict) -> dict:
     fmt = _format(params, ("docx", "pdf"))
     title = params.get("title")
@@ -114,8 +144,10 @@ def report(store: DatasetStore, params: dict) -> dict:
                                             for k, v in include.items()):
         raise InvalidParams(f"include takes true/false for: {', '.join(INCLUDE_KEYS)}.")
     charts = _charts(params.get("charts"))
+    test_log_by_id = _test_log_index(params.get("test_log"))
+    family_names = _family_names(params.get("test_families"))
     target = check_target(params.get("path"), fmt, _overwrite(params))
-    secs = report_mod.sections(results, include, charts)
+    secs = report_mod.sections(results, include, charts, test_log_by_id, family_names)
     writer = report_mod.write_docx if fmt == "docx" else report_mod.write_pdf
     size = atomic_write(target, lambda p: writer(p, title.strip(), author, secs))
     return _written(target, size)
@@ -174,3 +206,63 @@ METHODS = {
     "export.codebook": codebook,
     "export.test_log": test_log,
 }
+
+
+def plan(store: DatasetStore, params: dict) -> dict:
+    """export.plan {plan: StudyPlan, labels?: {id: label}, interview?: [{question, answer}], format: docx,
+    path, overwrite?} -> {path, bytes}. Study Planner document (SPEC §11.2)."""
+    from statly_engine.contracts import StudyPlan
+    from statly_engine.export import plan as plan_mod
+
+    fmt = _format(params, ("docx",))
+    study_plan = params.get("plan")
+    _validate(StudyPlan, study_plan, "plan")
+    labels = params.get("labels") or {}
+    if not isinstance(labels, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in labels.items()):
+        raise InvalidParams("labels must map ids to text.")
+    interview = params.get("interview") or []
+    if not isinstance(interview, list) or not all(
+            isinstance(x, dict) and isinstance(x.get("question"), str) and isinstance(x.get("answer"), str)
+            for x in interview):
+        raise InvalidParams("interview must be a list of {question, answer} text pairs.")
+    target = check_target(params.get("path"), fmt, _overwrite(params))
+    size = atomic_write(target, lambda p: plan_mod.write_docx(p, study_plan, labels, interview))
+    return _written(target, size)
+
+
+METHODS["export.plan"] = plan
+
+
+# Phase 9 (SPEC §11.1): export.qualitative {dataset_id, variable, kind: responses|codebook,
+# format: xlsx|docx, path, context_variables?, title?, overwrite?} -> {path, bytes, n_responses}
+def qualitative(store: DatasetStore, params: dict) -> dict:
+    from statly_engine.data import tags as tags_mod
+    from statly_engine.export import qualitative as qual_mod
+
+    fmt = _format(params, ("xlsx", "docx"))
+    kind = params.get("kind", "responses")
+    if kind not in ("responses", "codebook"):
+        raise InvalidParams(f"kind must be 'responses' or 'codebook' (got {kind!r}).")
+    variable = params.get("variable")
+    if not isinstance(variable, str) or not variable:
+        raise InvalidParams("Choose which written-answer variable to export.")
+    context = params.get("context_variables") or []
+    if not isinstance(context, list) or not all(isinstance(c, str) for c in context):
+        raise InvalidParams("context_variables must be a list of variable names.")
+    title = params.get("title")
+    if title is not None and not isinstance(title, str):
+        raise InvalidParams("title must be text or null.")
+    book, items = tags_mod.coded_rows(store, params.get("dataset_id"), variable, context)
+    target = check_target(params.get("path"), fmt, _overwrite(params))
+    if kind == "codebook":
+        writer = (lambda p: qual_mod.write_codebook_xlsx(p, book, items)) if fmt == "xlsx" else \
+            (lambda p: qual_mod.write_codebook_docx(p, variable, book, items))
+    elif fmt == "xlsx":
+        writer = lambda p: qual_mod.write_responses_xlsx(p, variable, book, items, context)  # noqa: E731
+    else:
+        writer = lambda p: qual_mod.write_responses_docx(p, variable, book, items, context, title)  # noqa: E731
+    size = atomic_write(target, writer)
+    return {**_written(target, size), "n_responses": len(items)}
+
+
+METHODS["export.qualitative"] = qualitative

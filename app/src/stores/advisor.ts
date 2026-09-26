@@ -9,6 +9,8 @@ import type { AdvisorQuestion, AdvisorStep, AnswerValue, DatasetContext } from "
 import { deriveDatasetContext, outcomeCandidates } from "@/lib/datasetContext";
 import { describeRpcError, rpc } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
+import { useProjectStore } from "@/stores/project";
+import { treeAnswers } from "@/lib/planner/planText";
 
 export type AdvisorStatus = "idle" | "loading" | "ready" | "error";
 
@@ -43,6 +45,21 @@ const INITIAL = {
 };
 
 let seq = 0;
+
+/**
+ * Study Planner seed (SPEC §11.2): the first advisor run in a project that carries a study plan
+ * starts from the plan's interview answers (once per project + plan; "Start over" is clean).
+ */
+let seededFor: string | null = null;
+function planSeed(): Record<string, AnswerValue> {
+  const p = useProjectStore.getState().project;
+  const plan = p?.study_plan;
+  if (!p || !plan) return {};
+  const k = `${p.project_id}:${plan.id}`;
+  if (seededFor === k) return {};
+  seededFor = k;
+  return treeAnswers(plan.design.answers);
+}
 
 export const useAdvisor = create<AdvisorState>((set, get) => {
   /** Apply a step, then fetch the question view of any auto-answered question not seen yet. */
@@ -91,7 +108,7 @@ export const useAdvisor = create<AdvisorState>((set, get) => {
         set({ status: "error", error: describeRpcError(e) });
         return;
       }
-      await evaluate({});
+      await evaluate(planSeed());
     },
 
     setOutcome: async (outcome) => {

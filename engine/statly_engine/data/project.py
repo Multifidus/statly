@@ -170,8 +170,10 @@ def _state_for(store: DatasetStore, project: dict) -> DatasetState | None:
 
 
 def save(store: DatasetStore, path: str, project: dict, engine_version: str) -> dict:
+    from statly_engine.data.tags import attach_codebook  # Phase 9: engine-held tag codebook
+
     state = _state_for(store, project)
-    out, results = attach_results(store, build_project(project, state, engine_version))
+    out, results = attach_results(store, attach_codebook(store, build_project(project, state, engine_version)))
     size = write_statly(path, out, state, results=results)
     autosave = store.autosave_paths.pop(project["project_id"], None)
     if autosave and Path(autosave).resolve() != Path(path).resolve():
@@ -187,8 +189,10 @@ def autosave_path(autosave_dir: str, project_id: str) -> Path:
 
 def autosave(store: DatasetStore, autosave_dir: str, original_path: str | None, project: dict,
              engine_version: str) -> dict:
+    from statly_engine.data.tags import attach_codebook  # Phase 9: engine-held tag codebook
+
     state = _state_for(store, project)
-    out, results = attach_results(store, build_project(project, state, engine_version))
+    out, results = attach_results(store, attach_codebook(store, build_project(project, state, engine_version)))
     target = autosave_path(autosave_dir, project["project_id"])
     marker = {"schema_version": 1, "project_id": project["project_id"], "original_path": original_path,
               "saved_at": out["modified_at"]}
@@ -220,7 +224,10 @@ def load(store: DatasetStore, path: str) -> dict:
         {**e, "result_path": result_path(e["id"]) if e.get("id") in results else None}
         for e in project.get("test_log") or []]}
     if state is not None:
+        from statly_engine.data.tags import restore_codebook  # Phase 9: tag codebook becomes live
+
         store.datasets[state.meta["dataset_id"]] = state
+        restore_codebook(store, project)
     if marker is not None:
         store.autosave_paths[project["project_id"]] = str(path)
     return {"project": project, "is_autosave": marker is not None, "autosave_marker": marker}

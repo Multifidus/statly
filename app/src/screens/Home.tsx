@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { FilePlus, FolderOpen, History, Trash2 } from "lucide-react";
+import { ClipboardList, FilePlus, FolderOpen, History, Trash2 } from "lucide-react";
+import { useNav } from "@/stores/nav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { loadRecoverable, newProject, openProject, recoverAutosave } from "@/lib/projectActions";
@@ -74,6 +75,17 @@ export function Home() {
           <CardContent>
             <Button variant="outline" onClick={() => void openProject()} data-testid="open-project">
               <FolderOpen aria-hidden /> Open project…
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="sm:col-span-2">
+          <CardHeader>
+            <CardTitle>Plan a study</CardTitle>
+            <CardDescription>No data yet? Plan your design, find out how many people you need, and get tips for setting up your survey.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" onClick={() => useNav.getState().go("planner")} data-testid="plan-study">
+              <ClipboardList aria-hidden /> Plan a study
             </Button>
           </CardContent>
         </Card>

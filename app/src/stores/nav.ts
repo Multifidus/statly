@@ -11,7 +11,10 @@ export type View =
   | "analysis"
   | "results"
   | "analyses"
-  | "learn";
+  | "charts"
+  | "qualitative"
+  | "learn"
+  | "planner";
 
 interface NavState {
   view: View;

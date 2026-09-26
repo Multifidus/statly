@@ -149,11 +149,14 @@ export interface AnalysisRequest {
    * Open enum of analysis identifiers, dotted snake_case (family.variant). The engine's registry is authoritative.
    */
   analysis_id: string;
-  dataset_id: string;
   /**
-   * DatasetMeta.snapshot_id the request was built against; the engine rejects a stale snapshot.
+   * null for dataset-free analyses (e.g. power.*; analysis.list reports needs_data=false).
    */
-  snapshot_id: string;
+  dataset_id: string | null;
+  /**
+   * DatasetMeta.snapshot_id the request was built against; the engine rejects a stale snapshot. null for dataset-free analyses.
+   */
+  snapshot_id: string | null;
   /**
    * Analysis role -> variable names. Role keys are analysis-specific snake_case (outcome, group, time, subject_id, covariates, predictors, items, x, y, ...). Always arrays for uniform typing.
    */
@@ -612,8 +615,11 @@ export interface ResultWarning {
  */
 export interface ResultInputs {
   request: AnalysisRequest;
-  dataset_id: string;
-  snapshot_id: string;
+  /**
+   * null for dataset-free analyses (power.*).
+   */
+  dataset_id: string | null;
+  snapshot_id: string | null;
   /**
    * Rows (or matched participants for paired designs) actually analysed.
    */

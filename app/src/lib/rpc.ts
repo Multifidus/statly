@@ -48,7 +48,67 @@ import type {
   AdvisorStep,
   AnalysisListResult,
 } from "@/lib/analysisRpc";
-import type { AnalysisRequest, AnalysisResult, CorrectionMethod } from "@/contracts";
+import type { AnalysisRequest, AnalysisResult, ApaTable, CorrectionMethod, TestFamily, TestLogEntry } from "@/contracts";
+
+/** Phase 8 (docs/PROTOCOL.md "Phase 8 methods", SPEC §10.3): report/data/codebook/test-log exports. */
+export interface ExportChart {
+  request_id: string;
+  png_base64: string;
+  title?: string | null;
+  note?: string | null;
+}
+export interface ExportInclude {
+  tables?: boolean;
+  sentences?: boolean;
+  assumptions?: boolean;
+  charts?: boolean;
+}
+export interface ExportReportParams {
+  title: string;
+  author?: string | null;
+  results: AnalysisResult[];
+  include?: ExportInclude;
+  charts?: ExportChart[];
+  test_log?: TestLogEntry[];
+  test_families?: TestFamily[];
+  format: "docx" | "pdf";
+  path: string;
+  overwrite?: boolean;
+}
+export interface ExportWrittenResult {
+  path: string;
+  bytes: number;
+}
+export interface ExportTableHtmlResult {
+  html: string;
+  plain_text: string;
+}
+export interface ExportDataParams {
+  dataset_id: string;
+  format: "xlsx" | "csv";
+  path: string;
+  include_metadata_columns?: boolean;
+  options?: { label_row?: boolean; blank_missing_codes?: boolean; exclude_pii?: boolean };
+  overwrite?: boolean;
+}
+export interface ExportDataResult extends ExportWrittenResult {
+  snapshot_id: string;
+  n_rows: number;
+  n_columns: number;
+  pii_columns: string[];
+}
+export interface ExportCodebookParams {
+  dataset_id: string;
+  format: "xlsx" | "docx";
+  path: string;
+  overwrite?: boolean;
+}
+export interface ExportTestLogParams {
+  entries: TestLogEntry[];
+  format: "xlsx" | "csv" | "docx";
+  path: string;
+  overwrite?: boolean;
+}
 
 /** Phase 6 (docs/PROTOCOL.md "Phase 6 methods"): Test Log results and family corrections. */
 export interface ResultsPutResult {
@@ -135,6 +195,14 @@ export const rpc = {
   resultsPut: (p: { request_id: string; result: AnalysisResult }) => call<ResultsPutResult>("results.put", p),
   resultsGet: (p: { request_id: string }) => call<{ result: AnalysisResult }>("results.get", p),
   correctionsAdjust: (p: CorrectionsAdjustParams) => call<{ adjusted: (number | null)[] }>("corrections.adjust", p),
+
+  // Phase 8: Exports (docs/PROTOCOL.md "Phase 8 methods", SPEC §10.3).
+  exportTableHtml: (p: { apa_table: ApaTable; number?: number | null }) =>
+    call<ExportTableHtmlResult>("export.table_html", p),
+  exportReport: (p: ExportReportParams) => call<ExportWrittenResult>("export.report", p),
+  exportData: (p: ExportDataParams) => call<ExportDataResult>("export.data", p),
+  exportCodebook: (p: ExportCodebookParams) => call<ExportWrittenResult>("export.codebook", p),
+  exportTestLog: (p: ExportTestLogParams) => call<ExportWrittenResult>("export.test_log", p),
 };
 
 export type Rpc = typeof rpc;
@@ -163,3 +231,9 @@ export function describeRpcError(e: unknown): string {
   if (e.kind === "timeout") return "The statistics engine took too long to answer. Please try again.";
   return "Statly couldn't talk to its statistics engine.";
 }
+
+/** Phase 7: chart builder data (docs/PROTOCOL.md "Phase 7 methods", SPEC §10.2). */
+export const chartsRpc = {
+  data: (p: import("@/lib/chartbuilder/types").ChartsDataParams) =>
+    call<import("@/lib/chartbuilder/types").ChartsDataResult>("charts.data", p),
+};

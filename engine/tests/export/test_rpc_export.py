@@ -95,3 +95,44 @@ def test_all_exports_over_rpc(engine, tmp_path):
     assert sorted(p.name for p in tmp_path.iterdir()) == sorted(
         ["report.docx", "report.pdf", "data.xlsx", "data.csv", "codebook.xlsx", "codebook.docx",
          "log.xlsx", "log.csv", "log.docx"])
+
+
+def test_report_shows_holm_adjusted_p_for_family_member(engine, tmp_path):
+    """A DOCX report for two logged tests, one in a Holm family, shows the adjusted p (SPEC §9/§10.3)."""
+    meta = _import(engine)
+    res_a = _run(engine, meta)
+    res_b = engine.call("analysis.run", {
+        "schema_version": 1, "request_id": "req-export-2", "analysis_id": "t_test.independent",
+        "dataset_id": meta["dataset_id"], "snapshot_id": meta["snapshot_id"],
+        "variables": {"outcome": ["Q3_9"], "group": ["Time"]}, "subset": [], "options": {}, "corrections": [],
+        "alpha": 0.05, "tails": "two_sided", "ci_level": 0.95})
+
+    def entry(res, req_id, family_id, adjusted_p):
+        return {
+            "schema_version": 1, "id": req_id, "timestamp": "2026-09-24T21:00:00Z",
+            "request": res["inputs"]["request"],
+            "result_summary": {
+                "analysis_label": "Independent-samples t test",
+                "outcome_variables": list(res["inputs"]["request"]["variables"]["outcome"]),
+                "primary_statistic": res["statistics"][0] if res["statistics"] else None,
+                "p": res["statistics"][0]["p"] if res["statistics"] else None,
+                "primary_effect_size": res["effect_sizes"][0] if res["effect_sizes"] else None,
+                "n_used": res["inputs"]["n_used"], "apa_sentence": res["apa_sentence"],
+                "plain_language_summary": res["plain_language_summary"], "engine_version": res["engine_version"],
+            },
+            "result_path": None, "family_id": family_id,
+            "correction_method": "holm" if family_id else "none", "adjusted_p": adjusted_p,
+        }
+
+    log = [entry(res_a, "req-export", "fam-1", 0.048), entry(res_b, "req-export-2", None, None)]
+    families = [{"id": "fam-1", "name": "Attitude items"}]
+    out = engine.call("export.report", {
+        "title": "Family Report", "results": [res_a, res_b], "include": {"sentences": True},
+        "test_log": log, "test_families": families, "format": "docx",
+        "path": str(tmp_path / "family_report.docx")})
+    assert out["bytes"] > 0
+    doc = Document(str(tmp_path / "family_report.docx"))
+    text = "\n".join(p.text for p in doc.paragraphs)
+    assert "Holm-adjusted p = .048 (family: Attitude items)." in text
+    # the second (non-family) result must not get an adjusted-p note
+    assert text.count("Holm-adjusted") == 1

@@ -6,9 +6,11 @@
  */
 import exampleProject from "../../../contracts/examples/ProjectFile.json";
 import exampleResult from "../../../contracts/examples/AnalysisResult.json";
+import { MockChartError, mockChartsData } from "@/lib/chartbuilder/mockData";
 import type {
   AnalysisRequest,
   AnalysisResult,
+  ApaTable,
   CorrectionMethod,
   CellValue,
   ColumnMatch,
@@ -72,8 +74,10 @@ import type {
 } from "@/lib/variablesRpc";
 import { answerKeyForPath, MOCK_EXAMPLE_PROJECT_PATH, MOCK_TEST_LOG_PROJECT_PATH, shapeForPath, type FileShape } from "./shapes";
 import { pAdjust } from "./corrections";
+import { MockTags } from "@/lib/qualitative/mockTags"; // Phase 9: tags.* + export.qualitative
 import { mockAdvisorEvaluate, mockAdvisorPaths } from "./advisor";
 import { MOCK_ANALYSES, mockAnalysisRun } from "./analysis";
+import { mockPowerRun } from "./power";
 
 // --- helpers -----------------------------------------------------------------------------
 
@@ -1025,9 +1029,30 @@ export class MockEngine implements Transport {
   private autosaves = new Map<string, { project: ProjectFile; marker: ProjectLoadResult["autosave_marker"] & object }>();
   /** Test Log results (results.put / results.get), keyed by request id; "saved" with every project. */
   private results = new Map<string, AnalysisResult>();
+  /** Paths passed to export.plan (Study Planner), for tests. */
+  exportedPlans: string[] = [];
   private counter = 0;
   readonly calls: { method: string; params: unknown }[] = [];
   private latency: number;
+  /** Phase 9 qualitative coding (codebook per dataset, saved with the project). */
+  private tags = new MockTags({
+    dataset: (id) => this.getDataset(id),
+    addColumns: (id, snapshotId, newVars, cols, label) => {
+      const ds = this.getDataset(id);
+      this.checkStale(ds, snapshotId);
+      const base = ds.baseCell;
+      ds.baseCell = (r, col) => (cols.has(col) ? (cols.get(col)![r] ?? null) : base(r, col));
+      const meta = clone(ds.meta);
+      let order = Math.max(-1, ...meta.variables.map((v) => v.display_order));
+      for (const v of newVars) meta.variables.push({ ...v, display_order: ++order });
+      if (newVars.length) return this.commitEdit(ds, meta, [], label);
+      // Only values changed (existing yes/no variables refreshed): new snapshot, same variables.
+      meta.snapshot_id = this.nextId("snap");
+      ds.meta = meta;
+      this.pushHistory(ds, label);
+      return { dataset_meta: clone(ds.meta), warnings: [] };
+    },
+  });
 
   constructor(opts: MockEngineOptions = {}) {
     this.latency = opts.latencyMs ?? 40;
@@ -1126,8 +1151,47 @@ export class MockEngine implements Transport {
           throw rpcError(-32003, String((e as Error).message), "InvalidParams");
         }
       }
-      default:
+      // Phase 8 (SPEC §10.3): exports. Real byte-accurate rendering only happens engine-side;
+      // the mock just records the call and returns plausible sizes for the UI to react to.
+      case "export.table_html": {
+        const t = params as { apa_table: ApaTable; number?: number | null };
+        const title = t.apa_table?.title ?? "Table";
+        return { html: `<table><caption>${title}</caption></table>`, plain_text: title } as T;
+      }
+      case "export.report": {
+        const r = params as { path: string; results: AnalysisResult[] };
+        return { path: r.path, bytes: 2048 + (r.results?.length ?? 0) * 512 } as T;
+      }
+      case "export.data": {
+        const d = params as { dataset_id: string; path: string; options?: { exclude_pii?: boolean } };
+        const ds = this.getDataset(d.dataset_id);
+        const pii = ds.meta.variables.filter((v) => v.is_pii).map((v) => v.name);
+        return {
+          path: d.path, bytes: 4096, snapshot_id: ds.meta.snapshot_id, n_rows: ds.nRows,
+          n_columns: ds.columns.length, pii_columns: d.options?.exclude_pii ? [] : pii,
+        } as T;
+      }
+      case "export.codebook": {
+        const c = params as { path: string };
+        return { path: c.path, bytes: 2048 } as T;
+      }
+      case "export.test_log": {
+        const l = params as { path: string; entries?: unknown[] };
+        return { path: l.path, bytes: 1024 + (l.entries?.length ?? 0) * 128 } as T;
+      }
+      case "export.plan": {
+        const pl = params as { path: string; plan?: { title?: string } };
+        if (!pl.plan?.title) throw rpcError(-32003, "plan doesn't match the contract.", "InvalidParams");
+        this.exportedPlans.push(pl.path);
+        return { path: pl.path, bytes: 4096 } as T;
+      }
+      case "charts.data":
+        return this.chartsData(params as never) as T;
+      default: {
+        const tagged = this.tags.call(method, params as Record<string, unknown>);
+        if (tagged !== undefined) return tagged as T;
         throw rpcError(-32601, `Method not found: ${method}`, "MethodNotFound");
+      }
     }
   }
 
@@ -1821,6 +1885,9 @@ export class MockEngine implements Transport {
   }
 
   runAnalysis(p: AnalysisRequest): AnalysisResult {
+    // Dataset-free analyses (power.*): ids are null (SPEC §11.2 Study Planner).
+    if (p.analysis_id.startsWith("power.")) return mockPowerRun(clone(p));
+    if (p.dataset_id === null) throw rpcError(-32002, "This analysis needs a dataset.", "StaleOrUnknown");
     const ds = this.getDataset(p.dataset_id);
     if (p.snapshot_id !== ds.meta.snapshot_id) {
       throw rpcError(-32002, "The data changed since this analysis was set up; please run it again.", "StaleOrUnknown");
@@ -1866,6 +1933,7 @@ export class MockEngine implements Transport {
     project.data_path = project.dataset_meta ? "data/dataset.parquet" : null;
     project.modified_at = nowIso();
     this.attachResults(project);
+    this.tags.attach(project);
     this.saved.set(p.path, { project, savedAt: project.modified_at });
     for (const [k, a] of this.autosaves) if (a.project.project_id === project.project_id) this.autosaves.delete(k);
     return { path: p.path, saved_at: project.modified_at, size_bytes: 4096 + (project.dataset_meta?.n_rows ?? 0) * 64, project: clone(project) };
@@ -1918,11 +1986,13 @@ export class MockEngine implements Transport {
     const auto = this.autosaves.get(p.path);
     if (auto) {
       this.registerProjectDataset(auto.project);
+      this.tags.restore(auto.project);
       return { project: clone(auto.project), is_autosave: true, autosave_marker: clone(auto.marker) };
     }
     const s = this.saved.get(p.path);
     if (!s) throw rpcError(-32001, `Cannot open ${baseName(p.path)}`, "FileUnreadable");
     this.registerProjectDataset(s.project);
+    this.tags.restore(s.project);
     return { project: clone(s.project), is_autosave: false, autosave_marker: null };
   }
 
@@ -1935,6 +2005,7 @@ export class MockEngine implements Transport {
       if (ds) project.dataset_meta = clone(ds.meta);
     }
     this.attachResults(project);
+    this.tags.attach(project);
     this.autosaves.set(path, { project, marker: { schema_version: 1, project_id: project.project_id, original_path: p.original_path, saved_at } });
     return { autosave_path: path, saved_at };
   }
@@ -1953,5 +2024,16 @@ export class MockEngine implements Transport {
   discard(p: ProjectDiscardAutosaveParams): OkResult {
     this.autosaves.delete(p.autosave_path);
     return { ok: true };
+  }
+
+  /** Phase 7 `charts.data` (lib/chartbuilder/mockData.ts). */
+  chartsData(p: import("@/lib/chartbuilder/types").ChartsDataParams) {
+    const ds = p.dataset_id ? this.datasets.get(p.dataset_id) : undefined;
+    try {
+      return mockChartsData(p, ds?.meta ?? null, ds?.cell ?? null, ds?.nRows ?? 0, this.results);
+    } catch (e) {
+      if (e instanceof MockChartError) throw rpcError(e.code, e.message, e.code === -32002 ? "StaleOrUnknown" : "InvalidParams");
+      throw e;
+    }
   }
 }
