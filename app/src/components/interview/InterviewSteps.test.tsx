@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { StepLabels } from "@/components/interview/InterviewSteps";
-import type { DatasetMeta, VariableSchema } from "@/contracts";
-import { buildUnits, columnStats, initialDraft } from "@/lib/interviewLogic";
+import { StepLabels, StepScales, StepScoring } from "@/components/interview/InterviewSteps";
+import type { DatasetMeta, Scale, VariableSchema } from "@/contracts";
+import { activeScales, buildUnits, columnStats, initialDraft, stepProblem } from "@/lib/interviewLogic";
 import { useDatasetStore } from "@/stores/dataset";
 import { useInterview } from "@/stores/interview";
 
@@ -56,6 +56,33 @@ function setUpUnit(variable: VariableSchema, values: number[]): string {
   const draft = initialDraft(m, units, stats);
   useInterview.setState({ units, stats, draft, step: `labels:${units[0].id}`, status: "ready", datasetId: "ds", error: null, warnings: [] });
   return units[0].id;
+}
+
+/** Load a 3-item Qualtrics matrix suggestion (Q5_1..Q5_3) as a scale, with a given stem and optional per-item overrides. */
+function setUpScale(opts: { stem: string | null; itemOverrides?: (i: number) => Partial<VariableSchema>; scale?: Partial<Scale> } = { stem: "Classroom experience" }): void {
+  const names = ["Q5_1", "Q5_2", "Q5_3"];
+  const vars = names.map((name, i) =>
+    v(name, {
+      dtype: "integer",
+      role: "likert_item",
+      level: "ordinal",
+      scale_id: "scale_Q5",
+      response_range: { min: 1, max: 5 },
+      question_text: opts.stem ? `${opts.stem} - ${name}` : null,
+      ...(opts.itemOverrides?.(i) ?? {}),
+    }),
+  );
+  const m = meta(vars);
+  m.scales = [{ id: "scale_Q5", name: "Q5", items: names, scoring_method: "mean", min_items: null, score_variable: null, origin: "matrix_suggestion", ...opts.scale }];
+  useDatasetStore.getState().setMeta(m);
+  const units = buildUnits(m);
+  const stats = columnStats(names, [
+    [1, 2, 3],
+    [2, 3, 4],
+    [3, 4, 5],
+  ]);
+  const draft = initialDraft(m, units, stats);
+  useInterview.setState({ units, stats, draft, step: "scales", status: "ready", datasetId: "ds", error: null, warnings: [] });
 }
 
 beforeEach(() => {
@@ -130,5 +157,82 @@ describe("StepLabels: export already has text labels", () => {
     render(<StepLabels unitId={unitId} />);
     expect(screen.queryByTestId("numeric-codes-notice")).not.toBeInTheDocument();
     expect(screen.getByText(/put the answer choices in their natural order/i)).toBeInTheDocument();
+  });
+});
+
+describe("StepScales: naming a suggested scale", () => {
+  it("prefills the name from a short, non-instructional stem and shows the stem under the name field", () => {
+    setUpScale({ stem: "Classroom experience" });
+    render(<StepScales />);
+    expect(screen.getByLabelText("Scale name")).toHaveValue("Classroom experience");
+    expect(screen.getByTestId("scale-stem-scale_Q5")).toHaveTextContent("Classroom experience");
+    expect(screen.queryByText("Give it a name you'd use in a report.")).not.toBeInTheDocument();
+  });
+
+  it("leaves the name blank with a hint and placeholder when the tag has no stem", () => {
+    setUpScale({ stem: null });
+    render(<StepScales />);
+    const input = screen.getByLabelText("Scale name") as HTMLInputElement;
+    expect(input.value).toBe("");
+    expect(input.placeholder).toBe("Name this scale, e.g. Classroom experience");
+    expect(screen.getByText("Give it a name you'd use in a report.")).toBeInTheDocument();
+  });
+
+  it("does not prefill from a long, request-phrased stem (the real Qualtrics fixture text)", () => {
+    setUpScale({ stem: "Please say how much you agree with each statement about your classroom experience" });
+    render(<StepScales />);
+    const input = screen.getByLabelText("Scale name") as HTMLInputElement;
+    expect(input.value).toBe("");
+    expect(input.placeholder).toBe("Name this scale, e.g. Classroom experience");
+    expect(screen.getByText("Give it a name you'd use in a report.")).toBeInTheDocument();
+    // The stem is still shown under the name field, just not used as the prefilled name.
+    expect(screen.getByTestId("scale-stem-scale_Q5")).toHaveTextContent(/please say how much you agree/i);
+  });
+
+  it("falls back to the tag on Continue when the name is left blank", () => {
+    setUpScale({ stem: null });
+    const { draft, units } = useInterview.getState();
+    const byName = new Map(useDatasetStore.getState().meta!.variables.map((x: VariableSchema) => [x.name, x]));
+    expect(stepProblem("scales", draft!, units, byName)).toBeNull();
+    expect(activeScales(draft!, units, byName).map((s: { name: string }) => s.name)).toEqual(["Q5"]);
+  });
+});
+
+describe("StepScales: reverse-wording marker", () => {
+  it("auto-ticks and explains an item whose text carries a reverse marker", () => {
+    setUpScale({
+      stem: "Classroom experience",
+      itemOverrides: (i) => (i === 1 ? { question_text: "Classroom experience - I dislike this class (reverse-worded)" } : {}),
+    });
+    render(<StepScales />);
+    const marked = within(screen.getByTestId("scale-item-Q5_2"));
+    expect(marked.getByRole("checkbox")).toBeChecked();
+    expect(marked.getByTestId("reverse-hint-Q5_2")).toHaveTextContent(/reverse-worded/i);
+    const unmarked = within(screen.getByTestId("scale-item-Q5_1"));
+    expect(unmarked.getByRole("checkbox")).not.toBeChecked();
+    expect(unmarked.queryByTestId("reverse-hint-Q5_1")).not.toBeInTheDocument();
+  });
+});
+
+describe("StepScales: not-in-a-scale box", () => {
+  it("explains that single questions belong there", () => {
+    setUpScale({ stem: "Classroom experience" });
+    render(<StepScales />);
+    expect(screen.getByText(/single questions stay here/i)).toBeInTheDocument();
+  });
+});
+
+describe("StepScoring: worked example", () => {
+  it("shows a worked example for the average and sum options using the scale's item count", () => {
+    setUpScale({ stem: "Classroom experience" });
+    render(<StepScoring />);
+    expect(screen.getByText(/example: answers 4, 5, 3 give an average of 4\.0/i)).toBeInTheDocument();
+    expect(screen.getByText(/the same example gives 12/i)).toBeInTheDocument();
+  });
+
+  it("explains that under-answering yields a blank score, not a misleading one", () => {
+    setUpScale({ stem: "Classroom experience" });
+    render(<StepScoring />);
+    expect(screen.getByText(/people who answered fewer get a blank score/i)).toBeInTheDocument();
   });
 });

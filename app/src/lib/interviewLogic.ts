@@ -36,6 +36,31 @@ function stem(text: string | null): string | null {
   return i > 0 ? text.slice(0, i) : text;
 }
 
+/** An item's own statement text, with a shared matrix stem (already shown once above it) stripped off. */
+export function itemStatement(text: string | null, stemText: string | null): string | null {
+  if (!text) return null;
+  if (stemText && text.startsWith(`${stemText} - `)) return text.slice(stemText.length + 3);
+  return text;
+}
+
+/** Bare Qualtrics-style question tag, e.g. "Q5", "Q12a" — a suggested scale name that's just the tag. */
+const TAG_NAME_RE = /^[A-Za-z]{1,6}\d+[A-Za-z]?$/;
+
+/** Lead-in phrasing that makes a stem read as an instruction rather than a name, e.g. "Please rate...". */
+const REQUEST_PHRASE_RE = /^(please|rate|indicate|how much|how often|how satisfied|to what extent|select|choose|think about|for each)\b/i;
+
+/** A matrix stem is only usable as a scale name when it's short and doesn't read as an instruction. */
+export function isNameableStem(stemText: string | null): boolean {
+  if (!stemText) return false;
+  return stemText.length <= 40 && !REQUEST_PHRASE_RE.test(stemText.trim());
+}
+
+/** Explicit reverse-wording markers in question text, e.g. "(reverse-worded)", "(reversed)", "(R)". No sentiment guessing. */
+const REVERSE_MARKER_RE = /\((?:reverse-worded|reversed|r)\)/i;
+export function hasReverseMarker(text: string | null): boolean {
+  return !!text && REVERSE_MARKER_RE.test(text);
+}
+
 /**
  * Group columns into questions: engine-suggested scales (Qualtrics matrix), multi-select
  * indicator families (same source column), and other Qualtrics `Qn_k` families of 2+ columns
@@ -226,6 +251,8 @@ export interface DraftScale {
   /** Existing DatasetMeta scale id (matrix suggestion or earlier scale); null = new. */
   id: string | null;
   name: string;
+  /** Shown as the input's placeholder and used as the name when `name` is left blank; null = no fallback (name is required). */
+  placeholderName: string | null;
   items: string[];
   method: "mean" | "sum";
   /** null = default (half the items, rounded up, for a mean; all items for a sum). */
@@ -318,11 +345,24 @@ export function interviewSteps(units: Unit[], draft: Draft, byName: Map<string, 
 /** Scales that will be scored: items restricted to current Likert items, at least two left. */
 export function activeScales(draft: Draft, units: Unit[], byName: Map<string, VariableSchema>): DraftScale[] {
   const likert = new Set(likertItems(units, draft, byName));
-  return draft.scales.map((s) => ({ ...s, items: s.items.filter((i) => likert.has(i)) })).filter((s) => s.items.length >= 2 && s.name.trim());
+  return draft.scales
+    .map((s) => ({ ...s, items: s.items.filter((i) => likert.has(i)) }))
+    .filter((s) => s.items.length >= 2 && (s.name.trim() || s.placeholderName))
+    .map((s) => (s.name.trim() ? s : { ...s, name: s.placeholderName! }));
 }
 
 export function defaultMinItems(nItems: number, method: "mean" | "sum"): number {
   return method === "mean" ? Math.max(1, Math.ceil(nItems / 2)) : Math.max(1, nItems);
+}
+
+const SCORING_EXAMPLE_BASE = [4, 5, 3, 2, 5, 4];
+
+/** A worked example score for the Scale scores step, padded/trimmed (cyclically) to the scale's item count. */
+export function scoringExample(nItems: number): { values: number[]; sum: number; average: number } {
+  const n = Math.max(1, nItems);
+  const values = Array.from({ length: n }, (_, i) => SCORING_EXAMPLE_BASE[i % SCORING_EXAMPLE_BASE.length]);
+  const sum = values.reduce((a, b) => a + b, 0);
+  return { values, sum, average: Math.round((sum / n) * 10) / 10 };
 }
 
 /** Move an item into a scale (or out of all scales with target null), keeping one scale per item. */
@@ -407,15 +447,23 @@ export function initialDraft(meta: DatasetMeta, units: Unit[], stats: Record<str
     answers[u.id] = { role, level: guessLevel(role, vars, stats), valueLabels: null };
   }
   const reverse: Record<string, boolean> = {};
-  for (const v of meta.variables) if (v.reverse_coded) reverse[v.name] = true;
-  const scales: DraftScale[] = meta.scales.map((s) => ({
-    key: s.id,
-    id: s.id,
-    name: s.name,
-    items: [...s.items],
-    method: s.scoring_method,
-    minItems: s.min_items,
-  }));
+  for (const v of meta.variables) {
+    if (v.reverse_coded || hasReverseMarker(v.question_text) || hasReverseMarker(v.label)) reverse[v.name] = true;
+  }
+  const scales: DraftScale[] = meta.scales.map((s) => {
+    const isAutoTag = s.origin === "matrix_suggestion" && TAG_NAME_RE.test(s.name.trim());
+    const unit = isAutoTag ? units.find((u) => u.id === `scale:${s.id}`) : undefined;
+    const stemText = unit?.questionText?.trim() || null;
+    return {
+      key: s.id,
+      id: s.id,
+      name: isAutoTag ? (isNameableStem(stemText) ? stemText! : "") : s.name,
+      placeholderName: isAutoTag ? s.name : null,
+      items: [...s.items],
+      method: s.scoring_method,
+      minItems: s.min_items,
+    };
+  });
   return { answers, reverse, scales, keyMode: "key", key: {} };
 }
 
@@ -428,8 +476,8 @@ export function stepProblem(step: StepId, draft: Draft, units: Unit[], byName: M
     }
   }
   if (step === "scales") {
-    const names = draft.scales.filter((s) => s.items.length).map((s) => s.name.trim().toLowerCase());
-    if (names.some((n) => !n)) return "Give every scale a name.";
+    // An empty name falls back to the suggested tag on save, so it never blocks Continue.
+    const names = draft.scales.filter((s) => s.items.length).map((s) => (s.name.trim() || s.placeholderName || "").trim().toLowerCase());
     if (new Set(names).size !== names.length) return "Two scales have the same name.";
     if (draft.scales.some((s) => s.items.length === 1)) return "A scale needs at least two items (or none).";
   }

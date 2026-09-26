@@ -39,7 +39,7 @@ test("completes the Variable Interview, edits a variable, then undoes the edit",
   await continueUntil(page, "Scales");
   const q54 = page.getByTestId("scale-item-Q5_4");
   await expect(q54).toBeVisible();
-  await q54.getByRole("checkbox", { name: /Negatively worded/ }).check();
+  await q54.getByRole("checkbox", { name: /Worded the opposite way/ }).check();
   // Keyboard alternative to dragging: move an item out and back with its Scale menu.
   await page.getByRole("combobox", { name: "Scale for Q5_6" }).selectOption({ label: "Not in a scale" });
   await expect(page.getByRole("list", { name: "Questions not in a scale" })).toContainText("Q5_6");

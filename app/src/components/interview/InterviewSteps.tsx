@@ -13,11 +13,14 @@ import {
   activeScales,
   buildPlan,
   defaultMinItems,
+  hasReverseMarker,
+  itemStatement,
   LEVEL_OPTIONS,
   likertItems,
   moveItem,
   ROLE_OPTIONS,
   roleTitle,
+  scoringExample,
   testItems,
   type DraftScale,
   type Unit,
@@ -348,16 +351,20 @@ export function StepAnswerKey() {
 
 // --- scales ------------------------------------------------------------------------------
 
-function ItemChip({ name, scales, scaleKey, reverse, onMove, onReverse }: {
+function ItemChip({ name, scales, scaleKey, stemText, reverse, onMove, onReverse }: {
   name: string;
   scales: DraftScale[];
   scaleKey: string | null;
+  /** The scale's shared matrix lead-in text, already shown once on the scale card; stripped from this item's text. */
+  stemText: string | null;
   reverse: boolean;
   onMove: (target: string | null) => void;
   onReverse: (r: boolean) => void;
 }) {
   const byName = useByName();
   const v = byName.get(name);
+  const text = itemStatement(v?.question_text ?? null, stemText);
+  const marked = hasReverseMarker(v?.question_text ?? null) || hasReverseMarker(v?.label ?? null);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: `item:${name}` });
   return (
     <li
@@ -381,18 +388,25 @@ function ItemChip({ name, scales, scaleKey, reverse, onMove, onReverse }: {
           <option value="">Not in a scale</option>
           {scales.map((s) => (
             <option key={s.key} value={s.key}>
-              {s.name || "Untitled scale"}
+              {s.name.trim() || s.placeholderName || "Untitled scale"}
             </option>
           ))}
         </NativeSelect>
       </div>
-      {v?.question_text && <p className="text-xs text-muted-foreground">{v.question_text}</p>}
+      {text && <p className="text-xs text-muted-foreground">{text}</p>}
       {scaleKey && (
-        <CheckboxField
-          label={`Negatively worded (reverse-score ${name})`}
-          checked={reverse}
-          onChange={(e) => onReverse(e.target.checked)}
-        />
+        <div className="grid gap-0.5">
+          <CheckboxField
+            label="Worded the opposite way (Statly will flip its score)"
+            checked={reverse}
+            onChange={(e) => onReverse(e.target.checked)}
+          />
+          {marked && (
+            <p className="pl-6 text-xs text-muted-foreground" data-testid={`reverse-hint-${name}`}>
+              Ticked because the question text says it's reverse-worded.
+            </p>
+          )}
+        </div>
       )}
     </li>
   );
@@ -424,7 +438,9 @@ export function StepScales() {
   const remove = (key: string) => setDraft({ scales: draft.scales.filter((s) => s.key !== key) });
   const add = () => {
     const key = `new-${Date.now().toString(36)}-${draft.scales.length}`;
-    setDraft({ scales: [...draft.scales, { key, id: null, name: `Scale ${draft.scales.length + 1}`, items: [], method: "mean", minItems: null }] });
+    setDraft({
+      scales: [...draft.scales, { key, id: null, name: `Scale ${draft.scales.length + 1}`, placeholderName: null, items: [], method: "mean", minItems: null }],
+    });
   };
   const onDragEnd = (e: DragEndEvent) => {
     if (!e.over) return;
@@ -432,12 +448,14 @@ export function StepScales() {
     const target = String(e.over.id);
     move(item, target === "pool" ? null : target);
   };
-  const chip = (name: string) => (
+  const stemFor = (s: DraftScale) => units.find((u) => u.id === `scale:${s.id}`)?.questionText ?? null;
+  const chip = (name: string, stemText: string | null) => (
     <ItemChip
       key={name}
       name={name}
       scales={draft.scales}
       scaleKey={scaleOf(name)}
+      stemText={stemText}
       reverse={!!draft.reverse[name]}
       onMove={(t) => move(name, t)}
       onReverse={(r) => setReverse(name, r)}
@@ -447,26 +465,48 @@ export function StepScales() {
   return (
     <div className="grid gap-4">
       <p className="text-sm">
-        Group survey questions that measure the same idea into a scale. Statly suggested groups from your survey's matrix questions.
-        Drag questions between boxes, or use each question's “Scale” menu. Tick <strong>Negatively worded</strong> for questions where
-        agreeing means <em>less</em> of the idea (for example “I dislike this class” in a scale about enjoying class).
+        A scale is a set of questions that together measure one idea, like classroom enjoyment. Statly will average each set into one
+        score per person, which is usually what you analyze. Statly has already grouped questions that came from the same matrix
+        question.
       </p>
+      <WhyItMatters>
+        <p>
+          Several questions about the same idea give a steadier measure than one question alone. Negatively worded questions must be
+          flipped first so a high number always means the same thing — for example, “I dislike this class” counts the opposite way
+          from “I enjoy this class.” Statly flips them with (lowest + highest) − answer, so on a 1–5 scale a 1 becomes a 5 and a 4
+          becomes a 2. Your stored answers are not changed; only the scale score uses the flipped values.
+        </p>
+      </WhyItMatters>
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
         <div className="grid gap-3">
           {draft.scales.map((s) => {
             const items = s.items.filter((i) => likertSet.has(i));
+            const stemText = stemFor(s);
+            const showHint = !!s.placeholderName && !s.name.trim();
             return (
               <ScaleBox key={s.key} id={s.key} className="grid gap-2 rounded-lg border p-3">
                 <div className="flex items-center gap-2">
-                  <Input aria-label="Scale name" value={s.name} onChange={(e) => rename(s.key, e.target.value)} className="h-8 max-w-xs font-medium" />
+                  <Input
+                    aria-label="Scale name"
+                    value={s.name}
+                    placeholder="Name this scale, e.g. Classroom experience"
+                    onChange={(e) => rename(s.key, e.target.value)}
+                    className="h-8 max-w-xs font-medium"
+                  />
                   <Badge>{items.length} item{items.length === 1 ? "" : "s"}</Badge>
-                  <Button variant="ghost" size="sm" className="ml-auto" onClick={() => remove(s.key)} aria-label={`Remove scale ${s.name}`}>
+                  <Button variant="ghost" size="sm" className="ml-auto" onClick={() => remove(s.key)} aria-label={`Remove scale ${s.name || s.placeholderName || ""}`}>
                     <Trash2 aria-hidden /> Remove
                   </Button>
                 </div>
+                {showHint && <p className="text-xs text-muted-foreground">Give it a name you'd use in a report.</p>}
+                {stemText && (
+                  <p className="text-sm text-muted-foreground" data-testid={`scale-stem-${s.key}`}>
+                    {stemText}
+                  </p>
+                )}
                 {items.length ? (
-                  <ul className="grid gap-1.5" aria-label={`Items in ${s.name}`}>
-                    {items.map(chip)}
+                  <ul className="grid gap-1.5" aria-label={`Items in ${s.name || s.placeholderName || "scale"}`}>
+                    {items.map((n) => chip(n, stemText))}
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">Drag questions here.</p>
@@ -476,7 +516,8 @@ export function StepScales() {
           })}
           <ScaleBox id="pool" className="grid gap-2 rounded-lg border border-dashed p-3">
             <p className="text-sm font-medium">Not in a scale ({loose.length})</p>
-            {loose.length > 0 && <ul className="grid gap-1.5" aria-label="Questions not in a scale">{loose.map(chip)}</ul>}
+            <p className="text-xs text-muted-foreground">Single questions stay here. That's normal for things like overall satisfaction or age.</p>
+            {loose.length > 0 && <ul className="grid gap-1.5" aria-label="Questions not in a scale">{loose.map((n) => chip(n, null))}</ul>}
           </ScaleBox>
         </div>
       </DndContext>
@@ -485,14 +526,6 @@ export function StepScales() {
           <Plus aria-hidden /> Add a scale
         </Button>
       </div>
-      <WhyItMatters>
-        <p>
-          Several questions about the same idea give a steadier measure than one question alone. Negatively worded questions must be
-          flipped first so that a high number always means the same thing. Statly flips them with (lowest + highest) − answer, so on a
-          1–5 scale a 1 becomes a 5 and a 4 becomes a 2. Your stored answers are not changed; only the scale score uses the flipped
-          values.
-        </p>
-      </WhyItMatters>
     </div>
   );
 }
@@ -508,9 +541,13 @@ export function StepScoring() {
   const patch = (key: string, p: Partial<DraftScale>) => setDraft({ scales: draft.scales.map((s) => (s.key === key ? { ...s, ...p } : s)) });
   return (
     <div className="grid gap-4">
-      <p className="text-sm">Choose how each scale score is worked out. The defaults suit most surveys.</p>
+      <p className="text-sm">
+        For each scale, Statly adds one new column with a single score per person. Choose how that score is worked out. The defaults
+        suit most surveys.
+      </p>
       {scales.map((s) => {
         const def = defaultMinItems(s.items.length, s.method);
+        const ex = scoringExample(s.items.length);
         return (
           <fieldset key={s.key} className="grid gap-3 rounded-lg border p-3">
             <legend className="px-1 font-medium">
@@ -518,10 +555,12 @@ export function StepScoring() {
             </legend>
             <RadioGroup value={s.method} onValueChange={(v) => patch(s.key, { method: v as "mean" | "sum", minItems: null })} aria-label={`Score for ${s.name}`}>
               <RadioCard id={`m-${s.key}`} value="mean" title="Average of the answered questions (recommended)">
-                Keeps the score on the same scale as the questions (for example 1–5).
+                Keeps the score on the same scale as the questions (for example 1–5).{" "}
+                <span className="block">Example: answers {ex.values.join(", ")} give an average of {ex.average.toFixed(1)}.</span>
               </RadioCard>
               <RadioCard id={`s-${s.key}`} value="sum" title="Sum of the answers">
-                Adds the answers up. Best when everyone answered every question.
+                Adds the answers up (the same example gives {ex.sum}). Only use this when everyone answered every question, or people
+                who skipped one will look lower than they are.
               </RadioCard>
             </RadioGroup>
             <label className="grid gap-1 text-sm">
@@ -540,6 +579,7 @@ export function StepScoring() {
               </span>
               <span className="text-xs text-muted-foreground">
                 Default: {def} ({s.method === "mean" ? "at least half the questions, rounded up" : "all of them, because a sum with gaps is too low"}).
+                People who answered fewer get a blank score instead of a misleading one.
               </span>
             </label>
           </fieldset>

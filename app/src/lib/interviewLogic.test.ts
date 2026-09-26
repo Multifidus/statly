@@ -8,11 +8,15 @@ import {
   defaultMinItems,
   guessLevel,
   guessRole,
+  hasReverseMarker,
   initialDraft,
   initialLabels,
   interviewSteps,
+  isNameableStem,
+  itemStatement,
   moveItem,
   reorder,
+  scoringExample,
   stepProblem,
   type Draft,
   type Unit,
@@ -200,7 +204,10 @@ describe("steps", () => {
 
   it("validates scales and minimums", () => {
     const one = moveItem(draft0.scales, "Q5_1", null);
-    const d = { ...draft0, scales: [...one, { key: "n", id: null, name: "Two", items: ["Q5_1"], method: "mean" as const, minItems: null }] };
+    const d = {
+      ...draft0,
+      scales: [...one, { key: "n", id: null, name: "Two", placeholderName: null, items: ["Q5_1"], method: "mean" as const, minItems: null }],
+    };
     expect(stepProblem("scales", d, units, byName)).toMatch(/at least two items/);
     const bad = { ...draft0, scales: draft0.scales.map((s) => ({ ...s, minItems: 9 })) };
     expect(stepProblem("scoring", bad, units, byName)).toMatch(/between 1 and 3/);
@@ -220,7 +227,8 @@ describe("buildPlan", () => {
     expect(plan.updates.find((u) => u.name === "Q5_2")).toMatchObject({ reverse_coded: true });
     expect(plan.updates.find((u) => u.name === "Q7_8_TEXT")).toBeUndefined(); // unchanged
     expect(plan.updates.find((u) => u.name === "SC0")).toBeUndefined();
-    expect(plan.upsertScales).toEqual([{ id: "scale_Q5", name: "Q5", items: ["Q5_1", "Q5_2", "Q5_3"], scoring_method: "mean", min_items: 2 }]);
+    // Q5's items carry question_text "Matrix - Q5_1" etc., so the suggested "Q5" tag is prefilled from the shared stem.
+    expect(plan.upsertScales).toEqual([{ id: "scale_Q5", name: "Matrix", items: ["Q5_1", "Q5_2", "Q5_3"], scoring_method: "mean", min_items: 2 }]);
     expect(plan.deleteScales).toEqual([]);
     expect(plan.key).toEqual([{ item: "Q4_1", correct: ["A"] }, { item: "Q4_2", correct: ["B"] }]);
   });
@@ -239,9 +247,131 @@ describe("buildPlan", () => {
     expect(defaultMinItems(6, "mean")).toBe(3);
     expect(defaultMinItems(5, "mean")).toBe(3);
     expect(defaultMinItems(4, "sum")).toBe(4);
-    const moved = moveItem([{ key: "a", id: null, name: "A", items: ["x", "y"], method: "mean", minItems: null }, { key: "b", id: null, name: "B", items: ["z"], method: "mean", minItems: null }], "x", "b", 0);
+    const moved = moveItem(
+      [
+        { key: "a", id: null, name: "A", placeholderName: null, items: ["x", "y"], method: "mean", minItems: null },
+        { key: "b", id: null, name: "B", placeholderName: null, items: ["z"], method: "mean", minItems: null },
+      ],
+      "x",
+      "b",
+      0,
+    );
     expect(moved.map((s) => s.items)).toEqual([["y"], ["x", "z"]]);
     expect(reorder([1, 2, 3], 0, 2)).toEqual([2, 3, 1]);
     expect(activeScales({ ...draft0, scales: moved }, units, byName)).toEqual([]);
+  });
+});
+
+describe("scale name prefill and placeholder fallback", () => {
+  it("prefills a matrix suggestion's name from the shared stem when question text has one", () => {
+    const units = buildUnits(M);
+    const draft = initialDraft(M, units, STATS);
+    const q5 = draft.scales.find((s) => s.id === "scale_Q5")!;
+    expect(q5.name).toBe("Matrix");
+    expect(q5.placeholderName).toBe("Q5");
+  });
+
+  it("leaves the name blank with the tag as placeholder when no stem is available", () => {
+    const noStemVars = VARS.map((x) => (x.name.startsWith("Q5_") ? { ...x, question_text: null } : x));
+    const m = meta(noStemVars);
+    const units = buildUnits(m);
+    const draft = initialDraft(m, units, STATS);
+    const q5 = draft.scales.find((s) => s.id === "scale_Q5")!;
+    expect(q5.name).toBe("");
+    expect(q5.placeholderName).toBe("Q5");
+  });
+
+  it("does not block Continue on a blank name, and falls back to the tag when building the plan", () => {
+    const noStemVars = VARS.map((x) => (x.name.startsWith("Q5_") ? { ...x, question_text: null } : x));
+    const m = meta(noStemVars);
+    const units = buildUnits(m);
+    const labelsFor = (u: Unit) => initialLabels(u, u.names.map((n) => new Map(m.variables.map((v) => [v.name, v])).get(n)!), STATS);
+    const draft = initialDraft(m, units, STATS);
+    expect(stepProblem("scales", draft, units, new Map(m.variables.map((v) => [v.name, v])))).toBeNull();
+    const plan = buildPlan(m, units, draft, labelsFor);
+    expect(plan.upsertScales).toEqual([{ id: "scale_Q5", name: "Q5", items: ["Q5_1", "Q5_2", "Q5_3"], scoring_method: "mean", min_items: 2 }]);
+  });
+
+  it("does not treat a user-renamed scale (non-tag name) as an auto tag", () => {
+    const m = meta(VARS, { scales: [{ ...M.scales[0], name: "Classroom experience", origin: "user" }] });
+    const units = buildUnits(m);
+    const draft = initialDraft(m, units, STATS);
+    const q5 = draft.scales.find((s) => s.id === "scale_Q5")!;
+    expect(q5.name).toBe("Classroom experience");
+    expect(q5.placeholderName).toBeNull();
+  });
+
+  it("does not prefill from the real fixture's long, request-phrased stem", () => {
+    const requestStemVars = VARS.map((x) =>
+      x.name.startsWith("Q5_")
+        ? { ...x, question_text: `Please say how much you agree with each statement about your classroom experience - ${x.name}` }
+        : x,
+    );
+    const m = meta(requestStemVars);
+    const units = buildUnits(m);
+    const draft = initialDraft(m, units, STATS);
+    const q5 = draft.scales.find((s) => s.id === "scale_Q5")!;
+    expect(q5.name).toBe("");
+    expect(q5.placeholderName).toBe("Q5");
+  });
+
+  it("prefills from a short stem that isn't a request phrase", () => {
+    const shortStemVars = VARS.map((x) => (x.name.startsWith("Q5_") ? { ...x, question_text: `Classroom experience - ${x.name}` } : x));
+    const m = meta(shortStemVars);
+    const units = buildUnits(m);
+    const draft = initialDraft(m, units, STATS);
+    const q5 = draft.scales.find((s) => s.id === "scale_Q5")!;
+    expect(q5.name).toBe("Classroom experience");
+    expect(q5.placeholderName).toBe("Q5");
+  });
+});
+
+describe("isNameableStem", () => {
+  it("accepts short, non-instructional stems and rejects long or request-phrased ones", () => {
+    expect(isNameableStem("Classroom experience")).toBe(true);
+    expect(isNameableStem("Please say how much you agree with each statement about your classroom experience")).toBe(false);
+    expect(isNameableStem("Rate your agreement")).toBe(false);
+    expect(isNameableStem("How satisfied are you with the course")).toBe(false);
+    expect(isNameableStem(null)).toBe(false);
+  });
+});
+
+describe("reverse-wording markers", () => {
+  it("auto-ticks reverse for items whose text carries a reverse marker", () => {
+    const marked = [
+      v("StartDate", { is_metadata: true }),
+      likert("Q5_1"),
+      { ...likert("Q5_2"), question_text: "Matrix - I dislike this class (reverse-worded)" },
+      likert("Q5_3"),
+    ];
+    const m = meta(marked);
+    const units = buildUnits(m);
+    const draft = initialDraft(m, units, STATS);
+    expect(draft.reverse["Q5_2"]).toBe(true);
+    expect(draft.reverse["Q5_1"]).toBeUndefined();
+  });
+
+  it("only matches explicit markers, not sentiment", () => {
+    expect(hasReverseMarker("I dislike this class")).toBe(false);
+    expect(hasReverseMarker("I dislike this class (reverse-worded)")).toBe(true);
+    expect(hasReverseMarker("Enjoyment (reversed)")).toBe(true);
+    expect(hasReverseMarker("Enjoyment (R)")).toBe(true);
+  });
+});
+
+describe("itemStatement", () => {
+  it("strips a shared stem already shown on the scale card", () => {
+    expect(itemStatement("Matrix - I enjoy this class", "Matrix")).toBe("I enjoy this class");
+  });
+  it("returns the full text when there is no matching stem", () => {
+    expect(itemStatement("I enjoy this class", null)).toBe("I enjoy this class");
+    expect(itemStatement(null, "Matrix")).toBeNull();
+  });
+});
+
+describe("scoringExample", () => {
+  it("computes a worked example padded/trimmed to the item count", () => {
+    expect(scoringExample(6)).toEqual({ values: [4, 5, 3, 2, 5, 4], sum: 23, average: 3.8 });
+    expect(scoringExample(3)).toEqual({ values: [4, 5, 3], sum: 12, average: 4 });
   });
 });
