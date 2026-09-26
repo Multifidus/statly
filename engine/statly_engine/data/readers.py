@@ -166,6 +166,38 @@ def _grid_from_text(text: str, delimiter: str) -> pd.DataFrame:
     return grid
 
 
+def _detect_unclosed_quote(text: str, grid: pd.DataFrame) -> list[dict]:
+    """A stray, unclosed quote mark makes the CSV parser swallow following
+    newlines into one cell, silently merging rows. Flag it so the user can
+    fix the file instead of getting a mysteriously short import.
+
+    A legitimately quoted field can itself span multiple physical lines (that's
+    what CSV quoting is for), so an embedded newline alone isn't proof of a
+    problem. The reliable signal is an odd number of `"` characters in the raw
+    text: correctly quoted fields always open and close in pairs (an escaped
+    `""` inside a field still contributes an even count), while a stray,
+    unclosed quote leaves one unmatched. We also flag a sharp drop in row
+    count as a secondary signal for files that don't use quoting at all.
+    """
+    if grid.empty:
+        return []
+    unbalanced_quotes = text.count('"') % 2 != 0
+    raw_lines = sum(1 for line in text.splitlines() if line.strip() != "")
+    parsed_rows = grid.shape[0]
+    joined_many_rows = raw_lines - parsed_rows > 1 and raw_lines > 1.5 * parsed_rows
+    if unbalanced_quotes or joined_many_rows:
+        return [{
+            "code": "unclosed_quote_merged_rows",
+            "severity": "caution",
+            "message": (
+                'Some rows were joined together because a quote mark (") was never closed. '
+                "Check the file for a stray quote, or open it in Excel and save it again as CSV."
+            ),
+            "column": None,
+        }]
+    return []
+
+
 def read_csv(path: str, data: bytes, encoding: str | None, delimiter: str | None) -> ReadResult:
     enc = encoding or detect_encoding(data)
     text = decode(data, enc, path)
@@ -182,6 +214,7 @@ def read_csv(path: str, data: bytes, encoding: str | None, delimiter: str | None
         grid=grid,
         raw_bytes=data,
         sha256=hashlib.sha256(data).hexdigest(),
+        issues=_detect_unclosed_quote(text, grid),
     )
 
 

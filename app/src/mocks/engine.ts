@@ -259,6 +259,17 @@ function stageFile(path: string, sheet: string | null, idx: number): StagedFile 
   }
 
   const issues: ImportIssue[] = [];
+  if (shape.key === "broken_quote") {
+    issues.push({
+      code: "unclosed_quote_merged_rows",
+      severity: "caution",
+      message:
+        'Some rows were joined together because a quote mark (") was never closed. ' +
+        "Check the file for a stray quote, or open it in Excel and save it again as CSV.",
+      file_id: fileId,
+      column: null,
+    });
+  }
   if (shape.format === "xlsx" && shape.sheets.length > 1 && !sheet) {
     issues.push({
       code: "sheet_choice",

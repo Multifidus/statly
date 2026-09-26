@@ -64,3 +64,24 @@ def test_ragged_rows_padded(tmp_path):
     p.write_text("a,b\n1,2\n3,4,5\n", encoding="utf-8")
     r = read_file(str(p))
     assert r.grid.shape == (3, 3) and r.grid.iloc[0, 2] == ""
+    assert r.issues == []
+
+
+def test_unclosed_quote_merged_rows_warns(tmp_path):
+    p = tmp_path / "broken.csv"
+    p.write_text('name,age\n"Alice,30\nBob,x\n', encoding="utf-8")
+    r = read_file(str(p))
+    assert r.grid.shape[0] < 3  # rows got merged
+    assert len(r.issues) == 1
+    issue = r.issues[0]
+    assert issue["code"] == "unclosed_quote_merged_rows"
+    assert issue["severity"] == "caution"
+    assert "quote mark" in issue["message"]
+    assert issue["column"] is None
+
+
+def test_normal_csv_has_no_quote_issue(tmp_path):
+    p = tmp_path / "clean.csv"
+    p.write_text("name,age\nAlice,30\nBob,25\n", encoding="utf-8")
+    r = read_file(str(p))
+    assert r.issues == []

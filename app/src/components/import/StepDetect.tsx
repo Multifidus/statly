@@ -90,16 +90,21 @@ function FileCard({ f }: { f: FilePreview }) {
       )}
       {f.issues.length > 0 && (
         <ul className="grid gap-1.5">
-          {f.issues.map((i, k) => (
-            <li key={k} className="flex items-start gap-2 text-sm">
-              {i.severity === "info" ? (
+          {f.issues.map((i, k) =>
+            i.severity === "info" ? (
+              <li key={k} className="flex items-start gap-2 text-sm">
                 <Info className="mt-0.5 size-4 shrink-0 text-sky-700 dark:text-sky-300" aria-label="Note" />
-              ) : (
-                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300" aria-label="Check this" />
-              )}
-              <span>{i.message}</span>
-            </li>
-          ))}
+                <span>{i.message}</span>
+              </li>
+            ) : (
+              <li key={k}>
+                <Notice tone="warn" className="flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300" aria-label="Check this" />
+                  <span>{i.message}</span>
+                </Notice>
+              </li>
+            ),
+          )}
         </ul>
       )}
       {shownVars.length > 0 && (

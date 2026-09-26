@@ -52,6 +52,7 @@ export const MOCK_FILES: { path: string; group: string }[] = [
   { path: `${MOCK_ROOT}/mixed_design_large/post.csv`, group: "Mixed design, linked, three groups" },
   { path: `${MOCK_ROOT}/mixed_design_large/followup.csv`, group: "Mixed design, linked, three groups" },
   { path: `/mock/perf/wide_5000x300.csv`, group: "Performance (5,000 rows x 300 columns)" },
+  { path: `${MOCK_ROOT}/not_a_spreadsheet/broken.csv`, group: "Not a spreadsheet" },
 ];
 
 export const MOCK_EXAMPLE_PROJECT_PATH = "/mock/projects/Example project.statly";
@@ -285,6 +286,27 @@ const notesSheet: FileShape = {
   scales: [],
 };
 
+/** Mirrors sample-data/not_a_spreadsheet/broken.csv: a real reader would merge its rows
+ * because of a stray, unclosed quote mark (engine/statly_engine/data/readers.py
+ * `_detect_unclosed_quote`); the mock can't read the file, so it just reports the same
+ * shape (1 row) with the matching `unclosed_quote_merged_rows` issue pushed in engine.ts. */
+const brokenQuote: FileShape = {
+  key: "broken_quote",
+  nRows: 1,
+  headerRows: 1,
+  qualtrics: false,
+  encoding: "utf-8",
+  delimiter: ",",
+  format: "csv",
+  sheets: [],
+  cols: [
+    { name: "name", text: "name", var: { role: "open_text" }, gen: () => "Alice,30\nBob,x" },
+    { name: "age", text: "age", var: { dtype: "string" }, gen: () => "" },
+  ],
+  multiselect: [],
+  scales: [],
+};
+
 // --- one_group_prepost_likert ------------------------------------------------------------
 
 function likertPrePost(which: "pre" | "post"): FileShape {
@@ -500,6 +522,7 @@ export function shapeForPath(path: string, sheet: string | null): FileShape | nu
   if (name === "messy_2header.csv") return messy("2header");
   if (name === "messy_utf16.csv") return messy("utf16");
   if (name === "messy_text_choices.csv") return messy("text");
+  if (name === "broken.csv") return brokenQuote;
   if (name.startsWith("wide")) return wide();
   const time = name.includes("follow") ? "followup" : name.includes("post") ? "post" : name.includes("pre") ? "pre" : null;
   if (time && dir.includes("mixed_design")) return mixedDesignLarge(time);
