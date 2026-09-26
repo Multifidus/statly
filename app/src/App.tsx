@@ -134,22 +134,29 @@ export default function App() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:p-2">
         Skip to content
       </a>
-      <header className="flex items-center gap-4 border-b px-4 py-2">
-        <span className="text-base font-semibold tracking-tight">Statly</span>
+      <header className="flex flex-wrap items-center gap-4 border-b px-4 py-2">
+        <span className="shrink-0 text-base font-semibold tracking-tight">Statly</span>
         <ProjectMenu />
         <ExportMenu />
         <DatasetTabs />
         {IS_MOCK && (
-          <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+          <span className="shrink-0 rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-950 dark:text-amber-200">
             Mock engine
           </span>
         )}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => openLearn(null)} aria-current={view === "learn" ? "page" : undefined} data-testid="open-learn">
             <BookOpen aria-hidden /> Learn
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => useOnboarding.getState().start()} data-testid="take-the-tour">
-            <HelpCircle aria-hidden /> Take the tour
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => useOnboarding.getState().start()}
+            data-testid="take-the-tour"
+            aria-label="Take the tour"
+            title="Take the tour"
+          >
+            <HelpCircle aria-hidden />
           </Button>
           <ThemeSwitcher />
         </div>

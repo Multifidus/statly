@@ -37,7 +37,7 @@ export function ProjectMenu() {
   const project = useProjectStore((s) => s.project);
   const dirty = useProjectStore((s) => s.dirty);
   return (
-    <div className="flex min-w-0 items-center gap-3">
+    <div className="flex shrink-0 items-center gap-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" data-testid="project-menu">
