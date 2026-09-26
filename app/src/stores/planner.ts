@@ -53,6 +53,11 @@ interface PlannerState {
   /** Plan reopened from a project (its power results are kept until recalculated). */
   loaded: StudyPlan | null;
   busy: boolean;
+  /** True once the person has made progress on the plan on screen since it was last loaded or
+   * saved; guards against silently replacing it with a different project's saved plan. */
+  dirty: boolean;
+  /** Pending "replace your in-progress plan?" prompt (rendered by ReplacePlanDialog). */
+  guard: { resolve: (ok: boolean) => void } | null;
 
   setTitle: (t: string) => void;
   setResearchQuestion: (q: string) => void;
@@ -72,6 +77,11 @@ interface PlannerState {
   startProjectFromPlan: () => Promise<boolean>;
   /** Show a saved plan (e.g. `ProjectFile.study_plan`) and rebuild the interview behind it. */
   loadPlan: (plan: StudyPlan) => Promise<void>;
+  /** Ask before replacing an unsaved in-progress plan, then show `plan` if confirmed. Loads it
+   * straight away when there is nothing unsaved to lose. Resolves false if the user cancelled. */
+  openProjectPlan: (plan: StudyPlan) => Promise<boolean>;
+  /** Answer a pending `openProjectPlan` prompt (rendered by ReplacePlanDialog). */
+  answerGuard: (ok: boolean) => void;
   reset: () => void;
 }
 
@@ -100,6 +110,8 @@ function initial() {
     plan: null,
     loaded: null,
     busy: false,
+    dirty: false,
+    guard: null as { resolve: (ok: boolean) => void } | null,
   };
 }
 
@@ -244,8 +256,8 @@ export const usePlanner = create<PlannerState>((set, get) => {
   return {
     ...initial(),
 
-    setTitle: (title) => set({ title }),
-    setResearchQuestion: (researchQuestion) => set({ researchQuestion }),
+    setTitle: (title) => set({ title, dirty: true }),
+    setResearchQuestion: (researchQuestion) => set({ researchQuestion, dirty: true }),
     goTo: (step) => {
       if (step === "plan") get().toPlan();
       else set({ step });
@@ -263,6 +275,7 @@ export const usePlanner = create<PlannerState>((set, get) => {
         kept[p.question] = p.value;
       }
       kept[questionId] = value;
+      set({ dirty: true });
       await evaluate(kept);
     },
 
@@ -271,6 +284,7 @@ export const usePlanner = create<PlannerState>((set, get) => {
       if (!path.length) return;
       const kept: Record<string, AnswerValue> = {};
       for (const p of path.slice(0, -1)) kept[p.question] = p.value;
+      set({ dirty: true });
       await evaluate(kept);
     },
 
@@ -281,7 +295,7 @@ export const usePlanner = create<PlannerState>((set, get) => {
       const prev = get().powerPlan;
       const same = prev && prev.powerId === next.powerId && JSON.stringify(prev.options) === JSON.stringify(next.options);
       if (same) {
-        set({ step: "power" });
+        set({ step: "power", dirty: true });
         return;
       }
       const s = get().settings;
@@ -295,11 +309,12 @@ export const usePlanner = create<PlannerState>((set, get) => {
         sensitivityN: null,
         powerStatus: "idle",
         powerError: null,
+        dirty: true,
       });
     },
 
-    setSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
-    setOption: (key, value) => set({ settings: { ...get().settings, options: { ...get().settings.options, [key]: value } } }),
+    setSettings: (patch) => set({ settings: { ...get().settings, ...patch }, dirty: true }),
+    setOption: (key, value) => set({ settings: { ...get().settings, options: { ...get().settings.options, [key]: value } }, dirty: true }),
 
     runPower: async () => {
       const { powerPlan, settings } = get();
@@ -331,7 +346,7 @@ export const usePlanner = create<PlannerState>((set, get) => {
       }
     },
 
-    toPlan: () => set({ step: "plan", plan: currentPlan() }),
+    toPlan: () => set({ step: "plan", plan: currentPlan(), dirty: true }),
 
     savePlanToProject: async () => {
       const plan = get().plan ?? currentPlan();
@@ -340,6 +355,8 @@ export const usePlanner = create<PlannerState>((set, get) => {
         const ps = useProjectStore.getState();
         if (!ps.project) ps.newProject(plan.title);
         useProjectStore.getState().updateProject((p) => ({ ...p, study_plan: plan }));
+        // The plan on screen now matches the project's saved plan; nothing left to lose.
+        set({ dirty: false });
         return await saveProject();
       } finally {
         set({ busy: false });
@@ -400,7 +417,24 @@ export const usePlanner = create<PlannerState>((set, get) => {
       }
     },
 
+    openProjectPlan: async (plan) => {
+      if (get().dirty) {
+        get().guard?.resolve(false);
+        const ok = await new Promise<boolean>((resolve) => set({ guard: { resolve } }));
+        if (!ok) return false;
+      }
+      await get().loadPlan(plan);
+      return true;
+    },
+
+    answerGuard: (ok) => {
+      const g = get().guard;
+      set({ guard: null });
+      g?.resolve(ok);
+    },
+
     reset: () => {
+      get().guard?.resolve(false);
       seq++;
       set({ ...initial() });
     },

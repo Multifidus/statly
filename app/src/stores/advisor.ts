@@ -25,6 +25,9 @@ interface AdvisorState {
   step: AdvisorStep | null;
   /** Question text/options for every question seen, including auto-answered ones. */
   questions: Record<string, AdvisorQuestion>;
+  /** Question ids whose current (explicit "user") answer came from the study plan seed, not
+   * something the person picked in this session. Cleared per-question once they answer it. */
+  planSeeded: Record<string, boolean>;
 
   start: (outcome?: string | null) => Promise<void>;
   setOutcome: (outcome: string | null) => Promise<void>;
@@ -42,6 +45,7 @@ const INITIAL = {
   answers: {},
   step: null,
   questions: {},
+  planSeeded: {},
 };
 
 let seq = 0;
@@ -108,7 +112,9 @@ export const useAdvisor = create<AdvisorState>((set, get) => {
         set({ status: "error", error: describeRpcError(e) });
         return;
       }
-      await evaluate(planSeed());
+      const seed = planSeed();
+      set({ planSeeded: Object.fromEntries(Object.keys(seed).map((k) => [k, true])) });
+      await evaluate(seed);
     },
 
     setOutcome: async (outcome) => {
@@ -135,6 +141,11 @@ export const useAdvisor = create<AdvisorState>((set, get) => {
         if (p.source === "user") kept[p.question] = p.value;
       }
       kept[questionId] = value;
+      if (get().planSeeded[questionId]) {
+        const planSeeded = { ...get().planSeeded };
+        delete planSeeded[questionId];
+        set({ planSeeded });
+      }
       await evaluate(kept);
     },
 

@@ -131,4 +131,62 @@ describe("planner store", () => {
     usePlanner.getState().toPlan();
     expect(usePlanner.getState().plan?.power_analyses).toEqual(saved.power_analyses);
   });
+
+  it("openProjectPlan loads a saved plan straight away when the planner has no unsaved progress", async () => {
+    await interview(TO_T_INDEPENDENT);
+    usePlanner.getState().toPower();
+    await usePlanner.getState().runPower();
+    usePlanner.getState().toPlan();
+    const saved = structuredClone(usePlanner.getState().plan!);
+    usePlanner.getState().reset(); // fresh, blank planner: nothing unsaved to lose
+    expect(usePlanner.getState().dirty).toBe(false);
+
+    expect(await usePlanner.getState().openProjectPlan(saved)).toBe(true);
+    expect(usePlanner.getState().guard).toBeNull();
+    expect(usePlanner.getState().planId).toBe(saved.id);
+    expect(usePlanner.getState().step).toBe("plan");
+  });
+
+  it("openProjectPlan asks first when there's an unsaved in-progress plan, and respects Cancel", async () => {
+    await interview(TO_T_INDEPENDENT);
+    usePlanner.getState().toPower();
+    await usePlanner.getState().runPower();
+    usePlanner.getState().toPlan();
+    const saved = structuredClone(usePlanner.getState().plan!);
+
+    usePlanner.getState().reset();
+    usePlanner.getState().setTitle("A different, unsaved plan"); // in-progress, never saved
+    expect(usePlanner.getState().dirty).toBe(true);
+    const unsavedPlanId = usePlanner.getState().planId;
+
+    const openPromise = usePlanner.getState().openProjectPlan(saved);
+    expect(usePlanner.getState().guard).not.toBeNull();
+    // Cancel: the in-progress plan is untouched.
+    usePlanner.getState().answerGuard(false);
+    expect(await openPromise).toBe(false);
+    expect(usePlanner.getState().planId).toBe(unsavedPlanId);
+    expect(usePlanner.getState().title).toBe("A different, unsaved plan");
+    expect(usePlanner.getState().guard).toBeNull();
+
+    // Confirm: the saved plan replaces it.
+    const openPromise2 = usePlanner.getState().openProjectPlan(saved);
+    usePlanner.getState().answerGuard(true);
+    expect(await openPromise2).toBe(true);
+    expect(usePlanner.getState().planId).toBe(saved.id);
+    expect(usePlanner.getState().title).toBe(saved.title);
+  });
+
+  it("savePlanToProject clears dirty, so reopening the same project's plan doesn't prompt", async () => {
+    await interview(TO_T_INDEPENDENT);
+    usePlanner.getState().toPower();
+    await usePlanner.getState().runPower();
+    usePlanner.getState().toPlan();
+    useProjectStore.getState().newProject("Existing");
+    useProjectStore.setState({ path: "/mock/projects/Existing.statly" });
+    expect(await usePlanner.getState().savePlanToProject()).toBe(true);
+    expect(usePlanner.getState().dirty).toBe(false);
+
+    const saved = useProjectStore.getState().project!.study_plan!;
+    expect(await usePlanner.getState().openProjectPlan(saved)).toBe(true);
+  });
 });

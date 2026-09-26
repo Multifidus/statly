@@ -6,6 +6,7 @@ import { WhyItMatters } from "@/components/ui/why";
 import { InterviewStep } from "@/components/planner/InterviewStep";
 import { PlanView } from "@/components/planner/PlanView";
 import { PowerStep } from "@/components/planner/PowerStep";
+import { ReplacePlanDialog } from "@/components/planner/ReplacePlanDialog";
 import { useAnalysisFlow } from "@/stores/analysisFlow";
 import { type PlannerStep, projectPlan, usePlanner } from "@/stores/planner";
 
@@ -99,12 +100,14 @@ export function StudyPlannerScreen() {
   useEffect(() => {
     void useAnalysisFlow.getState().loadCatalog().catch(() => undefined);
     // Reopened project with a saved plan: show it, unless the planner already holds that plan.
+    // If there's unsaved progress on a different plan, ask before replacing it.
     const saved = projectPlan();
-    if (saved && usePlanner.getState().planId !== saved.id) void usePlanner.getState().loadPlan(saved);
+    if (saved && usePlanner.getState().planId !== saved.id) void usePlanner.getState().openProjectPlan(saved);
   }, []);
 
   return (
     <div className="mx-auto grid w-full max-w-3xl gap-5" data-testid="planner-screen">
+      <ReplacePlanDialog />
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex-1">
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">

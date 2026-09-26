@@ -134,6 +134,7 @@ export function AdvisorScreen() {
                       <p className="text-muted-foreground">{pq?.text ?? p.question}</p>
                       <p className="font-medium">{answerLabel(pq, p.value)}</p>
                       {p.source === "auto" && <p className="text-xs text-muted-foreground">Filled in from your data</p>}
+                      {p.source === "user" && a.planSeeded[p.question] && <p className="text-xs text-muted-foreground">Filled in from your plan</p>}
                     </div>
                     {pq && (
                       <Button variant="ghost" size="sm" onClick={() => setEditing(editing === p.question ? null : p.question)} aria-expanded={editing === p.question} aria-label={`Change answer: ${pq.text}`}>
