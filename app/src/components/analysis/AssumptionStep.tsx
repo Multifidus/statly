@@ -107,7 +107,7 @@ export function AssumptionStep({ result, index, onBack, onNext }: { result: Anal
       {charts.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2">
           {charts.map((c) => (
-            <VegaChart key={c.data_key} type={c.chart_type} rows={result.chart_data[c.data_key]} title={c.title} />
+            <VegaChart key={c.data_key} type={c.chart_type} rows={result.chart_data[c.data_key]} title={c.title} result={result} chart={c} />
           ))}
         </div>
       )}

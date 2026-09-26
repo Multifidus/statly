@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import type { ChartType } from "@/contracts";
+import { SaveFigureButton } from "@/components/export/SaveFigureButton";
+import type { AnalysisResult, ChartRef, ChartType } from "@/contracts";
 import { chartSpec } from "@/lib/chartSpecs";
+import { filenameFor } from "@/lib/export/saveFigure";
 import { useThemeStore } from "@/stores/theme";
 
 type Row = Record<string, number | string | boolean | null>;
@@ -9,8 +11,12 @@ type Row = Record<string, number | string | boolean | null>;
  * One supporting chart (Vega-Lite via vega-embed, loaded lazily). Uses Vega's AST interpreter
  * so it runs under the strict Tauri CSP (no eval), and re-renders on theme change. A data table
  * is always available beneath the chart for screen-reader and keyboard users.
+ *
+ * `result`/`chart` are optional: when given (the Results screen's assumption checks), a "Save
+ * figure…" button (SPEC §10.3) is mounted alongside the title, self-contained per
+ * components/export/SaveFigureButton.
  */
-export function VegaChart({ type, rows, title }: { type: ChartType; rows: Row[]; title: string }) {
+export function VegaChart({ type, rows, title, result, chart }: { type: ChartType; rows: Row[]; title: string; result?: AnalysisResult; chart?: ChartRef }) {
   const host = useRef<HTMLDivElement>(null);
   const theme = useThemeStore((s) => s.resolved);
   const [failed, setFailed] = useState(false);
@@ -41,7 +47,10 @@ export function VegaChart({ type, rows, title }: { type: ChartType; rows: Row[];
   const cols = rows.length ? Object.keys(rows[0]) : [];
   return (
     <figure className="grid gap-2" data-testid={`chart-${type}`}>
-      <figcaption className="text-sm font-medium">{title}</figcaption>
+      <figcaption className="flex flex-wrap items-center gap-2 text-sm font-medium">
+        <span className="min-w-0">{title}</span>
+        {result && chart && <SaveFigureButton result={result} chart={chart} defaultName={filenameFor(title)} />}
+      </figcaption>
       {failed ? (
         <p className="text-sm text-muted-foreground">This chart couldn't be drawn. The numbers are in the table below.</p>
       ) : (

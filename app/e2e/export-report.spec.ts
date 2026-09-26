@@ -25,3 +25,31 @@ test("Export > Report: pick a test, export, and see the saved path", async ({ pa
   await expect(dialog.getByText(/Saved to/)).toBeVisible({ timeout: 10_000 });
   await expect(dialog.getByText(/Attitude report\.docx/)).toBeVisible();
 });
+
+/** SPEC §10.3: Save figure… on a Results-screen assumption chart covers PNG/SVG/PDF. */
+test("Results screen: Save figure… exports the assumption chart as PNG, SVG and PDF", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("open-project").click();
+  await page.getByTestId("mock-dialog").getByRole("button", { name: "Attitude items.statly" }).click();
+  await expect(page.getByTestId("project-menu")).toContainText("Attitude items");
+
+  await page.getByTestId("tab-analyses").click();
+  await page.getByTestId("log-entry-req_item1").click();
+  await expect(page.getByTestId("results-view")).toBeVisible();
+
+  const chartCard = page.getByTestId("chart-qq");
+  await expect(chartCard).toBeVisible();
+  const saveFigure = chartCard.getByTestId("save-figure");
+  await expect(saveFigure).toBeVisible();
+
+  async function saveAs(itemName: RegExp | string, ext: string) {
+    await saveFigure.click();
+    await page.getByRole("menuitem", { name: itemName }).click();
+    await page.getByTestId("mock-dialog").getByRole("button", { name: "Save" }).click();
+    await expect(page.locator('[role="status"].pointer-events-auto')).toContainText(new RegExp(`Saved .*\\.${ext}`));
+  }
+
+  await saveAs(/PNG \(300 DPI\)/, "png");
+  await saveAs("SVG (vector)", "svg");
+  await saveAs("PDF", "pdf");
+});

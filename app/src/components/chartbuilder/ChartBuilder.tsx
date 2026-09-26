@@ -10,9 +10,11 @@ import { CustomizePanel } from "@/components/chartbuilder/CustomizePanel";
 import { GoalHelper } from "@/components/chartbuilder/GoalHelper";
 import { NumbersTableView } from "@/components/chartbuilder/NumbersTableView";
 import { ShelfBoard } from "@/components/chartbuilder/ShelfBoard";
+import { SaveFigureButton } from "@/components/export/SaveFigureButton";
 import { CHART_INFO, missingPiece } from "@/lib/chartbuilder/catalog";
 import { autoTitle } from "@/lib/chartbuilder/compile";
 import { dataKey } from "@/lib/chartbuilder/spec";
+import { filenameFor } from "@/lib/export/saveFigure";
 import { useChartBuilder, type PreviewTheme } from "@/stores/chartBuilder";
 import { useDatasetStore, visibleVariables } from "@/stores/dataset";
 import { useNotify } from "@/stores/notify";
@@ -65,6 +67,7 @@ function Preview({ spec }: { spec: ChartSpec }) {
   const missing = missingPiece(spec);
   const current = dataFor === `${dataKey(spec)}@${snapshot ?? ""}`;
   const label = `${CHART_INFO[spec.chart_type].label}: ${(spec.customization.title as string | undefined) || autoTitle(spec, data)}`;
+  const drawn = !missing && !error && !!data && current;
   return (
     <section aria-label="Preview" className="grid min-w-0 gap-2" data-testid="chart-preview">
       <div className="flex flex-wrap items-center gap-2">
@@ -89,6 +92,7 @@ function Preview({ spec }: { spec: ChartSpec }) {
             </button>
           ))}
         </div>
+        {drawn && <SaveFigureButton view={() => chartRef.current?.getVegaView() ?? null} title={label} defaultName={filenameFor(label)} />}
       </div>
       <div className={cn("min-h-40 overflow-auto rounded-lg border p-4", theme === "dark" ? "bg-[#1f1f1e] text-[#f0efec]" : "bg-white text-[#1a1a19]")} data-theme-preview={theme}>
         {missing ? (

@@ -91,4 +91,12 @@ describe("ResultsView", () => {
     expect(html).toContain("<table");
     expect(html).toContain("Math Attitude by Condition at Posttest");
   });
+
+  it("mounts a Save figure… button on the assumption's chart (SPEC §10.3)", () => {
+    const result = example as unknown as AnalysisResult;
+    render(<ResultsView result={result} title="t test" />);
+    const assumptions = screen.getByTestId("result-assumptions");
+    expect(within(assumptions).getByTestId("chart-qq")).toBeInTheDocument();
+    expect(within(assumptions).getByTestId("save-figure")).toBeInTheDocument();
+  });
 });

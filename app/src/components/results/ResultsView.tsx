@@ -4,11 +4,13 @@ import type { AnalysisResult, AssumptionResult, EffectSize, ResultWarning } from
 import { ApaTableView } from "@/components/results/ApaTableView";
 import { CopyButton } from "@/components/results/CopyButton";
 import { RichText } from "@/components/results/RichText";
+import { VegaChart } from "@/components/charts/VegaChart";
 import { Term } from "@/components/learn/GlossaryTerm";
 import { Markdown } from "@/components/learn/Markdown";
 import { Button } from "@/components/ui/button";
 import { Badge, Notice } from "@/components/ui/form";
 import { fmtDf, fmtNum, fmtPExpr, isBounded, sentencePayload } from "@/lib/apa";
+import { isSupportedChart } from "@/lib/chartSpecs";
 import { learnPageFor, sectionOf } from "@/lib/content/learn";
 import { primaryEffect, primaryStatistic } from "@/lib/resultSummary";
 import { openLearn } from "@/stores/learn";
@@ -170,30 +172,40 @@ export function ResultsView({ result, title, badge }: { result: AnalysisResult; 
       {result.assumptions.length > 0 && (
         <Section id="result-assumptions" title="Assumption checks">
           <ul className="grid gap-2">
-            {result.assumptions.map((a, i) => (
-              <li key={i} className="grid gap-1 rounded-md border p-3">
-                <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
-                  {a.label} <span className="font-normal text-muted-foreground">({a.applies_to.label})</span> <VerdictBadge verdict={a.verdict} />
-                </p>
-                <p className="text-sm">{a.explanation}</p>
-                {a.test_used && (
-                  <p className="text-xs text-muted-foreground">
-                    {a.test_used.label}
-                    {a.statistic && (
-                      <>
-                        : <i>{a.statistic.symbol}</i>
-                        {a.statistic.df.length > 0 && `(${fmtDf(a.statistic.df)})`} = {fmtNum(a.statistic.value)}
-                      </>
-                    )}
-                    {a.p !== null && (
-                      <>
-                        , <i>p</i> {fmtPExpr(a.p)}
-                      </>
-                    )}
+            {result.assumptions.map((a, i) => {
+              const charts = a.chart_refs.filter((c) => isSupportedChart(c.chart_type, result.chart_data[c.data_key]));
+              return (
+                <li key={i} className="grid gap-1 rounded-md border p-3">
+                  <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                    {a.label} <span className="font-normal text-muted-foreground">({a.applies_to.label})</span> <VerdictBadge verdict={a.verdict} />
                   </p>
-                )}
-              </li>
-            ))}
+                  <p className="text-sm">{a.explanation}</p>
+                  {a.test_used && (
+                    <p className="text-xs text-muted-foreground">
+                      {a.test_used.label}
+                      {a.statistic && (
+                        <>
+                          : <i>{a.statistic.symbol}</i>
+                          {a.statistic.df.length > 0 && `(${fmtDf(a.statistic.df)})`} = {fmtNum(a.statistic.value)}
+                        </>
+                      )}
+                      {a.p !== null && (
+                        <>
+                          , <i>p</i> {fmtPExpr(a.p)}
+                        </>
+                      )}
+                    </p>
+                  )}
+                  {charts.length > 0 && (
+                    <div className="mt-2 grid gap-4 sm:grid-cols-2">
+                      {charts.map((c) => (
+                        <VegaChart key={c.data_key} type={c.chart_type} rows={result.chart_data[c.data_key]} title={c.title} result={result} chart={c} />
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </Section>
       )}

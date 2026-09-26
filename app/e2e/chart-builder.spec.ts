@@ -50,6 +50,19 @@ test("Chart builder: bar chart with error bars, APA preset, saved in the project
   await page.getByTestId("error-bars").selectOption("se");
   await expect(chart).toContainText("±1 SE");
 
+  // Save figure… (SPEC §10.3): PNG/SVG/PDF straight off the live Vega view, no AnalysisResult needed.
+  const saveFigure = page.getByTestId("save-figure");
+  await expect(saveFigure).toBeVisible();
+  async function saveAs(itemName: RegExp | string, ext: string) {
+    await saveFigure.click();
+    await page.getByRole("menuitem", { name: itemName }).click();
+    await page.getByTestId("mock-dialog").getByRole("button", { name: "Save" }).click();
+    await expect(page.locator('[role="status"].pointer-events-auto')).toContainText(new RegExp(`Saved .*\\.${ext}`));
+  }
+  await saveAs(/PNG \(300 DPI\)/, "png");
+  await saveAs("SVG (vector)", "svg");
+  await saveAs("PDF", "pdf");
+
   // Show the numbers.
   await page.getByTestId("chart-numbers").locator("summary").click();
   await expect(page.getByTestId("chart-numbers").locator("table")).toContainText("SE");
