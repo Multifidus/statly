@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dig +short *)",
+      "Bash(column *)",
+      "Bash(/usr/bin/log show *)",
+      "Bash(awk *)",
+      "Bash(base64 *)",
+      "Bash(mdls *)",
+      "Bash(strings *)",
+      "Bash(mdfind *)",
+      "Bash(stat *)"
+    ]
+  }
+}
