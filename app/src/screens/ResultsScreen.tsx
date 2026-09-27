@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
-import { ListChecks, Loader2, Wand2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ListChecks, Loader2, Trash2, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/dialog";
 import { Notice } from "@/components/ui/form";
 import { CopyButton } from "@/components/results/CopyButton";
 import { RichText } from "@/components/results/RichText";
@@ -10,6 +11,7 @@ import { sentencePayload } from "@/lib/apa";
 import { useNav } from "@/stores/nav";
 import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
+import { useTestLog } from "@/stores/testLog";
 
 /** Results for one Test Log entry (the latest run, or one reopened from the Analyses list). */
 export function ResultsScreen() {
@@ -20,6 +22,7 @@ export function ResultsScreen() {
   const entry = useProjectStore((s) => s.project?.test_log.find((e) => e.id === id) ?? null);
   const go = useNav((s) => s.go);
   const focused = useRef<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (id && !result) void useResults.getState().reopen(id);
@@ -54,7 +57,41 @@ export function ResultsScreen() {
 
   return (
     <div className="mx-auto grid w-full max-w-3xl gap-4" data-testid="results-screen">
-      {actions}
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        {actions}
+        <Button variant="outline" size="sm" onClick={() => setConfirmDelete(true)} data-testid="delete-result">
+          <Trash2 aria-hidden /> Delete
+        </Button>
+      </div>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent data-testid="delete-test-dialog">
+          <AlertDialogTitle>Delete this test?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Its results are removed from the log and from any report you export. This can&apos;t be undone.
+          </AlertDialogDescription>
+          <div className="flex flex-wrap justify-end gap-2">
+            <AlertDialogCancel asChild>
+              <Button variant="ghost" data-testid="delete-test-cancel">
+                Cancel
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  useTestLog.getState().deleteTest(entry.id);
+                  setConfirmDelete(false);
+                }}
+                data-testid="delete-test-confirm"
+              >
+                Delete
+              </Button>
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {result ? (
         <ResultsView result={result} title={entry.result_summary.analysis_label} badge={entry.family_id ? <FamilyBadge entry={entry} /> : undefined} />
       ) : loading ? (

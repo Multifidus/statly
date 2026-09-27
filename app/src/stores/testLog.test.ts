@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnalysisResult } from "@/contracts";
 import exampleResult from "../../../contracts/examples/AnalysisResult.json";
 import type { MockEngine } from "@/mocks/engine";
 import { MOCK_TEST_LOG_PROJECT_PATH } from "@/mocks/shapes";
 import { useFreshMock } from "@/test/mockTransport";
+import { useNav } from "@/stores/nav";
+import { useNotify } from "@/stores/notify";
 import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
 import { logRun, useTestLog } from "@/stores/testLog";
@@ -85,5 +87,53 @@ describe("Test Log families", () => {
     expect(entry.result_path).toBeNull();
     await useProjectStore.getState().saveTo(MOCK_TEST_LOG_PROJECT_PATH);
     expect(byId("req_new").result_path).toBe("results/req_new.json");
+  });
+});
+
+describe("deleteTest", () => {
+  it("removes a standalone test from the log and marks the project dirty", () => {
+    useTestLog.getState().deleteTest("req_scale");
+    expect(log().some((e) => e.id === "req_scale")).toBe(false);
+    expect(useProjectStore.getState().dirty).toBe(true);
+  });
+
+  it("recomputes the family's adjusted p for the remaining members when 2+ are left", async () => {
+    await useTestLog.getState().saveFamily({ name: "F", memberIds: ["req_item1", "req_item2", "req_scale"], method: "holm" });
+    engine.calls.length = 0;
+    useTestLog.getState().deleteTest("req_scale");
+    await vi.waitUntil(() => byId("req_item2").correction_method === "holm" && byId("req_item2").adjusted_p !== null);
+    expect(useProjectStore.getState().project!.test_families).toEqual([{ id: "fam_1", name: "F" }]);
+    expect(byId("req_item1").adjusted_p).toBeCloseTo(0.024, 12);
+    expect(byId("req_item2").adjusted_p).toBeCloseTo(0.034, 12);
+    expect(log().some((e) => e.id === "req_scale")).toBe(false);
+    expect(engine.calls.filter((c) => c.method === "corrections.adjust")).toEqual([
+      { method: "corrections.adjust", params: { p_values: [0.012, 0.034], method: "holm" } },
+    ]);
+  });
+
+  it("dissolves a family that would drop below two members and toasts", async () => {
+    await useTestLog.getState().saveFamily({ name: "F", memberIds: ["req_item1", "req_item2"], method: "holm" });
+    useNotify.getState().dismiss();
+    useTestLog.getState().deleteTest("req_item1");
+    expect(useProjectStore.getState().project!.test_families).toEqual([]);
+    expect(byId("req_item2")).toMatchObject({ family_id: null, correction_method: "none", adjusted_p: null });
+    expect(log().some((e) => e.id === "req_item1")).toBe(false);
+    expect(useNotify.getState().note?.text).toBe("Family removed because only one test was left.");
+  });
+
+  it("navigates back to the log when deleting the test currently open in Results", () => {
+    useResults.getState().show("req_scale");
+    useNav.getState().go("results");
+    useTestLog.getState().deleteTest("req_scale");
+    expect(useResults.getState().currentId).toBeNull();
+    expect(useNav.getState().view).toBe("analyses");
+  });
+
+  it("leaves navigation alone when deleting a test that isn't open in Results", () => {
+    useResults.getState().show("req_item2");
+    useNav.getState().go("results");
+    useTestLog.getState().deleteTest("req_scale");
+    expect(useResults.getState().currentId).toBe("req_item2");
+    expect(useNav.getState().view).toBe("results");
   });
 });

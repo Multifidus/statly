@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ChevronRight, Layers, Lightbulb, Pencil, Plus, Unlink, Wand2 } from "lucide-react";
+import { ChevronRight, Layers, Lightbulb, Pencil, Plus, Trash2, Unlink, Wand2 } from "lucide-react";
 import type { CorrectionMethod, TestLogEntry } from "@/contracts";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/dialog";
 import { Badge, NativeSelect, Notice } from "@/components/ui/form";
 import { WhyItMatters } from "@/components/ui/why";
 import { RichText } from "@/components/results/RichText";
@@ -45,6 +46,7 @@ export function AnalysesScreen() {
   const error = useTestLog((s) => s.error);
   const go = useNav((s) => s.go);
   const [draft, setDraft] = useState<FamilyDraft | null>(null);
+  const [toDelete, setToDelete] = useState<string | null>(null);
   const open = (id: string) => {
     useResults.getState().show(id);
     go("results");
@@ -186,12 +188,12 @@ export function AnalysesScreen() {
       ) : (
         <ul className="grid gap-2" aria-label="Test Log" data-testid="test-log">
           {entries.map((e) => (
-            <li key={e.id}>
+            <li key={e.id} className="flex items-start gap-2">
               <button
                 type="button"
                 onClick={() => open(e.id)}
                 data-testid={`log-entry-${e.id}`}
-                className="flex w-full items-start gap-3 rounded-md border p-3 text-left outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                className="flex flex-1 items-start gap-3 rounded-md border p-3 text-left outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <span className="grid min-w-0 flex-1 gap-0.5">
                   <span className="font-medium">
@@ -213,12 +215,50 @@ export function AnalysesScreen() {
                 </span>
                 <ChevronRight className="mt-1 size-4 shrink-0 text-muted-foreground" aria-hidden />
               </button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="mt-1 text-muted-foreground hover:text-destructive"
+                aria-label="Delete this test"
+                onClick={() => setToDelete(e.id)}
+                data-testid={`delete-test-${e.id}`}
+              >
+                <Trash2 aria-hidden />
+              </Button>
             </li>
           ))}
         </ul>
       )}
 
       <FamilyDialog draft={draft} onClose={() => setDraft(null)} />
+
+      <AlertDialog open={toDelete !== null} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent data-testid="delete-test-dialog">
+          <AlertDialogTitle>Delete this test?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Its results are removed from the log and from any report you export. This can&apos;t be undone.
+          </AlertDialogDescription>
+          <div className="flex flex-wrap justify-end gap-2">
+            <AlertDialogCancel asChild>
+              <Button variant="ghost" data-testid="delete-test-cancel">
+                Cancel
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (toDelete) useTestLog.getState().deleteTest(toDelete);
+                  setToDelete(null);
+                }}
+                data-testid="delete-test-confirm"
+              >
+                Delete
+              </Button>
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

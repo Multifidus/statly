@@ -75,4 +75,33 @@ test("Test Log: group related tests, choose a correction, and keep adjusted p ac
   await page.getByTestId("log-entry-req_item1").click();
   await expect(page.getByTestId("results-view")).toBeVisible();
   await expect(page.getByTestId("family-badge")).toContainText("Part of family “Attitude items”, Holm-adjusted p = .024");
+
+  // Delete from the Results header: confirm, then it navigates back to the log without the entry.
+  await page.getByTestId("delete-result").click();
+  const resultsDialog = page.getByTestId("delete-test-dialog");
+  await expect(resultsDialog).toContainText("This can't be undone");
+  await resultsDialog.getByTestId("delete-test-cancel").click();
+  await expect(resultsDialog).toBeHidden();
+  await expect(page.getByTestId("results-view")).toBeVisible(); // cancel left it open
+
+  await page.getByTestId("delete-result").click();
+  await page.getByTestId("delete-test-dialog").getByTestId("delete-test-confirm").click();
+  await expect(page.getByTestId("analyses-screen")).toBeVisible();
+  await expect(page.getByTestId("test-log").getByRole("listitem")).toHaveCount(3);
+  await expect(page.locator("[data-testid^=log-entry-req_item1]")).toHaveCount(0);
+
+  // Deleting the family's other member drops it to one test: the family dissolves, with a toast.
+  await page.getByTestId("delete-test-req_item2").click();
+  await page.getByTestId("delete-test-dialog").getByTestId("delete-test-confirm").click();
+  await expect(page.getByText("Family removed because only one test was left.")).toBeVisible();
+  await expect(page.getByTestId("families")).toHaveCount(0);
+  await expect(page.getByTestId("test-log").getByRole("listitem")).toHaveCount(2);
+
+  // Deleting standalone tests that were never in a family.
+  await page.getByTestId("delete-test-req_scale").click();
+  await page.getByTestId("delete-test-dialog").getByTestId("delete-test-confirm").click();
+  await expect(page.getByTestId("test-log").getByRole("listitem")).toHaveCount(1);
+  await page.getByTestId("delete-test-req_tukey").click();
+  await page.getByTestId("delete-test-dialog").getByTestId("delete-test-confirm").click();
+  await expect(page.getByText("No analyses yet.")).toBeVisible();
 });

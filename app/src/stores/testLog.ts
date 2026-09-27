@@ -10,6 +10,8 @@ import type { AnalysisRequest, AnalysisResult, CorrectionMethod, TestFamily, Tes
 import { makeTestLogEntry } from "@/lib/resultSummary";
 import { describeRpcError, rpc } from "@/lib/rpc";
 import { eligibility, newFamilyId } from "@/lib/testFamilies";
+import { useNav } from "@/stores/nav";
+import { useNotify } from "@/stores/notify";
 import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
 
@@ -38,6 +40,10 @@ interface TestLogState {
   setMethod: (familyId: string, method: CorrectionMethod) => Promise<boolean>;
   /** Remove the family; its tests go back to uncorrected. */
   ungroup: (familyId: string) => void;
+  /** Delete one test from the log. If it belonged to a family, re-adjusts the remaining members,
+   * or dissolves the family (with a toast) if fewer than two would be left. Navigates back to the
+   * log if the deleted test was open in Results. */
+  deleteTest: (id: string) => void;
   dismiss: (key: string) => void;
   reset: () => void;
 }
@@ -116,6 +122,40 @@ export const useTestLog = create<TestLogState>((set, get) => ({
       test_families: p.test_families.filter((f) => f.id !== familyId),
       test_log: p.test_log.map((e) => (e.family_id === familyId ? cleared(e) : e)),
     }));
+  },
+
+  deleteTest: (id) => {
+    const project = useProjectStore.getState().project;
+    const entry = project?.test_log.find((e) => e.id === id);
+    if (!project || !entry) return;
+    const familyId = entry.family_id;
+    const remaining = familyId ? project.test_log.filter((e) => e.family_id === familyId && e.id !== id) : [];
+    const dissolve = familyId !== null && remaining.length < 2;
+
+    if (familyId) seq.set(familyId, (seq.get(familyId) ?? 0) + 1); // supersede any in-flight adjust for this family
+
+    useProjectStore.getState().updateProject((p) => ({
+      ...p,
+      test_families: dissolve ? p.test_families.filter((f) => f.id !== familyId) : p.test_families,
+      test_log: p.test_log.filter((e) => e.id !== id).map((e) => (dissolve && e.family_id === familyId ? cleared(e) : e)),
+    }));
+
+    useResults.setState((s) => {
+      if (!(id in s.byId)) return s;
+      const byId = { ...s.byId };
+      delete byId[id];
+      return { byId };
+    });
+    if (useResults.getState().currentId === id) {
+      useResults.setState({ currentId: null, error: null });
+      useNav.getState().go("analyses");
+    }
+
+    if (dissolve) {
+      useNotify.getState().show("Family removed because only one test was left.");
+    } else if (familyId) {
+      void get().setMethod(familyId, remaining[0].correction_method);
+    }
   },
 
   dismiss: (key) => set({ dismissed: [...get().dismissed, key] }),
