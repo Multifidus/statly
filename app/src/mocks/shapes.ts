@@ -7,7 +7,7 @@
  * SC0 is exported as SC1 (same question text -> "possibly renamed") and an extra Q11
  * question exists only in that file (-> "unmatched").
  */
-import type { CellValue, PiiKind, Scale, VariableSchema } from "@/contracts";
+import type { CellValue, PiiKind, Scale, Survey, SurveyColumn, SurveyQuestion, VariableSchema } from "@/contracts";
 
 export interface ColSpec {
   name: string;
@@ -35,6 +35,8 @@ export interface FileShape {
 }
 
 export const MOCK_ROOT = "/mock/fixtures";
+/** The messy export's Qualtrics survey design (fixtures/practice/messy_qualtrics/survey.qsf). */
+export const MOCK_SURVEY_PATH = `${MOCK_ROOT}/messy_qualtrics/survey.qsf`;
 
 /** Files offered by the mock file picker (paths are fake; shapes are keyed by name). */
 export const MOCK_FILES: { path: string; group: string }[] = [
@@ -55,6 +57,7 @@ export const MOCK_FILES: { path: string; group: string }[] = [
   { path: `${MOCK_ROOT}/mixed_design_large/followup.csv`, group: "Mixed design, linked, three groups" },
   { path: `/mock/perf/wide_5000x300.csv`, group: "Performance (5,000 rows x 300 columns)" },
   { path: `${MOCK_ROOT}/not_a_spreadsheet/broken.csv`, group: "Not a spreadsheet" },
+  { path: MOCK_SURVEY_PATH, group: "Survey design (.qsf)" },
 ];
 
 export const MOCK_EXAMPLE_PROJECT_PATH = "/mock/projects/Example project.statly";
@@ -154,12 +157,22 @@ const SPAM_ROWS = new Set([20, 60]);
 const UNFINISHED: Record<number, number> = { 3: 24, 17: 51, 31: 8, 45: 73, 59: 26, 73: 89, 87: 32, 101: 51 };
 const STRATEGIES = ["Textbook", "Online videos", "Study group", "Tutor", "Practice problems", "Office hours", "Flashcards", "Other"];
 const Q6_CODES = [1, 2, 4, 5, 7];
+export const Q5_STEM = "Please say how much you agree with each statement about your classroom experience.";
+export const Q5_STATEMENTS = [
+  "I enjoy coming to this class",
+  "The teacher explains things clearly",
+  "I feel comfortable asking questions",
+  "I often feel lost in this class",
+  "The activities help me learn",
+  "I would recommend this class to a friend",
+];
 
 function messy(variant: "3header" | "2header" | "utf16" | "text" | "xlsx"): FileShape {
   const text = variant === "text";
   const likertCol = (i: number): ColSpec => ({
     name: `Q5_${i}`,
-    text: `Matrix statement ${i} about classroom experience${i === 4 ? " (reverse-worded)" : ""}`,
+    // Qualtrics formats a matrix column's question text as "<stem> - <statement>" (fixtures/practice/generate.py).
+    text: `${Q5_STEM} - ${Q5_STATEMENTS[i - 1]}`,
     // Mirrors the engine: text choices are proposed as integers coded 1..k (choice_text_detected);
     // numeric matrix items carry no value labels.
     var: text
@@ -534,4 +547,61 @@ export function shapeForPath(path: string, sheet: string | null): FileShape | nu
   if (time && time !== "followup" && dir.includes("linked")) return linkedPrePost(time);
   if (time && time !== "followup") return likertPrePost(time);
   return null;
+}
+
+// --- survey design (.qsf) ------------------------------------------------------------------
+
+/**
+ * What the engine's survey.parse returns for fixtures/practice/messy_qualtrics/survey.qsf (the
+ * messy export's survey), trimmed to what the wizard and interview use.
+ */
+export function mockSurvey(): Survey {
+  const col = (name: string, label: string, level: SurveyColumn["level"], labels: string[] = [], group: string | null = null, codes?: number[]): SurveyColumn => ({
+    name,
+    label,
+    level,
+    group,
+    value_labels: labels.map((l, i) => ({ value: codes ? codes[i] : i + 1, label: l })),
+  });
+  const q = (tag: string, qid: string, text: string, kind: SurveyQuestion["kind"], columns: SurveyColumn[], o: Partial<SurveyQuestion> = {}): SurveyQuestion => ({
+    tag,
+    qid,
+    text,
+    kind,
+    question_type: kind === "text" ? "TE" : kind === "matrix" ? "Matrix" : kind === "other" ? "Timing" : "MC",
+    selector: null,
+    required: false,
+    columns,
+    notes: [],
+    in_trash: false,
+    ...o,
+  });
+  const strategies = STRATEGIES.map((o, i) => col(`Q7_${i + 1}`, "Which study strategies did you use? (select all that apply)", "nominal", [o]));
+  return {
+    name: "Course Experience Survey – Fall",
+    notes: [
+      "1 deleted question(s) sit in the survey's Trash; they are listed but are not part of data exports.",
+      "Export tag 'Q1' is used by more than one question.",
+    ],
+    questions: [
+      q("Q1", "QID1", "Informed consent Do you consent to participate?", "single", [col("Q1", "Informed consent Do you consent to participate?", "nominal", ["Yes", "No"])], { required: true }),
+      q("Q1", "QID2", "Timing", "other", ["First Click", "Last Click", "Page Submit", "Click Count"].map((t) => col(`Q1_${t}`, `Q1 - ${t}`, "scale")), {
+        notes: ["Page timer: timing metadata, not a question."],
+      }),
+      q("Q5", "QID5", Q5_STEM, "matrix", Q5_STATEMENTS.map((t, i) => col(`Q5_${i + 1}`, t, "ordinal", [...LIKERT], "Q5")), { required: true }),
+      q("Q6", "QID6", "How satisfied are you with the course overall?", "single", [
+        col("Q6", "How satisfied are you with the course overall?", "ordinal", [...LIKERT], null, Q6_CODES),
+      ]),
+      q("Q7", "QID7", "Which study strategies did you use? (select all that apply)", "multi", [
+        ...strategies,
+        col("Q7_8_TEXT", "Which study strategies did you use? (select all that apply)", "text"),
+      ]),
+      q("Q9", "QID9", "Is there anything else you'd like to share? (open-ended)", "text", [col("Q9", "Is there anything else you'd like to share? (open-ended)", "text")]),
+      q("Q10", "QID10", "Please describe your overall experience.", "text", [col("Q10", "Please describe your overall experience.", "text")]),
+      q("Q8", "QID8", "Deleted draft question: preferred class time", "single", [col("Q8", "Deleted draft question: preferred class time", "nominal", ["Morning", "Afternoon", "Evening"])], {
+        in_trash: true,
+        notes: ["In the survey's Trash: not part of data exports."],
+      }),
+    ],
+  };
 }

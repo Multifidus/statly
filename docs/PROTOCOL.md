@@ -41,6 +41,8 @@ latest import preview, autosave paths); every other function is pure.
 | `dataset.link` | `DatasetLinkParams` | `DatasetLinkResult` |
 | `dataset.rows` | `DatasetRowsParams` | `DatasetRowsResult` |
 | `dataset.missing_summary` | `DatasetIdParams` | `DatasetMissingSummaryResult` |
+| `survey.parse` | `SurveyParseParams` | `SurveyParseResult` |
+| `survey.suggest` | `SurveySuggestParams` | `SurveySuggestResult` |
 | `project.save` | `ProjectSaveParams` | `ProjectSaveResult` |
 | `project.load` | `ProjectLoadParams` | `ProjectLoadResult` |
 | `project.autosave` | `ProjectAutosaveParams` | `ProjectAutosaveResult` |
@@ -204,6 +206,30 @@ Semantics (see `contracts/README.md` for the table notes):
   `time_label: null`, `n_rows_kept: 0`, and its original is stored in the project like any other
   file. `ImportedFile.role` is optional; absent means `data`. The app never sends a pair as
   two stacked time points.
+- Survey file (Qualtrics survey design, `.qsf`). Design: parsing and matching are separate
+  read-only RPCs; the import only stores the file; applying suggestions is ordinary editing.
+  - `survey.parse {file_path}` -> `{survey, issues}`: `survey` is the parsed design (questions in
+    export order, each with the columns a data export would contain, their labels, answer choices
+    and level; Trash questions have `in_trash: true`); `issues` are info `survey_note`s. Not a
+    `.qsf` (not UTF-8 JSON with `SurveyElements`) or missing: `-32001`.
+  - `survey.suggest {dataset_id?, snapshot_id?, survey?, variables?}` matches a survey to
+    variables by export column name (exact, then case-insensitive). Variables: `variables` when
+    given (e.g. the preview's `proposed_variables`, for a count before importing), else the
+    dataset's. Survey: `survey` when given, else the `.qsf` stored with the dataset (none: `-32003`).
+    Result `{survey_name, columns, scales, unmatched}`: per matched variable (dataset order) the
+    survey's `label` (statement / question text), `question_text`, `value_labels`, `level`,
+    optional `role` (`likert_item` / `open_text`) and `reverse_hint` (explicit reverse-worded
+    marker only), `notes`, and `differs_from_current` (fields whose current non-empty value
+    differs: the app never overwrites those); `scales` = matrix questions with 3+ matched ordinal
+    statements (`name` = tag, `label` = stem); `unmatched.dataset_columns` = question columns the
+    survey doesn't produce. Stale `snapshot_id`: `-32002`.
+  - `dataset.import` optional `survey: {file_path}` stores the `.qsf` untouched as an original:
+    recorded last in `import_log.files` with `role: "survey"`, `format: "qsf"`, `n_rows_read` /
+    `n_rows_kept` 0; it adds no rows or variables and round-trips through `project.save/load`.
+    An unreadable or non-`.qsf` file fails the import with `-32001`.
+  - The app applies suggestions after import as one undoable `variables.update` ("Filled in from
+    your survey": empty labels, answer choices, levels) and seeds the Variable Interview draft
+    (roles, levels, reverse hints, suggested scales) where the user hasn't answered yet.
 - Multi-select split: add one indicator variable per option with `sources[0]` pointing at the
   multi-select column and `label` = the option text (the proposed multi-select variable lists its
   options in `value_labels`). Indicators are 1 = selected, 0 = not selected, null = question blank.

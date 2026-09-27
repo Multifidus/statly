@@ -49,6 +49,12 @@ import type {
   Scale,
   StackConfig,
   StorageDtype,
+  Survey,
+  SurveyColumnSuggestion,
+  SurveyParseParams,
+  SurveyParseResult,
+  SurveySuggestParams,
+  SurveySuggestResult,
   VariableMissingSummary,
   VariableOperand,
   VariableRole,
@@ -72,7 +78,7 @@ import type {
   VariablePatch,
   VariablesUpdateParams,
 } from "@/lib/variablesRpc";
-import { answerKeyForPath, MOCK_EXAMPLE_PROJECT_PATH, MOCK_TEST_LOG_PROJECT_PATH, shapeForPath, type FileShape } from "./shapes";
+import { answerKeyForPath, MOCK_EXAMPLE_PROJECT_PATH, MOCK_TEST_LOG_PROJECT_PATH, mockSurvey, shapeForPath, type FileShape } from "./shapes";
 import { pAdjust } from "./corrections";
 import { MockTags } from "@/lib/qualitative/mockTags"; // Phase 9: tags.* + export.qualitative
 import { mockAdvisorEvaluate, mockAdvisorPaths } from "./advisor";
@@ -1213,6 +1219,10 @@ export class MockEngine implements Transport {
         return this.rows(p) as T;
       case "dataset.missing_summary":
         return this.missing(p) as T;
+      case "survey.parse":
+        return this.surveyParse(p) as T;
+      case "survey.suggest":
+        return this.surveySuggest(p) as T;
       case "variables.update":
         return this.updateVariables(p) as T;
       case "scales.upsert":
@@ -1583,6 +1593,7 @@ export class MockEngine implements Transport {
       files = p.files.filter((d) => d.file_id !== c.labels_file_id) as DatasetImportParams["files"];
       labels = staged.files.find((f) => f.preview.file_id === c.labels_file_id);
     }
+    const surveyFile = p.survey ? this.surveyOriginal(p.survey.file_path) : null;
     const built = this.build(staged, files, p.row_filters, p.variables, p.stack, this.nextId("ds"));
     if (labels) {
       const f = labels.preview;
@@ -1604,10 +1615,68 @@ export class MockEngine implements Transport {
         role: "value_labels",
       });
     }
+    if (surveyFile) built.meta.import_log.files.push(surveyFile);
     const ds = this.makeDatasetState(built.meta, built.nRows, built.cell);
     this.datasets.set(ds.meta.dataset_id, ds);
     this.pushHistory(ds, "Imported data");
     return { dataset_meta: clone(ds.meta) };
+  }
+
+  // --- survey files (.qsf): only the messy export's survey.qsf is known -----------------------
+
+  private surveyFor(path: string): Survey {
+    if (!/survey\.qsf$/i.test(path)) {
+      throw rpcError(-32001, "This file doesn't look like a Qualtrics survey (.qsf): no SurveyElements found.", "FileUnreadable");
+    }
+    return mockSurvey();
+  }
+
+  private surveyOriginal(path: string): ImportedFile {
+    this.surveyFor(path);
+    const name = baseName(path);
+    const fileId = `f_${(strHash(path) >>> 0).toString(36)}`;
+    return {
+      file_id: fileId,
+      name,
+      sha256: (strHash(path) >>> 0).toString(16).padStart(8, "0").repeat(8),
+      size_bytes: 13366,
+      format: "qsf",
+      encoding: "utf-8",
+      delimiter: null,
+      sheet_name: null,
+      qualtrics: { detected: true, confirmed: true, header_rows: 1 },
+      time_label: null,
+      n_rows_read: 0,
+      n_rows_kept: 0,
+      stored_path: `originals/${fileId}/${name}`,
+      imported_at: nowIso(),
+      role: "survey",
+    };
+  }
+
+  surveyParse(p: SurveyParseParams): SurveyParseResult {
+    const survey = this.surveyFor(p.file_path);
+    const notes = [...survey.notes, ...survey.questions.filter((q) => !q.in_trash).flatMap((q) => q.notes.map((n) => `${q.tag}: ${n}`))];
+    return { survey, issues: notes.map((message) => ({ code: "survey_note", severity: "info", message, file_id: null, column: null })) };
+  }
+
+  /** Port of engine survey_apply.suggest_metadata (exact, then case-insensitive name matching). */
+  surveySuggest(p: SurveySuggestParams): SurveySuggestResult {
+    let vars = (p.variables ?? null) as Partial<VariableSchema>[] | null;
+    let survey = p.survey ?? null;
+    if (!vars || !survey) {
+      if (!p.dataset_id) throw rpcError(-32003, "survey.suggest needs dataset_id or variables.", "InvalidParams");
+      const ds = this.getDataset(p.dataset_id);
+      this.checkStale(ds, p.snapshot_id);
+      vars ??= [...ds.meta.variables].sort((a, b) => a.display_order - b.display_order);
+      if (!survey) {
+        if (!ds.meta.import_log.files.some((f) => f.role === "survey")) {
+          throw rpcError(-32003, "This dataset has no survey file. Add one when importing, or pass `survey`.", "InvalidParams");
+        }
+        survey = mockSurvey();
+      }
+    }
+    return suggestFromSurvey(survey, vars);
   }
 
   stack(p: DatasetStackParams): DatasetResult {
@@ -2197,4 +2266,81 @@ export class MockEngine implements Transport {
       throw e;
     }
   }
+}
+
+const SURVEY_LEVEL: Record<string, SurveyColumnSuggestion["level"]> = { nominal: "nominal", ordinal: "ordinal", scale: "continuous", text: "nominal" };
+const REVERSE_HINT_RE = /\breverse[- ]?(?:worded|scored|coded|keyed)\b|\(\s*R\s*\)\s*$|\breversed\b/i;
+
+function suggestFromSurvey(survey: Survey, vars: Partial<VariableSchema>[]): SurveySuggestResult {
+  const exact = new Map(vars.map((v) => [String(v.name), v]));
+  const folded = new Map<string, Partial<VariableSchema>>();
+  for (const v of vars) if (!folded.has(String(v.name).toLowerCase())) folded.set(String(v.name).toLowerCase(), v);
+  const find = (n: string) => exact.get(n) ?? folded.get(n.toLowerCase());
+  const matched = new Map<string, SurveyColumnSuggestion>();
+  const colToVar = new Map<string, string>();
+  const unmatchedSurvey: string[] = [];
+  const differs = (v: Partial<VariableSchema>, s: SurveyColumnSuggestion) =>
+    (["label", "question_text", "value_labels", "level"] as const).filter((f) => {
+      const cur = v[f] as unknown;
+      if (cur == null || cur === "" || (Array.isArray(cur) && !cur.length) || (f === "label" && cur === v.name)) return false;
+      return JSON.stringify(cur) !== JSON.stringify(s[f]);
+    });
+  const make = (v: Partial<VariableSchema>, c: Survey["questions"][number]["columns"][number], q: Survey["questions"][number], o: { labels?: SurveyColumnSuggestion["value_labels"]; level?: string; notes?: string[] } = {}) => {
+    const vls = o.labels ?? c.value_labels;
+    const s: SurveyColumnSuggestion = {
+      name: String(v.name), survey_column: c.name, question_tag: q.tag, label: c.label, question_text: q.text,
+      value_labels: vls.map((x) => ({ ...x })), level: SURVEY_LEVEL[o.level ?? c.level] ?? "nominal", notes: [...(o.notes ?? [])], differs_from_current: [],
+    };
+    if (c.level === "text") s.role = "open_text";
+    else if (q.kind === "matrix" && c.level === "ordinal") s.role = "likert_item";
+    if (q.kind === "matrix" && c.level === "ordinal" && REVERSE_HINT_RE.test(c.label)) s.reverse_hint = true;
+    if (v.dtype === "string" && vls.length && vls.every((x) => typeof x.value === "number") && !o.labels) {
+      s.notes.push("The dataset stores answer text here; the survey's numeric codes apply once it is converted to numbers.");
+    }
+    s.differs_from_current = differs(v, s);
+    return s;
+  };
+  for (const q of survey.questions) {
+    if (q.in_trash || !q.columns.length) continue;
+    const optionCols = q.columns.filter((c) => c.level !== "text");
+    const joined = q.kind === "multi" && !optionCols.some((c) => find(c.name)) ? find(q.tag) : undefined;
+    if (joined && !matched.has(String(joined.name))) {
+      const opts = optionCols.filter((c) => c.value_labels.length).map((c) => c.value_labels[0].label);
+      matched.set(String(joined.name), make(joined, { name: q.tag, label: q.text, value_labels: [], level: "nominal", group: null }, q, {
+        labels: opts.map((o) => ({ value: o, label: o })), level: "nominal",
+        notes: ["Exported as one 'select all that apply' column; options listed in survey order."],
+      }));
+      for (const c of optionCols) colToVar.set(c.name, String(joined.name));
+    }
+    for (const c of q.columns) {
+      if (colToVar.has(c.name)) continue;
+      const v = find(c.name);
+      if (!v || matched.has(String(v.name))) {
+        unmatchedSurvey.push(c.name);
+        continue;
+      }
+      matched.set(String(v.name), make(v, c, q));
+      colToVar.set(c.name, String(v.name));
+    }
+  }
+  const scales = survey.questions
+    .filter((q) => !q.in_trash && q.kind === "matrix")
+    .map((q) => ({ q, items: q.columns.filter((c) => c.level === "ordinal" && c.group === q.tag).map((c) => c.name) }))
+    .filter(({ items }) => items.length >= 3)
+    .map(({ q, items }) => ({ q, items: items.filter((i) => colToVar.has(i)).map((i) => colToVar.get(i)!) }))
+    .filter(({ items }) => items.length >= 3)
+    .map(({ q, items }) => ({
+      name: q.tag, label: q.text, items, origin: "matrix_suggestion" as const,
+      reverse_hint_items: items.filter((i) => matched.get(i)?.reverse_hint),
+    }));
+  const isQuestion = (v: Partial<VariableSchema>) => {
+    const n = String(v.name);
+    return !v.is_metadata && !v.computed && !n.startsWith("_statly") && !/^(StartDate|EndDate|Status|IPAddress|Progress|Duration|Finished|RecordedDate|ResponseId|Recipient|ExternalReference|Location|DistributionChannel|UserLanguage)/i.test(n) && !/_(First Click|Last Click|Page Submit|Click Count)$/i.test(n) && !/^SC\d+$/i.test(n);
+  };
+  return {
+    survey_name: survey.name,
+    columns: vars.filter((v) => matched.has(String(v.name))).map((v) => matched.get(String(v.name))!),
+    scales,
+    unmatched: { survey_columns: unmatchedSurvey, dataset_columns: vars.filter((v) => !matched.has(String(v.name)) && isQuestion(v)).map((v) => String(v.name)) },
+  };
 }

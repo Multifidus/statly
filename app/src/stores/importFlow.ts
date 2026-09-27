@@ -4,11 +4,25 @@ import type {
   DatasetMeta,
   FilePreview,
   ImportFileInput,
+  ImportIssue,
   LinkReport,
   QualtricsMode,
+  Survey,
+  SurveySuggestResult,
 } from "@/contracts";
-import { buildImportParams, companionView, defaultDecisions, type ImportDecisions } from "@/lib/importLogic";
+import {
+  buildImportParams,
+  companionView,
+  defaultDecisions,
+  surveyMatchSummary,
+  surveyMatchVariables,
+  surveyPatches,
+  type ImportDecisions,
+} from "@/lib/importLogic";
+import { RpcErrorCode } from "@/lib/errors";
 import { describeRpcError, rpc } from "@/lib/rpc";
+import { edits } from "@/lib/variableEdits";
+import { useInterview } from "@/stores/interview";
 import { useDatasetStore } from "@/stores/dataset";
 import { useProjectStore } from "@/stores/project";
 
@@ -44,8 +58,14 @@ interface ImportFlowState {
   decisions: ImportDecisions | null;
   busy: boolean;
   error: string | null;
-  /** Set after a successful import. */
-  result: { meta: DatasetMeta; linkReport: LinkReport | null } | null;
+  /** Optional Qualtrics survey design file (.qsf), parsed; stored with the import. */
+  survey: SurveyFile | null;
+  /** Why the chosen survey file couldn't be used (shown by the picker). */
+  surveyError: string | null;
+  /** How the survey matches the columns being imported (Review step); null until checked. */
+  surveyMatch: ReturnType<typeof surveyMatchSummary> | null;
+  /** Set after a successful import. `survey`: suggestions from the survey file, when one was added. */
+  result: { meta: DatasetMeta; linkReport: LinkReport | null; survey?: SurveySuggestResult | null; surveyWarning?: string | null } | null;
   /** Pending "replace this project's data?" prompt (ProjectMenu's "Import data…"), answered via answerGuard. */
   guard: { resolve: (ok: boolean) => void } | null;
 
@@ -55,6 +75,11 @@ interface ImportFlowState {
   answerGuard: (ok: boolean) => void;
   addFiles: (paths: string[]) => void;
   removeFile: (path: string) => void;
+  /** Parse and attach a survey file (replaces any earlier one). Resolves false if it couldn't be read. */
+  addSurvey: (path: string) => Promise<boolean>;
+  removeSurvey: () => void;
+  /** Match the attached survey against the columns being imported (fills surveyMatch). */
+  checkSurvey: () => Promise<void>;
   setQualtricsMode: (m: QualtricsMode) => void;
   goTo: (step: StepId) => void;
   runPreview: () => Promise<boolean>;
@@ -62,6 +87,18 @@ interface ImportFlowState {
   update: (patch: Partial<ImportDecisions>) => void;
   commit: () => Promise<boolean>;
 }
+
+export interface SurveyFile {
+  path: string;
+  /** File name without folders. */
+  fileName: string;
+  survey: Survey;
+  /** Questions that produce data columns (not in the survey's Trash, with at least one column). */
+  nQuestions: number;
+  issues: ImportIssue[];
+}
+
+const baseName = (p: string) => p.split(/[\\/]/).pop() ?? p;
 
 const initial = {
   step: "files" as StepId,
@@ -72,6 +109,9 @@ const initial = {
   decisions: null,
   busy: false,
   error: null,
+  survey: null as SurveyFile | null,
+  surveyError: null as string | null,
+  surveyMatch: null as ReturnType<typeof surveyMatchSummary> | null,
   result: null,
 };
 
@@ -101,6 +141,32 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
 
   removeFile: (path) =>
     set({ files: get().files.filter((f) => f.path !== path), preview: null, labelsFile: null, decisions: null }),
+
+  addSurvey: async (path) => {
+    set({ busy: true, surveyError: null, surveyMatch: null });
+    try {
+      const res = await rpc.surveyParse({ file_path: path });
+      const nQuestions = res.survey.questions.filter((q) => !q.in_trash && q.columns.length).length;
+      set({ busy: false, survey: { path, fileName: baseName(path), survey: res.survey, nQuestions, issues: res.issues } });
+      return true;
+    } catch (e) {
+      set({ busy: false, surveyError: describeSurveyError(e) });
+      return false;
+    }
+  },
+
+  removeSurvey: () => set({ survey: null, surveyError: null, surveyMatch: null }),
+
+  checkSurvey: async () => {
+    const { survey, preview, decisions } = get();
+    if (!survey || !preview || !decisions) return;
+    try {
+      const res = await rpc.surveySuggest({ survey: survey.survey, variables: surveyMatchVariables(preview, decisions) });
+      if (get().survey === survey) set({ surveyMatch: surveyMatchSummary(res) });
+    } catch {
+      // The count is informational; the import itself reports real problems.
+    }
+  },
 
   setQualtricsMode: (qualtricsMode) => set({ qualtricsMode, preview: null, labelsFile: null, decisions: null }),
 
@@ -152,15 +218,16 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
 
   update: (patch) => {
     const d = get().decisions;
-    if (d) set({ decisions: { ...d, ...patch } });
+    if (d) set({ decisions: { ...d, ...patch }, ...(patch.dropColumns ? { surveyMatch: null } : {}) });
   },
 
   commit: async () => {
-    const { preview, decisions } = get();
+    const { preview, decisions, survey } = get();
     if (!preview || !decisions) return false;
     set({ busy: true, error: null });
     try {
-      const res = await rpc.importDataset(buildImportParams(preview, decisions));
+      const params = buildImportParams(preview, decisions);
+      const res = await rpc.importDataset(survey ? { ...params, survey: { file_path: survey.path } } : params);
       let meta = res.dataset_meta;
       let linkReport: LinkReport | null = null;
       if (preview.files.length > 1 && decisions.linkMode === "linked" && decisions.idVariable) {
@@ -179,7 +246,16 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
       ds.setMeta(meta);
       ds.setShowMetadata(!decisions.hideMetadata);
       useProjectStore.getState().markDirty();
-      set({ busy: false, result: { meta, linkReport } });
+      let suggestions: SurveySuggestResult | null = null;
+      let surveyWarning: string | null = null;
+      if (survey) {
+        try {
+          ({ meta, suggestions } = await fillFromSurvey(meta, survey.survey));
+        } catch (e) {
+          surveyWarning = `Your data was imported, but Statly couldn't fill in details from ${survey.fileName}: ${describeRpcError(e)}`;
+        }
+      }
+      set({ busy: false, result: { meta, linkReport, survey: suggestions, surveyWarning } });
       return true;
     } catch (e) {
       set({ busy: false, error: describeRpcError(e) });
@@ -187,3 +263,26 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
     }
   },
 }));
+
+/**
+ * After an import with a survey file: fill in empty labels, question wording and answer choices as
+ * one undoable edit ("Filled in from your survey"), and hand the suggestions to the Variable
+ * Interview so it opens pre-filled (roles, levels, reverse hints, scales). Returns the current meta.
+ */
+async function fillFromSurvey(meta: DatasetMeta, survey: Survey): Promise<{ meta: DatasetMeta; suggestions: SurveySuggestResult }> {
+  const suggestions = await rpc.surveySuggest({ dataset_id: meta.dataset_id, snapshot_id: meta.snapshot_id, survey, variables: null });
+  const patches = surveyPatches(meta, suggestions);
+  if (patches.length) await edits.updateVariables(patches, "Filled in from your survey", { quiet: true });
+  const current = useDatasetStore.getState().meta ?? meta;
+  useInterview.getState().seedSurvey(current.dataset_id, suggestions);
+  return { meta: current, suggestions };
+}
+
+/** The engine explains an unreadable survey file in plain words (not JSON, no SurveyElements, ...); the generic text is about CSV/Excel. */
+function describeSurveyError(e: unknown): string {
+  const err = e as { kind?: string; code?: number; message?: string };
+  if (err?.kind === "rpc" && err.code === RpcErrorCode.FileUnreadable && err.message) {
+    return `${err.message} Choose the .qsf file Qualtrics exported (Tools → Import/Export → Export Survey).`;
+  }
+  return describeRpcError(e);
+}

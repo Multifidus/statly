@@ -59,16 +59,22 @@ class Scale(BaseModel):
 
 class Role(StrEnum):
     """
-    Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows).
+    Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows). survey: a Qualtrics survey design (.qsf) kept as the source of question wording and answer choices (contributes no rows).
     """
 
     data = 'data'
     value_labels = 'value_labels'
+    survey = 'survey'
 
 
 class FileFormat(StrEnum):
+    """
+    qsf only for a stored survey design file (ImportedFile.role survey).
+    """
+
     csv = 'csv'
     xlsx = 'xlsx'
+    qsf = 'qsf'
 
 
 class QualtricsDetection(BaseModel):
@@ -211,7 +217,7 @@ class ImportedFile(BaseModel):
     imported_at: AwareDatetime
     role: Role | None = None
     """
-    Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows).
+    Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows). survey: a Qualtrics survey design (.qsf) kept as the source of question wording and answer choices (contributes no rows).
     """
 
 

@@ -116,10 +116,12 @@ export type ScaleScoringMethod = "mean" | "sum";
  */
 export type ScaleOrigin = "user" | "matrix_suggestion";
 /**
+ * qsf only for a stored survey design file (ImportedFile.role survey).
+ *
  * This interface was referenced by `DatasetMeta`'s JSON-Schema
  * via the `definition` "FileFormat".
  */
-export type FileFormat = "csv" | "xlsx";
+export type FileFormat = "csv" | "xlsx" | "qsf";
 /**
  * This interface was referenced by `DatasetMeta`'s JSON-Schema
  * via the `definition` "RowFilterKind".
@@ -1034,9 +1036,9 @@ export interface ImportedFile {
   stored_path: string;
   imported_at: string;
   /**
-   * Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows).
+   * Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows). survey: a Qualtrics survey design (.qsf) kept as the source of question wording and answer choices (contributes no rows).
    */
-  role?: "data" | "value_labels";
+  role?: "data" | "value_labels" | "survey";
 }
 /**
  * This interface was referenced by `DatasetMeta`'s JSON-Schema
@@ -1623,6 +1625,16 @@ export interface DatasetImportParams {
    * Optional. Import a companion pair as one dataset: `files` holds the values file's decision (a decision for the labels file is ignored) and `stack` must be null.
    */
   companion?: CompanionChoice | null;
+  /**
+   * Optional. A Qualtrics survey file (.qsf) stored with the dataset as an original (ImportedFile.role 'survey'). Metadata suggestions come from survey.suggest.
+   */
+  survey?: SurveyChoice | null;
+}
+/**
+ * A Qualtrics survey design file (.qsf) to keep with the import. Its untouched original is stored in the project like a data file (ImportedFile.role 'survey'); it contributes no rows or variables.
+ */
+export interface SurveyChoice {
+  file_path: string;
 }
 export interface DatasetResult {
   dataset_meta: DatasetMeta;
@@ -1761,4 +1773,125 @@ export interface ProjectDiscardAutosaveParams {
 }
 export interface OkResult {
   ok: true;
+}
+/**
+ * One column a data export of the survey would contain.
+ */
+export interface SurveyColumn {
+  /**
+   * Export column name, e.g. Q5_1.
+   */
+  name: string;
+  /**
+   * Short label: the matrix statement, choice text, or question text.
+   */
+  label: string;
+  /**
+   * Answer choices in display order (codes = Qualtrics recode values).
+   */
+  value_labels: ValueLabel[];
+  level: "nominal" | "ordinal" | "scale" | "text";
+  /**
+   * Matrix question tag for matrix statements.
+   */
+  group: string | null;
+}
+export interface SurveyQuestion {
+  /**
+   * Export tag, e.g. Q5.
+   */
+  tag: string;
+  qid: string;
+  /**
+   * Question wording, HTML stripped.
+   */
+  text: string;
+  kind: "single" | "multi" | "matrix" | "text" | "slider" | "other";
+  question_type: string;
+  selector: string | null;
+  required: boolean;
+  columns: SurveyColumn[];
+  notes: string[];
+  /**
+   * Deleted in the survey editor: listed, never part of a data export.
+   */
+  in_trash: boolean;
+}
+/**
+ * A parsed Qualtrics survey design (.qsf).
+ */
+export interface Survey {
+  name: string;
+  questions: SurveyQuestion[];
+  notes: string[];
+}
+export interface SurveyParseParams {
+  file_path: string;
+}
+export interface SurveyParseResult {
+  survey: Survey;
+  issues: ImportIssue[];
+}
+/**
+ * A variable to match against the survey: at least its name; current label/question_text/value_labels/level/dtype/is_metadata/computed when known (a VariableSchema qualifies).
+ */
+export interface SurveyVariableRef {
+  name: string;
+  [k: string]: unknown;
+}
+/**
+ * Match a survey to variables. Variables: `variables` when given (e.g. an import preview's proposals), else the dataset's (dataset_id). Survey: `survey` when given, else the survey file stored with the dataset at import.
+ */
+export interface SurveySuggestParams {
+  dataset_id?: string | null;
+  snapshot_id?: string | null;
+  survey?: Survey | null;
+  variables?: SurveyVariableRef[] | null;
+}
+export interface SurveyColumnSuggestion {
+  /**
+   * Dataset variable name.
+   */
+  name: string;
+  survey_column: string;
+  question_tag: string;
+  label: string;
+  question_text: string;
+  value_labels: ValueLabel[];
+  level: MeasurementLevel;
+  /**
+   * Optional role hint.
+   */
+  role?: "open_text" | "likert_item";
+  /**
+   * Optional; true when the statement is explicitly marked reverse-worded.
+   */
+  reverse_hint?: boolean;
+  notes: string[];
+  /**
+   * Fields where the variable already has a different non-empty value (never overwrite these silently).
+   */
+  differs_from_current: ("label" | "question_text" | "value_labels" | "level")[];
+}
+export interface SurveyScaleSuggestion {
+  /**
+   * Matrix question tag.
+   */
+  name: string;
+  /**
+   * Matrix stem text.
+   */
+  label: string;
+  items: string[];
+  origin: "matrix_suggestion";
+  reverse_hint_items: string[];
+}
+export interface SurveySuggestResult {
+  survey_name: string;
+  columns: SurveyColumnSuggestion[];
+  scales: SurveyScaleSuggestion[];
+  unmatched: {
+    survey_columns: string[];
+    dataset_columns: string[];
+  };
 }

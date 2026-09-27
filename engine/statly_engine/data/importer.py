@@ -33,9 +33,10 @@ from statly_engine.data.columns import (
     nonempty_values, parse_numbers, sentinel_codes, slug, to_cell,
 )
 from statly_engine.data.linking import link_report
-from statly_engine.data.readers import ReadResult, read_file
+from statly_engine.data.readers import ReadResult, read_bytes, read_file
 from statly_engine.data.stacking import propose_matches
 from statly_engine.data.store import ROW_ID, DatasetStore
+from statly_engine.data.survey_qsf import parse_qsf
 from statly_engine.errors import InvalidParams, StaleOrUnknown
 
 SAMPLE_ROWS = 50
@@ -692,6 +693,9 @@ def commit_import(store: DatasetStore, params: dict) -> dict:
         labels_file = pv.file(pair[1])
     if len(decisions) >= 2 and stack is None:
         raise InvalidParams("Importing several files at once requires stack settings (time labels and matching).")
+    survey_file = None
+    if params.get("survey") is not None:  # read first: a bad .qsf fails the import before any work
+        survey_file = _survey_original(params["survey"]["file_path"], {f.file_id for f in pv.files})
     parts, imported, dropped, applied = _prepare_parts(pv, decisions, params["row_filters"])
     if labels_file is not None:
         # Re-pair against the (possibly re-staged) values file so its proposals carry the labels.
@@ -744,7 +748,29 @@ def commit_import(store: DatasetStore, params: dict) -> dict:
     originals = {p.ref_id: (p.staged.name, p.staged.read.raw_bytes) for p in parts}
     if labels_file is not None:
         originals[labels_file.file_id] = (labels_file.name, labels_file.read.raw_bytes)
+    if survey_file is not None:
+        entry, raw = survey_file
+        imported.append(entry)
+        originals[entry["file_id"]] = (entry["name"], raw)
     return store.commit(_new_id("ds"), df, meta, originals)
+
+
+def _survey_original(path: str, taken: set[str]) -> tuple[dict, bytes]:
+    """Read and check a Qualtrics survey file (.qsf) to keep with an import: (ImportedFile, bytes).
+
+    Only the untouched original is stored (role "survey"); it adds no rows or variables. Metadata
+    suggestions come from survey.suggest, which re-parses the stored bytes."""
+    raw = read_bytes(path)
+    parse_qsf(raw)  # FileUnreadable when it is not a .qsf
+    fid = stable_file_id(path, taken)
+    name = Path(path).name
+    return ({
+        "file_id": fid, "name": name, "sha256": hashlib.sha256(raw).hexdigest(), "size_bytes": len(raw),
+        "format": "qsf", "encoding": "utf-8", "delimiter": None, "sheet_name": None,
+        "qualtrics": {"detected": True, "confirmed": True, "header_rows": 1},
+        "time_label": None, "n_rows_read": 0, "n_rows_kept": 0,
+        "stored_path": f"originals/{fid}/{name}", "imported_at": _now(), "role": "survey",
+    }, raw)
 
 
 def commit_stack(store: DatasetStore, params: dict) -> dict:

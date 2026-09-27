@@ -16,10 +16,10 @@ from pydantic import (
     constr,
 )
 
-from . import AnalysisResult, DatasetMeta, ProjectFile
+from . import AnalysisResult, DatasetMeta, ProjectFile, VariableSchema
 from .DatasetMeta import DatasetMeta as DatasetMeta_1
 from .ProjectFile import ProjectFile as ProjectFile_1
-from .VariableSchema import VariableSchema
+from .VariableSchema import VariableSchema as VariableSchema_1
 
 
 class Rpc(RootModel[Any]):
@@ -283,6 +283,96 @@ class OkResult(BaseModel):
     ok: Literal[True]
 
 
+class SurveyChoice(BaseModel):
+    """
+    A Qualtrics survey design file (.qsf) to keep with the import. Its untouched original is stored in the project like a data file (ImportedFile.role 'survey'); it contributes no rows or variables.
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    file_path: constr(min_length=1)
+
+
+class Level(StrEnum):
+    nominal = 'nominal'
+    ordinal = 'ordinal'
+    scale = 'scale'
+    text = 'text'
+
+
+class Kind(StrEnum):
+    single = 'single'
+    multi = 'multi'
+    matrix = 'matrix'
+    text = 'text'
+    slider = 'slider'
+    other = 'other'
+
+
+class SurveyParseParams(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    file_path: constr(min_length=1)
+
+
+class SurveyVariableRef(BaseModel):
+    """
+    A variable to match against the survey: at least its name; current label/question_text/value_labels/level/dtype/is_metadata/computed when known (a VariableSchema qualifies).
+    """
+
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: constr(min_length=1)
+
+
+class Role(StrEnum):
+    """
+    Optional role hint.
+    """
+
+    open_text = 'open_text'
+    likert_item = 'likert_item'
+
+
+class DiffersFromCurrentEnum(StrEnum):
+    label = 'label'
+    question_text = 'question_text'
+    value_labels = 'value_labels'
+    level = 'level'
+
+
+class Origin(StrEnum):
+    matrix_suggestion = 'matrix_suggestion'
+
+
+class SurveyScaleSuggestion(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    name: str
+    """
+    Matrix question tag.
+    """
+    label: str
+    """
+    Matrix stem text.
+    """
+    items: list[str]
+    origin: Origin
+    reverse_hint_items: list[str]
+
+
+class Unmatched(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    survey_columns: list[str]
+    dataset_columns: list[str]
+
+
 class ImportIssue(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -304,6 +394,132 @@ class DatasetLinkParams(BaseModel):
     normalization: DatasetMeta.IdNormalization | None
 
 
+class SurveyColumn(BaseModel):
+    """
+    One column a data export of the survey would contain.
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    name: str
+    """
+    Export column name, e.g. Q5_1.
+    """
+    label: str
+    """
+    Short label: the matrix statement, choice text, or question text.
+    """
+    value_labels: list[VariableSchema.ValueLabel]
+    """
+    Answer choices in display order (codes = Qualtrics recode values).
+    """
+    level: Level
+    group: str | None
+    """
+    Matrix question tag for matrix statements.
+    """
+
+
+class SurveyQuestion(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    tag: str
+    """
+    Export tag, e.g. Q5.
+    """
+    qid: str
+    text: str
+    """
+    Question wording, HTML stripped.
+    """
+    kind: Kind
+    question_type: str
+    selector: str | None
+    required: bool
+    columns: list[SurveyColumn]
+    notes: list[str]
+    in_trash: bool
+    """
+    Deleted in the survey editor: listed, never part of a data export.
+    """
+
+
+class Survey(BaseModel):
+    """
+    A parsed Qualtrics survey design (.qsf).
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    name: str
+    questions: list[SurveyQuestion]
+    notes: list[str]
+
+
+class SurveyParseResult(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    survey: Survey
+    issues: list[ImportIssue]
+
+
+class SurveySuggestParams(BaseModel):
+    """
+    Match a survey to variables. Variables: `variables` when given (e.g. an import preview's proposals), else the dataset's (dataset_id). Survey: `survey` when given, else the survey file stored with the dataset at import.
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    dataset_id: str | None = None
+    snapshot_id: str | None = None
+    survey: Survey | None = None
+    variables: list[SurveyVariableRef] | None = None
+
+
+class SurveyColumnSuggestion(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    name: str
+    """
+    Dataset variable name.
+    """
+    survey_column: str
+    question_tag: str
+    label: str
+    question_text: str
+    value_labels: list[VariableSchema.ValueLabel]
+    level: VariableSchema.MeasurementLevel
+    role: Role | None = None
+    """
+    Optional role hint.
+    """
+    reverse_hint: bool | None = None
+    """
+    Optional; true when the statement is explicitly marked reverse-worded.
+    """
+    notes: list[str]
+    differs_from_current: list[DiffersFromCurrentEnum]
+    """
+    Fields where the variable already has a different non-empty value (never overwrite these silently).
+    """
+
+
+class SurveySuggestResult(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    survey_name: str
+    columns: list[SurveyColumnSuggestion]
+    scales: list[SurveyScaleSuggestion]
+    unmatched: Unmatched
+
+
 class FilePreview(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -320,7 +536,7 @@ class FilePreview(BaseModel):
     delimiter: str | None
     qualtrics: DatasetMeta.QualtricsDetection
     n_rows: conint(ge=0)
-    proposed_variables: list[VariableSchema]
+    proposed_variables: list[VariableSchema_1]
     """
     Engine's best guess per column (role, level, labels, metadata/PII flags) for user confirmation.
     """
@@ -372,7 +588,7 @@ class DatasetImportParams(BaseModel):
     """
     Filters to apply; rows_removed on input is ignored and recomputed.
     """
-    variables: list[VariableSchema]
+    variables: list[VariableSchema_1]
     """
     User-confirmed variable metadata (from proposed_variables); empty = accept proposals.
     """
@@ -383,6 +599,10 @@ class DatasetImportParams(BaseModel):
     companion: CompanionChoice | None = None
     """
     Optional. Import a companion pair as one dataset: `files` holds the values file's decision (a decision for the labels file is ignored) and `stack` must be null.
+    """
+    survey: SurveyChoice | None = None
+    """
+    Optional. A Qualtrics survey file (.qsf) stored with the dataset as an original (ImportedFile.role 'survey'). Metadata suggestions come from survey.suggest.
     """
 
 
@@ -401,7 +621,7 @@ class DatasetStackParams(BaseModel):
     """
     Filters to apply; rows_removed on input is ignored and recomputed.
     """
-    variables: list[VariableSchema]
+    variables: list[VariableSchema_1]
     """
     User-confirmed variable metadata (from proposed_variables); empty = accept proposals.
     """

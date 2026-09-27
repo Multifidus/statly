@@ -1,9 +1,9 @@
-import { FileSpreadsheet, FolderOpen, Trash2 } from "lucide-react";
+import { ClipboardList, FileSpreadsheet, FolderOpen, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NativeSelect } from "@/components/ui/form";
+import { NativeSelect, Notice } from "@/components/ui/form";
 import { WhyItMatters } from "@/components/ui/why";
 import type { QualtricsMode } from "@/contracts";
-import { pickImportFiles } from "@/lib/dialogs";
+import { pickImportFiles, pickSurveyFile } from "@/lib/dialogs";
 import { useImportFlow } from "@/stores/importFlow";
 
 const baseName = (p: string) => p.split(/[\\/]/).pop() ?? p;
@@ -14,10 +14,20 @@ export function StepFiles() {
   const removeFile = useImportFlow((s) => s.removeFile);
   const mode = useImportFlow((s) => s.qualtricsMode);
   const setMode = useImportFlow((s) => s.setQualtricsMode);
+  const survey = useImportFlow((s) => s.survey);
+  const surveyError = useImportFlow((s) => s.surveyError);
+  const busy = useImportFlow((s) => s.busy);
+  const addSurvey = useImportFlow((s) => s.addSurvey);
+  const removeSurvey = useImportFlow((s) => s.removeSurvey);
 
   const choose = async () => {
     const paths = await pickImportFiles();
     if (paths?.length) addFiles(paths);
+  };
+
+  const chooseSurvey = async () => {
+    const path = await pickSurveyFile();
+    if (path) await addSurvey(path);
   };
 
   return (
@@ -53,6 +63,40 @@ export function StepFiles() {
           ))}
         </ul>
       )}
+      <section className="grid gap-2" aria-labelledby="survey-file-heading" data-testid="survey-file">
+        <h3 id="survey-file-heading" className="text-sm font-medium">
+          Add your survey file (.qsf)
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Optional. Qualtrics can export your survey design as a .qsf file (Tools → Import/Export → Export Survey).
+          Statly uses it to fill in question wording and answer choices for you.
+        </p>
+        {survey ? (
+          <div className="flex items-center gap-3 rounded-md border px-3 py-2" data-testid="survey-file-chosen">
+            <ClipboardList className="size-4 text-muted-foreground" aria-hidden />
+            <span className="min-w-0 flex-1 truncate text-sm" title={survey.path}>
+              <strong>{survey.survey.name}</strong>{" "}
+              <span className="text-muted-foreground">
+                ({survey.fileName}, {survey.nQuestions} {survey.nQuestions === 1 ? "question" : "questions"})
+              </span>
+            </span>
+            <Button variant="ghost" size="icon-sm" onClick={removeSurvey} aria-label={`Remove ${survey.fileName}`}>
+              <Trash2 aria-hidden />
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <Button variant="outline" onClick={() => void chooseSurvey()} disabled={busy} data-testid="choose-survey">
+              <ClipboardList aria-hidden /> Choose survey file…
+            </Button>
+          </div>
+        )}
+        {surveyError && (
+          <Notice tone="error" role="alert">
+            {surveyError}
+          </Notice>
+        )}
+      </section>
       <div className="grid max-w-md gap-1.5">
         <label htmlFor="qualtrics-mode" className="text-sm font-medium">
           Qualtrics exports

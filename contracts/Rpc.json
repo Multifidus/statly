@@ -518,6 +518,17 @@
             }
           ],
           "description": "Optional. Import a companion pair as one dataset: `files` holds the values file's decision (a decision for the labels file is ignored) and `stack` must be null."
+        },
+        "survey": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SurveyChoice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional. A Qualtrics survey file (.qsf) stored with the dataset as an original (ImportedFile.role 'survey'). Metadata suggestions come from survey.suggest."
         }
       }
     },
@@ -1025,6 +1036,421 @@
       "properties": {
         "ok": {
           "const": true
+        }
+      }
+    },
+    "SurveyChoice": {
+      "title": "SurveyChoice",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_path"
+      ],
+      "description": "A Qualtrics survey design file (.qsf) to keep with the import. Its untouched original is stored in the project like a data file (ImportedFile.role 'survey'); it contributes no rows or variables.",
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "SurveyColumn": {
+      "title": "SurveyColumn",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "label",
+        "value_labels",
+        "level",
+        "group"
+      ],
+      "description": "One column a data export of the survey would contain.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Export column name, e.g. Q5_1."
+        },
+        "label": {
+          "type": "string",
+          "description": "Short label: the matrix statement, choice text, or question text."
+        },
+        "value_labels": {
+          "type": "array",
+          "items": {
+            "$ref": "VariableSchema.json#/$defs/ValueLabel"
+          },
+          "description": "Answer choices in display order (codes = Qualtrics recode values)."
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "nominal",
+            "ordinal",
+            "scale",
+            "text"
+          ]
+        },
+        "group": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Matrix question tag for matrix statements."
+        }
+      }
+    },
+    "SurveyQuestion": {
+      "title": "SurveyQuestion",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tag",
+        "qid",
+        "text",
+        "kind",
+        "question_type",
+        "selector",
+        "required",
+        "columns",
+        "notes",
+        "in_trash"
+      ],
+      "properties": {
+        "tag": {
+          "type": "string",
+          "description": "Export tag, e.g. Q5."
+        },
+        "qid": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "description": "Question wording, HTML stripped."
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "single",
+            "multi",
+            "matrix",
+            "text",
+            "slider",
+            "other"
+          ]
+        },
+        "question_type": {
+          "type": "string"
+        },
+        "selector": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SurveyColumn"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "in_trash": {
+          "type": "boolean",
+          "description": "Deleted in the survey editor: listed, never part of a data export."
+        }
+      }
+    },
+    "Survey": {
+      "title": "Survey",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "questions",
+        "notes"
+      ],
+      "description": "A parsed Qualtrics survey design (.qsf).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SurveyQuestion"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SurveyParseParams": {
+      "title": "SurveyParseParams",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_path"
+      ],
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "SurveyParseResult": {
+      "title": "SurveyParseResult",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "survey",
+        "issues"
+      ],
+      "properties": {
+        "survey": {
+          "$ref": "#/$defs/Survey"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ImportIssue"
+          }
+        }
+      }
+    },
+    "SurveyVariableRef": {
+      "title": "SurveyVariableRef",
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "name"
+      ],
+      "description": "A variable to match against the survey: at least its name; current label/question_text/value_labels/level/dtype/is_metadata/computed when known (a VariableSchema qualifies).",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "SurveySuggestParams": {
+      "title": "SurveySuggestParams",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "description": "Match a survey to variables. Variables: `variables` when given (e.g. an import preview's proposals), else the dataset's (dataset_id). Survey: `survey` when given, else the survey file stored with the dataset at import.",
+      "properties": {
+        "dataset_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "snapshot_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "survey": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Survey"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variables": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/SurveyVariableRef"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "SurveyColumnSuggestion": {
+      "title": "SurveyColumnSuggestion",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "survey_column",
+        "question_tag",
+        "label",
+        "question_text",
+        "value_labels",
+        "level",
+        "notes",
+        "differs_from_current"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Dataset variable name."
+        },
+        "survey_column": {
+          "type": "string"
+        },
+        "question_tag": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "question_text": {
+          "type": "string"
+        },
+        "value_labels": {
+          "type": "array",
+          "items": {
+            "$ref": "VariableSchema.json#/$defs/ValueLabel"
+          }
+        },
+        "level": {
+          "$ref": "VariableSchema.json#/$defs/MeasurementLevel"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "open_text",
+            "likert_item"
+          ],
+          "description": "Optional role hint."
+        },
+        "reverse_hint": {
+          "type": "boolean",
+          "description": "Optional; true when the statement is explicitly marked reverse-worded."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "differs_from_current": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "label",
+              "question_text",
+              "value_labels",
+              "level"
+            ]
+          },
+          "description": "Fields where the variable already has a different non-empty value (never overwrite these silently)."
+        }
+      }
+    },
+    "SurveyScaleSuggestion": {
+      "title": "SurveyScaleSuggestion",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "label",
+        "items",
+        "origin",
+        "reverse_hint_items"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Matrix question tag."
+        },
+        "label": {
+          "type": "string",
+          "description": "Matrix stem text."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "matrix_suggestion"
+          ]
+        },
+        "reverse_hint_items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SurveySuggestResult": {
+      "title": "SurveySuggestResult",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "survey_name",
+        "columns",
+        "scales",
+        "unmatched"
+      ],
+      "properties": {
+        "survey_name": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SurveyColumnSuggestion"
+          }
+        },
+        "scales": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SurveyScaleSuggestion"
+          }
+        },
+        "unmatched": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "survey_columns",
+            "dataset_columns"
+          ],
+          "properties": {
+            "survey_columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dataset_columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }

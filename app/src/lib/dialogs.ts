@@ -6,6 +6,7 @@
 
 export const DATA_FILE_EXTENSIONS = ["csv", "tsv", "txt", "xlsx"];
 export const PROJECT_EXTENSION = "statly";
+export const SURVEY_FILE_EXTENSIONS = ["qsf"];
 
 async function mockRequest<T>(kind: "import" | "open" | "save", defaultName?: string): Promise<T | null> {
   const { useMockDialog } = await import("@/mocks/dialogStore");
@@ -24,6 +25,19 @@ export async function pickImportFiles(): Promise<string[] | null> {
   });
   if (!res) return null;
   return Array.isArray(res) ? res : [res];
+}
+
+/** Pick one Qualtrics survey design file (.qsf). Resolves null if the user cancels. */
+export async function pickSurveyFile(): Promise<string | null> {
+  if (import.meta.env.VITE_STATLY_MOCK === "1") return (await mockRequest<string[]>("import"))?.[0] ?? null;
+  const { open } = await import("@tauri-apps/plugin-dialog");
+  const res = await open({
+    multiple: false,
+    directory: false,
+    title: "Choose your survey file",
+    filters: [{ name: "Qualtrics survey (.qsf)", extensions: SURVEY_FILE_EXTENSIONS }],
+  });
+  return typeof res === "string" ? res : null;
 }
 
 /** Pick an answer-key file (CSV/Excel: question, correct answer). Resolves null if cancelled. */

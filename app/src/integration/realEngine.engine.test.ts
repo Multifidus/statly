@@ -16,6 +16,7 @@ import { rpc, setTransport } from "@/lib/rpc";
 import { resolveEngineCommand, StdioTransport } from "@/lib/transports/stdio";
 import { useDatasetStore } from "@/stores/dataset";
 import { useImportFlow } from "@/stores/importFlow";
+import { useInterview } from "@/stores/interview";
 import { useProjectStore } from "@/stores/project";
 
 const REPO = path.resolve(import.meta.dirname, "../../..");
@@ -24,6 +25,7 @@ const MESSY_DIR = path.join(PRACTICE, "messy_qualtrics");
 const MESSY = path.join(MESSY_DIR, "messy_3header.csv");
 const MESSY_TEXT = path.join(MESSY_DIR, "messy_text_choices.csv");
 const MESSY_XLSX = path.join(MESSY_DIR, "messy.xlsx");
+const MESSY_QSF = path.join(MESSY_DIR, "survey.qsf");
 const THREE = ["pre", "post", "followup"].map((t) => path.join(PRACTICE, "three_groups_prepost_followup", `${t}.csv`));
 const LINKED = ["pre", "post"].map((t) => path.join(PRACTICE, "linked_id_prepost", `${t}.csv`));
 const truth = (d: string) => JSON.parse(readFileSync(path.join(PRACTICE, d, "ground_truth.json"), "utf8"));
@@ -235,6 +237,81 @@ describe("numbers + words exports of the same responses", () => {
     );
     expect(await column(meta, "Q5_1")).toEqual(numeric);
     expect(meta.import_log.files.map((f) => f.role ?? "data")).toEqual(["data", "value_labels"]);
+  });
+});
+
+describe("survey file (.qsf) with the import", () => {
+  const AGREE = ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"];
+
+  it("fills in wording and answer choices, seeds the interview, and survives save/load", async () => {
+    useInterview.setState({ surveySeed: null });
+    useInterview.getState().reset();
+    expect(await useImportFlow.getState().addSurvey(MESSY_QSF)).toBe(true);
+    const sv = useImportFlow.getState().survey!;
+    expect(sv.survey.name).toBe("Course Experience Survey – Fall");
+    expect(sv.nQuestions).toBeGreaterThanOrEqual(7);
+    await previewFiles([MESSY]);
+    confirmCleanup();
+    await useImportFlow.getState().checkSurvey();
+    const match = useImportFlow.getState().surveyMatch!;
+    expect(match.questions).toBeGreaterThanOrEqual(6);
+    expect(match.unmatchedDataset).toEqual([]);
+
+    const meta = await commit();
+    const res = useImportFlow.getState().result!;
+    expect(res.surveyWarning ?? null).toBeNull();
+    const qsf = meta.import_log.files.find((f) => f.role === "survey")!;
+    expect(qsf.name).toBe("survey.qsf");
+    expect(qsf.format).toBe("qsf");
+
+    // Filled into the dataset (one undoable edit), and handed to the interview.
+    const q51 = varOf(meta, "Q5_1")!;
+    expect(q51.label).toBe("I enjoy coming to this class");
+    expect(q51.value_labels.map((l) => l.label)).toEqual(AGREE);
+    const seed = useInterview.getState().surveySeed!;
+    expect(seed.datasetId).toBe(meta.dataset_id);
+    const s51 = seed.suggestions.columns.find((c) => c.name === "Q5_1")!;
+    expect(s51.label).toBe("I enjoy coming to this class");
+    expect(s51.value_labels).toHaveLength(5);
+    // The fixture words Q5_4 negatively without a "(reverse-worded)" marker on purpose (the learner
+    // decides); survey reverse hints are explicit markers only, so none is suggested here.
+    expect(seed.suggestions.columns.find((c) => c.name === "Q5_4")!.reverse_hint ?? false).toBe(false);
+    expect(seed.suggestions.scales.map((x) => [x.name, x.items])).toEqual([["Q5", GT.matrix_block.columns]]);
+
+    // The wizard resets the interview before opening it; the seed survives that.
+    useInterview.getState().reset();
+    await useInterview.getState().start();
+    const iv = useInterview.getState();
+    expect(iv.error).toBeNull();
+    const q5 = iv.units.find((u) => u.names.includes("Q5_1"))!;
+    expect(q5.names).toEqual(GT.matrix_block.columns);
+    expect(iv.labelsFor(q5)!.map((l) => l.label)).toEqual(AGREE);
+    expect(iv.draft!.answers[q5.id]).toMatchObject({ role: "likert_item", level: "ordinal" });
+    expect(iv.filledFrom.units[q5.id]).toBe("survey");
+    const q9 = iv.units.find((u) => u.names.includes("Q9"))!;
+    expect(iv.draft!.answers[q9.id].role).toBe("open_text");
+    const scale = iv.draft!.scales.find((x) => x.items.includes("Q5_1"))!;
+    expect(scale.items).toEqual(GT.matrix_block.columns);
+    expect(iv.filledFrom.scales[scale.key]).toBe("survey");
+    expect(iv.draft!.reverse.Q5_4 ?? false).toBe(false);
+
+    // Save, clear everything, reopen: labels and the stored .qsf come back, and the interview
+    // pre-fills again from the stored survey file.
+    const file = path.join(tmp, "survey.statly");
+    await useProjectStore.getState().saveTo(file);
+    useDatasetStore.getState().clear();
+    useInterview.setState({ surveySeed: null });
+    useInterview.getState().reset();
+    await useProjectStore.getState().open(file);
+    const loaded = useDatasetStore.getState().meta!;
+    expect(loaded.import_log.files.find((f) => f.role === "survey")).toEqual(qsf);
+    expect(varOf(loaded, "Q5_1")!.label).toBe("I enjoy coming to this class");
+    expect(varOf(loaded, "Q5_1")!.value_labels.map((l) => l.label)).toEqual(AGREE);
+    const again = await rpc.surveySuggest({ dataset_id: loaded.dataset_id, snapshot_id: loaded.snapshot_id });
+    expect(again.survey_name).toBe(sv.survey.name);
+    await useInterview.getState().start();
+    const iv2 = useInterview.getState();
+    expect(iv2.filledFrom.units[iv2.units.find((u) => u.names.includes("Q5_1"))!.id]).toBe("survey");
   });
 });
 

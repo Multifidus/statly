@@ -37,6 +37,7 @@ def session_handlers() -> dict:
     from statly_engine.rpc_methods import corrections  # Phase 6: corrections.adjust
     from statly_engine.rpc_methods import charts  # Phase 7: charts.data
     from statly_engine.rpc_methods import tags  # Phase 9: tags.* (qualitative coding)
+    from statly_engine.rpc_methods import survey  # survey.* (Qualtrics .qsf)
 
     return {**charts.METHODS, **dataset.METHODS,**project.METHODS, **advisor.METHODS, **variables.METHODS, **analysis.METHODS,
-            **corrections.METHODS, **export.METHODS, **tags.METHODS}
+            **corrections.METHODS, **export.METHODS, **tags.METHODS, **survey.METHODS}

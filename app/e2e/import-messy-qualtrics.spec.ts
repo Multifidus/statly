@@ -110,3 +110,48 @@ test("numbers + words exports of the same survey import as one labelled dataset"
   await expect(page.getByTestId("data-counts")).toContainText("108 rows");
   await expect(page.getByTestId("data-grid").getByRole("columnheader", { name: /Time/ })).toHaveCount(0);
 });
+
+test("a Qualtrics survey file (.qsf) added on the first step is matched and stored with the import", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("new-project").click();
+  await page.getByTestId("choose-files").click();
+  let dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("checkbox", { name: "messy_3header.csv" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+
+  // Optional survey picker below the data files.
+  const survey = page.getByTestId("survey-file");
+  await expect(survey.getByRole("heading", { name: "Add your survey file (.qsf)" })).toBeVisible();
+  await expect(survey).toContainText("Tools → Import/Export → Export Survey");
+  // A data file picked by mistake is refused with a plain explanation.
+  await page.getByTestId("choose-survey").click();
+  dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("checkbox", { name: "messy_2header.csv" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+  await expect(survey.getByRole("alert")).toContainText("doesn't look like a Qualtrics survey");
+  await page.getByTestId("choose-survey").click();
+  dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("checkbox", { name: "survey.qsf" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+  await expect(page.getByTestId("survey-file-chosen")).toContainText("Course Experience Survey – Fall");
+  await expect(page.getByTestId("survey-file-chosen")).toContainText("7 questions");
+  // Remove, then add again.
+  await page.getByRole("button", { name: "Remove survey.qsf" }).click();
+  await expect(page.getByTestId("survey-file-chosen")).toHaveCount(0);
+  await page.getByTestId("choose-survey").click();
+  dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("checkbox", { name: "survey.qsf" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+  await expect(page.getByTestId("survey-file-chosen")).toBeVisible();
+
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByRole("heading", { name: "Check how we read them" })).toBeFocused();
+  await page.getByTestId("wizard-next").click();
+  await page.getByRole("checkbox", { name: /checked the codes for Q6/ }).check();
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByRole("heading", { name: "Review and import" })).toBeVisible();
+  await expect(page.getByText(/^Course Experience Survey – Fall, \d+ questions matched/)).toBeVisible();
+
+  await page.getByTestId("wizard-next").click();
+  await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
+});

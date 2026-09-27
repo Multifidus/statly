@@ -78,10 +78,10 @@
         "n_rows_kept": { "type": "integer", "minimum": 0, "description": "Rows kept after row filters." },
         "stored_path": { "type": "string", "description": "Path of the untouched original inside the .statly zip, e.g. 'originals/<file_id>/<name>'." },
         "imported_at": { "type": "string", "format": "date-time" },
-        "role": { "type": "string", "enum": ["data", "value_labels"], "description": "Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows)." }
+        "role": { "type": "string", "enum": ["data", "value_labels", "survey"], "description": "Optional; absent = data. value_labels: a companion export kept only as the source of answer-text labels (contributes no rows). survey: a Qualtrics survey design (.qsf) kept as the source of question wording and answer choices (contributes no rows)." }
       }
     },
-    "FileFormat": { "title": "FileFormat", "type": "string", "enum": ["csv", "xlsx"] },
+    "FileFormat": { "title": "FileFormat", "type": "string", "enum": ["csv", "xlsx", "qsf"], "description": "qsf only for a stored survey design file (ImportedFile.role survey)." },
     "QualtricsDetection": {
       "title": "QualtricsDetection",
       "type": "object",

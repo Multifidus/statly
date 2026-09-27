@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Notice } from "@/components/ui/form";
 import { WhyItMatters } from "@/components/ui/why";
 import { buildImportParams, findResponseSets } from "@/lib/importLogic";
@@ -9,6 +10,12 @@ export function StepSummary() {
   const d = useImportFlow((s) => s.decisions);
   const result = useImportFlow((s) => s.result);
   const labelsFile = useImportFlow((s) => s.labelsFile);
+  const survey = useImportFlow((s) => s.survey);
+  const surveyMatch = useImportFlow((s) => s.surveyMatch);
+  const checkSurvey = useImportFlow((s) => s.checkSurvey);
+  useEffect(() => {
+    if (survey && preview && d && !surveyMatch && !result) void checkSurvey();
+  }, [survey, preview, d, surveyMatch, result, checkSurvey]);
   if (!preview || !d) return <Notice>Statly is still reading your files…</Notice>;
 
   if (result) {
@@ -27,6 +34,14 @@ export function StepSummary() {
             ))}
           </ul>
         )}
+        {result.survey && (
+          <p className="text-sm" data-testid="survey-filled">
+            Question wording and answer choices from your survey file were filled in for{" "}
+            {result.survey.columns.length.toLocaleString()} {result.survey.columns.length === 1 ? "column" : "columns"}. The
+            Variable Interview marks them so you can check them.
+          </p>
+        )}
+        {result.surveyWarning && <Notice tone="warn">{result.surveyWarning}</Notice>}
         {result.linkReport && <LinkReportView report={result.linkReport} />}
       </div>
     );
@@ -39,6 +54,17 @@ export function StepSummary() {
   const items: [string, string][] = [
     ["Files", preview.files.map((f) => f.name).join(", ")],
     ...(labelsFile ? ([["Answer labels", `words from ${labelsFile.name} attached to the numbers`]] as [string, string][]) : []),
+    ...(survey
+      ? ([
+          [
+            "Survey file",
+            `${survey.survey.name}, ${surveyMatch ? `${surveyMatch.questions} ${surveyMatch.questions === 1 ? "question" : "questions"} matched` : "matching…"}` +
+              (surveyMatch?.unmatchedDataset.length
+                ? `; ${surveyMatch.unmatchedDataset.length} question ${surveyMatch.unmatchedDataset.length === 1 ? "column isn't" : "columns aren't"} in the survey`
+                : ""),
+          ],
+        ] as [string, string][])
+      : []),
     ["Responses read", `${rowsRead.toLocaleString()} rows`],
     ["Columns", `${cols.size - d.dropColumns.length} kept${d.dropColumns.length ? `, ${d.dropColumns.length} removed (${d.dropColumns.join(", ")})` : ""}`],
     [

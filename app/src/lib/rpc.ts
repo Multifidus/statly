@@ -6,6 +6,10 @@
 import { engineCall, type EngineInfo, type PingResult } from "@/lib/engine";
 import { describeError, RpcErrorCode } from "@/lib/errors";
 import type {
+  SurveyParseParams,
+  SurveyParseResult,
+  SurveySuggestParams,
+  SurveySuggestResult,
   DatasetIdParams,
   DatasetImportParams,
   DatasetImportPreviewParams,
@@ -160,6 +164,9 @@ export const rpc = {
   rows: (p: DatasetRowsParams) => call<DatasetRowsResult>("dataset.rows", p),
   missingSummary: (p: DatasetIdParams) =>
     call<DatasetMissingSummaryResult>("dataset.missing_summary", p),
+  // Qualtrics survey design files (.qsf); docs/PROTOCOL.md "Survey file".
+  surveyParse: (p: SurveyParseParams) => call<SurveyParseResult>("survey.parse", p),
+  surveySuggest: (p: SurveySuggestParams) => call<SurveySuggestResult>("survey.suggest", p),
 
   saveProject: (p: ProjectSaveParams) => call<ProjectSaveResult>("project.save", p),
   loadProject: (p: ProjectLoadParams) => call<ProjectLoadResult>("project.load", p),

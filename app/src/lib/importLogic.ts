@@ -6,15 +6,19 @@
 import type {
   ColumnMatch,
   DatasetImportParams,
+  DatasetMeta,
   DatasetImportPreviewResult,
   FilePreview,
   IdNormalization,
   LinkMode,
   RowFilter,
   StackConfig,
+  SurveySuggestResult,
+  SurveyVariableRef,
   ValueLabel,
   VariableSchema,
 } from "@/contracts";
+import type { VariablePatch } from "@/lib/variablesRpc";
 
 export interface ResponseSet {
   /** Stable key: the matrix (scale) the items belong to, plus the sorted label list. */
@@ -389,4 +393,59 @@ export function buildImportParams(raw: DatasetImportPreviewResult, d: ImportDeci
       ? { companion: { values_file_id: pair.values_file_id, labels_file_id: pair.labels_file_id } }
       : {}),
   };
+}
+
+// --- survey file (.qsf) -------------------------------------------------------------------
+
+/** Variables the survey is matched against before importing: the proposals the user keeps (fields survey.suggest reads). */
+export function surveyMatchVariables(preview: DatasetImportPreviewResult, d: ImportDecisions): SurveyVariableRef[] {
+  return unionVariables(companionView(preview).preview.files)
+    .filter((v) => !d.dropColumns.includes(v.name))
+    .map((v) => ({
+      name: v.name,
+      dtype: v.dtype,
+      label: v.label,
+      question_text: v.question_text,
+      value_labels: v.value_labels,
+      level: v.level,
+      is_metadata: v.is_metadata,
+      computed: v.computed,
+    }));
+}
+
+/** "<n> questions matched" for the Review step: distinct survey questions with a matched column. */
+export function surveyMatchSummary(s: SurveySuggestResult): { questions: number; columns: number; unmatchedDataset: string[] } {
+  return {
+    questions: new Set(s.columns.map((c) => c.question_tag)).size,
+    columns: s.columns.length,
+    unmatchedDataset: s.unmatched.dataset_columns,
+  };
+}
+
+const blank = (x: string | null | undefined) => x == null || x.trim() === "";
+
+/**
+ * Variable metadata to fill in from a survey right after import: the survey's label (item
+ * statement / question text), question wording and answer choices, only where the variable has
+ * none yet (never a field the engine flags in `differs_from_current`). Numeric survey codes are
+ * not put on a column stored as text. Levels, roles, reverse hints and scales are not patched
+ * here: the Variable Interview pre-fills them and the user confirms (stores/interview seedSurvey).
+ */
+export function surveyPatches(meta: DatasetMeta, s: SurveySuggestResult): VariablePatch[] {
+  const byName = new Map(meta.variables.map((v) => [v.name, v]));
+  const out: VariablePatch[] = [];
+  for (const c of s.columns) {
+    const v = byName.get(c.name);
+    if (!v) continue;
+    const differs = new Set(c.differs_from_current);
+    const p: VariablePatch = { name: v.name };
+    if (!differs.has("label") && !blank(c.label) && (blank(v.label) || v.label === v.name) && c.label !== v.label) p.label = c.label;
+    if (!differs.has("question_text") && !blank(c.question_text) && blank(v.question_text)) p.question_text = c.question_text;
+    const textColumn = v.dtype === "string" && c.value_labels.some((l) => typeof l.value === "number");
+    if (!differs.has("value_labels") && c.value_labels.length && !v.value_labels.length && !textColumn) {
+      p.value_labels = c.value_labels.map((l) => ({ ...l }));
+    }
+    if (Object.keys(p).length > 1) out.push(p);
+  }
+  return out;
 }
