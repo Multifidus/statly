@@ -23,13 +23,13 @@ from statly_engine.data.linking import normalize_id
 from statly_engine.errors import InvalidParams
 from statly_engine.stats import apa, assumptions as asm, effect_sizes as es, prep
 from statly_engine.stats.apa import Rich
-from statly_engine.stats.core import (SMALL_N, ResultBuilder, constant_warning, finite, magnitude, missing_warning,
+from statly_engine.stats.core import (SMALL_N, ResultBuilder, constant_warning, finite, missing_warning, size_clause,
                                       small_sample_warning, ties_warning, unequal_groups_warning, warning)
 from statly_engine.stats.descriptives import cell
 from statly_engine.stats.registry import Role, register
+from statly_engine.text import plural
 
 SCIPY_ALT = {"two_sided": "two-sided", "greater": "greater", "less": "less"}
-_SIZE = {"negligible": "negligible", "small": "small", "medium": "medium", "large": "large"}
 
 
 def _alt(request) -> str:
@@ -64,9 +64,9 @@ def _stats_clause(r: Rich, sym, df, t, p, es_sym, est: es.Estimate) -> Rich:
     return r
 
 
-def _size_sentence(est: es.Estimate) -> str:
-    mag = magnitude(est.value, "d")
-    return f" The size of the difference was {_SIZE[mag]} by common benchmarks." if mag else ""
+def _size_sentence(name: str, est: es.Estimate) -> str:
+    """Names the headline effect size the APA sentence reports (SPEC §8); must stay in sync with it."""
+    return size_clause(name, est.value, "d")
 
 
 # ---------------------------------------------------------------------------
@@ -132,7 +132,8 @@ def one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         summary = (f"On average, {vl} scores ({apa.num(desc['mean'])}) were {direction} than {mu_txt}. "
                    + ("This difference is unlikely to be due to chance alone" if sig else
                       "This difference could easily be due to chance, so there is no strong evidence the "
-                      "true average differs from " + mu_txt) + f" ({_p_phrase(p)})." + _size_sentence(d))
+                      "true average differs from " + mu_txt) + f" ({_p_phrase(p)})."
+                   + _size_sentence("Cohen's d", d))
     b.sentence(r).summary(summary)
 
     cols = [apa.column("variable", "Variable", "left"), apa.column("n", Rich().i("n")),
@@ -263,7 +264,8 @@ def independent(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
                    f"({apa.num(lo_m)}). " +
                    ("This difference is unlikely to be due to chance alone" if sig else
                     "This difference could easily be due to chance, so there is no strong evidence of a real "
-                    "difference between the groups") + f" ({_p_phrase(p)})." + _size_sentence(hg))
+                    "difference between the groups") + f" ({_p_phrase(p)})."
+                   + _size_sentence("Hedges' g", hg))
     b.sentence(r).summary(summary)
 
     cols = [apa.column("variable", "Variable", "left")]
@@ -297,12 +299,14 @@ def _paired_wide(df, request, meta):
     cc = (xa.notna() & xb.notna()).to_numpy()
     names = [prep.label(meta, a), prep.label(meta, c)]
     dropped = int((~cc).sum())
-    notes = []
+    notes, reasons = [], []
     if dropped:
-        notes.append(f"{dropped} people were left out because they are missing {names[0]} or {names[1]}")
+        notes.append(f"{plural(dropped, 'person')} {'was' if dropped == 1 else 'were'} left out because "
+                     f"they are missing {names[0]} or {names[1]}")
+        reasons.append(("missing_answer", dropped, f"missing {names[0]} or {names[1]}"))
     return dict(x=xa[cc].to_numpy(), y=xb[cc].to_numpy(), names=names, variables=[a, c], groups=[{}, {}],
                 n_missing=[int(xa.isna().sum()), int(xb.isna().sum())], n_excluded=dropped, notes=notes,
-                outcome_label=f"{names[0]} and {names[1]}")
+                reasons=reasons, outcome_label=f"{names[0]} and {names[1]}")
 
 
 def _paired_long(df, request, meta):
@@ -333,20 +337,31 @@ def _paired_long(df, request, meta):
     wide = wide.sort_index()
     cc = wide[0].notna() & wide[1].notna()
     names = [prep.value_label(meta, tname, lv) for lv in levels]
-    notes = []
+    missing_score = int((~cc).sum())
+    notes, reasons = [], []
     if len(one_side):
-        notes.append(f"{len(one_side)} people have a score at only one of the two time points")
+        n_one = int(len(one_side))
+        notes.append(f"{plural(n_one, 'person', 'people')} {'has' if n_one == 1 else 'have'} a score at "
+                     "only one of the two time points")
+        reasons.append(("unpaired_one_side", n_one, "had a score at only one time point"))
     if len(dup):
-        notes.append(f"{len(dup)} IDs appear more than once at the same time point, so their scores can't be paired")
-    if int((~cc).sum()):
-        notes.append(f"{int((~cc).sum())} matched people are missing a {prep.label(meta, yname)} score")
+        n_dup = int(len(dup))
+        notes.append(f"{plural(n_dup, 'ID', 'IDs')} appear more than once at the same time point, so "
+                     f"{'its' if n_dup == 1 else 'their'} scores can't be paired")
+        reasons.append(("duplicate_id", n_dup, "a duplicate ID at the same time point"))
+    if missing_score:
+        notes.append(f"{plural(missing_score, 'matched person', 'matched people')} "
+                     f"{'is' if missing_score == 1 else 'are'} missing a {prep.label(meta, yname)} score")
+        reasons.append(("missing_answer", missing_score, f"missing a {prep.label(meta, yname)} score"))
     if no_id:
-        notes.append(f"{no_id} rows have no ID")
+        notes.append(f"{plural(no_id, 'row')} {'has' if no_id == 1 else 'have'} no ID")
+        reasons.append(("no_id", no_id, "no ID"))
     n_pairs = int(cc.sum())
     return dict(x=wide.loc[cc, 0].to_numpy(), y=wide.loc[cc, 1].to_numpy(), names=names, variables=[yname, yname],
                 groups=[{tname: levels[0]}, {tname: levels[1]}],
                 n_missing=[int(y[at[0]].isna().sum()), int(y[at[1]].isna().sum())],
-                n_excluded=int(in_levels.sum() - 2 * n_pairs), notes=notes, outcome_label=prep.label(meta, yname))
+                n_excluded=int(in_levels.sum() - 2 * n_pairs), notes=notes, reasons=reasons,
+                outcome_label=prep.label(meta, yname))
 
 
 @register("t_test.paired", label="Paired-samples t test",
@@ -396,7 +411,8 @@ def paired(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     if data["notes"]:
         b.warn(warning("pairs_dropped", "info", "Paired tests need the same person at both times, so some "
                        "people were left out: " + "; ".join(data["notes"]) + f". {n} complete pairs were analysed."))
-    b.inputs(n, data["n_excluded"], [(data["groups"][0], n), (data["groups"][1], n)] if data["groups"][0] else [])
+    b.inputs(n, data["n_excluded"], [(data["groups"][0], n), (data["groups"][1], n)] if data["groups"][0] else [],
+             excluded_reasons=data["reasons"])
 
     r = Rich().t("A paired-samples ").i("t").t(" test ")
     desc_run = lambda d, nm: Rich().t(f"{nm} (").i("M").t(f" = {apa.num(d['mean'])}, ").i("SD").t(f" = {apa.num(d['sd'])})")  # noqa: E731
@@ -417,7 +433,7 @@ def paired(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
                    f"(a difference of {apa.num(abs(md.value))} points). " +
                    ("This change is unlikely to be due to chance alone" if sig else
                     "This change could easily be due to chance, so there is no strong evidence of a real change")
-                   + f" ({_p_phrase(p)})." + _size_sentence(dav))
+                   + f" ({_p_phrase(p)})." + _size_sentence("Cohen's d_av", dav))
     b.sentence(r).summary(summary)
 
     cols = [apa.column("variable", "Variable", "left")]

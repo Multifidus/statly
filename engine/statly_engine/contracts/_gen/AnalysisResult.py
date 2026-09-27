@@ -354,6 +354,25 @@ class GroupCount(BaseModel):
     n: conint(ge=0)
 
 
+class ExcludedReason(BaseModel):
+    """
+    Why some of n_excluded were left out, broken down by cause (SPEC §8). The subtitle should read the specific reason(s) here instead of defaulting to "missing answers".
+    """
+
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    code: constr(pattern=r'^[a-z][a-z0-9_]*$')
+    """
+    e.g. missing_answer, unpaired_one_side, duplicate_id, no_id.
+    """
+    count: conint(ge=0)
+    label: str
+    """
+    Plain-language reason, e.g. "couldn't be paired", "missing answers".
+    """
+
+
 class ResultInputs(BaseModel):
     """
     Exact inputs used, for reproducibility and the Test Log.
@@ -377,6 +396,10 @@ class ResultInputs(BaseModel):
     Rows in the subset excluded for missing data / unmatched IDs.
     """
     n_by_group: list[GroupCount]
+    excluded_reasons: list[ExcludedReason] | None = None
+    """
+    Optional breakdown of n_excluded by cause; when absent, callers may assume missing data.
+    """
 
 
 class AnalysisResult(BaseModel):

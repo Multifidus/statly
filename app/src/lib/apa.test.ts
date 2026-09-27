@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AnalysisResult } from "@/contracts";
 import example from "../../../contracts/examples/AnalysisResult.json";
-import { fmtNum, fmtPExpr, richToHtml, richToPlain, sentencePayload, tablePayload, tableToHtml } from "@/lib/apa";
+import { fmtNum, fmtPExpr, parseApaMarkup, richToHtml, richToPlain, sentencePayload, tablePayload, tableToHtml } from "@/lib/apa";
 
 const result = example as unknown as AnalysisResult;
 
@@ -43,5 +43,30 @@ describe("APA copy payloads", () => {
     expect(fmtNum(0.357, 2, true)).toBe(".36");
     expect(fmtNum(-0.357, 2, true)).toBe("-.36");
     expect(fmtNum(1.2345)).toBe("1.23");
+  });
+});
+
+describe("parseApaMarkup (Learn-library How-to-report templates)", () => {
+  it("italicizes *symbol* runs, keeps {placeholders} literal, and does not touch bare digits", () => {
+    const runs = parseApaMarkup("There was a difference, *t*({df}) = {t}, *p* = {p}.");
+    expect(richToPlain(runs)).toBe("There was a difference, t({df}) = {t}, p = {p}.");
+    expect(runs.filter((r) => r.italic).map((r) => r.text)).toEqual(["t", "p"]);
+    expect(runs.some((r) => r.text === "{df}" && !r.italic)).toBe(true);
+    expect(runs.some((r) => r.text === "{p}" && !r.italic)).toBe(true);
+  });
+
+  it("renders _word as a subscript, bare or inside *..*, and ²/³ as a superscript", () => {
+    const spearman = parseApaMarkup("*r*_s({df}) = {rho}");
+    const sub = spearman.find((r) => r.subscript);
+    expect(sub).toMatchObject({ text: "s", subscript: true });
+
+    const dAv = parseApaMarkup("*d_av* = {dav}");
+    const dSub = dAv.find((r) => r.subscript);
+    expect(dSub).toMatchObject({ text: "av", subscript: true, italic: true });
+
+    const chi = parseApaMarkup("*chi*²({df}, *N* = {n}) = {chi2}");
+    const sup = chi.find((r) => r.superscript);
+    expect(sup).toMatchObject({ text: "2", superscript: true });
+    expect(richToPlain(chi)).toBe("chi2({df}, N = {n}) = {chi2}");
   });
 });

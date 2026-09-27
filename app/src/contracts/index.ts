@@ -631,6 +631,10 @@ export interface ResultInputs {
    */
   n_excluded: number;
   n_by_group: GroupCount[];
+  /**
+   * Optional breakdown of n_excluded by cause; when absent, callers may assume missing data.
+   */
+  excluded_reasons?: ExcludedReason[];
 }
 /**
  * This interface was referenced by `AnalysisResult`'s JSON-Schema
@@ -641,6 +645,23 @@ export interface GroupCount {
     [k: string]: string | number | boolean;
   };
   n: number;
+}
+/**
+ * Why some of n_excluded were left out, broken down by cause (SPEC §8). The subtitle should read the specific reason(s) here instead of defaulting to "missing answers".
+ *
+ * This interface was referenced by `AnalysisResult`'s JSON-Schema
+ * via the `definition` "ExcludedReason".
+ */
+export interface ExcludedReason {
+  /**
+   * e.g. missing_answer, unpaired_one_side, duplicate_id, no_id.
+   */
+  code: string;
+  count: number;
+  /**
+   * Plain-language reason, e.g. "couldn't be paired", "missing answers".
+   */
+  label: string;
 }
 /**
  * A saved chart-builder chart. The compiled Vega-Lite spec is NOT stored; it is derived from this spec + data fetched from the engine. SPEC §10.2.

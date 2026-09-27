@@ -414,5 +414,5 @@
       "probability": []
     }
   },
-  "plain_language_summary": "The Treatment group scored higher on average (56.74) than the Control group (51.02). This difference could easily be due to chance, so there is no strong evidence of a real difference between the groups (p = .059). The size of the difference was medium by common benchmarks."
+  "plain_language_summary": "The Treatment group scored higher on average (56.74) than the Control group (51.02). This difference could easily be due to chance, so there is no strong evidence of a real difference between the groups (p = .059). Hedges' g = -0.54, a medium difference."
 }

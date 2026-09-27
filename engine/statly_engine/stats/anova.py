@@ -36,10 +36,11 @@ from statly_engine.data.linking import normalize_id
 from statly_engine.errors import InvalidParams
 from statly_engine.stats import apa, assumptions as asm, effect_sizes_anova as esa, prep, sphericity as sph
 from statly_engine.stats.apa import Rich
-from statly_engine.stats.core import (SMALL_N, ResultBuilder, constant_warning, finite, magnitude, missing_warning,
+from statly_engine.stats.core import (SMALL_N, ResultBuilder, constant_warning, finite, missing_warning, size_clause,
                                       small_sample_warning, ties_warning, unequal_groups_warning, warning)
 from statly_engine.stats.descriptives import cell
 from statly_engine.stats.registry import Role, register
+from statly_engine.text import plural
 
 ETA = Rich().t("η").sup("2")
 ETA_P = Rich().t("η").sup("2").sub("p")
@@ -166,9 +167,9 @@ def descriptives_table(title: str, rows: list[dict], first_header: str, level: f
     return apa.table(title, cols, body, number=number)
 
 
-def _size_sentence(est, family: str = "eta_sq") -> str:
-    mag = magnitude(est.value, family)
-    return f" The size of the effect was {mag} by common benchmarks." if mag else ""
+def _size_sentence(name: str, est, family: str = "eta_sq") -> str:
+    """Names the headline effect size the APA sentence reports (SPEC §8); must stay in sync with it."""
+    return size_clause(name, est.value, family, bounded=(family == "eta_sq"), what="effect")
 
 
 def _range_phrase(rows: list[dict]) -> str:
@@ -239,7 +240,7 @@ def _oneway(df: pd.DataFrame, request, meta, variant: str) -> dict:
         summary = (f"Average {d['vl']} scores were compared across the {k} groups of {d['gl']} ({_range_phrase(rows)}). "
                    + ("Differences this large are unlikely to be due to chance alone" if sig else
                       "The differences could easily be due to chance, so there is no strong evidence that the "
-                      "groups really differ") + f" ({p_phrase(p)})." + _size_sentence(eta)
+                      "groups really differ") + f" ({p_phrase(p)})." + _size_sentence("η²", eta)
                    + (" A post hoc test shows which groups differ." if sig and k > 2 else ""))
     b.sentence(r).summary(summary)
 
@@ -298,10 +299,12 @@ def _rm_wide(df, request, meta) -> dict:
     cc = np.all([x.notna().to_numpy() for x in xs], axis=0)
     names = [prep.label(meta, c) for c in cols]
     dropped = int((~cc).sum())
-    notes = [f"{dropped} people were left out because they are missing at least one of the measures"] if dropped else []
+    notes = ([f"{plural(dropped, 'person', 'people')} {'was' if dropped == 1 else 'were'} left out because "
+              "they are missing at least one of the measures"] if dropped else [])
+    reasons = [("missing_answer", dropped, "missing at least one of the measures")] if dropped else []
     return dict(y=np.column_stack([x[cc].to_numpy() for x in xs]), names=names, variables=list(cols),
                 groups=[{} for _ in cols], n_missing=[int(x.isna().sum()) for x in xs], n_excluded=dropped,
-                notes=notes, outcome_label=", ".join(names), time_label="time point")
+                notes=notes, reasons=reasons, outcome_label=", ".join(names), time_label="time point")
 
 
 def _rm_long(df, request, meta) -> dict:
@@ -336,19 +339,29 @@ def _rm_long(df, request, meta) -> dict:
     wide = wide.reindex(columns=range(k))
     cc = wide.notna().all(axis=1)
     n = int(cc.sum())
-    notes = []
+    missing_score = int((~cc).sum())
+    notes, reasons = [], []
     if len(partial):
-        notes.append(f"{len(partial)} people do not have a row at every time point")
+        n_partial = int(len(partial))
+        notes.append(f"{plural(n_partial, 'person', 'people')} "
+                     f"{'does' if n_partial == 1 else 'do'} not have a row at every time point")
+        reasons.append(("unpaired_one_side", n_partial, "did not have a row at every time point"))
     if len(dup):
-        notes.append(f"{len(dup)} IDs appear more than once at the same time point, so their scores can't be matched")
-    if int((~cc).sum()):
-        notes.append(f"{int((~cc).sum())} matched people are missing a {prep.label(meta, yname)} score")
+        n_dup = int(len(dup))
+        notes.append(f"{plural(n_dup, 'ID', 'IDs')} appear more than once at the same time point, so "
+                     f"{'its' if n_dup == 1 else 'their'} scores can't be matched")
+        reasons.append(("duplicate_id", n_dup, "a duplicate ID at the same time point"))
+    if missing_score:
+        notes.append(f"{plural(missing_score, 'matched person', 'matched people')} "
+                     f"{'is' if missing_score == 1 else 'are'} missing a {prep.label(meta, yname)} score")
+        reasons.append(("missing_answer", missing_score, f"missing a {prep.label(meta, yname)} score"))
     if no_id:
-        notes.append(f"{no_id} rows have no ID")
+        notes.append(f"{plural(no_id, 'row')} {'has' if no_id == 1 else 'have'} no ID")
+        reasons.append(("no_id", no_id, "no ID"))
     return dict(y=wide.loc[cc].to_numpy(float), names=[prep.value_label(meta, tname, lv) for lv in levels],
                 variables=[yname] * k, groups=[{tname: lv} for lv in levels],
                 n_missing=[int(y[m].isna().sum()) for m in at], n_excluded=int(in_levels.sum() - k * n),
-                notes=notes, outcome_label=prep.label(meta, yname), time_label=prep.label(meta, tname))
+                notes=notes, reasons=reasons, outcome_label=prep.label(meta, yname), time_label=prep.label(meta, tname))
 
 
 def rm_data(df: pd.DataFrame, request, meta) -> dict:
@@ -380,7 +393,8 @@ def rm_warnings(b: ResultBuilder, d: dict) -> None:
 
 def rm_inputs(b: ResultBuilder, d: dict) -> None:
     n = d["y"].shape[0]
-    b.inputs(n, d["n_excluded"], [(g, n) for g in d["groups"]] if d["groups"][0] else [])
+    b.inputs(n, d["n_excluded"], [(g, n) for g in d["groups"]] if d["groups"][0] else [],
+             excluded_reasons=d["reasons"])
 
 
 def rm_anova_table(y: np.ndarray) -> dict:
@@ -476,7 +490,7 @@ def repeated_measures(df: pd.DataFrame, request, meta: dict | None = None) -> di
         summary = (f"The same {n} people were measured {k} times ({_range_phrase(rows)}). "
                    + ("The changes over time are unlikely to be due to chance alone" if sig else
                       "The differences could easily be due to chance, so there is no strong evidence of real "
-                      "change over time") + f" ({p_phrase(p_head)})." + _size_sentence(pes)
+                      "change over time") + f" ({p_phrase(p_head)})." + _size_sentence("partial η²", pes)
                    + (" Pairwise comparisons show which time points differ." if sig and k > 2 else ""))
         if used == "gg" and correction == "auto":
             summary += (" Because the spread of changes differed between time points, a correction "

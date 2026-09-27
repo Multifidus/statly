@@ -37,8 +37,8 @@
       {
         "key": "kendall_w",
         "value": 0.498,
-        "ci_lower": 0.284829555402736,
-        "ci_upper": 1
+        "ci_lower": 0.242161752804644,
+        "ci_upper": 0.825946082398452
       }
     ],
     "descriptives": [

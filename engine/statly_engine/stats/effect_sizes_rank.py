@@ -5,11 +5,14 @@
 - Rank-biserial correlation with effectsize 1.0's Fisher-z normal CI (`effectsize::rank_biserial`).
 - r = z / sqrt(N) and its CI: the rank-biserial CI rescaled (r and r_rb are linear in U / V).
 - Rank epsilon² (`effectsize::rank_epsilon_squared`) and Kendall's W (`effectsize::kendalls_w`)
-  with effectsize's percentile-bootstrap CI (200 iterations, one-sided "greater" at the request's
-  level, upper bound 1). The bootstrap reproduces R draw for draw: `RRandom` is R's default
-  generator (Mersenne-Twister, `set.seed` scrambling, rejection-sampled `sample.int`), the resampling
-  order follows `boot::boot` and effectsize's statistic, and the interval is `boot::norm.inter`.
-  With the same seed (options.bootstrap_seed, default 12345) the CI equals R's to ~1e-12.
+  with effectsize's percentile-bootstrap CI (200 iterations), but a TWO-SIDED interval (both bounds
+  from the bootstrap distribution, each clipped to [0, 1]), as Statly reports for every effect size
+  (SPEC §3) — effectsize's own default is one-sided ("greater", upper bound fixed at 1), which
+  Statly does not use; one-sided intervals remain available with `alternative`. The bootstrap
+  reproduces R draw for draw: `RRandom` is R's default generator (Mersenne-Twister, `set.seed`
+  scrambling, rejection-sampled `sample.int`), the resampling order follows `boot::boot` and
+  effectsize's statistic, and the interval is `boot::norm.inter`. With the same seed
+  (options.bootstrap_seed, default 12345) the CI equals R's to ~1e-12.
 """
 
 from __future__ import annotations
@@ -327,13 +330,14 @@ def kruskal_h(values: np.ndarray, codes: np.ndarray, k: int) -> float:
 
 
 def rank_epsilon_squared(groups: list[np.ndarray], level: float = 0.95, seed: int = BOOT_SEED,
-                         iterations: int = BOOT_ITERATIONS) -> Estimate:
+                         iterations: int = BOOT_ITERATIONS, alternative: str = TWO_SIDED) -> Estimate:
     """effectsize::rank_epsilon_squared: E = H / ((n² - 1) / (n + 1)) = H / (n - 1).
 
     CI: effectsize's percentile bootstrap (values resampled with replacement within each group of size
-    >= 2; groups in level order, values in row order), alternative "greater" -> two-sided (2L - 1)
-    interval with the upper bound set to 1. RNG use mirrors boot::boot: first the n x R index matrix
-    (unused by this statistic), then the t0 call (which also resamples), then the R replicates.
+    >= 2; groups in level order, values in row order), but two-sided by default (SPEC §3), each bound
+    clipped to [0, 1] since epsilon² can't leave that range. RNG use mirrors boot::boot: first the
+    n x R index matrix (unused by this statistic), then the t0 call (which also resamples), then the
+    R replicates.
     """
     groups = [np.asarray(g, float) for g in groups]
     values = np.concatenate(groups)
@@ -351,8 +355,12 @@ def rank_epsilon_squared(groups: list[np.ndarray], level: float = 0.95, seed: in
 
     resample()                               # boot's t0 = statistic(data, original) also resamples
     t_star = np.array([kruskal_h(resample(), codes, k) for _ in range(iterations)]) / ((n ** 2 - 1) / (n + 1))
-    lo, _ = _perc_ci(t_star, adjust_level(level, GREATER))
-    return Estimate(e, lo, 1.0, level)
+    lo, hi = _perc_ci(t_star, adjust_level(level, alternative))
+    if alternative == GREATER:
+        hi = 1.0
+    elif alternative == LESS:
+        lo = 0.0
+    return Estimate(e, max(lo, 0.0), min(hi, 1.0), level)
 
 
 def friedman_ranks(m: np.ndarray) -> np.ndarray:
@@ -370,9 +378,10 @@ def kendalls_w_value(ranks: np.ndarray) -> float:
 
 
 def kendalls_w(m: np.ndarray, level: float = 0.95, seed: int = BOOT_SEED,
-               iterations: int = BOOT_ITERATIONS) -> Estimate:
+               iterations: int = BOOT_ITERATIONS, alternative: str = TWO_SIDED) -> Estimate:
     """effectsize::kendalls_w on a complete blocks x conditions matrix, percentile bootstrap over
-    blocks (boot's index matrix, R x n, filled column-wise), one-sided "greater" (upper bound 1)."""
+    blocks (boot's index matrix, R x n, filled column-wise), two-sided by default (SPEC §3), each
+    bound clipped to [0, 1] since W can't leave that range."""
     ranks = friedman_ranks(m)
     w = kendalls_w_value(ranks)
     if not math.isfinite(w):
@@ -380,8 +389,12 @@ def kendalls_w(m: np.ndarray, level: float = 0.95, seed: int = BOOT_SEED,
     nb = ranks.shape[0]
     idx = RRandom(seed).index(nb, nb * iterations).reshape(nb, iterations).T
     t_star = np.array([kendalls_w_value(ranks[i]) for i in idx])
-    lo, _ = _perc_ci(t_star, adjust_level(level, GREATER))
-    return Estimate(w, lo, 1.0, level)
+    lo, hi = _perc_ci(t_star, adjust_level(level, alternative))
+    if alternative == GREATER:
+        hi = 1.0
+    elif alternative == LESS:
+        lo = 0.0
+    return Estimate(w, max(lo, 0.0), min(hi, 1.0), level)
 
 
 # ---------------------------------------------------------------------------

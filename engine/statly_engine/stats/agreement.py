@@ -41,6 +41,7 @@ from statly_engine.stats.descriptives import cell
 from statly_engine.stats.effect_sizes import Estimate
 from statly_engine.stats.effect_sizes_rank import BOOT_SEED, RRandom, _perc_ci, tie_sum
 from statly_engine.stats.registry import Role, register
+from statly_engine.text import plural
 
 KW_ITERATIONS = 2000
 _RATERS = [Role("raters", 2, None, "One column per rater; one row per person or piece of work rated")]
@@ -123,11 +124,14 @@ def _category_ratings(df, request, meta) -> dict:
 
 def _common(b: ResultBuilder, n: int, n_excl: int, m: int):
     if n < SMALL_N:
-        b.warn(warning("small_sample", "caution", f"Only {n} people or pieces of work were rated by every rater. "
-                       "Agreement estimates from small samples are imprecise; look at the interval."))
+        b.warn(warning("small_sample", "caution",
+                       f"Only {plural(n, 'person or piece of work', 'people or pieces of work')} "
+                       f"{'was' if n == 1 else 'were'} rated by every rater. Agreement estimates from "
+                       "small samples are imprecise; look at the interval."))
     if n_excl:
-        b.warn(warning("missing_data", "info", f"{n_excl} rows were left out because at least one rater's rating was "
-                       "blank or marked missing. Agreement is computed on rows rated by everyone."))
+        b.warn(warning("missing_data", "info", f"{plural(n_excl, 'row')} {'was' if n_excl == 1 else 'were'} left "
+                       "out because at least one rater's rating was blank or marked missing. Agreement is "
+                       "computed on rows rated by everyone."))
     b.inputs(n, n_excl)
 
 

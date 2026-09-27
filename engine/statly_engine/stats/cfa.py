@@ -32,6 +32,7 @@ from statly_engine.stats import factor_utils as fu
 from statly_engine.stats.apa import Rich
 from statly_engine.stats.core import ResultBuilder, finite, warning
 from statly_engine.stats.registry import Role, register
+from statly_engine.text import plural
 
 FACTOR_N = 100
 GOOD = {"cfi": 0.95, "tli": 0.95, "rmsea": 0.06, "srmr": 0.08}   # Hu & Bentler (1999)
@@ -436,7 +437,8 @@ def _warnings(b, res, load_recs, resid_recs, cov_recs, var_recs, n, dropped) -> 
                        "loading below .40, so the factor explains little of "
                        f"{'this item' if len(weak) == 1 else 'these items'}."))
     if dropped:
-        b.warn(warning("missing_data", "info", f"{dropped} people were left out because they skipped at least one "
+        b.warn(warning("missing_data", "info", f"{plural(dropped, 'person', 'people')} "
+                       f"{'was' if dropped == 1 else 'were'} left out because they skipped at least one "
                        "item (listwise deletion, lavaan's default for ML)."))
 
 

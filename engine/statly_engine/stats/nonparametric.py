@@ -35,6 +35,7 @@ from statly_engine.stats.core import (SMALL_N, ResultBuilder, constant_warning, 
 from statly_engine.stats.descriptives import cell
 from statly_engine.stats.effect_sizes import Estimate
 from statly_engine.stats.registry import Role, register
+from statly_engine.text import plural
 
 _SIZE = {"negligible": "negligible", "small": "small", "medium": "medium", "large": "large"}
 PAIRED_ROLES = {"wide": [Role("measures", 2, 2, "Two score columns for the same people (e.g. pre, post)")],
@@ -120,8 +121,8 @@ def repeated_data(df, request, meta, k_exact: int | None = None, what: str = "Th
         names = [prep.label(meta, c) for c in cols]
         dropped = int((~cc).sum())
         if dropped:
-            notes.append(f"{dropped} people were left out because they are missing at least one of "
-                         + ", ".join(names))
+            notes.append(f"{plural(dropped, 'person', 'people')} {'was' if dropped == 1 else 'were'} left out "
+                         "because they are missing at least one of " + ", ".join(names))
         m = np.column_stack([x.to_numpy()[cc] for x in xs])
         return dict(m=m, names=names, variables=list(cols), groups=[{} for _ in cols],
                     n_missing=[int(x.isna().sum()) for x in xs], n_excluded=dropped, notes=notes,
@@ -163,13 +164,19 @@ def repeated_data(df, request, meta, k_exact: int | None = None, what: str = "Th
     cc = wide.notna().all(axis=1).to_numpy()
     names = [prep.value_label(meta, tname, lv) for lv in levels]
     if len(partial):
-        notes.append(f"{len(partial)} people do not have a row at every time point")
+        n_partial = int(len(partial))
+        notes.append(f"{plural(n_partial, 'person', 'people')} "
+                     f"{'does' if n_partial == 1 else 'do'} not have a row at every time point")
     if len(dup):
-        notes.append(f"{len(dup)} IDs appear more than once at the same time point, so their scores can't be matched")
+        n_dup = int(len(dup))
+        notes.append(f"{plural(n_dup, 'ID', 'IDs')} appear more than once at the same time point, so "
+                     f"{'its' if n_dup == 1 else 'their'} scores can't be matched")
     if int((~cc).sum()):
-        notes.append(f"{int((~cc).sum())} matched people are missing a {prep.label(meta, yname)} score")
+        n_miss = int((~cc).sum())
+        notes.append(f"{plural(n_miss, 'matched person', 'matched people')} "
+                     f"{'is' if n_miss == 1 else 'are'} missing a {prep.label(meta, yname)} score")
     if no_id:
-        notes.append(f"{no_id} rows have no ID")
+        notes.append(f"{plural(no_id, 'row')} {'has' if no_id == 1 else 'have'} no ID")
     n = int(cc.sum())
     return dict(m=wide.to_numpy()[cc], names=names, variables=[yname] * k, groups=[{tname: lv} for lv in levels],
                 n_missing=[int(y[a].isna().sum()) for a in at], n_excluded=int(in_levels.sum() - k * n), notes=notes,
@@ -430,7 +437,8 @@ def wilcoxon_one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> 
 @register("sign_test", label="Sign test",
           roles={**PAIRED_ROLES, "one_sample": [Role("outcome", 1, 1, "Scores to compare with a fixed value")]},
           options={"levels": "Long layout: the two time values, in the order to compare (first minus second).",
-                   "test_value": "One-sample layout: value the scores are compared with (default 0)."})
+                   "test_value": "One-sample layout: value the scores are compared with. Required; Statly "
+                                 "never assumes 0."})
 def sign_test(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     level, alt, alpha = request.ci_level, request.tails.value, request.alpha
     b = ResultBuilder(request)
@@ -450,6 +458,8 @@ def sign_test(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     else:
         name = request.variables["outcome"][0]
         vl = prep.label(meta, name)
+        if "test_value" not in request.options and "mu" not in request.options:
+            raise InvalidParams("Tell Statly the value to compare against (for example the middle of the scale).")
         mu = _test_value(request)
         x_all = prep.numeric(df, name, meta)
         diffs = x_all.dropna().to_numpy() - mu

@@ -34,8 +34,8 @@
       {
         "key": "epsilon_sq",
         "value": 0.145144264602392,
-        "ci_lower": 0.00762488310058424,
-        "ci_upper": 1
+        "ci_lower": 0.00345728263176663,
+        "ci_upper": 0.474691642710983
       }
     ],
     "descriptives": [

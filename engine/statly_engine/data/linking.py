@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+from statly_engine.text import plural
+
 MAX_IDS = 200
 
 
@@ -50,19 +52,22 @@ def link_report(df: pd.DataFrame, id_variable: str, time_variable: str, levels: 
         f"{'ignoring upper/lower case' if fold else 'exact comparison'}.",
     ]
     if unmatched:
+        n_un = len(unmatched)
         lines.append(
-            f"{len(unmatched)} IDs are not present at every time point ({'; '.join(only_parts)}). "
-            "They stay in aggregate (between-groups) analyses but are left out of paired and "
+            f"{plural(n_un, 'ID', 'IDs')} {'is' if n_un == 1 else 'are'} not present at every time point "
+            f"({'; '.join(only_parts)}). {'It stays' if n_un == 1 else 'They stay'} in aggregate "
+            "(between-groups) analyses but " + ("is" if n_un == 1 else "are") + " left out of paired and "
             "repeated-measures analyses, which need the same person at every time point."
         )
     if duplicates:
+        n_dup = len(duplicates)
         shown = ", ".join(f"{d} ({'/'.join(l)})" for d, l in list(duplicates.items())[:10])
         lines.append(
-            f"{len(duplicates)} IDs appear more than once within a single time point ({shown}). "
+            f"{plural(n_dup, 'ID', 'IDs')} appear more than once within a single time point ({shown}). "
             "Paired analyses can't tell which row belongs to the person; review these before running them."
         )
     if blank:
-        lines.append(f"{blank} rows have no ID and cannot be linked.")
+        lines.append(f"{plural(blank, 'row')} {'has' if blank == 1 else 'have'} no ID and cannot be linked.")
     report = {
         "counts": counts,
         "unmatched_ids": sorted(unmatched)[:MAX_IDS],

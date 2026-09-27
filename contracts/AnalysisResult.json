@@ -319,6 +319,18 @@
         "n": { "type": "integer", "minimum": 0 }
       }
     },
+    "ExcludedReason": {
+      "title": "ExcludedReason",
+      "description": "Why some of n_excluded were left out, broken down by cause (SPEC §8). The subtitle should read the specific reason(s) here instead of defaulting to \"missing answers\".",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "count", "label"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "e.g. missing_answer, unpaired_one_side, duplicate_id, no_id." },
+        "count": { "type": "integer", "minimum": 0 },
+        "label": { "type": "string", "description": "Plain-language reason, e.g. \"couldn't be paired\", \"missing answers\"." }
+      }
+    },
     "ResultInputs": {
       "title": "ResultInputs",
       "description": "Exact inputs used, for reproducibility and the Test Log.",
@@ -331,7 +343,8 @@
         "snapshot_id": { "type": ["string", "null"] },
         "n_used": { "type": "integer", "minimum": 0, "description": "Rows (or matched participants for paired designs) actually analysed." },
         "n_excluded": { "type": "integer", "minimum": 0, "description": "Rows in the subset excluded for missing data / unmatched IDs." },
-        "n_by_group": { "type": "array", "items": { "$ref": "#/$defs/GroupCount" } }
+        "n_by_group": { "type": "array", "items": { "$ref": "#/$defs/GroupCount" } },
+        "excluded_reasons": { "type": "array", "items": { "$ref": "#/$defs/ExcludedReason" }, "description": "Optional breakdown of n_excluded by cause; when absent, callers may assume missing data." }
       }
     }
   }

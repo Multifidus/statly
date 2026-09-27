@@ -37,7 +37,8 @@ from scipy import special, stats
 from statly_engine.errors import InvalidParams
 from statly_engine.stats import apa, effect_sizes_cat as esc, prep
 from statly_engine.stats.apa import Rich
-from statly_engine.stats.core import SMALL_N, ResultBuilder, magnitude, missing_warning, warning
+from statly_engine.stats.core import SMALL_N, ResultBuilder, missing_warning, size_clause, warning
+from statly_engine.text import plural
 from statly_engine.stats.descriptives import frequency_table
 from statly_engine.stats.registry import Role, register
 
@@ -344,14 +345,11 @@ def chi_square_independence(df: pd.DataFrame, request, meta: dict | None = None)
                  f" association between {x['row_label']} and {x['col_label']}, ")
     s.extend(_chi_sym()).t(f"({dfree}, ").i("N").t(f" = {n}) = {apa.num(chi)}, ").p(p)
     s.t(", ").es("V", v.value, v.lower, v.upper, level, bounded=True).t(".")
-    strength = {"negligible": "very weak", "small": "weak", "medium": "moderate", "large": "strong"}
-    mag = magnitude(v.value, "r")
     summary = ((f"{x['row_label']} and {x['col_label']} appear to be related: the pattern of {x['col_label']} "
                 "differs across the rows more than chance alone would explain") if sig else
                (f"There is no strong evidence that {x['row_label']} and {x['col_label']} are related; the "
                 "differences in the table could easily be due to chance")) + f" ({_p_phrase(p)})."
-    if mag:
-        summary += f" The strength of the association was {strength[mag]} by common benchmarks."
+    summary += size_clause("Cramér's V", v.value, "r", bounded=True, what="association")
     summary += " " + _pattern_sentence(x, tab, sig)
     b.sentence(s).summary(summary)
     return b.build()
@@ -564,12 +562,15 @@ def mcnemar(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     if disc == 0:
         b.warn(warning("constant_variable", "serious", "Nobody changed their answer, so there is no change to test."))
     elif disc < 25:
-        b.warn(warning("small_sample", "caution", f"Only {disc} people changed their answer. With fewer than 25 "
-                       "changes the exact binomial p-value (also reported) is more trustworthy than the chi-square."))
+        b.warn(warning("small_sample", "caution", f"Only {plural(disc, 'person', 'people')} changed their "
+                       "answer. With fewer than 25 changes the exact binomial p-value (also reported) is "
+                       "more trustworthy than the chi-square."))
     n_excl = int((~ok).sum())
     if n_excl:
-        b.warn(warning("pairs_dropped", "info", f"{n_excl} people were left out because they are missing {names[0]} "
-                       f"or {names[1]}. {n} complete pairs were analysed."))
+        b.warn(warning("pairs_dropped", "info",
+                       f"{plural(n_excl, 'person', 'people')} {'was' if n_excl == 1 else 'were'} left out "
+                       f"because they are missing {names[0]} or {names[1]}. {plural(n, 'complete pair')} "
+                       f"{'was' if n == 1 else 'were'} analysed."))
     b.inputs(n, n_excl)
 
     cols = [apa.column("first", names[0], "left")] + [apa.column(f"c{j}", lv[j]) for j in range(2)] + \
@@ -653,12 +654,15 @@ def cochran_q(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         b.warn(warning("constant_variable", "serious", "Every person gave the same answer on every measure, so "
                        "there is no change to test."))
     if n < SMALL_N:
-        b.warn(warning("small_sample", "caution", f"Only {n} people have all {k} answers. Cochran's Q relies on a "
-                       "large-sample approximation, so treat the p-value with care."))
+        b.warn(warning("small_sample", "caution", f"Only {plural(n, 'person', 'people')} "
+                       f"{'has' if n == 1 else 'have'} all {k} answers. Cochran's Q relies on a large-sample "
+                       "approximation, so treat the p-value with care."))
     n_excl = int((~ok).sum())
     if n_excl:
-        b.warn(warning("pairs_dropped", "info", f"{n_excl} people were left out because they are missing at least "
-                       f"one of the {k} measures. {n} complete cases were analysed."))
+        b.warn(warning("pairs_dropped", "info",
+                       f"{plural(n_excl, 'person', 'people')} {'was' if n_excl == 1 else 'were'} left out "
+                       f"because they are missing at least one of the {k} measures. "
+                       f"{plural(n, 'complete case')} {'was' if n == 1 else 'were'} analysed."))
     b.inputs(n, n_excl)
 
     tcols = [apa.column("m", "Measure", "left"), apa.column("n", Rich().i("n").t(f" ({yes_lab})")),

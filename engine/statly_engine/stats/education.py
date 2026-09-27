@@ -39,6 +39,7 @@ from statly_engine.stats.descriptives import cell
 from statly_engine.stats.effect_sizes_rank import BOOT_SEED, RRandom, _perc_ci
 from statly_engine.stats.registry import Role, register
 from statly_engine.stats.ttests import SCIPY_ALT, _paired_long, _paired_wide
+from statly_engine.text import plural
 
 NG_ITERATIONS = 2000
 _ROLES = {"wide": [Role("measures", 2, 2, "Pre and post score columns for the same people, pre first"),
@@ -78,7 +79,8 @@ def prepost(df, request, meta) -> dict:
                     "n_missing": [int(pre[rows].isna().sum()), int(post[rows].isna().sum()),
                                   int((rows & ~ok).sum())]})
     dropped = int((~ok).sum())
-    notes = [f"{dropped} rows were left out because the group, {names[0]} or {names[1]} was missing"] if dropped else []
+    notes = ([f"{plural(dropped, 'row')} {'was' if dropped == 1 else 'were'} left out because the group, "
+              f"{names[0]} or {names[1]} was missing"] if dropped else [])
     return {"pre": pre.to_numpy()[ok], "post": post.to_numpy()[ok], "names": names, "variables": [a, c],
             "groups": [{}, {}], "n_missing": [int(pre.isna().sum()), int(post.isna().sum())], "n_excluded": dropped,
             "notes": notes, "outcome_label": f"{names[0]} and {names[1]}", "group": per, "gname": gname,

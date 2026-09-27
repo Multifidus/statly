@@ -90,6 +90,15 @@ def test_wilcoxon_one_sample_summary_names_the_value():
     assert mu_txt in res["plain_language_summary"]
 
 
+def test_sign_test_one_sample_requires_test_value():
+    fx = load_fixture(next(p for p in CASES if p.stem == "sign_test__one_sample"))
+    data = load_data(fx["dataset"])
+    request = _req("sign_test", fx["request"]["variables"])
+    with pytest.raises(InvalidParams) as exc:
+        registry.run(data, request)
+    assert "Tell Statly the value to compare against" in str(exc.value)
+
+
 def test_all_zero_differences_explained():
     import pandas as pd
     df = pd.DataFrame({"pre": [1, 2, 3, 4], "post": [1, 2, 3, 4]})
@@ -113,6 +122,20 @@ def test_bootstrap_seed_option_changes_ci():
     other = registry.run(load_data(fx["dataset"]), req)
     assert base["effect_sizes"][0]["value"] == other["effect_sizes"][0]["value"]
     assert base["effect_sizes"][0]["ci"]["lower"] != other["effect_sizes"][0]["ci"]["lower"]
+
+
+def test_rank_effect_size_cis_are_two_sided():
+    """epsilon² (Kruskal-Wallis) and Kendall's W (Friedman) CIs must not be pinned to an upper
+    bound of 1 (SPEC line 30: effect-size CIs are two-sided, not effectsize's one-sided default)."""
+    kw = load_fixture(next(p for p in CASES if p.stem == "kruskal_wallis__four_groups"))
+    eps = run_fixture(kw)["effect_sizes"][0]
+    assert eps["key"] == "epsilon_sq"
+    assert eps["ci"]["upper"] < 1.0
+
+    fr = load_fixture(next(p for p in CASES if p.stem == "friedman__rm5_long"))
+    w = run_fixture(fr)["effect_sizes"][0]
+    assert w["key"] == "kendall_w"
+    assert w["ci"]["upper"] < 1.0
 
 
 def test_r_rng_emulation():

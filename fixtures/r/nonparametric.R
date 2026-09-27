@@ -12,8 +12,11 @@
 #     rescaled by r / r_rb (the two are linear in the same U / V statistic).
 #   sign_test: stats::binom.test(#positive, #nonzero, 0.5) (exact); prop_positive CI = Clopper-Pearson.
 #   kruskal_wallis: stats::kruskal.test; epsilon^2 = effectsize::rank_epsilon_squared (percentile
-#     bootstrap, 200 iterations, one-sided "greater"), seeded with set.seed(BOOT_SEED) right before.
-#   friedman: stats::friedman.test on complete cases; Kendall's W = effectsize::kendalls_w (same).
+#     bootstrap, 200 iterations), seeded with set.seed(BOOT_SEED) right before. TWO-SIDED CI
+#     (alternative = "two.sided"; Statly reports every effect-size CI two-sided, SPEC §3) rather than
+#     effectsize's own default ("greater", upper bound fixed at 1).
+#   friedman: stats::friedman.test on complete cases; Kendall's W = effectsize::kendalls_w (same,
+#     also alternative = "two.sided").
 #   posthoc.dunn: PMCMRplus::kwAllPairsDunnTest; posthoc.conover: PMCMRplus::frdAllPairsConoverTest;
 #   posthoc.nemenyi: PMCMRplus::frdAllPairsNemenyiTest. Pairwise rank-biserial via effectsize.
 #   PAIRED_RB note: effectsize 1.0.3 rank_biserial(x, y, paired = TRUE) returns the right estimate but
@@ -237,7 +240,7 @@ kw_case <- function(case, dataset, ci = 0.95) {
   k <- kw_data(dataset)
   kt <- stats::kruskal.test(k$x, k$g)
   set.seed(BOOT_SEED)
-  eps <- rank_epsilon_squared(k$x, k$g, ci = ci, iterations = BOOT_ITER, verbose = FALSE)
+  eps <- rank_epsilon_squared(k$x, k$g, ci = ci, iterations = BOOT_ITER, alternative = "two.sided", verbose = FALSE)
   fixture("kruskal_wallis", case, dataset, req(list(outcome = list("y"), group = list("group")), empty, "two_sided", ci),
           list(n_used = length(k$x), n_excluded = k$n_excluded,
                statistics = list(stat_rec("h", kt$statistic, kt$parameter, kt$p.value)),
@@ -304,7 +307,7 @@ fr_case <- function(case, dataset, layout, ci = 0.95) {
   ft <- stats::friedman.test(m)
   mm <- m; colnames(mm) <- r$names; rownames(mm) <- sprintf("b%03d", seq_len(nrow(mm)))
   set.seed(BOOT_SEED)
-  kw <- kendalls_w(mm, ci = ci, iterations = BOOT_ITER, verbose = FALSE)
+  kw <- kendalls_w(mm, ci = ci, iterations = BOOT_ITER, alternative = "two.sided", verbose = FALSE)
   fixture("friedman", case, dataset, req(r$vars, r$opts, "two_sided", ci),
           list(n_used = nrow(m), n_excluded = r$n_excluded,
                statistics = list(stat_rec("chi_sq", ft$statistic, ft$parameter, ft$p.value)),

@@ -404,5 +404,5 @@
       "probability": []
     }
   },
-  "plain_language_summary": "For the 30 people with both scores, scores were higher at post than at pre on average (a difference of 5.37 points). This change is unlikely to be due to chance alone (p < .001). The size of the difference was medium by common benchmarks."
+  "plain_language_summary": "For the 30 people with both scores, scores were higher at post than at pre on average (a difference of 5.37 points). This change is unlikely to be due to chance alone (p < .001). Cohen's d_av = -0.53, a medium difference."
 }

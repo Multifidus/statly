@@ -14,6 +14,51 @@ export function richToPlain(runs: RichText | null | undefined): string {
   return (runs ?? []).map((r) => r.text).join("");
 }
 
+const SUPERSCRIPT_DIGITS: Record<string, string> = { "¹": "1", "²": "2", "³": "3" };
+
+/** Tokenize `_word` subscripts and `²/³/¹` superscripts inside a span of plain text. */
+function tokenizeInline(text: string, italic: boolean): TextRun[] {
+  const out: TextRun[] = [];
+  const re = /_([a-zA-Z]+)|[¹²³]/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push({ text: text.slice(last, m.index), ...(italic ? { italic: true } : {}) });
+    if (m[1] !== undefined) {
+      out.push({ text: m[1], subscript: true, ...(italic ? { italic: true } : {}) });
+    } else {
+      out.push({ text: SUPERSCRIPT_DIGITS[m[0]] ?? m[0], superscript: true, ...(italic ? { italic: true } : {}) });
+    }
+    last = re.lastIndex;
+  }
+  if (last < text.length) out.push({ text: text.slice(last), ...(italic ? { italic: true } : {}) });
+  return out;
+}
+
+/**
+ * Parse the Learn library's "How to report it" markup — `*italic*` statistic symbols, `_word`
+ * subscripts (bare or inside `*..*`), and `²/³/¹` superscripts — into RichText runs,
+ * the same run shape the engine emits for `apa_sentence`. `{placeholders}` pass through untouched
+ * as plain text, exactly as written, so they stay visibly literal.
+ */
+export function parseApaMarkup(text: string): RichText {
+  const out: RichText = [];
+  const re = /\{[^}]*\}|\*[^*]+\*/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(...tokenizeInline(text.slice(last, m.index), false));
+    if (m[0][0] === "{") {
+      out.push({ text: m[0] });
+    } else {
+      out.push(...tokenizeInline(m[0].slice(1, -1), true));
+    }
+    last = re.lastIndex;
+  }
+  if (last < text.length) out.push(...tokenizeInline(text.slice(last), false));
+  return out;
+}
+
 function runToHtml(r: TextRun): string {
   let h = escapeHtml(r.text);
   if (r.subscript) h = `<sub>${h}</sub>`;

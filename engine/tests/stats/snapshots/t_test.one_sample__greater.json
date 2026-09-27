@@ -278,5 +278,5 @@
       "probability": []
     }
   },
-  "plain_language_summary": "On average, y scores (3.36) were higher than 3. This difference is unlikely to be due to chance alone (p = .005). The size of the difference was small by common benchmarks."
+  "plain_language_summary": "On average, y scores (3.36) were higher than 3. This difference is unlikely to be due to chance alone (p = .005). Cohen's d = 0.43, a small difference."
 }

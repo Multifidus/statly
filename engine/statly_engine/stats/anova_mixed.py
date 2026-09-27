@@ -48,6 +48,7 @@ from statly_engine.stats.apa import Rich
 from statly_engine.stats.core import ResultBuilder, constant_warning, ties_warning, warning
 from statly_engine.stats.descriptives import cell
 from statly_engine.stats.registry import Role, register
+from statly_engine.text import plural
 
 MIXED_ROLES = {
     "wide": [Role("measures", 2, None, "Score columns for the same people, in time order"),
@@ -92,8 +93,8 @@ def _mixed_wide(df, request, meta) -> dict:
     dropped = int((~cc).sum())
     notes = []
     if dropped:
-        notes.append(f"{dropped} people were left out because they are missing at least one of the measures or "
-                     "their group")
+        notes.append(f"{plural(dropped, 'person', 'people')} {'was' if dropped == 1 else 'were'} left out "
+                     "because they are missing at least one of the measures or their group")
     return dict(y=y, g=gidx, gl=gl, gnames=gnames, tnames=tnames, gname=gname, time_var=None, time_levels=None,
                 glabel=prep.label(meta, gname), tlabel="Time", outcome_label=", ".join(tnames), desc=desc,
                 n_excluded=dropped, notes=notes)
@@ -151,15 +152,23 @@ def _mixed_long(df, request, meta) -> dict:
     gidx = _group_index(gvals, gl) if gl else np.zeros(0, int)
     notes = []
     if len(partial):
-        notes.append(f"{len(partial)} people do not have a row at every time point")
+        n_partial = int(len(partial))
+        notes.append(f"{plural(n_partial, 'person', 'people')} "
+                     f"{'does' if n_partial == 1 else 'do'} not have a row at every time point")
     if len(dup):
-        notes.append(f"{len(dup)} IDs appear more than once at the same time point, so their scores can't be matched")
+        n_dup = int(len(dup))
+        notes.append(f"{plural(n_dup, 'ID', 'IDs')} appear more than once at the same time point, so "
+                     f"{'its' if n_dup == 1 else 'their'} scores can't be matched")
     if no_group:
-        notes.append(f"{len(no_group)} people have no group, or different groups on different rows")
+        n_ng = len(no_group)
+        notes.append(f"{plural(n_ng, 'person', 'people')} "
+                     f"{'has' if n_ng == 1 else 'have'} no group, or different groups on different rows")
     if int((~cc).sum()):
-        notes.append(f"{int((~cc).sum())} matched people are missing a {prep.label(meta, yname)} score")
+        n_miss = int((~cc).sum())
+        notes.append(f"{plural(n_miss, 'matched person', 'matched people')} "
+                     f"{'is' if n_miss == 1 else 'are'} missing a {prep.label(meta, yname)} score")
     if no_id:
-        notes.append(f"{no_id} rows have no ID")
+        notes.append(f"{plural(no_id, 'row')} {'has' if no_id == 1 else 'have'} no ID")
     ymat = wide.loc[keep_ids].to_numpy(float) if n else np.zeros((0, k))
     tnames = [prep.value_label(meta, tname, lv) for lv in levels]
     gnames = [prep.value_label(meta, gname, lv) for lv in gl]

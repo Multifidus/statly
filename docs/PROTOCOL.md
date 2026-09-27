@@ -268,6 +268,12 @@ Params/results are not yet in `contracts/Rpc.json`; the app mirrors them in
   -> `-32003` with a plain-language `message` the app shows as is.
 - `analysis.list` returns registered analyses sorted by id; ids not yet registered are simply
   absent (the app says "can't run this yet").
+- `AnalysisResult.inputs.excluded_reasons` (optional): a breakdown of `n_excluded` by cause, as
+  `{code, count, label}` — e.g. paired/repeated-measures designs emit `unpaired_one_side`,
+  `duplicate_id`, `missing_answer`, `no_id` instead of lumping everything under "missing answers".
+  When present, the app should compose the results subtitle from these reasons (e.g. "15 left out
+  because they couldn't be paired (9 with one time point, 2 duplicate IDs)") instead of always
+  saying "left out for missing answers"; when absent, the app may keep assuming missing data.
 
 ## Phase 6 methods (Test Log and multiple comparisons, SPEC §9)
 Engine-side closed pydantic models (not yet in `contracts/Rpc.json`): `rpc_methods/project.py`

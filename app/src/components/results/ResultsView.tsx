@@ -3,15 +3,16 @@ import { cn } from "cn";
 import type { AnalysisResult, AssumptionResult, EffectSize, ResultWarning } from "@/contracts";
 import { ApaTableView } from "@/components/results/ApaTableView";
 import { CopyButton } from "@/components/results/CopyButton";
+import { HowToReport } from "@/components/results/HowToReport";
 import { RichText } from "@/components/results/RichText";
 import { VegaChart } from "@/components/charts/VegaChart";
 import { Term } from "@/components/learn/GlossaryTerm";
-import { Markdown } from "@/components/learn/Markdown";
 import { Button } from "@/components/ui/button";
 import { Badge, Notice } from "@/components/ui/form";
 import { fmtDf, fmtNum, fmtPExpr, isBounded, sentencePayload } from "@/lib/apa";
 import { isSupportedChart } from "@/lib/chartSpecs";
 import { learnPageFor, sectionOf } from "@/lib/content/learn";
+import { pluralize } from "@/lib/plural";
 import { primaryEffect, primaryStatistic } from "@/lib/resultSummary";
 import { openLearn } from "@/stores/learn";
 
@@ -92,8 +93,11 @@ export function ResultsView({
           {title}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {result.inputs.n_used} {result.inputs.n_used === 1 ? "response" : "responses"} analysed
-          {result.inputs.n_excluded > 0 && `, ${result.inputs.n_excluded} left out for missing answers`}
+          {pluralize(result.inputs.n_used, "response")} analysed
+          {result.inputs.n_excluded > 0 &&
+            (result.inputs.excluded_reasons && result.inputs.excluded_reasons.length > 0
+              ? `, ${result.inputs.n_excluded} left out (${result.inputs.excluded_reasons.map((r) => `${r.count} ${r.label}`).join("; ")})`
+              : `, ${result.inputs.n_excluded} left out for missing answers`)}
           {groupCount > 1 && ` (${result.inputs.n_by_group.map((g) => `${Object.values(g.group).join(", ")}: ${g.n}`).join("; ")})`}.
         </p>
         {badge && <div className="mt-2">{badge}</div>}
@@ -295,7 +299,7 @@ export function ResultsView({
       )}
 
       <Section id="result-how-to-report" title="How to report this">
-        {howTo ? <Markdown>{howTo}</Markdown> : <p className="text-sm">Report the test, its statistic with degrees of freedom, the exact p-value, and the effect size with its confidence interval, as in the sentence above.</p>}
+        {howTo ? <HowToReport markdown={howTo} /> : <p className="text-sm">Report the test, its statistic with degrees of freedom, the exact p-value, and the effect size with its confidence interval, as in the sentence above.</p>}
         {page && (
           <div>
             <Button variant="outline" size="sm" onClick={() => openLearn(page.id)} data-testid="open-learn-page">

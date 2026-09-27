@@ -15,7 +15,8 @@ import numpy as np
 
 from statly_engine import ENGINE_VERSION
 from statly_engine.contracts import AnalysisRequest, AnalysisResult
-from statly_engine.stats.apa import Rich
+from statly_engine.stats.apa import Rich, no_zero, num
+from statly_engine.text import plural  # noqa: F401  (re-exported for stats modules)
 from statly_engine.stats.effect_sizes import Estimate
 
 SMALL_N = 30            # per-group n below which a small_sample warning is raised
@@ -69,6 +70,20 @@ def interpret(value: float | None, family: str | None, what: str = "difference")
             "text": f"By common benchmarks this is a {_MAG_WORD[mag]} {what}. {FIELD_NORMS}"}
 
 
+def size_clause(name: str, value: float | None, family: str, bounded: bool = False,
+                 what: str = "difference") -> str:
+    """Plain-language clause naming the headline effect-size symbol and its magnitude.
+
+    `name` must be the same measure the APA sentence reports for that family (e.g. Cohen's d_av
+    for a paired t test, not d_z), so the summary and the APA sentence never disagree.
+    """
+    mag = magnitude(value, family)
+    if mag is None:
+        return ""
+    fmt = no_zero if bounded else num
+    return f" {name} = {fmt(value)}, a {mag} {what}."
+
+
 def warning(code: str, severity: str, message: str) -> dict:
     return {"code": code, "severity": severity, "message": message}
 
@@ -79,8 +94,9 @@ def small_sample_warning(counts: dict[str, int]) -> dict | None:
         return None
     if len(counts) == 1:
         n = next(iter(counts.values()))
-        msg = (f"Only {n} scores were analysed. With fewer than {SMALL_N}, results are less precise and "
-               "depend more on the data being roughly bell-shaped, so check the plots.")
+        msg = (f"Only {plural(n, 'score')} {'was' if n == 1 else 'were'} analysed. With fewer than "
+               f"{SMALL_N}, results are less precise and depend more on the data being roughly "
+               "bell-shaped, so check the plots.")
     else:
         parts = ", ".join(f"{k} (n = {n})" for k, n in small.items())
         msg = (f"Some groups have fewer than {SMALL_N} people: {parts}. Small groups give less precise "
@@ -107,17 +123,18 @@ def ties_warning(values, variable_label: str) -> dict | None:
     if len(vals) == 0 or k > FEW_DISTINCT or k == len(vals):
         return None
     return warning("ties_present", "info",
-                   f"{variable_label} has only {k} different values, so many scores are tied (common "
-                   "for a single survey item). Single Likert items are ordinal; a rank-based test such "
-                   "as Mann-Whitney or Wilcoxon is often recommended for them.")
+                   f"{variable_label} has only {plural(k, 'different value', 'different values')}, so many "
+                   "scores are tied (common for a single survey item). Single Likert items are ordinal; a "
+                   "rank-based test such as Mann-Whitney or Wilcoxon is often recommended for them.")
 
 
-def missing_warning(n_excluded: int, what: str = "rows") -> dict | None:
+def missing_warning(n_excluded: int, singular: str = "row", plural_form: str | None = None) -> dict | None:
     if n_excluded <= 0:
         return None
+    was_were = "was" if n_excluded == 1 else "were"
     return warning("missing_data", "info",
-                   f"{n_excluded} {what} were left out because a value needed for this analysis was "
-                   "blank or marked missing. Everyone else's answers were used.")
+                   f"{plural(n_excluded, singular, plural_form)} {was_were} left out because a value "
+                   "needed for this analysis was blank or marked missing. Everyone else's answers were used.")
 
 
 def constant_warning(label: str) -> dict:
@@ -207,9 +224,15 @@ class ResultBuilder:
         self.chart_data[key] = records
         return self
 
-    def inputs(self, n_used: int, n_excluded: int, n_by_group: list[tuple[dict, int]] | None = None):
+    def inputs(self, n_used: int, n_excluded: int, n_by_group: list[tuple[dict, int]] | None = None,
+               excluded_reasons: list[tuple[str, int, str]] | None = None):
+        """excluded_reasons: (code, count, label) tuples explaining n_excluded by cause, e.g.
+        ("unpaired_one_side", 9, "had a score at only one time point")."""
         self._inputs = {"n_used": int(n_used), "n_excluded": int(n_excluded),
                         "n_by_group": [{"group": g, "n": int(n)} for g, n in (n_by_group or [])]}
+        if excluded_reasons:
+            self._inputs["excluded_reasons"] = [{"code": c, "count": int(n), "label": lab}
+                                                for c, n, lab in excluded_reasons]
         return self
 
     # -- output --------------------------------------------------------------

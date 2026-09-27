@@ -24,9 +24,11 @@ def variable_meta(meta: dict | None, name: str) -> dict | None:
 
 
 def label(meta: dict | None, name: str) -> str:
-    """Display name: the variable's label if set, else its name."""
-    v = variable_meta(meta, name)
-    return (v or {}).get("label") or name
+    """Display name: the variable's label, else its question text (the header/question stored at
+    import), else its bare name (SPEC §5.5). Every summary/APA builder should go through this so
+    a variable with question text but no short label still reads with something meaningful."""
+    v = variable_meta(meta, name) or {}
+    return v.get("label") or v.get("question_text") or name
 
 
 def _is_missing(series: pd.Series, meta: dict | None, name: str) -> pd.Series:
