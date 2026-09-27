@@ -133,10 +133,12 @@ def _run(df: pd.DataFrame, request, meta, with_covs: bool) -> dict:
                   "explanation": ("Multivariate normality is not tested directly. "
                                   + ("Each outcome's residuals look roughly bell-shaped, which is necessary (though "
                                      "not sufficient); with about 20 or more people per group MANOVA is fairly "
-                                     "robust to this." if normal_ok else
+                                     "robust to this. Because every outcome's own residual-normality check above "
+                                     "passed, there's no sign multivariate normality is a problem." if normal_ok else
                                      "At least one outcome's residuals are not bell-shaped, so multivariate "
                                      "normality is doubtful. Pillai's trace is the most robust test; check the Q-Q "
-                                     "plots and the outliers.")),
+                                     "plots and the outliers. Because at least one outcome's residual-normality "
+                                     "check above did not pass, multivariate normality is doubtful too.")),
                   "applies_to": asm.scope("residuals", "residuals", None, n), "chart_refs": []})
     data_warnings(b, d)
     if any(a["verdict"] == "failed" for a in b.assumptions if a["assumption"] == "homogeneity_of_regression_slopes"):

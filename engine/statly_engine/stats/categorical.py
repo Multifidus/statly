@@ -215,15 +215,29 @@ def _crosstab_outputs(b: ResultBuilder, x: dict, rname: str, cname: str, meta, n
     return e
 
 
-def _low_expected_warning(e: np.ndarray, fisher_ok: bool = True):
+def expected_counts_check(e: np.ndarray) -> tuple[str, str]:
+    """('passed'|'failed', explanation) for the independence / expected-counts assumption.
+
+    Pure and testable independent of whether a warning is actually surfaced (Statly only shows a
+    Notice when the check fails; the passing explanation exists for completeness and tests).
+    """
     share = float(np.mean(e < 5))
-    if share > 0.2 or float(e.min()) < 1:
+    smallest = float(e.min())
+    if share > 0.2 or smallest < 1:
+        return "failed", (f"{share * 100:.0f}% of the cells have an expected count below 5 (smallest "
+                          f"{smallest:.2f}). The chi-square p-value can be inaccurate with counts this small. "
+                          f"Because the smallest expected count ({smallest:.2f}) is below 5, this check fails.")
+    return "passed", (f"Every expected count is at least 5 (smallest {smallest:.2f}). Because every expected "
+                      f"count is at least 5 (smallest: {smallest:.2f}), the chi-square test's p-value should be "
+                      "accurate.")
+
+
+def _low_expected_warning(e: np.ndarray, fisher_ok: bool = True):
+    verdict, text = expected_counts_check(e)
+    if verdict == "failed":
         tail = (" Fisher's exact test does not rely on large counts and is the safer choice here."
                 if fisher_ok else " Consider combining small categories.")
-        return warning("low_expected_counts", "caution",
-                       f"{share * 100:.0f}% of the cells have an expected count below 5 (smallest "
-                       f"{e.min():.2f}). The chi-square p-value can be inaccurate with counts this small."
-                       + tail)
+        return warning("low_expected_counts", "caution", text + tail)
     return None
 
 

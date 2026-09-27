@@ -12,4 +12,11 @@ describe("AssumptionStep", () => {
     expect(chart).toBeInTheDocument();
     expect(screen.getByTestId("save-figure")).toBeInTheDocument();
   });
+
+  it("shows the engine's 'Because' sentence explaining why the verdict was reached", () => {
+    const result = example as unknown as AnalysisResult;
+    render(<AssumptionStep result={result} index={0} onBack={vi.fn()} onNext={vi.fn()} />);
+    const verdictBlock = screen.getByTestId("assumption-verdict");
+    expect(verdictBlock.textContent).toContain("Because the p value");
+  });
 });

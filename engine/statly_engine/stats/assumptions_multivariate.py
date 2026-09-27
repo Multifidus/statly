@@ -29,7 +29,7 @@ import numpy as np
 from scipy import linalg, stats
 
 from statly_engine.stats import assumptions as asm
-from statly_engine.stats.apa import p_value
+from statly_engine.stats.apa import no_zero, p_value
 
 BOX_M_ALPHA = 0.001
 OUTLIER_P = 0.001
@@ -116,6 +116,14 @@ def _pp(p) -> str:
     return f"p {s}" if s[0] in "<>" else f"p = {s}"
 
 
+def _pn(p) -> str:
+    return p_value(p)
+
+
+def _at(alpha: float) -> str:
+    return no_zero(alpha, 2)
+
+
 def _res(assumption, label, key, test_label, symbol, value, df, p, verdict, text, sc, refs=None) -> dict:
     stat = None if value is None or not math.isfinite(value) else {"symbol": symbol, "value": float(value),
                                                                   "df": [float(d) for d in df]}
@@ -134,11 +142,14 @@ def slopes_result(f, df1, df2, p, n: int, alpha: float, multivariate: bool = Fal
                     "people per group for the extra interaction terms).", sc)
     if p >= alpha:
         return _res(*args, f, [df1, df2], p, "passed", "The link between the covariate and the outcome looks "
-                    f"about the same in every group ({_pp(p)}), so adjusting all groups the same way is reasonable.", sc)
+                    f"about the same in every group ({_pp(p)}), so adjusting all groups the same way is "
+                    f"reasonable. Because the p value ({_pn(p)}) is above {_at(alpha)}, the covariate-outcome "
+                    "link doesn't clearly differ across groups.", sc)
     return _res(*args, f, [df1, df2], p, "failed", "The link between the covariate and the outcome differs "
                 f"between groups ({_pp(p)}). The adjusted means then depend on which covariate value you pick, "
                 "so describe the groups separately (or model the interaction) rather than relying on one "
-                "adjusted comparison.", sc)
+                f"adjusted comparison. Because the p value ({_pn(p)}) is below {_at(alpha)}, the "
+                "covariate-outcome link does differ across groups.", sc)
 
 
 def slopes_test(y: np.ndarray, covs: np.ndarray, contr: np.ndarray, alpha: float) -> dict:
@@ -183,9 +194,11 @@ def linearity(x: np.ndarray, y: np.ndarray, label: str, group: dict, alpha: floa
     p = float(stats.f.sf(f, 1, df2))
     if p >= alpha:
         return _res(*args, f, [1, df2], p, "passed", f"In {label} the covariate and outcome follow a roughly "
-                    f"straight-line pattern ({_pp(p)}).", sc)
+                    f"straight-line pattern ({_pp(p)}). Because the p value ({_pn(p)}) is above {_at(alpha)}, "
+                    "the curvature (quadratic) term added nothing worth worrying about.", sc)
     return _res(*args, f, [1, df2], p, "failed", f"In {label} the covariate-outcome pattern bends ({_pp(p)}). "
-                "A straight-line adjustment may not fit well there; check the scatterplot.", sc)
+                f"A straight-line adjustment may not fit well there; check the scatterplot. Because the p value "
+                f"({_pn(p)}) is below {_at(alpha)}, the curvature (quadratic) term clearly improved the fit.", sc)
 
 
 def residual_normality(resid: np.ndarray, label: str, alpha: float, chart_prefix: str = "resid") -> tuple[dict, dict]:
@@ -220,10 +233,13 @@ def box_m(Y: np.ndarray, codes: np.ndarray, k: int, names: list[str]) -> dict:
     pv = float(stats.chi2.sf(x2, df))
     if pv >= BOX_M_ALPHA:
         return _res(*args, x2, [df], pv, "passed", "The outcomes vary and relate to each other in similar ways in "
-                    f"every group ({_pp(pv)}; Box's M is judged at .001 because it flags tiny differences).", sc)
+                    f"every group ({_pp(pv)}; Box's M is judged at .001 because it flags tiny differences). "
+                    f"Because the p value ({_pn(pv)}) is above .001, the groups' covariance patterns don't "
+                    "clearly differ.", sc)
     return _res(*args, x2, [df], pv, "failed", f"The groups' covariance patterns differ ({_pp(pv)}, below the usual "
                 ".001 cut-off for Box's M). Pillai's trace, the headline result, holds up best when this happens, "
-                "especially with similar group sizes.", sc)
+                f"especially with similar group sizes. Because the p value ({_pn(pv)}) is below .001, the usual "
+                "cut-off for Box's M, the groups' covariance patterns do differ.", sc)
 
 
 def mahalanobis(resid: np.ndarray, df_e: float) -> tuple[dict, np.ndarray]:
@@ -239,10 +255,13 @@ def mahalanobis(resid: np.ndarray, df_e: float) -> tuple[dict, np.ndarray]:
     k = int(np.sum(d2 > cut))
     if k == 0:
         return _res(*args, mx, [p], pv, "passed", "No one's combination of scores is extreme (largest Mahalanobis "
-                    f"distance {mx:.2f}, below the p < .001 cut-off of {cut:.2f}).", sc), d2
+                    f"distance {mx:.2f}, below the p < .001 cut-off of {cut:.2f}). Because the largest distance "
+                    f"({mx:.2f}) is below the cut-off ({cut:.2f}), the rule Statly uses to flag an unusual "
+                    "combination of scores.", sc), d2
     return _res(*args, mx, [p], pv, "failed", f"{k} {'person has' if k == 1 else 'people have'} an unusual "
                 f"combination of scores (Mahalanobis distance above {cut:.2f}, p < .001). Check them for data-entry "
-                "errors; a few extreme cases can drive a MANOVA.", sc), d2
+                f"errors; a few extreme cases can drive a MANOVA. Because the largest distance ({mx:.2f}) is above "
+                f"the cut-off ({cut:.2f}), the rule Statly uses to flag an unusual combination of scores.", sc), d2
 
 
 def outcome_correlations(Y: np.ndarray, names: list[str]) -> dict:
@@ -262,6 +281,10 @@ def outcome_correlations(Y: np.ndarray, names: list[str]) -> dict:
     mx = float(vals[j])
     if mx <= COLLINEAR_R:
         return _res(*args, mx, [], None, "passed", f"The most closely related outcomes are {a} and {b} "
-                    f"(|r| = {mx:.2f}), below the .90 level where outcomes become redundant.", sc)
+                    f"(|r| = {mx:.2f}), below the .90 level where outcomes become redundant. Because the largest "
+                    f"correlation (|r| = {mx:.2f}) is at or below .90, the rule Statly uses to flag redundant "
+                    "outcomes.", sc)
     return _res(*args, mx, [], None, "failed", f"{a} and {b} are almost the same measure (|r| = {mx:.2f} > .90). "
-                "Consider combining them or dropping one; nearly redundant outcomes make MANOVA unstable.", sc)
+                f"Consider combining them or dropping one; nearly redundant outcomes make MANOVA unstable. "
+                f"Because the largest correlation (|r| = {mx:.2f}) is above .90, the rule Statly uses to flag "
+                "redundant outcomes.", sc)

@@ -49,7 +49,7 @@
       },
       "p": 0.284,
       "verdict": "passed",
-      "explanation": "Scores in the control group look close to a bell curve, so this assumption is reasonable.",
+      "explanation": "Scores in the control group look close to a bell curve, so this assumption is reasonable. Because the p value (.284) is above .05. Below .05 would be a warning that the shape is clearly not bell-shaped. With 20 scores the plots matter as much as the test.",
       "applies_to": {
         "kind": "group",
         "label": "Control group",

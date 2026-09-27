@@ -28,7 +28,7 @@ import numpy as np
 from scipy import stats
 from statsmodels.stats.diagnostic import lilliefors as sm_lilliefors
 
-from statly_engine.stats.apa import p_value
+from statly_engine.stats.apa import no_zero, p_value
 
 LARGE_N = 100
 SMALL_CHECK_N = 20  # below this a passed normality test has little power; say so
@@ -97,13 +97,20 @@ def _where(sc: dict) -> str:
     return f"the {sc['label']} group"
 
 
+def _atxt(alpha: float) -> str:
+    return no_zero(alpha, 2)
+
+
 def _normality_verdict(p: float, n: int, alpha: float, test_label: str, sc: dict) -> tuple[str, str]:
     where = _where(sc)
-    ptxt = p_value(p)
-    ptxt = f"p {ptxt}" if ptxt[0] in "<>" else f"p = {ptxt}"
+    pnum = p_value(p)
+    ptxt = f"p {pnum}" if pnum[0] in "<>" else f"p = {pnum}"
+    atxt = _atxt(alpha)
     if p >= alpha:
         text = (f"The {test_label} test found no clear sign that {where} are far from a bell-shaped "
-                f"(normal) curve ({ptxt}), so this assumption looks reasonable.")
+                f"(normal) curve ({ptxt}), so this assumption looks reasonable. "
+                f"Because the p value ({pnum}) is above {atxt}. Below {atxt} would be a warning that the "
+                f"shape is clearly not bell-shaped. With {n} scores the plots matter as much as the test.")
         if n < SMALL_CHECK_N:
             text += (f" With only {n} scores this test can miss real problems, so also look at the Q-Q "
                      "plot: the dots should sit close to the line.")
@@ -113,11 +120,14 @@ def _normality_verdict(p: float, n: int, alpha: float, test_label: str, sc: dict
             f"The {test_label} test says {where} are not perfectly bell-shaped ({ptxt}). But with {n} "
             "scores, these tests flag even tiny, harmless differences. Look at the Q-Q plot: if the dots "
             "stay fairly close to the line, the test is still trustworthy, because with this many scores "
-            "its results hold up well.")
+            f"its results hold up well. Because the p value ({pnum}) is below {atxt}, but with this many "
+            "scores that can flag a tiny, harmless difference rather than a real problem — trust the Q-Q "
+            "plot as much as the test.")
     return "failed", (
         f"The {test_label} test suggests {where} are not bell-shaped ({ptxt}). With a sample this size "
         "that can affect the results. Check the histogram and Q-Q plot, and consider the rank-based "
-        "(nonparametric) alternative.")
+        f"(nonparametric) alternative. Because the p value ({pnum}) is below {atxt}, which is a warning "
+        "sign that the shape is clearly not bell-shaped.")
 
 
 def _not_computable(assumption, label, test_key, test_label, symbol, sc, refs, reason) -> dict:
@@ -212,14 +222,19 @@ def levene_brown_forsythe(groups: dict[str, "np.ndarray"], sc: dict, alpha: floa
         return _not_computable(*args, sc, [], "Every group's scores are identical, so spread can't be "
                                "compared."), {}
     df = [len(samples) - 1, n - len(samples)]
-    ptxt = p_value(p)
-    ptxt = f"p {ptxt}" if ptxt[0] in "<>" else f"p = {ptxt}"
+    pnum = p_value(p)
+    ptxt = f"p {pnum}" if pnum[0] in "<>" else f"p = {pnum}"
+    atxt = _atxt(alpha)
     if p >= alpha:
         verdict = "passed"
-        text = f"The groups' scores are spread out by similar amounts ({ptxt}), so this assumption looks reasonable."
+        text = (f"The groups' scores are spread out by similar amounts ({ptxt}), so this assumption looks "
+                f"reasonable. Because the p value ({pnum}) is above {atxt}, the groups' spreads are similar "
+                "enough.")
     else:
         verdict = "failed"
-        text = f"The groups' scores are spread out by different amounts ({ptxt})."
+        text = (f"The groups' scores are spread out by different amounts ({ptxt}). Because the p value "
+                f"({pnum}) is below {atxt}, the groups' spreads differ; Statly will use/offer the Welch "
+                "version.")
         if failed_note:
             text += " " + failed_note
     return _result(*args, float(f), df, float(p), verdict, text, sc, []), {}

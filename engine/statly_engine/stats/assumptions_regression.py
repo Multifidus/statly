@@ -24,7 +24,7 @@ import numpy as np
 from scipy import stats
 
 from statly_engine.stats import assumptions as asm
-from statly_engine.stats.apa import p_value
+from statly_engine.stats.apa import no_zero, p_value
 
 VIF_CAUTION = 5.0
 VIF_FAILED = 10.0
@@ -34,6 +34,14 @@ RESID_VS_FITTED = "residuals_vs_fitted"
 def _ptxt(p) -> str:
     s = p_value(p)
     return f"p {s}" if s[0] in "<>" else f"p = {s}"
+
+
+def _pnum(p) -> str:
+    return p_value(p)
+
+
+def _atxt(alpha: float) -> str:
+    return no_zero(alpha, 2)
 
 
 def _res(assumption, label, key, test_label, symbol, value, df, p, verdict, text, n, refs,
@@ -55,16 +63,22 @@ def residual_normality(resid, alpha: float = 0.05) -> tuple[dict, dict]:
     res["assumption"], res["label"] = "normality_of_residuals", "Normality of residuals"
     p, n = res["p"], res["applies_to"]["n"]
     if p is not None:
+        atxt = _atxt(alpha)
         if res["verdict"] == "passed":
             res["explanation"] = (f"The prediction errors (residuals) look roughly bell-shaped ({_ptxt(p)}), so "
-                                  "the p-values and confidence intervals can be trusted.")
+                                  f"the p-values and confidence intervals can be trusted. Because the p value "
+                                  f"({_pnum(p)}) is above {atxt}, there's no clear sign the residuals depart from "
+                                  "a bell-shaped curve.")
         elif res["verdict"] == "caution":
             res["explanation"] = (f"The residuals are not perfectly bell-shaped ({_ptxt(p)}), but with {n} people "
-                                  "this test flags tiny differences and regression holds up well. Check the Q-Q plot.")
+                                  "this test flags tiny differences and regression holds up well. Check the Q-Q "
+                                  f"plot. Because the p value ({_pnum(p)}) is below {atxt}, but with {n} people "
+                                  "that can flag a trivial, harmless difference.")
         else:
             res["explanation"] = (f"The residuals are not bell-shaped ({_ptxt(p)}). With a sample this size the "
                                   "p-values and confidence intervals may be off. Check the Q-Q plot for outliers or "
-                                  "a skewed outcome.")
+                                  f"a skewed outcome. Because the p value ({_pnum(p)}) is below {atxt}, which is a "
+                                  "warning sign the residuals aren't bell-shaped.")
     return res, charts
 
 
@@ -87,10 +101,14 @@ def linearity_reset(y, X, fitted, alpha: float = 0.05) -> tuple[dict, dict]:
     pv = float(stats.f.sf(f, 2, df2))
     if pv >= alpha:
         v, t = "passed", (f"There is no clear sign of a curved relationship ({_ptxt(pv)}): a straight-line model "
-                          "fits. The residuals-vs-predicted plot should show a flat, even band.")
+                          f"fits. The residuals-vs-predicted plot should show a flat, even band. Because the "
+                          f"p value ({_pnum(pv)}) is above {_atxt(alpha)}, the RESET test found no curve worth "
+                          "worrying about.")
     else:
         v, t = "failed", (f"The relationship looks curved rather than straight ({_ptxt(pv)}). Look at the "
-                          "residuals-vs-predicted plot; a transformed or squared predictor may fit better.")
+                          f"residuals-vs-predicted plot; a transformed or squared predictor may fit better. "
+                          f"Because the p value ({_pnum(pv)}) is below {_atxt(alpha)}, adding a squared term "
+                          "clearly improved the fit, which is a sign of curvature.")
     return _res(*args, f, [2, df2], pv, v, t, n, [RVF_REF]), {}
 
 
@@ -110,11 +128,14 @@ def homoscedasticity_bp(resid, X, alpha: float = 0.05) -> tuple[dict, dict]:
     pv = float(stats.chi2.sf(bp, p - 1))
     if pv >= alpha:
         v, t = "passed", (f"The prediction errors are spread out by similar amounts at every predicted value "
-                          f"({_ptxt(pv)}), so this assumption looks reasonable.")
+                          f"({_ptxt(pv)}), so this assumption looks reasonable. Because the p value "
+                          f"({_pnum(pv)}) is above {_atxt(alpha)}, the spread of the errors doesn't depend on "
+                          "the predicted value.")
     else:
         v, t = "failed", (f"The prediction errors are more spread out for some predicted values than others "
                           f"({_ptxt(pv)}). The coefficients are still fine, but their p-values and confidence "
-                          "intervals may be too optimistic.")
+                          f"intervals may be too optimistic. Because the p value ({_pnum(pv)}) is below "
+                          f"{_atxt(alpha)}, the spread of the errors does depend on the predicted value.")
     return _res(*args, bp, [p - 1], pv, v, t, n, [RVF_REF]), {}
 
 
@@ -126,14 +147,17 @@ def multicollinearity(vif: list[dict], n: int) -> tuple[dict, dict] | None:
     args = ("multicollinearity", "Multicollinearity", "vif", "Variance inflation factor (VIF)", "VIF")
     if s < VIF_CAUTION:
         v, t = "passed", (f"The predictors don't overlap too much (largest VIF = {s:.2f}, for {worst['term']}; "
-                          f"values under {VIF_CAUTION:g} are fine).")
+                          f"values under {VIF_CAUTION:g} are fine). Because the largest VIF ({s:.2f}) is below "
+                          f"{VIF_CAUTION:g}, the rule Statly uses to flag overlapping predictors.")
     elif s < VIF_FAILED:
         v, t = "caution", (f"{worst['term']} overlaps quite a lot with the other predictors (VIF = {s:.2f}). Its "
-                           "coefficient is less precise; consider whether both overlapping predictors are needed.")
+                           "coefficient is less precise; consider whether both overlapping predictors are needed. "
+                           f"Because the largest VIF ({s:.2f}) is between {VIF_CAUTION:g} and {VIF_FAILED:g}.")
     else:
         v, t = "failed", (f"{worst['term']} overlaps heavily with the other predictors (VIF = {s:.2f}, "
                           f"{VIF_FAILED:g} or more). The separate coefficients are unstable: drop or combine "
-                          "the overlapping predictors.")
+                          f"the overlapping predictors. Because the largest VIF ({s:.2f}) is {VIF_FAILED:g} or "
+                          "more, the overlap is severe enough to make the coefficients unstable.")
     return _res(*args, s, [], None, v, t, n, [], "overall", "Predictors"), {}
 
 
@@ -150,14 +174,18 @@ def influential_cases(cooks, rows, alpha: float = 0.05) -> tuple[dict, dict]:
     refs = [{"chart_type": "bar", "title": "Cook's distance for each person", "data_key": "cooks_distance"}]
     args = ("influential_cases", "Influential cases", "cooks_distance", "Cook's distance (cutoff 4/n)", "D")
     if over == 0:
-        v, t = "passed", f"No single person has an outsized influence on the results (largest Cook's D = {mx:.2f})."
+        v, t = "passed", (f"No single person has an outsized influence on the results (largest Cook's D = "
+                          f"{mx:.2f}). Because the largest Cook's D ({mx:.2f}) is below the rule Statly uses, "
+                          f"4/n = {4 / n:.3f}.")
     elif mx <= 1:
         v, t = "caution", (f"{over} {'person has' if over == 1 else 'people have'} more influence than usual "
                            f"(Cook's D above 4/n = {4 / n:.3f}; largest = {mx:.2f}). None is extreme (above 1), "
-                           "but check that their data were entered correctly.")
+                           f"but check that their data were entered correctly. Because {over} "
+                           f"{'case is' if over == 1 else 'cases are'} above the 4/n rule but none is above 1.")
     else:
         v, t = "failed", (f"At least one person strongly changes the results on their own (Cook's D = {mx:.2f}, "
-                          "above 1). Check their data, and see whether the conclusions change without them.")
+                          "above 1). Check their data, and see whether the conclusions change without them. "
+                          f"Because the largest Cook's D ({mx:.2f}) is above 1, the rule for an extreme case.")
     return _res(*args, mx, [], None, v, t, n, refs, "overall", "All cases"), {"cooks_distance": cooks_records(cooks, rows)}
 
 
@@ -189,10 +217,14 @@ def hosmer_lemeshow(y, fitted, alpha: float = 0.05, g: int = 10) -> tuple[dict, 
     if not math.isfinite(pv):
         return _res(*args, None, [], None, "caution", "Too few groups for this check.", n, [], "overall", "Model"), {}
     if pv >= alpha:
-        v, t = "passed", (f"The predicted chances match the observed outcomes well across the range ({_ptxt(pv)}).")
+        v, t = "passed", (f"The predicted chances match the observed outcomes well across the range "
+                          f"({_ptxt(pv)}). Because the p value ({_pnum(pv)}) is above {_atxt(alpha)}, the "
+                          "Hosmer-Lemeshow test found no clear mismatch.")
     else:
         v, t = "failed", (f"The predicted chances don't match the observed outcomes well in some groups "
-                          f"({_ptxt(pv)}). The model may be missing a predictor or a curved relationship.")
+                          f"({_ptxt(pv)}). The model may be missing a predictor or a curved relationship. "
+                          f"Because the p value ({_pnum(pv)}) is below {_atxt(alpha)}, the mismatch is more "
+                          "than chance would explain.")
     return _res(*args, chi, [df], pv, v, t, n, [], "overall", "Model"), {"hosmer_lemeshow": recs}
 
 
@@ -243,10 +275,13 @@ def brant(X: np.ndarray, y: np.ndarray, J: int, terms: list[str], alpha: float =
     pv = recs[0]["p"]
     if pv >= alpha:
         v, t = "passed", (f"Each predictor seems to have the same effect at every step of the outcome scale "
-                          f"({_ptxt(pv)}), as this model assumes.")
+                          f"({_ptxt(pv)}), as this model assumes. Because the p value ({_pnum(pv)}) is above "
+                          f"{_atxt(alpha)}, the Brant test found no clear difference in effect across steps.")
     else:
         bad = [r["term"] for r in recs[1:] if r["p"] < alpha]
         v, t = "failed", (f"The effect of at least one predictor differs across the steps of the outcome scale "
                           f"({_ptxt(pv)}{'; ' + ', '.join(bad) if bad else ''}). The single odds ratio is an "
-                          "average; consider separate logistic regressions or a multinomial model.")
+                          f"average; consider separate logistic regressions or a multinomial model. Because "
+                          f"the p value ({_pnum(pv)}) is below {_atxt(alpha)}, the parallel-lines assumption "
+                          "doesn't hold for at least one predictor.")
     return _res(*args, x2, [df], pv, v, t, n, [], "overall", "Model"), {"brant": recs}

@@ -307,18 +307,20 @@ def box_m_assumption(bm: BoxM, n: int) -> dict:
                 "explanation": "Box's M can't be computed because at least one group has no more people than there "
                                "are time points (or its scores don't vary enough). Compare the groups' spreads in "
                                "the descriptives instead."}
-    ptxt = apa.p_value(bm.p)
-    ptxt = f"p {ptxt}" if ptxt[0] in "<>" else f"p = {ptxt}"
+    pnum = apa.p_value(bm.p)
+    ptxt = f"p {pnum}" if pnum[0] in "<>" else f"p = {pnum}"
     stat = {"symbol": "χ²", "value": bm.chi2, "df": [float(bm.df)]}
     if bm.p >= BOX_M_ALPHA:
         verdict, text = "passed", (f"Box's M found no strong sign that the groups' patterns of spread and "
                                    f"correlation across time points differ ({ptxt}; judged at the usual .001 "
-                                   "level because this test is very sensitive).")
+                                   f"level because this test is very sensitive). Because the p value ({pnum}) is "
+                                   "above .001, the groups' patterns don't clearly differ.")
     else:
         verdict, text = "failed", (f"Box's M suggests the groups differ in how their scores spread and correlate "
                                    f"across time points ({ptxt}). The tests are fairly robust to this when the "
                                    "groups are about the same size; with very unequal groups, read the between-"
-                                   "groups and interaction results with care.")
+                                   f"groups and interaction results with care. Because the p value ({pnum}) is "
+                                   "below .001, the usual cut-off for Box's M, the groups' patterns do differ.")
     return {**base, "statistic": stat, "p": bm.p, "verdict": verdict, "explanation": text}
 
 

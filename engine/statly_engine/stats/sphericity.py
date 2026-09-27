@@ -28,7 +28,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy import stats
 
-from statly_engine.stats.apa import p_value
+from statly_engine.stats.apa import no_zero, p_value
 
 
 @dataclass(frozen=True)
@@ -119,19 +119,24 @@ def assumption(sph: Sphericity, k: int, n: int, alpha: float, correction: str) -
                 "explanation": ("Mauchly's test needs more people than time points, so sphericity can't be "
                                 "tested here. The Greenhouse-Geisser corrected result is the safer one to report."
                                 + eps)}
-    ptxt = p_value(sph.p)
-    ptxt = f"p {ptxt}" if ptxt[0] in "<>" else f"p = {ptxt}"
+    pnum = p_value(sph.p)
+    ptxt = f"p {pnum}" if pnum[0] in "<>" else f"p = {pnum}"
+    atxt = no_zero(alpha, 2)
     stat = {"symbol": "W", "value": float(sph.w), "df": [float(sph.df)]}
     if sph.p >= alpha:
         text = ("Mauchly's test found no clear sign that the differences between time points vary unevenly "
-                f"({ptxt}), so sphericity looks reasonable and the uncorrected F test can be used." + eps)
+                f"({ptxt}), so sphericity looks reasonable and the uncorrected F test can be used." + eps +
+                f" Because the p value ({pnum}) is above {atxt}, Mauchly's test found no clear violation of "
+                "sphericity.")
         verdict = "passed"
     else:
         used = {"gg": "Greenhouse-Geisser", "hf": "Huynh-Feldt"}.get(correction)
         text = (f"Mauchly's test suggests the differences between time points vary unevenly ({ptxt}). This "
                 "makes the uncorrected F test too likely to find an effect, so the degrees of freedom are "
                 "adjusted" + (f" (the {used} correction is used)." if used else
-                              ". You chose the uncorrected test; the corrected results are also shown.") + eps)
+                              ". You chose the uncorrected test; the corrected results are also shown.") + eps +
+                f" Because the p value ({pnum}) is below {atxt}, Mauchly's test found sphericity is violated, so "
+                f"the {used or 'Greenhouse-Geisser'} correction is applied.")
         verdict = "failed"
     return {**base, "statistic": stat, "p": float(sph.p), "verdict": verdict, "explanation": text}
 
