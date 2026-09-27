@@ -311,7 +311,7 @@ regenerate instead. Covers runtime dependencies across the Python
 | python | statsmodels | 0.15.0 | BSD-3-Clause |
 | python | typing-inspection | 0.4.4 | MIT |
 | python | typing_extensions | 4.16.0 | PSF-2.0 |
-| python | wrapt | 2.4.1 | BSD-2-Clause |
+| python | wrapt | 2.5.0 | BSD-2-Clause |
 | rust | adler2 | 2.0.1 | 0BSD OR MIT OR Apache-2.0 |
 | rust | aho-corasick | 1.1.5 | Unlicense OR MIT |
 | rust | alloc-no-stdlib | 2.0.4 | BSD-3-Clause |
