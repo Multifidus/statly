@@ -28,7 +28,7 @@ describe("Test Advisor: mixed ANOVA (between x within)", () => {
 
     await useAdvisor.getState().start(outcome);
     const a = useAdvisor.getState();
-    expect(a.context).toEqual({ outcome_level: "continuous", num_groups: 3, num_time_points: 3, linked_mode: true });
+    expect(a.context).toMatchObject({ outcome_level: "continuous", num_groups: 3, num_time_points: 3, linked_mode: true });
   });
 
   it("walks compare -> continuous -> repeated (linked) -> three or more -> has a between-subjects factor -> rec_anova_mixed", async () => {

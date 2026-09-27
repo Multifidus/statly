@@ -7,11 +7,38 @@ import type { AnalysisInfo, AnalysisLayout, DatasetContext, OutcomeLevel } from 
 import { rpc } from "@/lib/rpc";
 
 const OUTCOME_ROLES = ["scale_score", "test_total", "likert_item", "test_item"] as const;
+// open_text: free-form answers (the engine already tags high-cardinality text this way on
+// import, qualtrics.py looks_open_text) are never a usable outcome. identifier/group/time/ignore
+// are structural roles, never the thing being analysed.
 const NEVER_OUTCOME = new Set(["identifier", "group", "time", "open_text", "ignore"]);
 
 const byOrder = (a: VariableSchema, b: VariableSchema) => a.display_order - b.display_order;
 
-/** Variables a student might compare/relate, most likely first (scale scores and totals). */
+/** Outcome dropdown group, in display order. */
+export type OutcomeGroup = "scores" | "ratings" | "categories" | "other";
+
+export function outcomeGroupOf(v: VariableSchema): OutcomeGroup {
+  if (v.role === "scale_score" || v.role === "test_total") return "scores";
+  if (v.role === "likert_item" || (v.role === "test_item" && v.level === "ordinal") || v.level === "ordinal") return "ratings";
+  if (v.level === "nominal") return "categories";
+  return "other";
+}
+
+export const OUTCOME_GROUP_LABELS: Record<OutcomeGroup, string> = {
+  scores: "Scores",
+  ratings: "Ratings and Likert items",
+  categories: "Yes/no and categories",
+  other: "Other",
+};
+
+const OUTCOME_GROUP_ORDER: OutcomeGroup[] = ["scores", "ratings", "categories", "other"];
+
+/**
+ * Variables a student might compare/relate as their outcome: every non-system variable except
+ * free text and structural/ID roles (NEVER_OUTCOME above) and metadata columns. Includes
+ * categorical (yes/no, pass/fail, nominal) variables so chi-square/Fisher/McNemar/Cochran's Q
+ * paths get a proper outcome, not just scores and rating items.
+ */
 export function outcomeCandidates(meta: DatasetMeta): VariableSchema[] {
   const rank = (v: VariableSchema) => {
     const i = (OUTCOME_ROLES as readonly string[]).indexOf(v.role);
@@ -19,8 +46,17 @@ export function outcomeCandidates(meta: DatasetMeta): VariableSchema[] {
   };
   return meta.variables
     .filter((v) => !v.is_metadata && !NEVER_OUTCOME.has(v.role) && v.dtype !== "datetime")
-    .filter((v) => v.role !== "unassigned" || v.level === "continuous" || v.dtype !== "string")
     .sort((a, b) => rank(a) - rank(b) || byOrder(a, b));
+}
+
+/** Group outcome candidates into the dropdown's optgroups, in display order, omitting empty groups. */
+export function groupedOutcomeCandidates(meta: DatasetMeta): { group: OutcomeGroup; label: string; variables: VariableSchema[] }[] {
+  const candidates = outcomeCandidates(meta);
+  return OUTCOME_GROUP_ORDER.map((group) => ({
+    group,
+    label: OUTCOME_GROUP_LABELS[group],
+    variables: candidates.filter((v) => outcomeGroupOf(v) === group),
+  })).filter((g) => g.variables.length > 0);
 }
 
 export function outcomeLevelOf(v: VariableSchema): OutcomeLevel {
@@ -64,6 +100,16 @@ export async function deriveDatasetContext(meta: DatasetMeta, outcome: string | 
   const time = timeVariable(meta);
   ctx.num_time_points = meta.stacking ? meta.stacking.levels.length : time ? await countLevels(meta, time) : 1;
   if (meta.stacking || time) ctx.linked_mode = meta.link.mode === "linked";
+  if (out) {
+    // Small samples and few-distinct-value (single rating item) outcomes both make ties
+    // common, which the correlation branch's "small sample or tied ranks?" question uses
+    // to auto-answer itself (content/decision_tree.yaml: q_relate_ordinal_detail).
+    ctx.n_complete = meta.missing_summary.find((m) => m.variable === outcome)?.n_valid ?? undefined;
+    ctx.outcome_distinct = await countLevels(meta, out.name);
+    // The advisor doesn't yet know the correlation's second variable at this point in the
+    // flow, so fall back to the outcome's own distinct count.
+    ctx.second_distinct = ctx.outcome_distinct;
+  }
   return ctx;
 }
 
@@ -87,7 +133,12 @@ export function prefillRoles(info: AnalysisInfo, meta: DatasetMeta, outcome: str
       case "outcome":
       case "y":
       case "variable":
+      case "row":
         return outcome ? [outcome] : [];
+      case "column":
+        // Chi-square/Fisher's exact (roles row/column, engine/statly_engine/stats/categorical.py):
+        // the outcome is the row, the dataset's group variable is the column.
+        return group ? [group] : [];
       case "group":
       case "binary":
         // Aggregate pre/post: time points are compared as independent groups (SPEC §5.4).
@@ -150,4 +201,29 @@ const ROLE_LABELS: Record<string, string> = {
 
 export function roleLabel(role: string): string {
   return ROLE_LABELS[role] ?? role.replace(/_/g, " ");
+}
+
+/**
+ * Suggested value to compare a one-sample test against: the midpoint of the outcome's response
+ * scale (response_range, falling back to the span of its value_labels' codes), when derivable.
+ * Used so a one-sample t test / Wilcoxon test never runs against a silent default of 0.
+ */
+export function suggestTestValue(meta: DatasetMeta, outcome: string | null): { value: number; note: string } | null {
+  const v = outcome ? meta.variables.find((x) => x.name === outcome) : undefined;
+  if (!v) return null;
+  let lo: number | null = null;
+  let hi: number | null = null;
+  if (v.response_range) {
+    lo = v.response_range.min;
+    hi = v.response_range.max;
+  } else {
+    const codes = v.value_labels.map((l) => l.value).filter((x): x is number => typeof x === "number");
+    if (codes.length >= 2) {
+      lo = Math.min(...codes);
+      hi = Math.max(...codes);
+    }
+  }
+  if (lo === null || hi === null || lo >= hi) return null;
+  const mid = (lo + hi) / 2;
+  return { value: mid, note: `Suggested: ${mid}, the middle of a ${lo}–${hi} scale` };
 }

@@ -22,9 +22,21 @@ const R = (text: string, italic = false) => ({ text, italic });
 
 export const MOCK_ANALYSES: AnalysisInfo[] = [
   { analysis_id: "descriptives", label: "Descriptive statistics", layouts: [{ name: "default", roles: [{ role: "variables", min: 1, max: null, description: "Variables to summarise" }, { role: "group", min: 0, max: 3, description: "Split by" }] }], options: {} },
+  {
+    analysis_id: "chi_square.independence",
+    label: "Chi-square test of independence",
+    layouts: [{ name: "default", roles: [{ role: "row", min: 1, max: 1, description: "Categorical variable shown in the table rows" }, { role: "column", min: 1, max: 1, description: "Categorical variable shown in the table columns" }] }],
+    options: { row_levels: "Row categories in display order.", column_levels: "Column categories in display order." },
+  },
+  {
+    analysis_id: "fisher_exact",
+    label: "Fisher's exact test",
+    layouts: [{ name: "default", roles: [{ role: "row", min: 1, max: 1, description: "Categorical variable shown in the table rows" }, { role: "column", min: 1, max: 1, description: "Categorical variable shown in the table columns" }] }],
+    options: { row_levels: "Row categories in display order.", column_levels: "Column categories in display order." },
+  },
   { analysis_id: "mann_whitney", label: "Mann-Whitney U test", layouts: [{ name: "default", roles: [{ role: "outcome", min: 1, max: 1, description: "Scores to compare" }, { role: "group", min: 1, max: 1, description: "Grouping variable with exactly two groups" }] }], options: { levels: "Group values" } },
   { analysis_id: "t_test.independent", label: "Independent-samples t test", layouts: [{ name: "default", roles: [{ role: "outcome", min: 1, max: 1, description: "Scores to compare" }, { role: "group", min: 1, max: 1, description: "Grouping variable with exactly two groups" }] }], options: { variant: "welch (default) or student", levels: "Group values", reference_group: "First group" } },
-  { analysis_id: "t_test.one_sample", label: "One-sample t test", layouts: [{ name: "default", roles: [{ role: "outcome", min: 1, max: 1, description: "Scores" }] }], options: { test_value: "Value to compare against" } },
+  { analysis_id: "t_test.one_sample", label: "One-sample t test", layouts: [{ name: "default", roles: [{ role: "outcome", min: 1, max: 1, description: "Scores" }] }], options: { test_value: "Value to compare against. Required; Statly never assumes 0." } },
   {
     analysis_id: "t_test.paired",
     label: "Paired-samples t test",
@@ -311,9 +323,9 @@ const columns = (heads: string[]): ApaTable["columns"] => {
   return [cols[0], ...cols.slice(1)];
 };
 
-function magnitude(d: number, kind: "d" | "r" | "f" | "eta"): EffectSize["interpretation"] {
+function magnitude(d: number, kind: "d" | "r" | "f" | "eta" | "v"): EffectSize["interpretation"] {
   const a = Math.abs(d);
-  const cuts = { d: [0.2, 0.5, 0.8], r: [0.1, 0.3, 0.5], f: [0.1, 0.25, 0.4], eta: [0.01, 0.06, 0.14] } as const;
+  const cuts = { d: [0.2, 0.5, 0.8], r: [0.1, 0.3, 0.5], f: [0.1, 0.25, 0.4], eta: [0.01, 0.06, 0.14], v: [0.1, 0.3, 0.5] } as const;
   const cut = cuts[kind];
   const m = a < cut[0] ? "negligible" : a < cut[1] ? "small" : a < cut[2] ? "medium" : "large";
   return {
@@ -1335,6 +1347,157 @@ function kruskalWallisRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, n
   return out;
 }
 
+// --- categorical (chi-square test of independence / Fisher's exact test), roles row/column ------
+// (engine/statly_engine/stats/categorical.py: chi_square_independence, fisher_exact) --------------
+
+function levelOrder(meta: DatasetMeta, name: string, seen: Iterable<string>): string[] {
+  const v = meta.variables.find((x) => x.name === name);
+  const order = v?.value_labels.map((l) => String(l.value)) ?? [];
+  return [...new Set(seen)].sort((a, b) => {
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+    return (ia < 0 ? 1e9 : ia) - (ib < 0 ? 1e9 : ib) || a.localeCompare(b);
+  });
+}
+
+function crosstabOf(meta: DatasetMeta, cell: Cell, nRows: number, rowVar: string, colVar: string) {
+  const rowsSeen = new Set<string>();
+  const colsSeen = new Set<string>();
+  const pairs: [string, string][] = [];
+  for (let r = 0; r < nRows; r++) {
+    const rv = cell(r, rowVar);
+    const cv = cell(r, colVar);
+    if (rv === null || rv === "" || cv === null || cv === "") continue;
+    const rs = String(rv);
+    const cs = String(cv);
+    rowsSeen.add(rs);
+    colsSeen.add(cs);
+    pairs.push([rs, cs]);
+  }
+  const rowLevels = levelOrder(meta, rowVar, rowsSeen);
+  const colLevels = levelOrder(meta, colVar, colsSeen);
+  const table = rowLevels.map(() => colLevels.map(() => 0));
+  for (const [rs, cs] of pairs) table[rowLevels.indexOf(rs)][colLevels.indexOf(cs)]++;
+  return { rowLevels, colLevels, table, n: pairs.length, excluded: nRows - pairs.length };
+}
+
+function chiSquareStat(table: number[][]) {
+  const rowTotals = table.map((row) => sum(row));
+  const colTotals = table[0].map((_, j) => sum(table.map((row) => row[j])));
+  const n = sum(rowTotals);
+  const expected = table.map((row, i) => row.map((_, j) => (rowTotals[i] * colTotals[j]) / n));
+  const stat = sum(table.map((row, i) => row.map((v, j) => (expected[i][j] > 0 ? (v - expected[i][j]) ** 2 / expected[i][j] : 0)).reduce((a, b) => a + b, 0)));
+  const df = (table.length - 1) * (table[0].length - 1);
+  return { stat, df, expected, rowTotals, colTotals, n };
+}
+
+/** Two-sided Fisher's exact test for a 2x2 table (sum of hypergeometric probabilities no more likely than the observed table). */
+function fisherExact2x2(table: number[][]): number {
+  const [[a, b], [c, d]] = table;
+  const row1 = a + b;
+  const row2 = c + d;
+  const col1 = a + c;
+  const N = row1 + row2;
+  const logChoose = (n: number, k: number) => (k < 0 || k > n ? -Infinity : logGamma(n + 1) - logGamma(k + 1) - logGamma(n - k + 1));
+  const logDenom = logChoose(N, col1);
+  const probAt = (x: number) => Math.exp(logChoose(row1, x) + logChoose(row2, col1 - x) - logDenom);
+  const pObs = probAt(a);
+  const lo = Math.max(0, col1 - row2);
+  const hi = Math.min(row1, col1);
+  let p = 0;
+  for (let x = lo; x <= hi; x++) if (probAt(x) <= pObs * 1.0000001) p += probAt(x);
+  return Math.min(1, p);
+}
+
+function categoricalTable(title: string, colVar: string, x: ReturnType<typeof crosstabOf>, stat: number | null, df: number | null, p: number, esKey: string, es: number | null): ApaTable {
+  const cols = ["", ...x.colLevels, "Total"];
+  const rows: ApaTable["rows"] = x.table.map((row, i) => ({
+    cells: [textCell(x.rowLevels[i]), ...row.map((v) => numCell(v, String(v))), numCell(sum(row), String(sum(row)))],
+    indent: 0,
+    kind: "data" as const,
+  }));
+  const colTotals = x.colLevels.map((_, j) => sum(x.table.map((row) => row[j])));
+  rows.push({ cells: [textCell("Total"), ...colTotals.map((v) => numCell(v, String(v))), numCell(x.n, String(x.n))], indent: 0, kind: "total" as const });
+  return {
+    number: 1,
+    title,
+    columns: columns(cols),
+    column_groups: [{ label: [R(colVar)], first_column: 1, span: x.colLevels.length }],
+    rows,
+    notes: {
+      general: [
+        stat !== null && df !== null ? R(`χ²(${df}) = ${f2(stat)}, `) : R(""),
+        R("p", true),
+        R(` ${fmtP(p)}. `),
+        R(`${esKey} = ${es !== null ? noZero(es.toFixed(2)) : "—"}.`),
+      ],
+      specific: [],
+      probability: [],
+    },
+  };
+}
+
+function rowColOf(req: AnalysisRequest) {
+  const rowVar = req.variables.row[0];
+  const colVar = req.variables.column[0];
+  if (!rowVar || !colVar) invalid("Choose a variable for both rows and columns.");
+  return { rowVar, colVar };
+}
+
+function chiSquareIndependenceRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const { rowVar, colVar } = rowColOf(req);
+  const x = crosstabOf(meta, cell, nRows, rowVar, colVar);
+  if (x.rowLevels.length < 2 || x.colLevels.length < 2) invalid(`Both "${rowVar}" and "${colVar}" need at least two categories with data.`);
+  const { stat, df, expected } = chiSquareStat(x.table);
+  const p = chi2Sf(stat, df);
+  const minExpected = Math.min(...expected.flat());
+  const k = Math.min(x.rowLevels.length, x.colLevels.length);
+  const v = Math.sqrt(stat / (x.n * (k - 1)));
+  out.statistics = [{ key: "chi_square", label: "Pearson chi-square", symbol: "χ²", value: stat, df: [df], p, term: null }];
+  out.effect_sizes = [{ key: "cramers_v", label: "Cramer's V", symbol: "V", value: v, ci: null, term: null, interpretation: magnitude(v, "v") }];
+  out.descriptives.frequencies = [
+    { variable: rowVar, group: {}, levels: x.rowLevels.map((lvl, i) => ({ value: lvl, label: lvl, count: sum(x.table[i]), percent: (100 * sum(x.table[i])) / x.n, valid_percent: (100 * sum(x.table[i])) / x.n })) },
+  ];
+  const sig = p < req.alpha;
+  out.plain_language_summary = `${rowVar} and ${colVar} ${sig ? "were related" : "did not show a clear relationship"} (p ${fmtP(p)}).`;
+  out.apa_sentence = [
+    R(`A chi-square test of independence showed ${sig ? "a significant" : "no significant"} association between ${rowVar} and ${colVar}, `),
+    R("χ²", true),
+    R(`(${df}) = ${f2(stat)}, `),
+    ...pRun(p),
+    R(", "),
+    R("V", true),
+    R(` = ${noZero(v.toFixed(2))}.`),
+  ];
+  out.apa_table = categoricalTable(`${rowVar} by ${colVar}`, colVar, x, stat, df, p, "V", v);
+  out.inputs = { ...out.inputs, n_used: x.n, n_excluded: x.excluded, n_by_group: [] };
+  if (minExpected < 5) out.warnings.push({ code: "low_expected_count", severity: "caution", message: `At least one cell has an expected count under 5 (lowest ${f2(minExpected)}); Fisher's exact test is more reliable here.` });
+  return out;
+}
+
+function fisherExactRun(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: number): AnalysisResult {
+  const out = baseResult(req, meta);
+  const { rowVar, colVar } = rowColOf(req);
+  const x = crosstabOf(meta, cell, nRows, rowVar, colVar);
+  if (x.rowLevels.length !== 2 || x.colLevels.length !== 2) invalid("Fisher's exact test (as run here) needs a 2x2 table: two categories in each variable.");
+  const p = fisherExact2x2(x.table);
+  const [[a, b], [c, d]] = x.table;
+  const oddsRatio = b * c > 0 ? (a * d) / (b * c) : null;
+  out.statistics = [{ key: "fisher", label: "Fisher's exact test", symbol: "p", value: null, df: [], p, term: null }];
+  out.effect_sizes = oddsRatio !== null ? [{ key: "odds_ratio", label: "Odds ratio", symbol: "OR", value: oddsRatio, ci: null, term: null, interpretation: null }] : [];
+  const sig = p < req.alpha;
+  out.plain_language_summary = `${rowVar} and ${colVar} ${sig ? "were related" : "did not show a clear relationship"} (p ${fmtP(p)}).`;
+  out.apa_sentence = [
+    R(`Fisher's exact test showed ${sig ? "a significant" : "no significant"} association between ${rowVar} and ${colVar}, `),
+    ...pRun(p),
+    R(oddsRatio !== null ? `, OR = ${f2(oddsRatio)}.` : "."),
+  ];
+  out.apa_table = categoricalTable(`${rowVar} by ${colVar}`, colVar, x, null, null, p, "OR", oddsRatio);
+  out.inputs = { ...out.inputs, n_used: x.n, n_excluded: x.excluded, n_by_group: [] };
+  return out;
+}
+
 // --- Tukey HSD post hoc (approximated in the mock as Holm-adjusted pairwise Student's t on the
 // one-way ANOVA's pooled MSE, rather than the real engine's studentized-range distribution - see
 // posthoc_param.py. Direction and roles otherwise mirror the real engine exactly.) ----------------
@@ -1467,6 +1630,10 @@ export function mockAnalysisRun(req: AnalysisRequest, meta: DatasetMeta, cell: C
       return kruskalWallisRun(req, meta, cell, nRows);
     case "posthoc.tukey":
       return tukeyPosthoc(req, meta, cell, nRows);
+    case "chi_square.independence":
+      return chiSquareIndependenceRun(req, meta, cell, nRows);
+    case "fisher_exact":
+      return fisherExactRun(req, meta, cell, nRows);
     default:
       invalid(`The mock engine can't run ${info.label} yet.`);
   }

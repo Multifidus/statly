@@ -805,6 +805,21 @@ nodes:
       tau-b handles tied ranks more precisely and tends to be more
       reliable in small samples, at the cost of being harder to interpret
       directly against Pearson's r.
+    auto:
+      any:
+        - field: n_complete
+          rules:
+            - when: { max: 29 }
+              value: "yes"
+        - field: outcome_distinct
+          rules:
+            - when: { max: 7 }
+              value: "yes"
+        - field: second_distinct
+          rules:
+            - when: { max: 7 }
+              value: "yes"
+      otherwise: "no"
     options:
       - value: "no"
         label: "No, use the usual choice"

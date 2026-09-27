@@ -138,6 +138,49 @@ def test_dataset_context_auto_answers_and_user_answers_can_be_combined(tree):
     assert rec["primary_test"] == "t_test.independent"
 
 
+def test_ordinal_correlation_few_distinct_values_auto_answers_kendall(tree):
+    # A single rating item (<=7 distinct values) means ties are common, even with a large
+    # sample, so q_relate_ordinal_detail should auto-answer "yes" (Kendall's tau-b).
+    rec = _recommend(
+        tree,
+        {"q_intent": "relate", "q_relate_variable_types": "ordinal_involved"},
+        dataset_context={"n_complete": 500, "outcome_distinct": 5, "second_distinct": 5},
+    )
+    assert rec["primary_test"] == "correlation.kendall_tau_b"
+
+
+def test_ordinal_correlation_continuous_large_sample_auto_answers_spearman(tree):
+    # A large, complete sample with a continuous-ish variable count of distinct values
+    # means ties are unlikely, so the question auto-answers "no" (Spearman).
+    rec = _recommend(
+        tree,
+        {"q_intent": "relate", "q_relate_variable_types": "ordinal_involved"},
+        dataset_context={"n_complete": 200, "outcome_distinct": 50, "second_distinct": 50},
+    )
+    assert rec["primary_test"] == "correlation.spearman"
+
+
+def test_ordinal_correlation_small_sample_auto_answers_kendall_even_if_many_distinct(tree):
+    # Small sample (<30 complete rows) alone is enough to prefer Kendall's tau-b, even
+    # with many distinct values.
+    rec = _recommend(
+        tree,
+        {"q_intent": "relate", "q_relate_variable_types": "ordinal_involved"},
+        dataset_context={"n_complete": 20, "outcome_distinct": 50, "second_distinct": 50},
+    )
+    assert rec["primary_test"] == "correlation.kendall_tau_b"
+
+
+def test_ordinal_correlation_auto_answer_can_be_overridden_by_explicit_answer(tree):
+    # Explicit user answers always win over the auto answer (SPEC §7.1).
+    rec = _recommend(
+        tree,
+        {"q_intent": "relate", "q_relate_variable_types": "ordinal_involved", "q_relate_ordinal_detail": "no"},
+        dataset_context={"n_complete": 20, "outcome_distinct": 5, "second_distinct": 5},
+    )
+    assert rec["primary_test"] == "correlation.spearman"
+
+
 def test_start_style_call_returns_next_question_when_nothing_answered(tree):
     result = evaluate(tree, {}, None)
     assert result["recommendation"] is None

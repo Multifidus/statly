@@ -25,6 +25,22 @@ def _rule_matches(when: dict, value: Any) -> bool:
 
 
 def _auto_value(auto: dict, dataset_context: dict) -> Any | None:
+    if "any" in auto:
+        # OR across several dataset_context fields (e.g. small sample OR few distinct
+        # values both mean "ties are common"): first sub-block whose field is known and
+        # whose rules match wins; `otherwise` is the fallback once any field is known.
+        any_known = False
+        for sub in auto["any"]:
+            field = sub["field"]
+            if field not in dataset_context or dataset_context[field] is None:
+                continue
+            any_known = True
+            raw = dataset_context[field]
+            for rule in sub["rules"]:
+                if _rule_matches(rule["when"], raw):
+                    return rule["value"]
+        return auto["otherwise"] if any_known else None
+
     field = auto["field"]
     if field not in dataset_context or dataset_context[field] is None:
         return None

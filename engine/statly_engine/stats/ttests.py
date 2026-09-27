@@ -74,11 +74,13 @@ def _size_sentence(est: es.Estimate) -> str:
 # ---------------------------------------------------------------------------
 @register("t_test.one_sample", label="One-sample t test",
           roles=[Role("outcome", 1, 1, "Scores to compare with a fixed value")],
-          options={"test_value": "Value the mean is compared with (default 0)."})
+          options={"test_value": "Value the mean is compared with. Required; Statly never assumes 0."})
 def one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     name = request.variables["outcome"][0]
     vl = prep.label(meta, name)
-    mu = float(request.options.get("test_value", request.options.get("mu", 0.0)))
+    if "test_value" not in request.options and "mu" not in request.options:
+        raise InvalidParams("Tell Statly the value to compare against (for example the middle of the scale).")
+    mu = float(request.options.get("test_value", request.options.get("mu")))
     level, alt, alpha = request.ci_level, _alt(request), request.alpha
     x_all = prep.numeric(df, name, meta)
     x = x_all.dropna().to_numpy()

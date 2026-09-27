@@ -13,6 +13,12 @@ export interface DatasetContext {
   num_time_points?: number;
   linked_mode?: boolean;
   covariates_present?: boolean;
+  /** Rows with the outcome present (non-missing). */
+  n_complete?: number;
+  /** Distinct non-missing values of the outcome. */
+  outcome_distinct?: number;
+  /** Distinct non-missing values of a correlation's second variable, when known; otherwise the outcome's. */
+  second_distinct?: number;
 }
 
 export type AnswerValue = string | number | boolean;

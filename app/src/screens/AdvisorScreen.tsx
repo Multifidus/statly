@@ -6,7 +6,7 @@ import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { WhyItMatters } from "@/components/ui/why";
 import { RecommendationCard } from "@/components/advisor/RecommendationCard";
 import type { AdvisorQuestion, AnswerValue, DatasetContext } from "@/lib/analysisRpc";
-import { outcomeCandidates } from "@/lib/datasetContext";
+import { groupedOutcomeCandidates } from "@/lib/datasetContext";
 import { answerLabel, useAdvisor } from "@/stores/advisor";
 import { catalogLabels, useAnalysisFlow } from "@/stores/analysisFlow";
 import { useDatasetStore } from "@/stores/dataset";
@@ -16,10 +16,23 @@ const key = (v: AnswerValue) => JSON.stringify(v);
 
 function contextSummary(ctx: DatasetContext): string | null {
   const parts: string[] = [];
-  if (ctx.outcome_level) parts.push(ctx.outcome_level === "continuous" ? "your outcome is a score" : ctx.outcome_level === "ordinal" ? "your outcome is a rating (ordinal)" : "your outcome is a category");
+  if (ctx.outcome_level) {
+    parts.push(
+      ctx.outcome_level === "continuous"
+        ? "your outcome is a score"
+        : ctx.outcome_level === "ordinal"
+          ? "your outcome is a rating (ordinal)"
+          : ctx.outcome_distinct === 2
+            ? "your outcome is a yes/no answer"
+            : "your outcome is a category answer",
+    );
+  }
   if (ctx.num_groups !== undefined) parts.push(ctx.num_groups === 1 ? "one group" : `${ctx.num_groups} groups`);
   if (ctx.num_time_points !== undefined && ctx.num_time_points > 1) parts.push(`${ctx.num_time_points} time points`);
   if (ctx.linked_mode !== undefined) parts.push(ctx.linked_mode ? "responses linked by ID" : "responses not linked across time");
+  if (ctx.n_complete !== undefined) parts.push(`${ctx.n_complete} response${ctx.n_complete === 1 ? "" : "s"}`);
+  const distinct = ctx.second_distinct ?? ctx.outcome_distinct;
+  if (distinct !== undefined) parts.push(`${distinct} distinct value${distinct === 1 ? "" : "s"}, so ties are ${distinct <= 7 || (ctx.n_complete ?? Infinity) < 30 ? "common" : "unlikely"}`);
   return parts.length ? parts.join(", ") : null;
 }
 
@@ -79,7 +92,7 @@ export function AdvisorScreen() {
     if (current) (document.getElementById("rec-title") ?? heading.current)?.focus();
   }, [current]);
 
-  const candidates = meta ? outcomeCandidates(meta) : [];
+  const candidateGroups = meta ? groupedOutcomeCandidates(meta) : [];
   const ctxText = contextSummary(a.context);
   const hasUserAnswer = a.step?.path.some((p) => p.source === "user") ?? false;
 
@@ -110,10 +123,14 @@ export function AdvisorScreen() {
           </label>
           <NativeSelect id="advisor-outcome" value={a.outcome ?? ""} onChange={(e) => void a.setOutcome(e.target.value || null)} className="max-w-md" data-testid="advisor-outcome">
             <option value="">I'm not sure yet</option>
-            {candidates.map((v) => (
-              <option key={v.name} value={v.name}>
-                {v.label && v.label !== v.name ? `${v.name}: ${v.label}` : v.name}
-              </option>
+            {candidateGroups.map((g) => (
+              <optgroup key={g.group} label={g.label}>
+                {g.variables.map((v) => (
+                  <option key={v.name} value={v.name}>
+                    {v.label && v.label !== v.name ? `${v.name}: ${v.label}` : v.name}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </NativeSelect>
           {ctxText && <p className="text-xs text-muted-foreground">From your data: {ctxText}. Statly fills in answers it can tell from this; you can change them.</p>}

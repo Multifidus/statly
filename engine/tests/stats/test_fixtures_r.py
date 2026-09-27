@@ -77,6 +77,28 @@ def test_assumptions_match_r(path):
             close(p["sample"], s, TOL, f"qq/{fx['case']}.sample")
 
 
+def test_one_sample_t_requires_test_value():
+    from statly_engine.stats import registry
+    fx = load_fixture(EXPECTED / "t_test.one_sample" / "basic.json")
+    req = fx["request"]
+    request = {"schema_version": 1, "request_id": "t", "analysis_id": "t_test.one_sample", "dataset_id": "d",
+               "snapshot_id": "s", "variables": req["variables"], "subset": [], "options": {}, "corrections": [],
+               "alpha": 0.05, "tails": "two_sided", "ci_level": 0.95}
+    with pytest.raises(InvalidParams) as exc:
+        registry.run(load_data(fx["dataset"]), request)
+    assert "Tell Statly the value to compare against" in str(exc.value)
+
+
+def test_one_sample_t_summary_names_the_value():
+    from statly_engine.stats import registry
+    fx = load_fixture(EXPECTED / "t_test.one_sample" / "basic.json")
+    res = run_fixture(fx)
+    mu_txt = str(fx["request"]["options"]["test_value"])
+    if mu_txt.endswith(".0"):
+        mu_txt = mu_txt[:-2]
+    assert mu_txt in res["plain_language_summary"]
+
+
 def test_noncentral_ci_helpers_match_r():
     fx = load_fixture(EXPECTED / "effect_sizes" / "noncentral_ci.json")
     for c in fx["expected"]["nct"]:

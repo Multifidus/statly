@@ -1,11 +1,11 @@
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CheckboxField, NativeSelect, Notice } from "@/components/ui/form";
+import { CheckboxField, Input, NativeSelect, Notice } from "@/components/ui/form";
 import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import type { DatasetMeta } from "@/contracts";
 import { roleLabel } from "@/lib/datasetContext";
 import { labelFor } from "@/lib/content/labels";
-import { catalogLabels, useAnalysisFlow } from "@/stores/analysisFlow";
+import { catalogLabels, needsTestValue, useAnalysisFlow } from "@/stores/analysisFlow";
 
 /** Assign variables to the chosen analysis' roles (from `analysis.list`), pre-filled from the interview roles. */
 export function RoleAssignment({ meta }: { meta: DatasetMeta }) {
@@ -112,10 +112,40 @@ export function RoleAssignment({ meta }: { meta: DatasetMeta }) {
         </div>
       )}
 
+      {needsTestValue(f.analysisId) && (
+        <div className="grid gap-1 max-w-md">
+          <label htmlFor="flow-test-value" className="text-sm font-medium">
+            Compare the average against this value
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Statly never assumes a value to compare against &mdash; enter the one you want to test, such as the middle of the scale.
+          </p>
+          <Input
+            id="flow-test-value"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            value={f.testValue}
+            onChange={(e) => f.setTestValue(e.target.value)}
+            aria-describedby={f.testValueHint ? "flow-test-value-hint" : undefined}
+            data-testid="flow-test-value"
+          />
+          {f.testValueHint && (
+            <p id="flow-test-value-hint" className="text-xs text-muted-foreground">
+              {f.testValueHint}
+            </p>
+          )}
+        </div>
+      )}
+
       {f.error && <Notice tone="error" role="alert">{f.error}</Notice>}
 
       <div>
-        <Button onClick={() => void f.runCheck()} disabled={!info || f.busy} data-testid="flow-run">
+        <Button
+          onClick={() => void f.runCheck()}
+          disabled={!info || f.busy || (needsTestValue(f.analysisId) && f.testValue.trim() === "")}
+          data-testid="flow-run"
+        >
           {f.busy ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden /> : null} Check the assumptions <ArrowRight aria-hidden />
         </Button>
       </div>

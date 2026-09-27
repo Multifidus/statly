@@ -7,7 +7,7 @@
 import { create } from "zustand";
 import type { AnalysisRequest, AnalysisResult } from "@/contracts";
 import type { AdvisorRecommendation, AnalysisInfo } from "@/lib/analysisRpc";
-import { prefillRoles, roleProblem } from "@/lib/datasetContext";
+import { prefillRoles, roleProblem, suggestTestValue } from "@/lib/datasetContext";
 import { labelFor } from "@/lib/content/labels";
 import { newRequestId } from "@/lib/resultSummary";
 import { describeRpcError, rpc, RpcErrorCode } from "@/lib/rpc";
@@ -18,6 +18,13 @@ import { logRun } from "@/stores/testLog";
 export type FlowStage = "roles" | "assumptions" | "decision" | "done";
 export type Choice = "recommended" | "alternative";
 
+/** Analyses that must never run against a silent default test value; the setup step asks for one. */
+const NEEDS_TEST_VALUE = new Set(["t_test.one_sample", "wilcoxon_one_sample"]);
+
+export function needsTestValue(analysisId: string | null): boolean {
+  return !!analysisId && NEEDS_TEST_VALUE.has(analysisId);
+}
+
 interface FlowState {
   catalog: AnalysisInfo[] | null;
   recommendation: AdvisorRecommendation | null;
@@ -26,6 +33,10 @@ interface FlowState {
   analysisId: string | null;
   layout: string | null;
   roles: Record<string, string[]>;
+  /** Raw text of the "compare against this value" field, for analyses in NEEDS_TEST_VALUE. */
+  testValue: string;
+  /** Where the pre-filled testValue came from, e.g. "Suggested: 3, the middle of a 1–5 scale". */
+  testValueHint: string | null;
   stage: FlowStage;
   busy: boolean;
   error: string | null;
@@ -41,6 +52,7 @@ interface FlowState {
   selectAnalysis: (analysisId: string) => void;
   setLayout: (layout: string) => void;
   setRole: (role: string, names: string[]) => void;
+  setTestValue: (value: string) => void;
   runCheck: () => Promise<boolean>;
   goAssumption: (index: number) => void;
   choose: (choice: Choice) => Promise<boolean>;
@@ -53,6 +65,8 @@ const INITIAL = {
   analysisId: null,
   layout: null,
   roles: {},
+  testValue: "",
+  testValueHint: null,
   stage: "roles" as FlowStage,
   busy: false,
   error: null,
@@ -80,8 +94,10 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
   function buildRequest(analysisId: string): AnalysisRequest {
     const meta = useDatasetStore.getState().meta;
     if (!meta) throw new Error("No dataset is loaded.");
-    const { roles } = get();
+    const { roles, testValue } = get();
     const variables = Object.fromEntries(Object.entries(roles).filter(([, v]) => v.length));
+    const options: Record<string, unknown> = {};
+    if (needsTestValue(analysisId) && testValue.trim() !== "") options.test_value = Number(testValue);
     return {
       schema_version: 1,
       request_id: newRequestId(),
@@ -90,7 +106,7 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
       snapshot_id: meta.snapshot_id,
       variables,
       subset: [],
-      options: {},
+      options,
       corrections: [],
       alpha: 0.05,
       tails: "two_sided",
@@ -108,8 +124,11 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
   function prefill(analysisId: string) {
     const meta = useDatasetStore.getState().meta;
     const info = get().catalog?.find((a) => a.analysis_id === analysisId);
-    if (!meta || !info) return { layout: null, roles: {} };
-    return prefillRoles(info, meta, get().outcome);
+    if (!meta || !info) return { layout: null, roles: {}, testValue: "", testValueHint: null };
+    const roles = prefillRoles(info, meta, get().outcome);
+    if (!needsTestValue(analysisId)) return { ...roles, testValue: "", testValueHint: null };
+    const suggestion = suggestTestValue(meta, get().outcome);
+    return { ...roles, testValue: suggestion ? String(suggestion.value) : "", testValueHint: suggestion?.note ?? null };
   }
 
   return {
@@ -152,8 +171,10 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
 
     setRole: (role, names) => set({ roles: { ...get().roles, [role]: names }, error: null }),
 
+    setTestValue: (value) => set({ testValue: value, error: null }),
+
     runCheck: async () => {
-      const { analysisId, catalog, layout, roles } = get();
+      const { analysisId, catalog, layout, roles, testValue } = get();
       const info = catalog?.find((a) => a.analysis_id === analysisId);
       if (!analysisId || !info) {
         set({ error: "Statly can't run this analysis yet." });
@@ -162,6 +183,10 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
       const problem = roleProblem(info.layouts.find((l) => l.name === layout), roles);
       if (problem) {
         set({ error: problem });
+        return false;
+      }
+      if (needsTestValue(analysisId) && (testValue.trim() === "" || Number.isNaN(Number(testValue)))) {
+        set({ error: "Tell Statly the value to compare against (for example the middle of the scale)." });
         return false;
       }
       set({ busy: true, error: null });

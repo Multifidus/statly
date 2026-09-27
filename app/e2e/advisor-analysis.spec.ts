@@ -133,3 +133,56 @@ test("Test Advisor -> guided assumptions -> results -> copy APA sentence", async
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByTestId("results-view")).toBeVisible();
 });
+
+async function importCategorical(page: Page) {
+  await page.goto("/");
+  await page.getByTestId("new-project").click();
+  await page.getByTestId("choose-files").click();
+  const dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("checkbox", { name: "survey.csv" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+  for (let i = 0; i < 10 && !(await page.getByRole("heading", { name: "Welcome" }).isVisible()); i++) {
+    await page.getByTestId("wizard-next").click();
+    await page.waitForTimeout(150);
+  }
+  await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
+}
+
+test("Test Advisor: a categorical outcome (pass/fail) reaches chi-square, not just scores", async ({ page }) => {
+  await importCategorical(page);
+  await finishInterview(page);
+
+  await page.getByTestId("tab-advisor").click();
+
+  // The outcome dropdown groups a categorical variable (Q3, pass/fail) under "Yes/no and
+  // categories", not just scores/ratings, and defaults to it as the outcome.
+  const outcomeSelect = page.getByTestId("advisor-outcome");
+  const categoryGroup = outcomeSelect.locator('optgroup[label="Yes/no and categories"]');
+  await expect(categoryGroup.locator("option")).toContainText(["Q3: Did you pass the course?", "Q4: Did you use an extra-credit opportunity?"]);
+  await expect(outcomeSelect).toHaveValue("Q3");
+
+  // "From your data" reads as a yes/no answer, not a generic "category".
+  await expect(page.getByText(/your outcome is a yes\/no answer/)).toBeVisible();
+
+  const question = page.getByTestId("advisor-question");
+  await question.getByText("Did scores change over time, or differ between groups?").click();
+  await page.getByTestId("advisor-next").click();
+
+  // Nominal outcome_level is auto-filled from the data and the tree resolves straight to the
+  // chi-square recommendation (no extra design questions, unlike the continuous/ordinal branches).
+  await expect(page.getByTestId("path-q_compare_outcome_level")).toHaveAttribute("data-source", "auto");
+  const rec = page.getByTestId("recommendation");
+  await expect(page.getByTestId("rec-primary")).toHaveText(/Chi-square test of independence/);
+  await expect(rec).toContainText("Fisher's exact test");
+  await page.getByTestId("rec-continue").click();
+
+  // Row/column roles pre-filled: Q3 (outcome) by Q2 (the dataset's group variable, program).
+  await expect(page.getByTestId("role-row")).toHaveValue("Q3");
+  await expect(page.getByTestId("role-column")).toHaveValue("Q2");
+  await page.getByTestId("flow-run").click();
+
+  // No assumption walk-through for this mock test; it lands straight on results.
+  await expect(page.getByTestId("results-view")).toBeVisible();
+  await expect(page.getByTestId("apa-sentence")).toContainText(/χ²\(\d+\) = \d+\.\d\d/);
+  await expect(page.getByTestId("apa-table")).toContainText("Table 1");
+});

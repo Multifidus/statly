@@ -72,6 +72,24 @@ def test_structural_errors():
         registry.run(rm, _req("wilcoxon_signed_rank", {"measures": ["t1", "t2", "t3"]}))
 
 
+def test_wilcoxon_one_sample_requires_test_value():
+    fx = next(load_fixture(p) for p in CASES if load_fixture(p)["analysis_id"] == "wilcoxon_one_sample")
+    data = load_data(fx["dataset"])
+    req = fx["request"]
+    request = _req("wilcoxon_one_sample", req["variables"])
+    with pytest.raises(InvalidParams) as exc:
+        registry.run(data, request)
+    assert "Tell Statly the value to compare against" in str(exc.value)
+
+
+def test_wilcoxon_one_sample_summary_names_the_value():
+    fx = next(load_fixture(p) for p in CASES if load_fixture(p)["analysis_id"] == "wilcoxon_one_sample")
+    res = run_fixture(fx)
+    mu = fx["request"]["options"]["test_value"]
+    mu_txt = str(int(mu)) if float(mu).is_integer() else str(mu)
+    assert mu_txt in res["plain_language_summary"]
+
+
 def test_all_zero_differences_explained():
     import pandas as pd
     df = pd.DataFrame({"pre": [1, 2, 3, 4], "post": [1, 2, 3, 4]})

@@ -23,7 +23,7 @@ describe("advisor flow store", () => {
     await useAdvisor.getState().start();
     let a = useAdvisor.getState();
     expect(a.outcome).toBe(score);
-    expect(a.context).toEqual({ outcome_level: "continuous", num_groups: 1, num_time_points: 2, linked_mode: false });
+    expect(a.context).toMatchObject({ outcome_level: "continuous", num_groups: 1, num_time_points: 2, linked_mode: false });
     const startCall = engine.calls.find((c) => c.method === "advisor.start");
     expect(startCall?.params).toEqual({ dataset_context: a.context });
 
@@ -139,6 +139,22 @@ describe("guided analysis flow store", () => {
     useAnalysisFlow.getState().setRole("group", ["Q3_1"]); // five levels, not two
     expect(await useAnalysisFlow.getState().runCheck()).toBe(false);
     expect(useAnalysisFlow.getState().error).toMatch(/exactly two groups/);
+  });
+
+  it("never runs a one-sample test against a silent default; requires and pre-fills a test value", async () => {
+    await importMockOneGroup();
+    await useAnalysisFlow.getState().loadCatalog();
+    // Q3_1 is a 1-5 Likert item; its response_range drives the suggested midpoint.
+    useAnalysisFlow.setState({ outcome: "Q3_1" });
+    useAnalysisFlow.getState().selectAnalysis("t_test.one_sample");
+    useAnalysisFlow.getState().setRole("outcome", ["Q3_1"]);
+    let f = useAnalysisFlow.getState();
+    expect(f.testValue).toBe("3");
+    expect(f.testValueHint).toMatch(/middle of a 1–5 scale/);
+
+    f.setTestValue("");
+    expect(await useAnalysisFlow.getState().runCheck()).toBe(false);
+    expect(useAnalysisFlow.getState().error).toMatch(/Tell Statly the value to compare against/);
   });
 
   it("suggests the alternative when normality fails and confirms Welch for unequal spread", async () => {

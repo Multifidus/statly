@@ -55,6 +55,7 @@ export const MOCK_FILES: { path: string; group: string }[] = [
   { path: `${MOCK_ROOT}/mixed_design_large/pre.csv`, group: "Mixed design, linked, three groups" },
   { path: `${MOCK_ROOT}/mixed_design_large/post.csv`, group: "Mixed design, linked, three groups" },
   { path: `${MOCK_ROOT}/mixed_design_large/followup.csv`, group: "Mixed design, linked, three groups" },
+  { path: `${MOCK_ROOT}/categorical_outcomes/survey.csv`, group: "Categorical outcomes" },
   { path: `/mock/perf/wide_5000x300.csv`, group: "Performance (5,000 rows x 300 columns)" },
   { path: `${MOCK_ROOT}/not_a_spreadsheet/broken.csv`, group: "Not a spreadsheet" },
   { path: MOCK_SURVEY_PATH, group: "Survey design (.qsf)" },
@@ -517,6 +518,95 @@ function wide(): FileShape {
   };
 }
 
+// --- categorical_outcomes -----------------------------------------------------------------
+
+/**
+ * All-categorical outcomes (fixtures/practice/categorical_outcomes/survey.csv, ground_truth.json):
+ * Q2 program (3 categories) x Q3 pass/fail (planted association, chi-square), Q4 yes/no x Q3
+ * (sparse 2x2 -> Fisher's exact), Q5_pre/Q5_post linked yes/no pair (McNemar), Q6_1..Q6_3
+ * repeated yes/no items with a shared latent tendency so endorsement rises monotonically
+ * (Cochran's Q).
+ */
+function categoricalOutcomes(): FileShape {
+  const PASS_RATE: Record<string, number> = { Education: 0.55, Psychology: 0.75, Business: 0.85 };
+  const yesNo = (v: boolean) => (v ? "Yes" : "No");
+  // Deterministic pseudo-random keyed by row + salt only (unlike the per-column hash `h`, which
+  // is also keyed by column index), so columns below can depend on each other's row values.
+  const rowRand = (r: number, salt: number) => {
+    const x = Math.sin((r + 1) * 12.9898 + (salt + 1) * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  const programOf = (r: number) => {
+    const u = rowRand(r, 1);
+    return u < 0.463 ? "Education" : u < 0.76 ? "Psychology" : "Business";
+  };
+  const passOf = (r: number) => (rowRand(r, 2) < PASS_RATE[programOf(r)] ? "Pass" : "Fail");
+  const preOf = (r: number) => rowRand(r, 5) < 0.3;
+  return {
+    key: "categorical_outcomes",
+    nRows: 300,
+    headerRows: 3,
+    qualtrics: true,
+    encoding: "utf-8-sig",
+    delimiter: ",",
+    format: "csv",
+    sheets: [],
+    cols: [
+      ...metadataCols("CO"),
+      {
+        name: "Q2",
+        text: "What is your program?",
+        // role: "group" so it's the advisor's default column/comparison variable against Q3
+        // (pass/fail), matching ground_truth.json's program_x_passfail; it never appears in the
+        // outcome dropdown itself (group/time/identifier roles are structural, not outcomes).
+        var: { role: "group", level: "nominal", value_labels: ["Education", "Psychology", "Business"].map((p) => ({ value: p, label: p })) },
+        gen: (r) => programOf(r),
+      },
+      {
+        name: "Q3",
+        text: "Did you pass the course?",
+        // role: "demographic" (not left "unassigned") so the Variable Interview's naming/cardinality
+        // heuristics (interviewLogic.ts guessRole: a low-cardinality string column guesses "group";
+        // a same-prefix numbered set like Q6_1..Q6_3 guesses "test_item", expecting an answer key)
+        // don't relabel these as something the outcome dropdown would then exclude.
+        var: { role: "demographic", level: "nominal", value_labels: [{ value: "Pass", label: "Pass" }, { value: "Fail", label: "Fail" }] },
+        gen: (r) => passOf(r),
+      },
+      {
+        name: "Q4",
+        text: "Did you use an extra-credit opportunity?",
+        var: { role: "demographic", level: "nominal", value_labels: [{ value: "Yes", label: "Yes" }, { value: "No", label: "No" }] },
+        // Rare event (~5% overall), and mostly only "Yes" when Q3 is "Fail" -> a sparse 2x2 with
+        // an expected count under 5 (Fisher's exact, not chi-square).
+        gen: (r) => yesNo(passOf(r) === "Fail" ? rowRand(r, 3) < 0.15 : rowRand(r, 3) < 0.01),
+      },
+      {
+        name: "Q5_pre",
+        text: "Did you use office hours before midterm?",
+        var: { role: "demographic", level: "nominal", value_labels: [{ value: "Yes", label: "Yes" }, { value: "No", label: "No" }] },
+        gen: (r) => yesNo(preOf(r)),
+      },
+      {
+        name: "Q5_post",
+        text: "Did you use office hours after midterm?",
+        var: { role: "demographic", level: "nominal", value_labels: [{ value: "Yes", label: "Yes" }, { value: "No", label: "No" }] },
+        // Linked to Q5_pre (same respondents): many No->Yes switches, few Yes->No (McNemar).
+        gen: (r) => yesNo(preOf(r) ? rowRand(r, 6) > 0.05 : rowRand(r, 6) < 0.31),
+      },
+      ...["Q6_1", "Q6_2", "Q6_3"].map<ColSpec>((name, i) => ({
+        name,
+        text: ["Used a study group this term?", "Used a tutor this term?", "Used the writing center this term?"][i],
+        var: { role: "demographic", level: "nominal", value_labels: [{ value: "Yes", label: "Yes" }, { value: "No", label: "No" }] },
+        // Shared per-respondent latent tendency with rising thresholds: whoever endorses an
+        // earlier item also endorses later ones (repeated measures, Cochran's Q).
+        gen: (r) => yesNo(rowRand(r, 9) < [0.4433, 0.5367, 0.6933][i]),
+      })),
+    ],
+    multiselect: [],
+    scales: [],
+  };
+}
+
 /**
  * Synthetic answer-key fixture for items.parse_answer_key: any path whose basename contains
  * "answer_key" returns the key for the three_groups shape's Q4_1..Q4_20 test items (their
@@ -541,6 +631,7 @@ export function shapeForPath(path: string, sheet: string | null): FileShape | nu
   if (name === "messy_text_choices.csv") return messy("text");
   if (name === "broken.csv") return brokenQuote;
   if (name.startsWith("wide")) return wide();
+  if (dir.includes("categorical_outcomes")) return categoricalOutcomes();
   const time = name.includes("follow") ? "followup" : name.includes("post") ? "post" : name.includes("pre") ? "pre" : null;
   if (time && dir.includes("mixed_design")) return mixedDesignLarge(time);
   if (time && dir.includes("three_groups")) return threeGroups(time);

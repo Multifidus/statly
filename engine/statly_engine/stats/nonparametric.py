@@ -381,11 +381,13 @@ def _mu_text(mu: float) -> str:
 
 @register("wilcoxon_one_sample", label="Wilcoxon one-sample signed-rank test",
           roles=[Role("outcome", 1, 1, "Scores to compare with a fixed value")],
-          options={"test_value": "Value the scores are compared with (default 0)."})
+          options={"test_value": "Value the scores are compared with. Required; Statly never assumes 0."})
 def wilcoxon_one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     level, alpha = request.ci_level, request.alpha
     name = request.variables["outcome"][0]
     vl = prep.label(meta, name)
+    if "test_value" not in request.options and "mu" not in request.options:
+        raise InvalidParams("Tell Statly the value to compare against (for example the middle of the scale).")
     mu = _test_value(request)
     x_all = prep.numeric(df, name, meta)
     x = x_all.dropna().to_numpy()
