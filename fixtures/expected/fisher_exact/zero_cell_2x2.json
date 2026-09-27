@@ -49,9 +49,10 @@
       {
         "key": "phi",
         "value": 0.645497224367903,
-        "ci_lower": 0.203961274986838,
+        "ci_lower": 0.110549426969296,
         "ci_upper": 1,
-        "effectsize_ci_lower": 0.203961276253926
+        "effectsize_ci_lower": 0.110549417006497,
+        "effectsize_ci_upper": 1
       }
     ]
   },

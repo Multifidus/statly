@@ -27,7 +27,7 @@ Primary: education graduate students and undergraduates with no stats background
 - Builds: GitHub Actions matrix. macOS runners build .dmg (separate arm64 and x86_64 builds, or universal if the sidecar can be made universal2); Windows runner builds NSIS setup .exe. Do not attempt cross-compiling Windows from Mac.
 - Security: strict Tauri CSP, no remote URLs, Tauri capabilities limited to file dialogs, fs within user-chosen paths, clipboard, and the sidecar.
 
-Statistical defaults must match SPSS where users will compare results: Type III sums of squares with sum-to-zero (effect) contrasts for factorial ANOVA/ANCOVA, Greenhouse-Geisser reported alongside sphericity tests, two-tailed tests by default.
+Statistical defaults must match SPSS where users will compare results: Type III sums of squares with sum-to-zero (effect) contrasts for factorial ANOVA/ANCOVA, Greenhouse-Geisser reported alongside sphericity tests, two-tailed tests by default. Effect-size confidence intervals are two-sided at the requested level (not R effectsize's one-sided default for chi-square/F-based effect sizes).
 
 ## 4. Architecture and shared contracts (define first)
 - /app (Tauri + React), /engine (Python), /content (Markdown learning content + decision tree YAML), /fixtures (datasets + R-generated expected outputs), /docs.

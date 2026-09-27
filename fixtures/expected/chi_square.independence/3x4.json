@@ -44,8 +44,9 @@
         "key": "cramers_v",
         "value": 0.155789404336696,
         "ci_lower": 0,
-        "ci_upper": 1,
-        "effectsize_ci_lower": 0
+        "ci_upper": 0.216699236834145,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.216699235076285
       }
     ],
     "expected_counts": [

@@ -88,3 +88,18 @@ def test_infinite_odds_ratio_bounds_match_r():
     est = esc.paired_odds_ratio(int(b), 0)
     assert est.value is None
     close(est.lower, rec["bound_when_infinite"][0], TOL, "mcnemar OR lower")
+
+
+def test_cramers_v_ci_is_two_sided_as_r():
+    """3 x 2 program by pass/fail (N = 300, χ²(2) = 30.09): V's 95% CI is two-sided, matching
+    effectsize::cramers_v(adjust = FALSE, alternative = "two.sided") within 1e-4 — not effectsize's
+    one-sided default, whose upper bound is always 1 ([.22, 1.00])."""
+    fx = load_fixture(next(p for p in fixture_paths("chi_square.independence") if p.stem == "program_3x2"))
+    rec = next(e for e in fx["expected"]["effect_sizes"] if e["key"] == "cramers_v")
+    res = run_fixture(fx)
+    v = next(e for e in res["effect_sizes"] if e["key"] == "cramers_v")
+    for got, want in ((v["value"], rec["value"]), (v["ci"]["lower"], rec["effectsize_ci_lower"]),
+                      (v["ci"]["upper"], rec["effectsize_ci_upper"])):
+        assert abs(got - want) < 1e-4
+    assert v["ci"]["upper"] < 0.5
+    assert "two-sided" in str(res["apa_table"])

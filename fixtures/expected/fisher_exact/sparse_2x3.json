@@ -32,9 +32,10 @@
       {
         "key": "cramers_v",
         "value": 0.640869944461656,
-        "ci_lower": 0.11140798185283,
+        "ci_lower": 0,
         "ci_upper": 1,
-        "effectsize_ci_lower": 0.11140799816895
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 1
       }
     ]
   },

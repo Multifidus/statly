@@ -2,11 +2,13 @@
 Cohen's g. Reference: fixtures/r/categorical.R.
 
 Chi-square-based coefficients follow R `effectsize` 1.0 with adjust = FALSE (the classical,
-unadjusted V and phi) and its default one-sided interval (alternative = "greater"): the lower bound
-comes from the noncentral chi-square whose ncp puts the observed statistic at the 95th percentile,
-and the upper bound is fixed at the largest possible value (1 for V, phi and Fei; sqrt(1/min(p) - 1)
-for Cohen's w). effectsize finds that ncp with Nelder-Mead; we solve it exactly (Brent), which
-agrees with R's uniroot to ~1e-10. A two-sided interval is available with ``alternative``.
+unadjusted V and phi), but with a TWO-SIDED interval (alternative = "two.sided"), as Statly reports
+for every effect size (SPEC §3). effectsize's own default is one-sided ("greater", upper bound fixed
+at 1), which Statly does not use. Each bound comes from the noncentral chi-square whose ncp puts the
+observed statistic at the 97.5th / 2.5th percentile; the upper bound is capped at the largest
+possible value (1 for V, phi and Fei; sqrt(1/min(p) - 1) for Cohen's w). effectsize finds each ncp
+with Nelder-Mead; we solve it exactly (Brent), which agrees with R's uniroot to ~1e-10. One-sided
+intervals remain available with ``alternative``.
 """
 
 from __future__ import annotations
@@ -33,7 +35,7 @@ def _ncp_for(chisq: float, df: float, prob: float) -> float:
 
 
 def chisq_ncp_ci(chisq: float, df: float, level: float = 0.95,
-                 alternative: str = GREATER) -> tuple[float, float]:
+                 alternative: str = TWO_SIDED) -> tuple[float, float]:
     """Bounds on the noncentrality parameter; one-sided upper bound = inf."""
     lvl = adjust_level(level, alternative)
     a = 1 - lvl
@@ -58,25 +60,25 @@ def _w_estimate(chisq: float, n: int, df: float, level: float, alternative: str,
 
 
 def cramers_v(chisq: float, n: int, nrow: int, ncol: int, level: float = 0.95,
-              alternative: str = GREATER) -> Estimate:
+              alternative: str = TWO_SIDED) -> Estimate:
     """effectsize::cramers_v(adjust = FALSE): sqrt(chi² / (n (min(r, c) - 1)))."""
     df = (nrow - 1) * (ncol - 1)
     return _w_estimate(chisq, n, df, level, alternative, math.sqrt(min(nrow, ncol) - 1), 1.0)
 
 
-def phi(chisq: float, n: int, level: float = 0.95, alternative: str = GREATER) -> Estimate:
+def phi(chisq: float, n: int, level: float = 0.95, alternative: str = TWO_SIDED) -> Estimate:
     """effectsize::phi(adjust = FALSE) for a 2 x 2 table: sqrt(chi² / n), unsigned."""
     return _w_estimate(chisq, n, 1, level, alternative, 1.0, 1.0)
 
 
-def cohens_w_gof(chisq: float, n: int, p, level: float = 0.95, alternative: str = GREATER) -> Estimate:
+def cohens_w_gof(chisq: float, n: int, p, level: float = 0.95, alternative: str = TWO_SIDED) -> Estimate:
     """effectsize::cohens_w for goodness of fit; upper bound sqrt(1/min(p) - 1)."""
     p = np.asarray(p, float) / np.sum(p)
     wmax = math.sqrt(1 / p.min() - 1)
     return _w_estimate(chisq, n, len(p) - 1, level, alternative, 1.0, wmax)
 
 
-def fei(chisq: float, n: int, p, level: float = 0.95, alternative: str = GREATER) -> Estimate:
+def fei(chisq: float, n: int, p, level: float = 0.95, alternative: str = TWO_SIDED) -> Estimate:
     """effectsize::fei: Cohen's w divided by its maximum, so it runs from 0 to 1."""
     p = np.asarray(p, float) / np.sum(p)
     return _w_estimate(chisq, n, len(p) - 1, level, alternative, math.sqrt(1 / p.min() - 1), 1.0)

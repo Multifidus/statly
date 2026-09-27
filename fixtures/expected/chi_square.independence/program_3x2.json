@@ -1,67 +1,61 @@
 {
   "analysis_id": "chi_square.independence",
-  "case": "3x4_ci90",
-  "dataset": "categorical_3x4.csv",
+  "case": "program_3x2",
+  "dataset": "categorical_program_3x2.csv",
   "request": {
     "variables": {
       "row": [
-        "school"
+        "program"
       ],
       "column": [
-        "band"
+        "passed"
       ]
     },
     "options": {},
     "tails": "two_sided",
-    "ci_level": 0.9,
+    "ci_level": 0.95,
     "alpha": 0.05
   },
   "expected": {
-    "n_used": 240,
+    "n_used": 300,
     "n_excluded": 0,
     "statistics": [
       {
         "key": "chi2",
-        "value": 11.6497624817196,
+        "value": 30.0875930603375,
         "df": [
-          6
+          2
         ],
-        "p": 0.0702540830364879,
+        "p": 2.92794004890763e-07,
         "term": null
       },
       {
         "key": "likelihood_ratio",
-        "value": 12.0885449056723,
+        "value": 30.6969456669746,
         "df": [
-          6
+          2
         ],
-        "p": 0.0600223776321545,
+        "p": 2.15895178129937e-07,
         "term": null
       }
     ],
     "effect_sizes": [
       {
         "key": "cramers_v",
-        "value": 0.155789404336696,
-        "ci_lower": 0,
-        "ci_upper": 0.20117190369703,
-        "effectsize_ci_lower": 0,
-        "effectsize_ci_upper": 0.201171904004344
+        "value": 0.316689085488893,
+        "ci_lower": 0.196861297814359,
+        "ci_upper": 0.425303181528279,
+        "effectsize_ci_lower": 0.196861295907739,
+        "effectsize_ci_upper": 0.425303182340677
       }
     ],
     "expected_counts": [
-      21.375,
-      24,
-      29.25,
-      15.375,
-      20.425,
-      22.9333333333333,
-      27.95,
-      14.6916666666667,
-      15.2,
-      17.0666666666667,
-      20.8,
-      10.9333333333333
+      23.76,
+      48.24,
+      45.87,
+      93.13,
+      29.37,
+      59.63
     ],
     "low_expected": false
   },

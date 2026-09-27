@@ -154,16 +154,17 @@ Registered through the import line in `stats/__init__.py` (not `ANALYSIS_MODULES
   expected counts and SPSS adjusted residuals; `chart_data.crosstab` has every cell.
 - **chi_square.independence:** Pearson χ² (uncorrected) headline; 2 × 2 adds Yates (`chi2_yates`, R's
   min(0.5, |O - E|) rule); likelihood-ratio G² always. Warning `low_expected_counts` when > 20% of E < 5 or any E < 1.
-- **Cramér's V / phi** = `effectsize::cramers_v / phi(adjust = FALSE)` (classical, unadjusted), effectsize's
-  default one-sided CI (upper = 1). The ncp bound is solved exactly (Brent); effectsize's Nelder-Mead bound is
-  kept in fixtures as `effectsize_ci_lower`. phi is unsigned (effectsize); direction comes from the sample OR.
+- **Cramér's V / phi** = `effectsize::cramers_v / phi(adjust = FALSE)` (classical, unadjusted) with a
+  **two-sided** CI (`alternative = "two.sided"`, upper capped at 1; effectsize's one-sided default is not used).
+  The ncp bounds are solved exactly (Brent); effectsize's Nelder-Mead bounds are kept in fixtures as
+  `effectsize_ci_lower / _upper`. APA table notes state that effect-size CIs are two-sided. phi is unsigned (effectsize); direction comes from the sample OR.
 - **Sample OR** (2 × 2) = ad/bc, Woolf CI (`effectsize::oddsratio`); null CI with a zero cell.
 - **fisher_exact** = `fisher.test`. 2 × 2: p, conditional-MLE OR + exact CI (scipy `odds_ratio(kind=
   "conditional")`), sample OR, phi. fisher.test solves the MLE with uniroot's default tol (~1e-4), so fixtures
   record the same algorithm at tol 1e-14 (R's value kept as `fisher_test_*`). r × c: exact p by enumeration
   (tolerance 1e-7 as R), refused above 2e6 tables. An infinite OR is reported null with a `zero_cell` warning.
-- **goodness_of_fit:** equal or `options.expected_proportions` ({value: p} or list; rescaled). Cohen's w (upper
-  = √(1/min p - 1)) and Fei, effectsize defaults.
+- **goodness_of_fit:** equal or `options.expected_proportions` ({value: p} or list; rescaled). Cohen's w and Fei with
+  two-sided CIs (upper capped at √(1/min p - 1) and 1).
 - **mcnemar:** `mcnemar.test` with correction headline (`chi2`), `chi2_uncorrected`, `binomial_exact`
   (binom.test on b of b + c). Cohen's g (Wilson CI, `effectsize::cohens_g`); paired OR b/c with the exact CI.
 - **cochran_q:** Q on k - 1 df (= `rstatix::cochran_qtest`, i.e. friedman.test on 0/1); success = second code

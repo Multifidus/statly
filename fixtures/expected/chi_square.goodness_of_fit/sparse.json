@@ -32,15 +32,17 @@
         "key": "cohens_w",
         "value": 0.318688719599549,
         "ci_lower": 0,
-        "ci_upper": 1.4142135623731,
-        "effectsize_ci_lower": 0
+        "ci_upper": 0.742734659062182,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.742734657954504
       },
       {
         "key": "fei",
         "value": 0.225346954716499,
         "ci_lower": 0,
-        "ci_upper": 1,
-        "effectsize_ci_lower": 0
+        "ci_upper": 0.525192714045148,
+        "effectsize_ci_lower": 0,
+        "effectsize_ci_upper": 0.5251927132619
       }
     ],
     "expected_counts": [

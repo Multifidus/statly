@@ -8,18 +8,19 @@
 #     Yates-corrected chisq.test(correct = TRUE) is reported alongside (as SPSS), plus the
 #     likelihood-ratio G² = 2 sum O ln(O / E) (hand computation, as SPSS).
 #   * Cramér's V and phi: effectsize::cramers_v / effectsize::phi (adjust = FALSE: the classical,
-#     unadjusted coefficients) with effectsize's default one-sided CI (alternative = "greater",
-#     upper bound fixed at 1). effectsize finds the noncentral chi-square bound with Nelder-Mead;
-#     the fixture records the exact inversion (uniroot) and keeps effectsize's bound as
-#     effectsize_ci_lower, for information.
+#     unadjusted coefficients) with a TWO-SIDED CI (alternative = "two.sided"; Statly reports
+#     two-sided CIs for every effect size, not effectsize's one-sided "greater" default), upper bound
+#     capped at 1. effectsize finds the noncentral chi-square bounds with Nelder-Mead; the fixture
+#     records the exact inversion (uniroot) and keeps effectsize's bounds as effectsize_ci_lower /
+#     effectsize_ci_upper, for information.
 #   * Sample odds ratio (2 x 2): ad / bc with Woolf's log-scale CI (effectsize::oddsratio);
 #     null CI when a cell is 0.
 #   * fisher_exact: stats::fisher.test. 2 x 2: conditional-MLE odds ratio and its exact CI (differs
 #     from the sample OR, which is also reported), re-solved at tight tolerance (fisher_or_exact);
 #     r x c: p-value only (FEXACT).
 #   * chi_square.goodness_of_fit: chisq.test(x, p) with equal or user-given proportions (rescaled
-#     to sum to 1). Cohen's w and Fei: effectsize::cohens_w / fei defaults (one-sided CI, upper
-#     bound = the maximum possible value), again with the exact ncp inversion.
+#     to sum to 1). Cohen's w and Fei: effectsize::cohens_w / fei with a two-sided CI (upper bound
+#     capped at the maximum possible value), again with the exact ncp inversion.
 #   * mcnemar: mcnemar.test(correct = TRUE) headline (as SPSS's chi-square), correct = FALSE and the
 #     exact binomial test (binom.test(b, b + c)) alongside. Cohen's g: effectsize::cohens_g (Wilson
 #     CI); paired odds ratio b / c with the exact conditional CI (binom.test CI mapped by p / (1 - p)).
@@ -65,6 +66,10 @@ cq$t2[c(4, 19)] <- NA; cq$t4[27] <- NA
 write_dataset(cq, "categorical_cochran.csv")
 write_dataset(data.frame(group = c("A", "B", "A", "B", "A", "B"), passed = rep("Yes", 6)),
           "categorical_constant.csv")
+# 3 x 2 program by pass/fail (the categorical_outcomes practice survey, Q2 x Q3; N = 300).
+write_dataset(data.frame(program = rep(c("Business", "Education", "Psychology"), c(72, 139, 89)),
+                         passed = rep(rep(c("Fail", "Pass"), 3), c(12, 60, 68, 71, 19, 70))),
+          "categorical_program_3x2.csv")
 
 # ---- helpers ----------------------------------------------------------------------------------
 empty <- setNames(list(), character(0))
@@ -74,8 +79,11 @@ ncp_chi_exact <- function(chisq, df, prob) {
   f <- function(ncp) stats::pchisq(chisq, df, ncp) - prob
   stats::uniroot(f, c(0, chisq + 10 * sqrt(chisq + df) + 50), tol = 1e-13, maxiter = 5000)$root
 }
-# One-sided ("greater") CI lower bound for w = sqrt(chisq / n), effectsize's default.
-w_lower <- function(chisq, df, n, ci = 0.95) sqrt(ncp_chi_exact(chisq, df, ci) / n)
+# Two-sided CI for w = sqrt(chisq / n) (effectsize alternative = "two.sided"), uncapped.
+w_ci <- function(chisq, df, n, ci = 0.95) {
+  a <- (1 - ci) / 2
+  c(sqrt(ncp_chi_exact(chisq, df, 1 - a) / n), sqrt(ncp_chi_exact(chisq, df, a) / n))
+}
 # An infinite odds ratio (a zero cell) has no finite point estimate, so the engine reports the effect
 # with a null value and null CI; the finite bound is kept as bound_when_infinite and checked directly
 # against the helper in effect_sizes_cat.
@@ -87,8 +95,9 @@ es_rec_or <- function(key, value, lower, upper) {
 }
 es_rec_chi <- function(key, value, lower, upper, es_row) {
   rec <- es_rec(key, value, lower, upper)
-  stopifnot(abs(es_row$CI_low - lower) < 0.01)
+  stopifnot(abs(es_row$CI_low - lower) < 0.01, abs(es_row$CI_high - upper) < 0.01)
   rec$effectsize_ci_lower <- num(es_row$CI_low)
+  rec$effectsize_ci_upper <- num(es_row$CI_high)
   rec
 }
 chi_rec <- function(key, ct) stat_rec(key, ct$statistic, ct$parameter, ct$p.value)
@@ -114,12 +123,13 @@ xtab <- function(d, r, c) {
 }
 cat_effects <- function(tab, chisq, ci = 0.95) {
   n <- sum(tab); r <- nrow(tab); c <- ncol(tab); df <- (r - 1) * (c - 1)
-  v <- effectsize::cramers_v(tab, adjust = FALSE, ci = ci)
-  lo <- w_lower(chisq, df, n, ci) / sqrt(min(r, c) - 1)
-  out <- list(es_rec_chi("cramers_v", v$Cramers_v, lo, 1, v))
+  v <- effectsize::cramers_v(tab, adjust = FALSE, ci = ci, alternative = "two.sided")
+  wc <- w_ci(chisq, df, n, ci)
+  vc <- pmin(wc / sqrt(min(r, c) - 1), 1)
+  out <- list(es_rec_chi("cramers_v", v$Cramers_v, vc[1], vc[2], v))
   if (r == 2 && c == 2) {
-    ph <- effectsize::phi(tab, adjust = FALSE, ci = ci)
-    out[[2]] <- es_rec_chi("phi", ph$phi, w_lower(chisq, df, n, ci), 1, ph)
+    ph <- effectsize::phi(tab, adjust = FALSE, ci = ci, alternative = "two.sided")
+    out[[2]] <- es_rec_chi("phi", ph$phi, wc[1], min(wc[2], 1), ph)
     out[[3]] <- woolf(tab, ci)
   }
   out
@@ -192,6 +202,7 @@ indep_case("3x4_ci90", "categorical_3x4.csv", "school", "band", ci = 0.90)
 indep_case("sparse_2x3", "categorical_sparse.csv", "group", "response")
 indep_case("zero_cell_2x2", "categorical_zero_cell.csv", "group", "passed")
 indep_case("constant", "categorical_constant.csv", "group", "passed")
+indep_case("program_3x2", "categorical_program_3x2.csv", "program", "passed")
 
 # ---- Fisher's exact -----------------------------------------------------------------------------
 fisher_case <- function(case, dataset, r, c, tails = "two_sided", ci = 0.95) {
@@ -231,16 +242,16 @@ gof_case <- function(case, dataset, v, p = NULL, ci = 0.95) {
   pp <- if (is.null(p)) rep(1 / length(tab), length(tab)) else p[names(tab)] / sum(p)
   ct <- stats::chisq.test(as.numeric(tab), p = unname(pp))
   n <- sum(tab); df <- length(tab) - 1
-  w <- effectsize::cohens_w(as.numeric(tab), p = unname(pp), ci = ci)
-  fe <- effectsize::fei(as.numeric(tab), p = unname(pp), ci = ci)
-  wl <- w_lower(ct$statistic, df, n, ci); wmax <- sqrt(1 / min(pp) - 1)
+  w <- effectsize::cohens_w(as.numeric(tab), p = unname(pp), ci = ci, alternative = "two.sided")
+  fe <- effectsize::fei(as.numeric(tab), p = unname(pp), ci = ci, alternative = "two.sided")
+  wmax <- sqrt(1 / min(pp) - 1); wc <- pmin(w_ci(ct$statistic, df, n, ci), wmax)
   opts <- if (is.null(p)) empty else list(expected_proportions = as.list(p))
   write_fixture("chi_square.goodness_of_fit", case, list(
     analysis_id = "chi_square.goodness_of_fit", case = case, dataset = dataset,
     request = req(list(variable = list(v)), opts, "two_sided", ci),
     expected = list(n_used = n, n_excluded = sum(is.na(d[[v]])), statistics = list(chi_rec("chi2", ct)),
-                    effect_sizes = list(es_rec_chi("cohens_w", w$Cohens_w, wl, wmax, w),
-                                        es_rec_chi("fei", fe$Fei, wl / wmax, 1, fe)),
+                    effect_sizes = list(es_rec_chi("cohens_w", w$Cohens_w, wc[1], wc[2], w),
+                                        es_rec_chi("fei", fe$Fei, wc[1] / wmax, wc[2] / wmax, fe)),
                     expected_counts = unname(as.list(as.numeric(ct$expected)))),
     error = NULL))
 }

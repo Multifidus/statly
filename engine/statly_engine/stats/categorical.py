@@ -9,7 +9,8 @@ Conventions:
   shows both, plus the likelihood-ratio G². When more than 20% of expected counts are below 5 (or
   any is below 1) a warning recommends Fisher's exact test.
 - Effect sizes (effect_sizes_cat): Cramér's V and phi unadjusted (effectsize adjust = FALSE) with
-  effectsize's default one-sided CI (upper bound 1); phi is unsigned as in effectsize, and the
+  a two-sided CI (effectsize alternative = "two.sided", not its one-sided default); phi is unsigned
+  as in effectsize, and the
   direction is carried by the sample odds ratio (ad / bc, Woolf CI; null CI with a zero cell).
 - fisher_exact: stats::fisher.test. 2 x 2: p (two-sided = sum of tables no more likely than the
   observed one, relative tolerance 1e-7), the conditional-MLE odds ratio with its exact CI (this
@@ -17,7 +18,7 @@ Conventions:
   of the tables with the observed margins (refused when that would be too large; use chi-square).
 - chi_square.goodness_of_fit: equal expected proportions, or options.expected_proportions (a
   {value: proportion} map or a list in level order), rescaled to sum to 1. Cohen's w and Fei
-  (effectsize defaults, one-sided CI).
+  (two-sided CI, upper bound capped at the maximum).
 - mcnemar: two paired yes/no variables with the same two codes. Headline chi-square with the
   continuity correction (mcnemar.test default; SPSS's chi-square), the uncorrected statistic and the
   exact binomial test alongside. Cohen's g (Wilson CI) and the paired odds ratio b / c (exact CI).
@@ -42,6 +43,9 @@ from statly_engine.stats.registry import Role, register
 
 FISHER_MAX_TABLES = 2_000_000
 _ALT = {"two_sided": "two-sided", "greater": "greater", "less": "less"}
+
+
+_TWO_SIDED_CI_NOTE = "Effect-size confidence intervals are two-sided."
 
 
 def _chi_sym() -> Rich:
@@ -290,7 +294,7 @@ def chi_square_independence(df: pd.DataFrame, request, meta: dict | None = None)
         b.effect("phi", "Phi (unsigned)", "φ", esc.phi(chi, n, level), "r", what="association")
         b.effect("sample_odds_ratio", "Odds ratio (sample)", "OR", esc.odds_ratio_woolf(tab, level))
 
-    note = Rich().stat(_chi_sym(), [dfree], chi).t(", ").p(p).t(".")
+    note = Rich().stat(_chi_sym(), [dfree], chi).t(", ").p(p).t(". " + _TWO_SIDED_CI_NOTE)
     e = _crosstab_outputs(b, x, rname, cname, meta, note)
     b.warn(_low_expected_warning(e))
     if n < SMALL_N:
@@ -350,7 +354,10 @@ def fisher_exact(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
 
     note = Rich().t("Fisher's exact test, ").p(p).t(".")
     if alt != "two_sided":
-        note.t(f" One-tailed (alternative: odds ratio {'>' if alt == 'greater' else '<'} 1).")
+        note.t(f" One-tailed (alternative: odds ratio {'>' if alt == 'greater' else '<'} 1; the conditional "
+               "odds ratio's CI is one-sided to match). " + _TWO_SIDED_CI_NOTE.replace("Effect-size", "Other effect-size"))
+    else:
+        note.t(" " + _TWO_SIDED_CI_NOTE)
     _crosstab_outputs(b, x, rname, cname, meta, note)
     if n < SMALL_N:
         b.warn(warning("small_sample", "info", f"Only {n} people are in the table. Fisher's exact test is valid "
@@ -447,7 +454,8 @@ def goodness_of_fit(df: pd.DataFrame, request, meta: dict | None = None) -> dict
                          apa.cell_num(100.0, 1), apa.cell_empty()], kind="total"))
     equal = request.options.get("expected_proportions") is None
     note = Rich().t("Expected counts assume " + ("equal shares. " if equal else "the specified shares. "))
-    note.t("Residual = (observed - expected) / √expected. ").stat(_chi_sym(), [dfree], chi).t(", ").p(pv).t(".")
+    note.t("Residual = (observed - expected) / √expected. ").stat(_chi_sym(), [dfree], chi).t(", ").p(pv)
+    note.t(". " + _TWO_SIDED_CI_NOTE)
     b.table(apa.table(f"Observed and Expected Frequencies of {vl}", cols, rows, general_note=note))
     sig = pv < alpha
     s = Rich().t("A chi-square goodness-of-fit test showed that the distribution of " + vl +

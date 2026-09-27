@@ -38,16 +38,18 @@
       {
         "key": "cohens_w",
         "value": 0.55979286843935,
-        "ci_lower": 0.39183692233836,
-        "ci_upper": 3,
-        "effectsize_ci_lower": 0.391836926331541
+        "ci_lower": 0.362404049001432,
+        "ci_upper": 0.725625947417927,
+        "effectsize_ci_lower": 0.362404052864532,
+        "effectsize_ci_upper": 0.725625939138173
       },
       {
         "key": "fei",
         "value": 0.186597622813117,
-        "ci_lower": 0.13061230744612,
-        "ci_upper": 1,
-        "effectsize_ci_lower": 0.13061230877718
+        "ci_lower": 0.120801349667144,
+        "ci_upper": 0.241875315805976,
+        "effectsize_ci_lower": 0.120801350954844,
+        "effectsize_ci_upper": 0.241875313046058
       }
     ],
     "expected_counts": [
