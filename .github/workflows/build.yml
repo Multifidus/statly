@@ -96,12 +96,14 @@ jobs:
 
       - name: Fail if THIRD_PARTY_LICENSES.md is out of date
         run: |
-          git diff --exit-code -- THIRD_PARTY_LICENSES.md || {
-            echo "THIRD_PARTY_LICENSES.md is stale. Run:" >&2
-            echo "  python3.12 scripts/check-licenses.py --pip-licenses ... --js-licenses ... --cargo-metadata ... --write THIRD_PARTY_LICENSES.md" >&2
-            echo "and commit the result." >&2
-            exit 1
-          }
+          python3.12 scripts/check-licenses.py \
+            --pip-licenses /tmp/pip-licenses.json \
+            --js-licenses /tmp/js-licenses.json \
+            --cargo-metadata /tmp/cargo-metadata.json \
+            --check THIRD_PARTY_LICENSES.md
+          # Compares (ecosystem, package, license) only -- version drift in
+          # a transitive dependency (e.g. wrapt 2.4.1 -> 2.5.0) does not fail
+          # the build; an added/removed package or a changed license does.
 
   build:
     needs: [test, licenses]

@@ -16,12 +16,22 @@ table.
 With --write PATH, also emits a Markdown table of all runtime deps across
 the three ecosystems to PATH.
 
+With --check PATH, regenerates the table in memory and compares it against
+the committed file at PATH by (ecosystem, package, license) only -- the
+version column is intentionally ignored, since transitive-dependency patch
+bumps churn the version column constantly without being a licensing event.
+Exits 1 (and prints a diff of added/removed packages or changed licenses)
+only when the license-relevant content actually changed.
+
 Usage:
   scripts/check-licenses.py \
       --pip-licenses /tmp/pip-licenses.json \
       --js-licenses /tmp/js-licenses.json \
       --cargo-metadata /tmp/cargo-metadata.json \
-      [--write THIRD_PARTY_LICENSES.md]
+      [--write THIRD_PARTY_LICENSES.md] \
+      [--check THIRD_PARTY_LICENSES.md]
+
+  scripts/check-licenses.py --self-test
 """
 from __future__ import annotations
 
@@ -134,13 +144,138 @@ def write_markdown(rows: list[dict], out_path: Path) -> None:
     out_path.write_text("\n".join(lines))
 
 
+TABLE_ROW_RE = re.compile(
+    r"^\|\s*(?P<ecosystem>[^|]+?)\s*\|\s*(?P<package>[^|]+?)\s*\|\s*(?P<version>[^|]*?)\s*\|\s*(?P<license>[^|]*?)\s*\|\s*$"
+)
+
+
+def parse_markdown_table(text: str) -> dict[tuple[str, str], str]:
+    """Parse a THIRD_PARTY_LICENSES.md-style table into {(ecosystem, package): license}.
+
+    Ignores the header row, the `|---|---|---|---|` separator row, and the
+    version column -- callers only care whether a package's presence or
+    license changed, not its version.
+    """
+    rows: dict[tuple[str, str], str] = {}
+    for line in text.splitlines():
+        m = TABLE_ROW_RE.match(line)
+        if not m:
+            continue
+        ecosystem = m.group("ecosystem").strip()
+        package = m.group("package").strip()
+        license_val = m.group("license").strip()
+        if ecosystem.lower() == "ecosystem":
+            continue  # header row
+        if set(ecosystem) <= {"-"} or set(package) <= {"-"}:
+            continue  # separator row
+        rows[(ecosystem, package)] = license_val
+    return rows
+
+
+def diff_license_tables(
+    current_rows: list[dict], committed_text: str
+) -> tuple[list[tuple[str, str, str]], list[tuple[str, str, str]], list[tuple[str, str, str, str]]]:
+    """Compare freshly-collected rows against a committed table, ignoring version.
+
+    Returns (added, removed, changed):
+      - added:   (ecosystem, package, license) present now but not committed
+      - removed: (ecosystem, package, license) committed but no longer present
+      - changed: (ecosystem, package, old_license, new_license) where the
+                 license string differs for a package present in both
+    """
+    current_map: dict[tuple[str, str], str] = {}
+    for row in current_rows:
+        current_map[(row["ecosystem"], row["package"])] = row["license"]
+
+    committed_map = parse_markdown_table(committed_text)
+
+    added = [
+        (eco, pkg, lic)
+        for (eco, pkg), lic in current_map.items()
+        if (eco, pkg) not in committed_map
+    ]
+    removed = [
+        (eco, pkg, lic)
+        for (eco, pkg), lic in committed_map.items()
+        if (eco, pkg) not in current_map
+    ]
+    changed = [
+        (eco, pkg, committed_map[(eco, pkg)], current_map[(eco, pkg)])
+        for (eco, pkg) in current_map
+        if (eco, pkg) in committed_map and committed_map[(eco, pkg)] != current_map[(eco, pkg)]
+    ]
+    return added, removed, changed
+
+
+def run_self_test() -> int:
+    """Exercise diff_license_tables with two tiny in-memory tables. No pytest needed."""
+    committed = "\n".join(
+        [
+            "| Ecosystem | Package | Version | License |",
+            "|---|---|---|---|",
+            "| python | wrapt | 2.4.1 | BSD-2-Clause |",
+            "| python | requests | 2.31.0 | Apache-2.0 |",
+            "",
+        ]
+    )
+    # Same packages/licenses, only the wrapt version drifted -- must be clean.
+    current_rows_same_license = [
+        {"ecosystem": "python", "package": "wrapt", "version": "2.5.0", "license": "BSD-2-Clause"},
+        {"ecosystem": "python", "package": "requests", "version": "2.31.0", "license": "Apache-2.0"},
+    ]
+    added, removed, changed = diff_license_tables(current_rows_same_license, committed)
+    assert not added and not removed and not changed, (
+        f"version-only drift should be clean, got added={added} removed={removed} changed={changed}"
+    )
+
+    # A real license change, a new package, and a removed package must be caught.
+    current_rows_changed = [
+        {"ecosystem": "python", "package": "wrapt", "version": "2.5.0", "license": "GPL-3.0"},
+        {"ecosystem": "python", "package": "newpkg", "version": "1.0.0", "license": "MIT"},
+    ]
+    added, removed, changed = diff_license_tables(current_rows_changed, committed)
+    assert added == [("python", "newpkg", "MIT")], added
+    assert removed == [("python", "requests", "Apache-2.0")], removed
+    assert changed == [("python", "wrapt", "BSD-2-Clause", "GPL-3.0")], changed
+
+    print("self-test OK: diff_license_tables catches license/added/removed, ignores version-only drift.")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pip-licenses", type=Path, required=True)
-    parser.add_argument("--js-licenses", type=Path, required=True)
-    parser.add_argument("--cargo-metadata", type=Path, required=True)
+    parser.add_argument("--pip-licenses", type=Path)
+    parser.add_argument("--js-licenses", type=Path)
+    parser.add_argument("--cargo-metadata", type=Path)
     parser.add_argument("--write", type=Path, default=None)
+    parser.add_argument(
+        "--check",
+        type=Path,
+        default=None,
+        help="Compare freshly-collected rows against this committed Markdown "
+        "file by (ecosystem, package, license); ignores version drift.",
+    )
+    parser.add_argument(
+        "--self-test",
+        action="store_true",
+        help="Run built-in self-checks of the table diff logic and exit.",
+    )
     args = parser.parse_args()
+
+    if args.self_test:
+        return run_self_test()
+
+    missing = [
+        name
+        for name, val in (
+            ("--pip-licenses", args.pip_licenses),
+            ("--js-licenses", args.js_licenses),
+            ("--cargo-metadata", args.cargo_metadata),
+        )
+        if val is None
+    ]
+    if missing:
+        parser.error(f"the following arguments are required: {', '.join(missing)}")
 
     rows: list[dict] = []
     rows += collect_python(args.pip_licenses)
@@ -176,6 +311,29 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
+
+    if args.check:
+        if not args.check.exists():
+            print(f"{args.check} does not exist; nothing to compare against.", file=sys.stderr)
+            return 1
+        added, removed, changed = diff_license_tables(rows, args.check.read_text())
+        if added or removed or changed:
+            print(
+                f"{args.check} is stale (license-relevant changes only; version drift is ignored):",
+                file=sys.stderr,
+            )
+            for eco, pkg, lic in sorted(added):
+                print(f"  + [{eco}] {pkg}: {lic}", file=sys.stderr)
+            for eco, pkg, lic in sorted(removed):
+                print(f"  - [{eco}] {pkg}: {lic}", file=sys.stderr)
+            for eco, pkg, old_lic, new_lic in sorted(changed):
+                print(f"  ~ [{eco}] {pkg}: {old_lic} -> {new_lic}", file=sys.stderr)
+            print(
+                f"\nRegenerate with --write {args.check} and commit the result.",
+                file=sys.stderr,
+            )
+            return 1
+        print(f"{args.check} is up to date (license-relevant content unchanged).")
 
     print(f"License check clean: {len(rows)} runtime dependencies scanned, 0 GPL-family hits.")
     return 0

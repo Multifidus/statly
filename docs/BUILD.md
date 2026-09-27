@@ -85,9 +85,14 @@ Verified false positives (e.g. an either-or license like
 `MIT OR Apache-2.0 OR LGPL-2.1-or-later`, where the permissive option is
 what's actually used) go in `scripts/license-allowlist.txt` with a comment
 explaining why — never to silence a genuine copyleft dependency.
-`THIRD_PARTY_LICENSES.md` at the repo root is generated output; CI fails
-if it drifts from a fresh regeneration, so always commit the regenerated
-file alongside a dependency change.
+`THIRD_PARTY_LICENSES.md` at the repo root is generated output. CI checks
+freshness with `scripts/check-licenses.py --check THIRD_PARTY_LICENSES.md`,
+which compares `(ecosystem, package, license)` only — a transitive
+dependency's version bump (e.g. `wrapt 2.4.1 -> 2.5.0`) does not fail the
+build, but an added/removed package or a changed license does. Regenerate
+with `--write` (as above) and commit the result whenever a dependency
+changes in a license-relevant way. Run `scripts/check-licenses.py
+--self-test` to exercise the comparison logic on its own.
 
 ## Local dev
 
