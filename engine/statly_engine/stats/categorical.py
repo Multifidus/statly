@@ -236,6 +236,18 @@ def expected_counts_check(e: np.ndarray) -> tuple[str, str]:
                       "accurate.")
 
 
+def _expected_counts_assumption(e: np.ndarray, sc: dict, fisher_ok: bool = True) -> dict:
+    """AssumptionResult for the expected-cell-counts rule (SPEC §7.2), built from expected_counts_check."""
+    verdict, text = expected_counts_check(e)
+    if verdict == "failed":
+        text += (" Fisher's exact test doesn't rely on large counts." if fisher_ok
+                 else " Consider combining small categories.")
+    return {"schema_version": 1, "assumption": "expected_cell_counts", "label": "Expected cell counts",
+            "test_used": {"key": "expected_cell_counts_rule", "label": "Expected cell counts (rule of thumb)"},
+            "statistic": {"symbol": "E_min", "value": float(np.min(e)), "df": []},
+            "p": None, "verdict": verdict, "explanation": text, "applies_to": sc, "chart_refs": []}
+
+
 def _low_expected_warning(e: np.ndarray, fisher_ok: bool = True):
     verdict, text = expected_counts_check(e)
     if verdict == "failed":
@@ -254,6 +266,29 @@ def _zero_cell_warning(est, what: str):
         if bound is not None else ""
     return warning("zero_cell", "caution", f"A cell of the table is empty, so the {what} is "
                    f"{'infinite' if est.value is None else 'zero'} and has no usable point estimate.{extra}")
+
+
+def _pattern_sentence(x: dict, tab: np.ndarray, sig: bool) -> str:
+    """Describe the pattern behind a significant/non-significant association, for the plain-language
+    summary: which row category the "positive"/highest-share column favors most and least (2 columns,
+    or as a fallback for r x c when not significant), or the single biggest departure from independence
+    (r x c, significant)."""
+    rows_tot, cols_tot = tab.sum(1), tab.sum(0)
+    if sig and tab.shape[1] > 2:
+        res = adjusted_residuals(tab)
+        i, j = np.unravel_index(int(np.argmax(np.abs(res))), res.shape)
+        direction = "more" if res[i, j] > 0 else "fewer"
+        return (f"The biggest difference from what independence predicts was {x['row_names'][i]} x "
+                f"{x['col_names'][j]} ({direction} than expected).")
+    jstar = int(np.argmax(cols_tot))
+    col_name = x["col_names"][jstar]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        pct = 100 * tab[:, jstar] / rows_tot
+    if sig:
+        itop, ibot = int(np.nanargmax(pct)), int(np.nanargmin(pct))
+        return (f"{col_name} rates were highest for {x['row_names'][itop]} ({pct[itop]:.0f}%) and lowest for "
+                f"{x['row_names'][ibot]} ({pct[ibot]:.0f}%).")
+    return f"Rates were similar across {x['row_label']}: {np.nanmin(pct):.0f}% to {np.nanmax(pct):.0f}%."
 
 
 def _need_two_levels(x: dict):
@@ -296,6 +331,8 @@ def chi_square_independence(df: pd.DataFrame, request, meta: dict | None = None)
 
     note = Rich().stat(_chi_sym(), [dfree], chi).t(", ").p(p).t(". " + _TWO_SIDED_CI_NOTE)
     e = _crosstab_outputs(b, x, rname, cname, meta, note)
+    b.assumption(_expected_counts_assumption(
+        e, {"kind": "overall", "label": f"{x['row_label']} × {x['col_label']}", "group": None, "n": n}))
     b.warn(_low_expected_warning(e))
     if n < SMALL_N:
         b.warn(warning("small_sample", "caution", f"Only {n} people are in the table, so the result is imprecise."))
@@ -315,6 +352,7 @@ def chi_square_independence(df: pd.DataFrame, request, meta: dict | None = None)
                 "differences in the table could easily be due to chance")) + f" ({_p_phrase(p)})."
     if mag:
         summary += f" The strength of the association was {strength[mag]} by common benchmarks."
+    summary += " " + _pattern_sentence(x, tab, sig)
     b.sentence(s).summary(summary)
     return b.build()
 
@@ -378,6 +416,7 @@ def fisher_exact(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     if is2 and est.value is not None and est.value > 0:
         summary += (f" The odds of {x['col_names'][0]} were {apa.num(est.value)} times as high for "
                     f"{x['row_names'][0]} as for {x['row_names'][1]}.")
+    summary += " " + _pattern_sentence(x, tab, sig)
     b.sentence(s).summary(summary)
     return b.build()
 
@@ -440,6 +479,8 @@ def goodness_of_fit(df: pd.DataFrame, request, meta: dict | None = None) -> dict
     b.chart("goodness_of_fit", [{"category": nm, "observed": int(o), "expected": float(ex),
                                  "expected_proportion": float(pp), "residual": float(rr)}
                                 for nm, o, ex, pp, rr in zip(names, obs, e, p, resid)])
+    b.assumption(_expected_counts_assumption(e, {"kind": "overall", "label": vl, "group": None, "n": n},
+                                             fisher_ok=False))
     if float(np.mean(e < 5)) > 0.2 or float(e.min()) < 1:
         b.warn(_low_expected_warning(e.reshape(1, -1), fisher_ok=False))
     b.warn(missing_warning(int((~ok).sum())))

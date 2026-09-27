@@ -90,6 +90,77 @@ def test_infinite_odds_ratio_bounds_match_r():
     close(est.lower, rec["bound_when_infinite"][0], TOL, "mcnemar OR lower")
 
 
+def test_summary_names_pattern_significant_3x2():
+    """Significant 3 x 2 (program by pass/fail): summary names the highest/lowest row on the
+    higher-share column, not just 'appear to be related'."""
+    fx = load_fixture(next(p for p in fixture_paths("chi_square.independence") if p.stem == "program_3x2"))
+    res = run_fixture(fx)
+    assert res["plain_language_summary"].endswith(
+        "Pass rates were highest for Business (83%) and lowest for Education (51%).")
+
+
+def test_summary_pattern_non_significant_2x2():
+    """Non-significant 2 x 2: summary reports the range of rates instead of naming a pattern."""
+    import pandas as pd
+
+    df = pd.DataFrame({"grp": ["A"] * 40 + ["B"] * 40,
+                       "out": ["Fail"] * 20 + ["Pass"] * 20 + ["Fail"] * 18 + ["Pass"] * 22})
+    req = {"schema_version": 1, "request_id": "t", "analysis_id": "chi_square.independence",
+           "dataset_id": "d", "snapshot_id": "s", "variables": {"row": ["grp"], "column": ["out"]},
+           "subset": [], "options": {}, "corrections": [], "alpha": 0.05, "tails": "two_sided",
+           "ci_level": 0.95}
+    res = registry.run(df, req)
+    assert res["statistics"][0]["p"] >= 0.05
+    assert res["plain_language_summary"].endswith("Rates were similar across grp: 50% to 55%.")
+
+
+def test_summary_pattern_3x3_uses_biggest_residual():
+    """Significant r x c with more than 2 columns: summary names the cell with the largest
+    adjusted residual instead of a highest/lowest row pair."""
+    import numpy as np
+    import pandas as pd
+
+    tab = np.array([[50, 10, 10], [10, 50, 10], [10, 10, 50]])
+    row_names, col_names = ["R1", "R2", "R3"], ["C1", "C2", "C3"]
+    rows, cols = [], []
+    for i, rn in enumerate(row_names):
+        for j, cn in enumerate(col_names):
+            rows += [rn] * int(tab[i, j])
+            cols += [cn] * int(tab[i, j])
+    df = pd.DataFrame({"grp": rows, "out": cols})
+    req = {"schema_version": 1, "request_id": "t", "analysis_id": "chi_square.independence",
+           "dataset_id": "d", "snapshot_id": "s", "variables": {"row": ["grp"], "column": ["out"]},
+           "subset": [], "options": {}, "corrections": [], "alpha": 0.05, "tails": "two_sided",
+           "ci_level": 0.95}
+    res = registry.run(df, req)
+    assert res["plain_language_summary"].endswith(
+        "The biggest difference from what independence predicts was R1 x C1 (more than expected).")
+
+
+def test_expected_cell_counts_assumption_passed_and_failed():
+    """Q2 x Q3 (all expected >= 5) passes; Q4 x Q3 (smallest expected 3.30, 25% below 5) fails and
+    recommends Fisher's exact test."""
+    import pandas as pd
+
+    from .conftest import REPO
+
+    df = pd.read_csv(REPO / "fixtures" / "practice" / "categorical_outcomes" / "survey.csv", skiprows=[1, 2])
+    base = {"schema_version": 1, "request_id": "t", "analysis_id": "chi_square.independence",
+           "dataset_id": "d", "snapshot_id": "s", "subset": [], "options": {}, "corrections": [],
+           "alpha": 0.05, "tails": "two_sided", "ci_level": 0.95}
+
+    res_pass = registry.run(df, {**base, "variables": {"row": ["Q2"], "column": ["Q3"]}})
+    a_pass = next(a for a in res_pass["assumptions"] if a["assumption"] == "expected_cell_counts")
+    assert a_pass["verdict"] == "passed"
+
+    res_fail = registry.run(df, {**base, "variables": {"row": ["Q4"], "column": ["Q3"]}})
+    a_fail = next(a for a in res_fail["assumptions"] if a["assumption"] == "expected_cell_counts")
+    assert a_fail["verdict"] == "failed"
+    assert a_fail["statistic"]["value"] == pytest.approx(3.30, abs=0.005)
+    assert "3.30" in a_fail["explanation"]
+    assert "Fisher's exact test doesn't rely on large counts" in a_fail["explanation"]
+
+
 def test_cramers_v_ci_is_two_sided_as_r():
     """3 x 2 program by pass/fail (N = 300, χ²(2) = 30.09): V's 95% CI is two-sided, matching
     effectsize::cramers_v(adjust = FALSE, alternative = "two.sided") within 1e-4 — not effectsize's
