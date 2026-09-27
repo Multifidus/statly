@@ -95,6 +95,16 @@ class ParseAnswerKeyParams(_Closed):
     path: str = Field(min_length=1)
 
 
+class AnswerKeyTemplateParams(_EditParams):
+    path: str = Field(min_length=1)
+    items: list[str] = Field(min_length=1)
+
+
+class AnswerKeyTemplateResult(_Closed):
+    path: str
+    n_items: int
+
+
 class ParseAnswerKeyResult(_Closed):
     entries: list[AnswerKeyEntry]
     warnings: list[EditWarning]
@@ -184,6 +194,11 @@ def items_parse_answer_key(store: DatasetStore, params: dict) -> dict:
     return ops.parse_answer_key(params["path"])
 
 
+@rpc_method(AnswerKeyTemplateParams, AnswerKeyTemplateResult)
+def items_answer_key_template(store: DatasetStore, params: dict) -> dict:
+    return ops.answer_key_template(store, params)
+
+
 @rpc_method(ComputedPreviewParams, ComputedPreviewResult)
 def computed_preview(store: DatasetStore, params: dict) -> dict:
     return ops.preview_computed(store, params)
@@ -215,6 +230,7 @@ METHODS = {
     "scales.delete": scales_delete,
     "items.score": items_score,
     "items.parse_answer_key": items_parse_answer_key,
+    "items.answer_key_template": items_answer_key_template,
     "computed.preview": computed_preview,
     "computed.add": computed_add,
     "computed.remove": computed_remove,

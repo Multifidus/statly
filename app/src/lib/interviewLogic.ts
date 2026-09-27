@@ -5,6 +5,7 @@
  */
 import type { CellValue, DatasetMeta, MeasurementLevel, ValueLabel, VariableRole, VariableSchema } from "@/contracts";
 import type { AnswerKeyEntry, ScaleSpec, VariablePatch } from "@/lib/variablesRpc";
+import { CHOICE_PRESETS } from "@/lib/choicePresets";
 
 // --- units -------------------------------------------------------------------------------
 
@@ -135,6 +136,8 @@ export interface ColumnStats {
   nDistinct: number;
   nNonBlank: number;
   nRows: number;
+  /** Number of rows giving each answer, keyed by String(answer).trim(). */
+  counts?: Record<string, number>;
 }
 
 const DISTINCT_CAP = 60;
@@ -144,6 +147,7 @@ export function columnStats(columns: string[], rows: CellValue[][], missingCodes
   columns.forEach((c, j) => {
     const codes = new Set((missingCodes[c] ?? []).map(String));
     const seen = new Map<string, string | number | boolean>();
+    const counts: Record<string, number> = {};
     let nonBlank = 0;
     for (const r of rows) {
       const x = r[j];
@@ -151,8 +155,9 @@ export function columnStats(columns: string[], rows: CellValue[][], missingCodes
       nonBlank++;
       const k = String(x).trim();
       if (!seen.has(k)) seen.set(k, typeof x === "string" ? x.trim() : x);
+      if (seen.size <= DISTINCT_CAP) counts[k] = (counts[k] ?? 0) + 1;
     }
-    out[c] = { distinct: [...seen.values()].slice(0, DISTINCT_CAP), nDistinct: seen.size, nNonBlank: nonBlank, nRows: rows.length };
+    out[c] = { distinct: [...seen.values()].slice(0, DISTINCT_CAP), nDistinct: seen.size, nNonBlank: nonBlank, nRows: rows.length, counts };
   });
   return out;
 }
@@ -268,9 +273,16 @@ export interface Draft {
   keyMode: KeyMode;
   /** item -> correct answer(s) as strings; empty = not set yet. */
   key: Record<string, string[]>;
+  /**
+   * Knowledge questions step: a candidate item is ticked when its unit's role is test_item and it
+   * isn't listed here (lets one part of a Qn_k family be left out).
+   */
+  knowledgeOff: Record<string, boolean>;
+  /** unit id -> role/level before the knowledge step made it a test question (restored on untick). */
+  roleBefore: Record<string, { role: VariableRole; level: MeasurementLevel }>;
 }
 
-export type StepId = string; // "intro" | "role:<unit>" | "level:<unit>" | "labels:<unit>" | "answer_key" | "scales" | "scoring" | "summary"
+export type StepId = string; // "intro" | "role:<unit>" | "level:<unit>" | "knowledge" | "labels:<unit>" | "answer_key" | "scales" | "scoring" | "summary"
 
 const NO_LEVEL_QUESTION: VariableRole[] = ["identifier", "open_text", "ignore", "time", "test_item"];
 const LABEL_ROLES: VariableRole[] = ["group", "likert_item", "demographic", "time"];
@@ -306,13 +318,196 @@ export function hasLabelsStep(a: UnitAnswer, labels: ValueLabel[] | null): boole
   return LABEL_ROLES.includes(a.role) && a.level !== "continuous" && !!labels && labels.length > 1;
 }
 
-/** Raw-choice test questions (need an answer key) and already-scored numeric ones. */
-export function testItems(units: Unit[], draft: Draft, byName: Map<string, VariableSchema>) {
-  const names = units.filter((u) => draft.answers[u.id]?.role === "test_item").flatMap((u) => u.names);
-  return {
-    raw: names.filter((n) => byName.get(n)?.dtype === "string"),
-    scored: names.filter((n) => byName.get(n)?.dtype !== "string"),
-  };
+/**
+ * Raw-choice test questions (need an answer key) and already-scored numeric ones. Knowledge
+ * questions (`knowledge`: candidate names) are always raw, whatever their storage type; candidates
+ * left unticked inside a test-question family are neither.
+ */
+export function testItems(units: Unit[], draft: Draft, byName: Map<string, VariableSchema>, knowledge: Set<string> = new Set()) {
+  const names = units
+    .filter((u) => draft.answers[u.id]?.role === "test_item")
+    .flatMap((u) => u.names)
+    .filter((n) => !(knowledge.has(n) && draft.knowledgeOff?.[n]));
+  const raw = (n: string) => byName.get(n)?.dtype === "string" || knowledge.has(n) || (draft.key[n]?.length ?? 0) > 0;
+  return { raw: names.filter(raw), scored: names.filter((n) => !raw(n)) };
+}
+
+// --- knowledge questions ------------------------------------------------------------------
+
+/** What a survey file says about a column (from survey.suggest): its kind and choices. */
+export interface SurveyChoiceInfo {
+  /** Survey question kind; "single" = single-answer multiple choice. null = unknown. */
+  kind: string | null;
+  choices: ValueLabel[];
+  /** Codes of the choice(s) the survey's scoring marks correct. */
+  correct: (number | string)[];
+}
+
+export interface KnowledgeChoice {
+  /** The answer as stored in the data (what the key holds). */
+  value: string;
+  /** Answer-choice wording when it differs from the stored value. */
+  label: string | null;
+  /** The survey's code for this choice, when known. */
+  code: string | null;
+  count: number;
+}
+
+export interface KnowledgeCandidate {
+  name: string;
+  unitId: string;
+  questionText: string | null;
+  choices: KnowledgeChoice[];
+  /** From the survey file's scoring: the correct choice's stored value. */
+  surveyCorrect: string[];
+}
+
+/** Roles that rule a column out as a multiple-choice knowledge question. */
+const NOT_KNOWLEDGE: VariableRole[] = ["identifier", "time", "open_text", "likert_item", "test_total", "scale_score", "ignore"];
+const MAX_CHOICES = 8;
+const MAX_CHOICE_LENGTH = 60;
+const RATING_WORDS = new Set(CHOICE_PRESETS.flatMap((p) => Object.values(p.lengths).flat()).map((x) => x.toLowerCase()));
+
+const fold = (x: unknown) => String(x).trim().toLowerCase();
+const sameValue = (a: unknown, b: unknown) => {
+  const na = Number(a), nb = Number(b);
+  if (String(a).trim() !== "" && String(b).trim() !== "" && Number.isFinite(na) && Number.isFinite(nb)) return na === nb;
+  return fold(a) === fold(b);
+};
+
+/** The answers offered for a candidate: survey/value-label choices mapped onto the stored answers, then any other observed answer. */
+function knowledgeChoices(v: VariableSchema, st: ColumnStats | undefined, survey: SurveyChoiceInfo | undefined): KnowledgeChoice[] {
+  const observed = (st?.distinct ?? []).filter((d) => typeof d !== "boolean").map(String);
+  const count = (x: string) => st?.counts?.[x] ?? 0;
+  const labelled = survey?.choices.length ? survey.choices : v.value_labels;
+  const out: KnowledgeChoice[] = [];
+  const used = new Set<string>();
+  for (const c of labelled) {
+    const code = String(c.value);
+    const hit = observed.find((o) => !used.has(o) && sameValue(o, code)) ?? observed.find((o) => !used.has(o) && fold(o) === fold(c.label));
+    const value = hit ?? (v.dtype === "string" ? c.label : code);
+    if (used.has(value)) continue;
+    used.add(value);
+    out.push({ value, label: c.label && fold(c.label) !== fold(value) ? c.label : null, code, count: hit ? count(hit) : 0 });
+  }
+  const rest = observed.filter((o) => !used.has(o));
+  const numeric = rest.every((o) => Number.isFinite(Number(o)));
+  rest.sort((a, b) => (numeric ? Number(a) - Number(b) : a.localeCompare(b)));
+  for (const o of rest) out.push({ value: o, label: null, code: null, count: count(o) });
+  return out;
+}
+
+/**
+ * Columns that look like multiple-choice questions: a single-answer multiple-choice question in
+ * the survey file, or (without one) a column with 2-8 different short answers that isn't an ID, a
+ * rating/Likert question, a score, text or already scored 0/1. Likert matrices never qualify.
+ */
+export function knowledgeCandidates(
+  units: Unit[],
+  draft: Draft,
+  byName: Map<string, VariableSchema>,
+  stats: Record<string, ColumnStats>,
+  survey: Record<string, SurveyChoiceInfo> = {},
+): KnowledgeCandidate[] {
+  const out: KnowledgeCandidate[] = [];
+  for (const u of units) {
+    if (u.kind !== "single" && u.kind !== "group") continue;
+    const role = draft.answers[u.id]?.role;
+    if (!role || NOT_KNOWLEDGE.includes(role)) continue;
+    for (const name of u.names) {
+      const v = byName.get(name);
+      if (!v || v.computed || /_TEXT$/i.test(name) || /^SC\d+$/i.test(name)) continue;
+      const st = stats[name];
+      const sv = survey[name];
+      if (sv?.kind && sv.kind !== "single") continue;
+      const graded = (sv?.correct.length ?? 0) > 0;
+      if (v.level === "ordinal" && !graded) continue;
+      const distinct = (st?.distinct ?? []).map(String);
+      if (sv?.kind !== "single") {
+        if (distinct.length < 2 || (st?.nDistinct ?? 0) > MAX_CHOICES) continue;
+        if (distinct.some((d) => d.length > MAX_CHOICE_LENGTH)) continue;
+        if (distinct.every((d) => RATING_WORDS.has(d.toLowerCase()))) continue;
+        if (v.dtype === "boolean" || v.dtype === "float") continue;
+        if (v.dtype === "integer" && distinct.every((d) => d === "0" || d === "1")) continue;
+      } else if (!distinct.length && !sv.choices.length) continue;
+      const choices = knowledgeChoices(v, st, sv);
+      const surveyCorrect = graded
+        ? sv!.correct.map((c) => choices.find((ch) => ch.code !== null && sameValue(ch.code, c))?.value ?? String(c))
+        : [];
+      out.push({ name, unitId: u.id, questionText: v.question_text ?? v.label, choices, surveyCorrect });
+    }
+  }
+  return out;
+}
+
+/** True when the candidate is ticked as a knowledge question. */
+export function isKnowledge(draft: Draft, c: { name: string; unitId: string }): boolean {
+  return draft.answers[c.unitId]?.role === "test_item" && !draft.knowledgeOff?.[c.name];
+}
+
+/**
+ * Tick / untick one candidate. Ticking makes its question a test question (other parts of the
+ * same family stay unticked when the family wasn't one already); unticking the last ticked part
+ * gives the question back the role it had (else "Background / demographic").
+ */
+export function setKnowledge(draft: Draft, units: Unit[], c: { name: string; unitId: string }, on: boolean): Draft {
+  const unit = units.find((u) => u.id === c.unitId);
+  const a = draft.answers[c.unitId];
+  if (!unit || !a) return draft;
+  const answers = { ...draft.answers };
+  const off = { ...draft.knowledgeOff };
+  const before = { ...draft.roleBefore };
+  const key = { ...draft.key };
+  if (on) {
+    if (a.role !== "test_item") {
+      before[c.unitId] = { role: a.role, level: a.level };
+      answers[c.unitId] = { ...a, role: "test_item", level: "nominal" };
+      for (const n of unit.names) if (n !== c.name) off[n] = true;
+    }
+    delete off[c.name];
+  } else {
+    off[c.name] = true;
+    delete key[c.name];
+    if (unit.names.every((n) => off[n])) {
+      const prev = before[c.unitId] ?? { role: "demographic" as VariableRole, level: "nominal" as MeasurementLevel };
+      answers[c.unitId] = { ...a, role: prev.role, level: prev.level };
+      delete before[c.unitId];
+      for (const n of unit.names) delete off[n];
+    }
+  }
+  return { ...draft, answers, knowledgeOff: off, roleBefore: before, key };
+}
+
+export interface ResolvedKey {
+  /** item -> correct stored value(s), for candidates the file matched. */
+  key: Record<string, string[]>;
+  /** Questions in the file that aren't multiple-choice questions here. */
+  unknownQuestions: string[];
+  /** Answers in the file that match none of the question's choices. */
+  unknownAnswers: { item: string; answer: string }[];
+}
+
+/** Match a loaded answer key to the candidates: questions by name, answers by wording (any case) or code. */
+export function resolveKeyFile(entries: AnswerKeyEntry[], candidates: KnowledgeCandidate[]): ResolvedKey {
+  const out: ResolvedKey = { key: {}, unknownQuestions: [], unknownAnswers: [] };
+  for (const e of entries) {
+    const c = candidates.find((x) => x.name === e.item) ?? candidates.find((x) => fold(x.name) === fold(e.item));
+    if (!c) {
+      out.unknownQuestions.push(e.item);
+      continue;
+    }
+    const got: string[] = [];
+    for (const ans of e.correct ?? []) {
+      const hit =
+        c.choices.find((ch) => fold(ch.value) === fold(ans)) ??
+        c.choices.find((ch) => ch.label !== null && fold(ch.label) === fold(ans)) ??
+        c.choices.find((ch) => (ch.code !== null && sameValue(ch.code, ans)) || sameValue(ch.value, ans));
+      if (hit) got.push(hit.value);
+      else out.unknownAnswers.push({ item: c.name, answer: String(ans) });
+    }
+    if (got.length) out.key[c.name] = [...new Set(got)];
+  }
+  return out;
 }
 
 export function likertItems(units: Unit[], draft: Draft, byName: Map<string, VariableSchema>): string[] {
@@ -323,19 +518,28 @@ export function likertItems(units: Unit[], draft: Draft, byName: Map<string, Var
 }
 
 /** The dynamic list of steps: later questions depend on earlier answers. */
-export function interviewSteps(units: Unit[], draft: Draft, byName: Map<string, VariableSchema>, labelsFor: (u: Unit) => ValueLabel[] | null): StepId[] {
+export function interviewSteps(
+  units: Unit[],
+  draft: Draft,
+  byName: Map<string, VariableSchema>,
+  labelsFor: (u: Unit) => ValueLabel[] | null,
+  candidates: KnowledgeCandidate[] = [],
+): StepId[] {
   const steps: StepId[] = ["intro"];
   for (const u of units) steps.push(`role:${u.id}`);
   for (const u of units) {
     const a = draft.answers[u.id];
     if (a && needsLevel(a)) steps.push(`level:${u.id}`);
   }
+  if (candidates.length) steps.push("knowledge");
   for (const u of units) {
     const a = draft.answers[u.id];
     if (a && hasLabelsStep(a, a.valueLabels ?? labelsFor(u))) steps.push(`labels:${u.id}`);
   }
-  const t = testItems(units, draft, byName);
-  if (t.raw.length || t.scored.length) steps.push("answer_key");
+  const cand = new Set(candidates.map((c) => c.name));
+  const t = testItems(units, draft, byName, cand);
+  // The knowledge step already asked about its questions: this step only covers the rest.
+  if (t.raw.some((n) => !cand.has(n)) || t.scored.length) steps.push("answer_key");
   if (likertItems(units, draft, byName).length >= 2) steps.push("scales");
   if (activeScales(draft, units, byName).length) steps.push("scoring");
   steps.push("summary");
@@ -397,7 +601,13 @@ export interface InterviewPlan {
 const sameLabels = (a: ValueLabel[], b: ValueLabel[]) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Turn the draft into engine calls, sending only what changed. */
-export function buildPlan(meta: DatasetMeta, units: Unit[], draft: Draft, labelsFor: (u: Unit) => ValueLabel[] | null): InterviewPlan {
+export function buildPlan(
+  meta: DatasetMeta,
+  units: Unit[],
+  draft: Draft,
+  labelsFor: (u: Unit) => ValueLabel[] | null,
+  knowledge: Set<string> = new Set(),
+): InterviewPlan {
   const byName = new Map(meta.variables.map((v) => [v.name, v]));
   const likert = new Set(likertItems(units, draft, byName));
   const updates: VariablePatch[] = [];
@@ -425,15 +635,15 @@ export function buildPlan(meta: DatasetMeta, units: Unit[], draft: Draft, labels
     spec.min_items = s.minItems ?? defaultMinItems(s.items.length, s.method);
     return spec;
   });
-  let key: AnswerKeyEntry[] | null = null;
-  const t = testItems(units, draft, byName);
-  if (draft.keyMode === "key" && t.raw.length) {
-    const entries = t.raw.filter((n) => (draft.key[n] ?? []).length).map((n) => ({ item: n, correct: draft.key[n] }));
-    const scored = t.scored.map((n) => ({ item: n, correct: null }));
-    key = entries.length ? [...entries, ...scored] : null;
-  } else if (draft.keyMode === "scored" && t.scored.length >= 2) {
-    key = t.scored.map((n) => ({ item: n, correct: null }));
-  }
+  // Knowledge questions are scored whenever they have an answer; the answer-key step's choice
+  // (key / scored / skip) covers the other test questions.
+  const t = testItems(units, draft, byName, knowledge);
+  const entries = t.raw
+    .filter((n) => (knowledge.has(n) || draft.keyMode === "key") && (draft.key[n] ?? []).length)
+    .map((n) => ({ item: n, correct: draft.key[n] as (number | string)[] | null }));
+  const addScored = (draft.keyMode === "key" && entries.length > 0) || (draft.keyMode === "scored" && t.scored.length >= 2);
+  const all = [...entries, ...(addScored ? t.scored.map((n) => ({ item: n, correct: null })) : [])];
+  const key: AnswerKeyEntry[] | null = all.length ? all : null;
   return { updates, deleteScales, upsertScales, key };
 }
 
@@ -464,14 +674,20 @@ export function initialDraft(meta: DatasetMeta, units: Unit[], stats: Record<str
       minItems: s.min_items,
     };
   });
-  return { answers, reverse, scales, keyMode: "key", key: {} };
+  return { answers, reverse, scales, keyMode: "key", key: {}, knowledgeOff: {}, roleBefore: {} };
 }
 
 /** Plain-language checks that block moving on from a step (null = OK). */
-export function stepProblem(step: StepId, draft: Draft, units: Unit[], byName: Map<string, VariableSchema>): string | null {
+export function stepProblem(
+  step: StepId,
+  draft: Draft,
+  units: Unit[],
+  byName: Map<string, VariableSchema>,
+  knowledge: Set<string> = new Set(),
+): string | null {
   if (step === "answer_key" && draft.keyMode === "key") {
-    const t = testItems(units, draft, byName);
-    if (t.raw.length && !t.raw.some((n) => (draft.key[n] ?? []).length)) {
+    const raw = testItems(units, draft, byName, knowledge).raw.filter((n) => !knowledge.has(n));
+    if (raw.length && !raw.some((n) => (draft.key[n] ?? []).length)) {
       return "Enter at least one correct answer, load an answer key, or choose to skip scoring for now.";
     }
   }

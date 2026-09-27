@@ -7,6 +7,7 @@ import { Notice } from "@/components/ui/form";
 import {
   StepAnswerKey,
   StepIntro,
+  StepKnowledge,
   StepLabels,
   StepLevel,
   StepRole,
@@ -20,12 +21,13 @@ import { useInterview } from "@/stores/interview";
 import { useNav } from "@/stores/nav";
 import { useNotify } from "@/stores/notify";
 
-type Section = "intro" | "role" | "level" | "labels" | "answer_key" | "scales" | "scoring" | "summary";
+type Section = "intro" | "role" | "level" | "knowledge" | "labels" | "answer_key" | "scales" | "scoring" | "summary";
 
 const SECTION_TITLES: Record<Section, string> = {
   intro: "Welcome",
   role: "What is each question?",
   level: "Kinds of answers",
+  knowledge: "Knowledge questions",
   labels: "Answer choices",
   answer_key: "Test scoring",
   scales: "Scales",
@@ -45,6 +47,8 @@ function Body({ step }: { step: string }) {
       return <StepRole unitId={unitOf(step)} />;
     case "level":
       return <StepLevel unitId={unitOf(step)} />;
+    case "knowledge":
+      return <StepKnowledge />;
     case "labels":
       return <StepLabels unitId={unitOf(step)} />;
     case "answer_key":

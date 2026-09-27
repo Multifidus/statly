@@ -12,8 +12,13 @@ import {
   initialDraft,
   initialLabels,
   interviewSteps,
+  isKnowledge,
   isNameableStem,
   itemStatement,
+  knowledgeCandidates,
+  resolveKeyFile,
+  setKnowledge,
+  testItems,
   moveItem,
   reorder,
   scoringExample,
@@ -373,5 +378,135 @@ describe("scoringExample", () => {
   it("computes a worked example padded/trimmed to the item count", () => {
     expect(scoringExample(6)).toEqual({ values: [4, 5, 3, 2, 5, 4], sum: 23, average: 3.8 });
     expect(scoringExample(3)).toEqual({ values: [4, 5, 3], sum: 12, average: 4 });
+  });
+});
+
+describe("knowledge questions", () => {
+  const KV = [
+    v("id", { role: "identifier" }),
+    v("K1", { question_text: "Capital of France?" }),
+    v("K2"),
+    v("Rate", {}),
+    v("Many"),
+    v("Code", { dtype: "integer" }),
+    v("Done", { dtype: "integer" }),
+    v("Lik", { dtype: "integer", level: "ordinal", value_labels: [{ value: 1, label: "Low" }, { value: 2, label: "High" }] }),
+    v("Q8_1"),
+    v("Q8_2"),
+    v("K1_TEXT"),
+  ];
+  const KM = meta(KV, { scales: [] });
+  const kByName = new Map(KM.variables.map((x) => [x.name, x]));
+  const cols = ["id", "K1", "K2", "Rate", "Many", "Code", "Done", "Lik", "Q8_1", "Q8_2", "K1_TEXT"];
+  const rows = [
+    ["a1", "Paris", "B", "Agree", "1", 1, 0, 1, "A", "C", "x"],
+    ["a2", "Rome", "B", "Disagree", "2", 2, 1, 2, "B", "C", "y"],
+    ["a3", "Paris", null, "Agree", "3", 3, 1, 1, "A", "D", "z"],
+    ["a4", "Oslo", "C", "Neutral", "4", 4, 0, 2, "C", "C", "w"],
+  ];
+  // "Many" has 9 different answers once the extra rows are added.
+  const more = ["5", "6", "7", "8", "9"].map((x) => ["b" + x, "Paris", "B", "Agree", x, 1, 0, 1, "A", "C", null]);
+  const kStats = columnStats(cols, [...rows, ...more]);
+  const kUnits = buildUnits(KM);
+  const kDraft = initialDraft(KM, kUnits, kStats);
+
+  it("detects short-choice columns and skips IDs, ratings, 0/1 scores, many-answer and text columns", () => {
+    const c = knowledgeCandidates(kUnits, kDraft, kByName, kStats);
+    expect(c.map((x) => x.name)).toEqual(["K1", "K2", "Code", "Q8_1", "Q8_2"]);
+    const k1 = c.find((x) => x.name === "K1")!;
+    expect(k1.questionText).toBe("Capital of France?");
+    expect(k1.choices.map((x) => [x.value, x.count])).toEqual([["Oslo", 1], ["Paris", 7], ["Rome", 1]]);
+    expect(c.find((x) => x.name === "Code")!.choices.map((x) => x.value)).toEqual(["1", "2", "3", "4"]);
+  });
+
+  it("uses the survey: single-answer choices (with codes) qualify, other kinds never do, and scoring gives the answer", () => {
+    const survey = {
+      K1: { kind: "single", choices: [{ value: 1, label: "Paris" }, { value: 2, label: "Rome" }, { value: 3, label: "Oslo" }, { value: 4, label: "Bern" }], correct: [1] },
+      K2: { kind: "matrix", choices: [], correct: [] },
+      Lik: { kind: "single", choices: [{ value: 1, label: "Low" }, { value: 2, label: "High" }], correct: [2] },
+    };
+    const c = knowledgeCandidates(kUnits, kDraft, kByName, kStats, survey);
+    // Lik is guessed a Likert item (ordered, labelled): never a knowledge question, even when scored.
+    expect(c.map((x) => x.name)).toEqual(["K1", "Code", "Q8_1", "Q8_2"]);
+    const k1 = c.find((x) => x.name === "K1")!;
+    expect(k1.choices.map((x) => [x.value, x.code, x.count])).toEqual([["Paris", "1", 7], ["Rome", "2", 1], ["Oslo", "3", 1], ["Bern", "4", 0]]);
+    expect(k1.surveyCorrect).toEqual(["Paris"]);
+    // Labelled codes show code = wording.
+    const lab = knowledgeCandidates(kUnits, kDraft, kByName, kStats, { Code: { kind: "single", choices: [{ value: 1, label: "One" }], correct: [] } });
+    expect(lab.find((x) => x.name === "Code")!.choices.map((x) => [x.value, x.label])).toEqual([["1", "One"], ["2", null], ["3", null], ["4", null]]);
+  });
+
+  it("ticking makes a test question; one part of a family can be ticked alone; unticking restores the role", () => {
+    const c = knowledgeCandidates(kUnits, kDraft, kByName, kStats);
+    const k1 = c.find((x) => x.name === "K1")!;
+    expect(kDraft.answers["var:K1"].role).toBe("group");
+    expect(isKnowledge(kDraft, k1)).toBe(false);
+    let d = setKnowledge(kDraft, kUnits, k1, true);
+    expect(d.answers["var:K1"]).toMatchObject({ role: "test_item", level: "nominal" });
+    expect(isKnowledge(d, k1)).toBe(true);
+    d = { ...d, key: { K1: ["Paris"] } };
+    d = setKnowledge(d, kUnits, k1, false);
+    expect(d.answers["var:K1"].role).toBe("group");
+    expect(d.key.K1).toBeUndefined();
+
+    // Q8_1/Q8_2 are one Qn_k family, already guessed as test questions: both start ticked.
+    const q81 = c.find((x) => x.name === "Q8_1")!;
+    const q82 = c.find((x) => x.name === "Q8_2")!;
+    expect(kDraft.answers["group:Q8"].role).toBe("test_item");
+    expect(isKnowledge(kDraft, q81) && isKnowledge(kDraft, q82)).toBe(true);
+    d = setKnowledge(kDraft, kUnits, q82, false);
+    expect(isKnowledge(d, q81)).toBe(true);
+    expect(isKnowledge(d, q82)).toBe(false);
+    d = setKnowledge(d, kUnits, q81, false);
+    expect(d.answers["group:Q8"].role).toBe("demographic");
+    // Ticking one part of a family that wasn't a test leaves the other part unticked.
+    d = setKnowledge(d, kUnits, q82, true);
+    expect(isKnowledge(d, q82)).toBe(true);
+    expect(isKnowledge(d, q81)).toBe(false);
+  });
+
+  it("puts the step after 'Kinds of answers', skips the answer-key step for its questions, and always scores its answers", () => {
+    const labelsFor = (u: Unit) => initialLabels(u, u.names.map((n) => kByName.get(n)!), kStats);
+    const c = knowledgeCandidates(kUnits, kDraft, kByName, kStats);
+    const names = new Set(c.map((x) => x.name));
+    const steps = interviewSteps(kUnits, kDraft, kByName, labelsFor, c);
+    const at = steps.indexOf("knowledge");
+    expect(at).toBeGreaterThan(steps.map((x) => x.startsWith("level:")).lastIndexOf(true));
+    expect(at).toBeLessThan(steps.findIndex((x) => x.startsWith("labels:")));
+    expect(steps).not.toContain("answer_key");
+    // Without candidates the old answer-key step is back for the raw Q8 test questions.
+    expect(interviewSteps(kUnits, kDraft, kByName, labelsFor)).toContain("answer_key");
+
+    let d = setKnowledge(kDraft, kUnits, c.find((x) => x.name === "Code")!, true);
+    d = { ...d, key: { Code: ["2"], Q8_1: ["A"] }, keyMode: "skip" };
+    expect(testItems(kUnits, d, kByName, names).raw).toEqual(["Code", "Q8_1", "Q8_2"]);
+    expect(stepProblem("answer_key", { ...d, keyMode: "key", key: {} }, kUnits, kByName, names)).toBeNull();
+    const plan = buildPlan(KM, kUnits, d, labelsFor, names);
+    expect(plan.key).toEqual([{ item: "Code", correct: ["2"] }, { item: "Q8_1", correct: ["A"] }]);
+    expect(plan.updates.find((u) => u.name === "Code")).toMatchObject({ role: "test_item" });
+  });
+
+  it("resolves a loaded key by wording (any case) or code and reports what it can't use", () => {
+    const survey = { K1: { kind: "single", choices: [{ value: 1, label: "Paris" }, { value: 2, label: "Rome" }], correct: [] } };
+    const c = knowledgeCandidates(kUnits, kDraft, kByName, kStats, survey);
+    const r = resolveKeyFile(
+      [
+        { item: "K1", correct: ["paris"] },
+        { item: "k2", correct: ["c"] },
+        { item: "Code", correct: [3] },
+        { item: "Q8_1", correct: ["2"] },
+        { item: "Nope", correct: ["A"] },
+      ],
+      c,
+    );
+    expect(r.key).toEqual({ K1: ["Paris"], K2: ["C"], Code: ["3"] });
+    expect(r.unknownQuestions).toEqual(["Nope"]);
+    expect(r.unknownAnswers).toEqual([{ item: "Q8_1", answer: "2" }]);
+    // A key in codes works too when the survey gives them.
+    expect(resolveKeyFile([{ item: "K1", correct: ["2"] }], c).key).toEqual({ K1: ["Rome"] });
+  });
+
+  it("columnStats counts each answer", () => {
+    expect(kStats.K1.counts).toEqual({ Paris: 7, Rome: 1, Oslo: 1 });
   });
 });

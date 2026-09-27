@@ -21,7 +21,12 @@ import {
   initialLabels,
   interviewSteps,
   interviewVariables,
+  isKnowledge,
+  knowledgeCandidates,
+  setKnowledge as setKnowledgeIn,
   stepProblem,
+  type KnowledgeCandidate,
+  type SurveyChoiceInfo,
   type ColumnStats,
   type Draft,
   type StepId,
@@ -46,14 +51,25 @@ export type FillSource = "survey";
  * - `units[unit.id]`: the unit's role / level / answer choices (steps role:, level:, labels:)
  * - `reverse[item]`: the item's reverse-coding tick (scales step)
  * - `scales[draftScale.key]`: a suggested scale (scales step)
+ * - `knowledge[item]`: a knowledge question ticked with its correct answer from the survey's scoring
  */
 export interface FilledFrom {
   units: Record<string, FillSource>;
   reverse: Record<string, FillSource>;
   scales: Record<string, FillSource>;
+  knowledge: Record<string, FillSource>;
 }
 
-const noFills = (): FilledFrom => ({ units: {}, reverse: {}, scales: {} });
+const noFills = (): FilledFrom => ({ units: {}, reverse: {}, scales: {}, knowledge: {} });
+
+/** Per-column survey facts the knowledge step uses (question kind, choices, scored answer). */
+export function surveyChoiceInfo(s: SurveySuggestResult | null | undefined): Record<string, SurveyChoiceInfo> {
+  const out: Record<string, SurveyChoiceInfo> = {};
+  for (const c of s?.columns ?? []) {
+    out[c.name] = { kind: c.question_kind ?? null, choices: c.value_labels, correct: c.correct_values ?? [] };
+  }
+  return out;
+}
 
 /**
  * Survey suggestions for the interview of one dataset. `full`: straight after the import, before
@@ -80,6 +96,7 @@ export function applySurveySeed(
   draft: Draft,
   s: SurveySuggestResult,
   mode: SurveySeed["mode"] = "full",
+  stats: Record<string, ColumnStats> = {},
 ): { draft: Draft; filledFrom: FilledFrom } {
   const byName = new Map(meta.variables.map((v) => [v.name, v]));
   const sugg = new Map(s.columns.map((c) => [c.name, c]));
@@ -128,7 +145,19 @@ export function applySurveySeed(
     scales.push({ key, id: null, name: sc.label.trim().slice(0, 40), placeholderName: sc.name, items, method: "mean", minItems: null });
     filled.scales[key] = "survey";
   }
-  return { draft: { ...draft, answers, reverse, scales }, filledFrom: filled };
+  let next: Draft = { ...draft, answers, reverse, scales };
+  // Scored single-answer questions: tick them as knowledge questions with the survey's correct answer.
+  if (full) {
+    const graded = knowledgeCandidates(units, next, byName, stats, surveyChoiceInfo(s)).filter((c) => c.surveyCorrect.length);
+    for (const c of graded) {
+      const r = byName.get(c.name)?.role;
+      if (r !== "unassigned" && r !== "test_item") continue;
+      if (!isKnowledge(next, c)) next = setKnowledgeIn(next, units, c, true);
+      next = { ...next, key: { ...next.key, [c.name]: c.surveyCorrect } };
+      filled.knowledge[c.name] = "survey";
+    }
+  }
+  return { draft: next, filledFrom: filled };
 }
 
 interface InterviewState {
@@ -145,12 +174,24 @@ interface InterviewState {
   surveySeed: SurveySeed | null;
   /** Answers pre-filled from the survey (see FilledFrom). */
   filledFrom: FilledFrom;
+  /** Survey facts per column for the knowledge step (empty without a survey file). */
+  survey: Record<string, SurveyChoiceInfo>;
 
   seedSurvey: (datasetId: string, suggestions: SurveySuggestResult) => void;
 
   start: () => Promise<void>;
   setAnswer: (unitId: string, patch: Partial<UnitAnswer>) => void;
   setDraft: (patch: Partial<Draft>) => void;
+  /** Multiple-choice columns the knowledge step asks about. */
+  candidates: () => KnowledgeCandidate[];
+  /** Tick / untick a knowledge question. */
+  setKnowledge: (name: string, on: boolean) => void;
+  /** Pick a knowledge question's correct answer ("" = none); ticks it. */
+  setCorrect: (name: string, value: string) => void;
+  /** Fill several correct answers at once (from a key file); ticks those questions. */
+  applyKey: (key: Record<string, string[]>) => void;
+  /** "Skip": untick every knowledge question (they stay survey answers). */
+  skipKnowledge: () => void;
   steps: () => StepId[];
   labelsFor: (u: Unit) => ValueLabel[] | null;
   problem: () => string | null;
@@ -175,6 +216,7 @@ export const useInterview = create<InterviewState>((set, get) => ({
   warnings: [],
   surveySeed: null,
   filledFrom: noFills(),
+  survey: {},
 
   seedSurvey: (datasetId, suggestions) => set({ surveySeed: { datasetId, suggestions, mode: "full" } }),
 
@@ -194,8 +236,8 @@ export const useInterview = create<InterviewState>((set, get) => ({
       let draft = initialDraft(meta, units, stats);
       let filledFrom = noFills();
       const seed = await surveySuggestionsFor(meta, get().surveySeed);
-      if (seed) ({ draft, filledFrom } = applySurveySeed(meta, units, draft, seed.suggestions, seed.mode));
-      set({ status: "ready", units, stats, draft, filledFrom, step: "intro" });
+      if (seed) ({ draft, filledFrom } = applySurveySeed(meta, units, draft, seed.suggestions, seed.mode, stats));
+      set({ status: "ready", units, stats, draft, filledFrom, survey: surveyChoiceInfo(seed?.suggestions), step: "intro" });
     } catch (e) {
       set({ status: "idle", error: describeRpcError(e) });
     }
@@ -236,6 +278,55 @@ export const useInterview = create<InterviewState>((set, get) => ({
     set({ draft: { ...d, ...patch }, filledFrom: { ...f, reverse, scales } });
   },
 
+  candidates: () => {
+    const { draft, units, stats, survey } = get();
+    return draft ? knowledgeCandidates(units, draft, byNameOf(), stats, survey) : [];
+  },
+
+  setKnowledge: (name, on) => {
+    const { draft, units, filledFrom } = get();
+    const c = get().candidates().find((x) => x.name === name);
+    if (!draft || !c || isKnowledge(draft, c) === on) return;
+    const { [name]: _k, ...knowledge } = filledFrom.knowledge;
+    const unitFills = { ...filledFrom.units };
+    delete unitFills[c.unitId];
+    set({ draft: setKnowledgeIn(draft, units, c, on), filledFrom: { ...filledFrom, knowledge, units: unitFills } });
+  },
+
+  setCorrect: (name, value) => {
+    const { draft, units, filledFrom } = get();
+    const c = get().candidates().find((x) => x.name === name);
+    if (!draft || !c) return;
+    let next = value && !isKnowledge(draft, c) ? setKnowledgeIn(draft, units, c, true) : draft;
+    next = { ...next, key: { ...next.key, [name]: value ? [value] : [] } };
+    const { [name]: _k, ...knowledge } = filledFrom.knowledge;
+    set({ draft: next, filledFrom: { ...filledFrom, knowledge } });
+  },
+
+  applyKey: (key) => {
+    const { draft, units, filledFrom } = get();
+    if (!draft) return;
+    const cands = get().candidates();
+    let next = draft;
+    const knowledge = { ...filledFrom.knowledge };
+    for (const [name, values] of Object.entries(key)) {
+      const c = cands.find((x) => x.name === name);
+      if (!c || !values.length) continue;
+      if (!isKnowledge(next, c)) next = setKnowledgeIn(next, units, c, true);
+      next = { ...next, key: { ...next.key, [name]: values } };
+      delete knowledge[name];
+    }
+    set({ draft: next, filledFrom: { ...filledFrom, knowledge } });
+  },
+
+  skipKnowledge: () => {
+    const { units } = get();
+    let next = get().draft;
+    if (!next) return;
+    for (const c of get().candidates()) if (isKnowledge(next, c)) next = setKnowledgeIn(next, units, c, false);
+    set({ draft: next, filledFrom: { ...get().filledFrom, knowledge: {} } });
+  },
+
   labelsFor: (u) => {
     const byName = byNameOf();
     return initialLabels(u, u.names.map((n) => byName.get(n)!).filter(Boolean), get().stats);
@@ -244,12 +335,12 @@ export const useInterview = create<InterviewState>((set, get) => ({
   steps: () => {
     const { draft, units } = get();
     if (!draft) return ["intro"];
-    return interviewSteps(units, draft, byNameOf(), get().labelsFor);
+    return interviewSteps(units, draft, byNameOf(), get().labelsFor, get().candidates());
   },
 
   problem: () => {
     const { draft, units, step } = get();
-    return draft ? stepProblem(step, draft, units, byNameOf()) : null;
+    return draft ? stepProblem(step, draft, units, byNameOf(), knowledgeNames(get().candidates())) : null;
   },
 
   goTo: (step) => set({ step, error: null }),
@@ -270,7 +361,7 @@ export const useInterview = create<InterviewState>((set, get) => ({
     const meta = useDatasetStore.getState().meta;
     const { draft, units } = get();
     if (!meta || !draft) return false;
-    const plan = buildPlan(meta, units, draft, get().labelsFor);
+    const plan = buildPlan(meta, units, draft, get().labelsFor, knowledgeNames(get().candidates()));
     set({ status: "applying", error: null });
     const warnings: string[] = [];
     const collect = (ws: { message: string }[]) => warnings.push(...ws.map((w) => w.message));
@@ -290,8 +381,11 @@ export const useInterview = create<InterviewState>((set, get) => ({
   },
 
   reset: () =>
-    set({ status: "idle", datasetId: null, units: [], stats: {}, draft: null, step: "intro", error: null, warnings: [], filledFrom: noFills() }),
+    set({ status: "idle", datasetId: null, units: [], stats: {}, draft: null, step: "intro", error: null, warnings: [], filledFrom: noFills(), survey: {} }),
 }));
+
+/** Names of the knowledge-step candidates (what buildPlan / stepProblem treat as knowledge questions). */
+export const knowledgeNames = (cands: KnowledgeCandidate[]) => new Set(cands.map((c) => c.name));
 
 /** The survey seed for this dataset: the import's, else re-derived (annotate only) from the stored .qsf; null if none. */
 async function surveySuggestionsFor(meta: DatasetMeta, seed: SurveySeed | null): Promise<SurveySeed | null> {

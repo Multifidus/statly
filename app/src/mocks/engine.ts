@@ -1233,6 +1233,8 @@ export class MockEngine implements Transport {
         return this.scoreItems(p) as T;
       case "items.parse_answer_key":
         return this.parseAnswerKey(p) as T;
+      case "items.answer_key_template":
+        return this.answerKeyTemplate(p) as T;
       case "computed.preview":
         return this.computedPreview(p) as T;
       case "computed.add":
@@ -1969,7 +1971,8 @@ export class MockEngine implements Transport {
         insertAfter(newMeta, existing, item.name);
         byName = byNameMap(newMeta);
       }
-      existing.label = `${item.name} correct`;
+      const itemLabel = item.label && item.label !== item.name ? item.label : (item.question_text || "").trim() || item.name;
+      existing.label = `${itemLabel} (correct?)`;
       existing.question_text = item.question_text;
       existing.role = "test_item";
       existing.level = "nominal";
@@ -1999,9 +2002,18 @@ export class MockEngine implements Transport {
     total.level = "continuous";
     total.label = p.total_label || `${prefix || "Test"} total (number correct)`;
     total.question_text = `Number of correct answers across ${scoredNames.length} questions`;
-    total.computed = { op: "scale_sum", items: scoredNames as [string, ...string[]], min_items: 1, scale_id: null };
+    // A total needs at least half of the questions answered (rounded up), like the engine.
+    total.computed = { op: "scale_sum", items: scoredNames as [string, ...string[]], min_items: Math.max(1, Math.ceil(scoredNames.length / 2)), scale_id: null };
 
     return this.commitEdit(ds, newMeta, warns, `Scored ${scoredNames.length} test questions with the answer key`);
+  }
+
+  answerKeyTemplate(p: { dataset_id: string; snapshot_id?: string | null; path: string; items: string[] }): { path: string; n_items: number } {
+    const ds = this.getDataset(p.dataset_id);
+    this.checkStale(ds, p.snapshot_id);
+    const byName = byNameMap(ds.meta);
+    for (const n of p.items) if (!byName.has(n)) throw rpcError(-32003, `There is no variable called '${n}'.`, "InvalidParams");
+    return { path: p.path, n_items: new Set(p.items).size };
   }
 
   parseAnswerKey(p: { path: string }): { entries: AnswerKeyEntry[]; warnings: EditWarning[] } {

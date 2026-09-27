@@ -5,12 +5,13 @@
  * process, and each of the four practice datasets is taken through the interview to a scored,
  * scaled dataset whose numbers are checked against the fixtures' ground truth.
  */
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { CellValue, DatasetMeta } from "@/contracts";
 import { blockingReason, findNoncontiguous, findResponseSets } from "@/lib/importLogic";
+import { resolveKeyFile } from "@/lib/interviewLogic";
 import { rpc, setTransport } from "@/lib/rpc";
 import { resolveEngineCommand, StdioTransport } from "@/lib/transports/stdio";
 import { EditError, edits } from "@/lib/variableEdits";
@@ -210,6 +211,78 @@ describe("three_groups_prepost_followup interview", () => {
     await expect(
       edits.addComputed({ name: "gain", definition: { op: "difference", minuend: { variable: "Q4_total", time_level: "Post" }, subtrahend: { variable: "Q4_total", time_level: "Pre" } } }),
     ).rejects.toThrow(/link people/i);
+  });
+});
+
+// --- knowledge questions step ----------------------------------------------------------------
+
+describe("knowledge questions step (three_groups pre.csv)", () => {
+  it("scores three questions picked on the step: 1/0 per answer, a total, labels, and save/load", async () => {
+    await importFiles([THREE[0]]);
+    await useInterview.getState().start();
+    const i = useInterview.getState();
+    expect(i.steps()).toContain("knowledge");
+    const cands = i.candidates();
+    const q4 = Array.from({ length: 20 }, (_, k) => `Q4_${k + 1}`);
+    expect(q4.every((n) => cands.some((c) => c.name === n))).toBe(true);
+    expect(cands.find((c) => c.name === "Q4_1")!.choices.map((c) => c.value)).toEqual(["A", "B", "C", "D"]);
+
+    // The template has one row per candidate; a CSV with its header loads back into the dropdowns.
+    const tpl = path.join(tmp, "answer_key_template.xlsx");
+    const meta0 = useDatasetStore.getState().meta!;
+    expect(await rpc.answerKeyTemplate({ dataset_id: meta0.dataset_id, snapshot_id: meta0.snapshot_id, path: tpl, items: cands.map((c) => c.name) }))
+      .toEqual({ path: tpl, n_items: cands.length });
+    expect(existsSync(tpl)).toBe(true);
+    const csv = path.join(tmp, "filled_key.csv");
+    writeFileSync(csv, "question,question_text,choices,correct_answer\nQ4_1,,A | B | C | D,d\nQ4_2,,A | B | C | D,C\nQ4_3,,A | B | C | D,Z\n");
+    const parsed = await rpc.parseAnswerKey({ path: csv });
+    const resolved = resolveKeyFile(parsed.entries, cands);
+    expect(resolved.key).toEqual({ Q4_1: ["D"], Q4_2: ["C"] });
+    expect(resolved.unknownAnswers).toEqual([{ item: "Q4_3", answer: "Z" }]);
+
+    // On the step: fill two from the file, pick the third by hand, leave the other 17 unticked.
+    useInterview.getState().goTo("knowledge");
+    useInterview.getState().applyKey(resolved.key);
+    useInterview.getState().setCorrect("Q4_3", "D");
+    for (const n of q4.slice(3)) useInterview.getState().setKnowledge(n, false);
+    let guard = 0;
+    while (useInterview.getState().step !== "summary") {
+      expect(useInterview.getState().problem()).toBeNull();
+      useInterview.getState().next();
+      expect(guard++).toBeLessThan(200);
+    }
+    expect(await useInterview.getState().finish()).toBe(true);
+    const meta = useDatasetStore.getState().meta!;
+    const picked = { Q4_1: "D", Q4_2: "C", Q4_3: "D" } as Record<string, string>;
+    for (const n of Object.keys(picked)) {
+      expect(varOf(meta, `${n}_correct`)).toMatchObject({
+        role: "test_item", level: "nominal", dtype: "integer",
+        value_labels: [{ value: 0, label: "Incorrect" }, { value: 1, label: "Correct" }],
+      });
+      expect(varOf(meta, `${n}_correct`).label).toMatch(/\(correct\?\)$/);
+    }
+    expect(meta.variables.some((v) => v.name === "Q4_4_correct")).toBe(false);
+    const total = varOf(meta, "Q4_total");
+    expect(total).toMatchObject({ role: "test_total" });
+    expect(total.computed).toMatchObject({ op: "scale_sum", items: ["Q4_1_correct", "Q4_2_correct", "Q4_3_correct"], min_items: 2 });
+
+    const cols = ["Q4_1", "Q4_2", "Q4_3", "Q4_1_correct", "Q4_2_correct", "Q4_3_correct", "Q4_total"];
+    const t = await table(meta, cols);
+    t.Q4_total.forEach((x, r) => {
+      const marks = Object.entries(picked).map(([n, key]) => (t[n][r] === null ? null : t[n][r] === key ? 1 : 0));
+      marks.forEach((m, k) => expect(num(t[`Q4_${k + 1}_correct`][r])).toBe(m));
+      expect(num(x)).toBe(marks.reduce<number>((a, b) => a + (b ?? 0), 0));
+    });
+
+    // Save / load keeps the scored columns and their values.
+    const file = path.join(tmp, "knowledge.statly");
+    await useProjectStore.getState().saveTo(file);
+    useProjectStore.getState().close();
+    await useProjectStore.getState().open(file);
+    const reopened = useDatasetStore.getState().meta!;
+    expect(varOf(reopened, "Q4_2_correct").computed).toMatchObject({ op: "recode", source: "Q4_2" });
+    expect(varOf(reopened, "Q4_total").computed).toMatchObject({ op: "scale_sum", min_items: 2 });
+    expect(await table(reopened, cols)).toEqual(t);
   });
 });
 

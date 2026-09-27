@@ -291,3 +291,28 @@ def test_apply_case_insensitive_unmatched_and_no_overwrite(survey):
     assert out == suggest_metadata(survey, variables)  # deterministic
     # Fewer than 3 matched matrix items -> no scale.
     assert suggest_metadata(survey, [{"name": "Q5_1"}, {"name": "Q5_2"}])["scales"] == []
+
+
+def test_scored_single_answer_questions_list_the_correct_choice():
+    mc = {"QuestionID": "QID1", "DataExportTag": "K1", "QuestionType": "MC", "Selector": "SAVR",
+          "QuestionText": "Capital of France?", "Choices": _choices(["Rome", "Paris", "Oslo"]),
+          "ChoiceOrder": [1, 2, 3], "RecodeValues": {"1": "1", "2": "2", "3": "7"},
+          "GradingData": [{"ChoiceID": "3", "Grades": {"SC_a": "1"}, "index": 0},
+                          {"ChoiceID": "1", "Grades": {"SC_a": "0"}, "index": 1},
+                          {"ChoiceID": "2", "Grades": {"SC_other": "2"}, "index": 2}]}
+    plain = {"QuestionID": "QID2", "DataExportTag": "K2", "QuestionType": "MC", "Selector": "SAVR",
+             "QuestionText": "Favourite colour?", "Choices": _choices(["Red", "Blue"])}
+    doc = _doc(mc, plain)
+    doc["SurveyElements"].append({"Element": "SCO", "Payload": {
+        "ScoringCategories": [{"ID": "SC_a", "Name": "Score", "Description": ""}]}})
+    s = parse_qsf(doc)
+    assert _q(s, "K1").columns[0].correct_values == [7]      # the code of choice 3; SC_other is not a category
+    assert _q(s, "K2").columns[0].correct_values == []
+    # Without an SCO element any category counts.
+    doc["SurveyElements"] = [e for e in doc["SurveyElements"] if e["Element"] != "SCO"]
+    assert parse_qsf(doc).questions[0].columns[0].correct_values == [2, 7]
+    sug = suggest_metadata(s, [{"name": "K1", "dtype": "integer"}, {"name": "K2", "dtype": "string"}])
+    k1, k2 = sug["columns"]
+    assert k1["question_kind"] == "single" and k1["correct_values"] == [7]
+    assert "correct_values" not in k2 and k2["question_kind"] == "single"
+    json.dumps(s.to_dict())

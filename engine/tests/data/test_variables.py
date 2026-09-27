@@ -428,3 +428,90 @@ def test_all_results_validate_against_contract(store, messy):
     DatasetMeta.model_validate(res["dataset_meta"])
     assert res["dataset_meta"]["scales"][0]["min_items"] is None
     assert not math.isnan(df_of(store, res["dataset_meta"])["Q5_score"].mean())
+
+
+# ---------------------------------------------------------------------------
+# Knowledge questions: blanks, the total rule, the key template
+# ---------------------------------------------------------------------------
+def _quiz(store, tmp_path):
+    f = tmp_path / "quiz.csv"
+    # 4 questions; row 3 answered only 2 of 4 (half) -> total; row 4 answered 1 of 4 -> blank total.
+    f.write_text("id,K_1,K_2,K_3,K_4\n"
+                 "1,A,B,C,D\n"
+                 "2,B,B,,D\n"
+                 "3,A,,C,\n"
+                 "4,,,,A\n"
+                 "5,C,A,B,C\n")
+    return import_single(store, f)
+
+
+def test_blank_answers_stay_blank_and_total_needs_half(store, tmp_path):
+    meta = _quiz(store, tmp_path)
+    key = [{"item": "K_1", "correct": ["a"]}, {"item": "K_2", "correct": ["B"]},
+           {"item": "K_3", "correct": ["C"]}, {"item": "K_4", "correct": ["D"]}]
+    res = call(store, "items.score", {"dataset_id": meta["dataset_id"], "key": key})
+    meta = res["dataset_meta"]
+    df = df_of(store, meta)
+    got = df[["K_1_correct", "K_2_correct", "K_3_correct", "K_4_correct"]].astype(object).where(
+        df[["K_1_correct", "K_2_correct", "K_3_correct", "K_4_correct"]].notna(), None).values.tolist()
+    assert got == [[1, 1, 1, 1], [0, 1, None, 1], [1, None, 1, None], [None, None, None, 0], [0, 0, 0, 0]]
+    total = df["K_total"].tolist()
+    assert total[:3] == [4.0, 2.0, 2.0] and math.isnan(total[3]) and total[4] == 0.0
+    t = var(meta, "K_total")
+    assert t["computed"]["min_items"] == 2 and t["role"] == "test_total"
+    item = var(meta, "K_1_correct")
+    assert item["label"].endswith("(correct?)") and item["level"] == "nominal"
+    assert item["value_labels"] == [{"value": 0, "label": "Incorrect"}, {"value": 1, "label": "Correct"}]
+    assert ops.min_answered_for_total(1) == 1 and ops.min_answered_for_total(5) == 3
+
+
+def test_scored_columns_work_in_kr20_and_item_analysis(store, tmp_path):
+    from statly_engine.stats import registry
+    f = tmp_path / "quiz2.csv"
+    f.write_text("id,K_1,K_2,K_3,K_4\n" + "".join(f"{i},{r}\n" for i, r in enumerate(
+        ["A,B,C,D", "A,B,C,A", "A,B,A,A", "A,C,A,A", "B,C,A,A", "B,C,A,B", "A,B,C,D", ",B,,D"], 1)))
+    meta = import_single(store, f)
+    key = [{"item": f"K_{i}", "correct": [c]} for i, c in zip(range(1, 5), "ABCD")]
+    meta = call(store, "items.score", {"dataset_id": meta["dataset_id"], "key": key})["dataset_meta"]
+    df = df_of(store, meta)
+    items = [f"K_{i}_correct" for i in range(1, 5)]
+    for aid in ("reliability.kr20", "reliability.item_analysis"):
+        req = {"schema_version": 1, "request_id": "r", "analysis_id": aid, "dataset_id": meta["dataset_id"],
+               "snapshot_id": meta["snapshot_id"], "variables": {"items": items}, "subset": [], "options": {},
+               "corrections": [], "alpha": 0.05, "tails": "two_sided", "ci_level": 0.95}
+        res = registry.run(df, req, meta)
+        assert res["statistics"], aid
+
+
+def test_answer_key_template_round_trip(store, tmp_path):
+    import openpyxl
+    pv = preview(store, TG / "pre.csv")
+    meta = importer.commit_import(store, {"preview_id": pv["preview_id"], "files": [decision(pv["files"][0])],
+                                          "row_filters": [], "variables": [], "stack": None})
+    items = [f"Q4_{i}" for i in range(1, 21)]
+    out = tmp_path / "key_template.xlsx"
+    res = call(store, "items.answer_key_template",
+               {"dataset_id": meta["dataset_id"], "snapshot_id": meta["snapshot_id"], "path": str(out),
+                "items": items})
+    assert res == {"path": str(out), "n_items": 20}
+    wb = openpyxl.load_workbook(out)
+    assert wb.sheetnames == ["How to fill this in", "Answer key"]
+    assert len([r for r in wb["How to fill this in"].iter_rows(values_only=True) if r[0]]) == 3
+    rows = list(wb["Answer key"].iter_rows(values_only=True))
+    assert list(rows[0]) == ["question", "question_text", "choices", "correct_answer"]
+    assert [r[0] for r in rows[1:]] == items
+    assert all(r[2] == "A | B | C | D" and r[3] in (None, "") for r in rows[1:])
+    assert rows[1][1]  # question text carried over
+    # Fill three answers (one by lower-case wording, one with two answers), save, load back.
+    ws = wb["Answer key"]
+    ws["D2"], ws["D3"], ws["D4"] = "d", "C", "A|B"
+    wb.save(out)
+    parsed = call(store, "items.parse_answer_key", {"path": str(out)})
+    assert parsed["entries"] == [{"item": "Q4_1", "correct": ["d"]}, {"item": "Q4_2", "correct": ["C"]},
+                                 {"item": "Q4_3", "correct": ["A", "B"]}]
+    assert parsed["warnings"] == []
+    # The legacy answer_key.csv (item, question_text, correct_answer) still loads.
+    legacy = call(store, "items.parse_answer_key", {"path": str(TG / "answer_key.csv")})
+    assert len(legacy["entries"]) == 20 and legacy["entries"][0] == {"item": "Q4_1", "correct": ["D"]}
+    with pytest.raises(InvalidParams):
+        ops.answer_key_template(store, {"dataset_id": meta["dataset_id"], "path": str(out), "items": ["nope"]})

@@ -328,6 +328,19 @@ class SurveyVariableRef(BaseModel):
     name: constr(min_length=1)
 
 
+class QuestionKind(StrEnum):
+    """
+    Optional; the survey question's kind (single = single-answer multiple choice).
+    """
+
+    single = 'single'
+    multi = 'multi'
+    matrix = 'matrix'
+    text = 'text'
+    slider = 'slider'
+    other = 'other'
+
+
 class Role(StrEnum):
     """
     Optional role hint.
@@ -419,6 +432,10 @@ class SurveyColumn(BaseModel):
     """
     Matrix question tag for matrix statements.
     """
+    correct_values: list[float | str] | None = None
+    """
+    Scored single-answer question: codes of the choice(s) the survey's scoring gives points (the correct answer). Empty/absent when the survey has no scoring for it.
+    """
 
 
 class SurveyQuestion(BaseModel):
@@ -495,6 +512,10 @@ class SurveyColumnSuggestion(BaseModel):
     question_text: str
     value_labels: list[VariableSchema.ValueLabel]
     level: VariableSchema.MeasurementLevel
+    question_kind: QuestionKind | None = None
+    """
+    Optional; the survey question's kind (single = single-answer multiple choice).
+    """
     role: Role | None = None
     """
     Optional role hint.
@@ -502,6 +523,10 @@ class SurveyColumnSuggestion(BaseModel):
     reverse_hint: bool | None = None
     """
     Optional; true when the statement is explicitly marked reverse-worded.
+    """
+    correct_values: list[float | str] | None = None
+    """
+    Scored single-answer question: codes of the choice(s) the survey's scoring gives points (the correct answer). Empty/absent when the survey has no scoring for it.
     """
     notes: list[str]
     differs_from_current: list[DiffersFromCurrentEnum]

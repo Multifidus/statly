@@ -135,7 +135,7 @@ describe("items.score", () => {
     expect(total.computed).toEqual({
       op: "scale_sum",
       items: Array.from({ length: 20 }, (_, i) => `Q4_${i + 1}_correct`),
-      min_items: 1,
+      min_items: 10, // half of the 20 questions must be answered
       scale_id: null,
     });
   });

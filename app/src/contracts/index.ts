@@ -1816,6 +1816,10 @@ export interface SurveyColumn {
    * Matrix question tag for matrix statements.
    */
   group: string | null;
+  /**
+   * Scored single-answer question: codes of the choice(s) the survey's scoring gives points (the correct answer). Empty/absent when the survey has no scoring for it.
+   */
+  correct_values?: (number | string)[];
 }
 export interface SurveyQuestion {
   /**
@@ -1881,6 +1885,10 @@ export interface SurveyColumnSuggestion {
   value_labels: ValueLabel[];
   level: MeasurementLevel;
   /**
+   * Optional; the survey question's kind (single = single-answer multiple choice).
+   */
+  question_kind?: "single" | "multi" | "matrix" | "text" | "slider" | "other";
+  /**
    * Optional role hint.
    */
   role?: "open_text" | "likert_item";
@@ -1888,6 +1896,10 @@ export interface SurveyColumnSuggestion {
    * Optional; true when the statement is explicitly marked reverse-worded.
    */
   reverse_hint?: boolean;
+  /**
+   * Scored single-answer question: codes of the choice(s) the survey's scoring gives points (the correct answer). Empty/absent when the survey has no scoring for it.
+   */
+  correct_values?: (number | string)[];
   notes: string[];
   /**
    * Fields where the variable already has a different non-empty value (never overwrite these silently).

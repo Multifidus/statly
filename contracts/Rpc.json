@@ -1097,6 +1097,16 @@
             "null"
           ],
           "description": "Matrix question tag for matrix statements."
+        },
+        "correct_values": {
+          "type": "array",
+          "items": {
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "description": "Scored single-answer question: codes of the choice(s) the survey's scoring gives points (the correct answer). Empty/absent when the survey has no scoring for it."
         }
       }
     },
@@ -1331,6 +1341,18 @@
         "level": {
           "$ref": "VariableSchema.json#/$defs/MeasurementLevel"
         },
+        "question_kind": {
+          "type": "string",
+          "enum": [
+            "single",
+            "multi",
+            "matrix",
+            "text",
+            "slider",
+            "other"
+          ],
+          "description": "Optional; the survey question's kind (single = single-answer multiple choice)."
+        },
         "role": {
           "type": "string",
           "enum": [
@@ -1342,6 +1364,16 @@
         "reverse_hint": {
           "type": "boolean",
           "description": "Optional; true when the statement is explicitly marked reverse-worded."
+        },
+        "correct_values": {
+          "type": "array",
+          "items": {
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "description": "Scored single-answer question: codes of the choice(s) the survey's scoring gives points (the correct answer). Empty/absent when the survey has no scoring for it."
         },
         "notes": {
           "type": "array",

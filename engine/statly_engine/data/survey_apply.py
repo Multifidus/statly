@@ -6,7 +6,8 @@ fields whose current value is non-empty and different are listed in `differs_fro
 
 Output:
   {"columns":  [{name, survey_column, question_tag, label, question_text, value_labels, level,
-                 role?, reverse_hint?, notes, differs_from_current}],   # dataset order
+                 question_kind, role?, reverse_hint?, correct_values?, notes,
+                 differs_from_current}],                                # dataset order
    "scales":   [{name, label, items, origin, reverse_hint_items}],       # survey order
    "unmatched": {"survey_columns": [...], "dataset_columns": [...]}}
 Levels are in the variable contract's vocabulary (nominal | ordinal | continuous).
@@ -47,6 +48,9 @@ def _suggestion(v: dict, col: ColumnSpec, q: Question, *, value_labels=None, lev
         "label": col.label, "question_text": q.text,
         "value_labels": [dict(x) for x in vls], "level": lvl,
     }
+    s["question_kind"] = q.kind
+    if col.correct_values and q.kind == "single" and value_labels is None:
+        s["correct_values"] = list(col.correct_values)
     if col.level == "text":
         s["role"] = "open_text"
     elif q.kind == "matrix" and col.level == "ordinal":

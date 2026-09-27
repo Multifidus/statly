@@ -81,3 +81,41 @@ test("completes the Variable Interview, edits a variable, then undoes the edit",
   await page.getByTestId("undo").click();
   await expect(label).toHaveValue(labelBefore);
 });
+
+test("Knowledge questions: template, load a key, pick an answer, and get 0/1 columns plus a total", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("new-project").click();
+  await page.getByTestId("choose-files").click();
+  const dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("group", { name: "Three groups, three times" }).getByRole("checkbox", { name: "pre.csv" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+  for (let i = 0; i < 10 && !(await page.getByRole("heading", { name: "Welcome" }).isVisible()); i++) {
+    await page.getByTestId("wizard-next").click();
+    await page.waitForTimeout(150);
+  }
+  await continueUntil(page, "Knowledge questions");
+  await expect(page.getByText(/Some questions look like multiple choice/)).toBeVisible();
+  const q1 = page.getByTestId("knowledge-Q4_1");
+  await expect(q1.getByRole("checkbox", { name: "Knowledge question: Q4_1" })).toBeChecked();
+
+  // Download the template (mock save dialog), then load the filled-in key (mock open dialog).
+  await page.getByRole("button", { name: "Download answer key template" }).click();
+  await page.getByTestId("mock-dialog").getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText(/Saved a template with \d+ questions/)).toBeVisible();
+  await page.getByRole("button", { name: "Load answer key…" }).click();
+  await page.getByTestId("mock-dialog").getByRole("checkbox", { name: "answer_key.csv" }).check();
+  await page.getByTestId("mock-dialog").getByRole("button", { name: "Open" }).click();
+  await expect(page.getByText("Filled in 20 correct answers from your file. You can still change any of them below.")).toBeVisible();
+  const pick = page.getByRole("combobox", { name: "Correct answer for Q4_1", exact: true });
+  await expect(pick).toHaveValue("A");
+  await pick.selectOption("B");
+  await expect(pick).toHaveValue("B");
+
+  await continueUntil(page, "Summary");
+  await expect(page.getByText(/20 questions will be scored right \(1\) \/ wrong \(0\)/)).toBeVisible();
+  await page.getByTestId("interview-next").click(); // Finish
+  await expect(page.getByTestId("variables-title")).toBeVisible();
+  const table = page.getByTestId("variables-table");
+  await expect(table.getByTestId("var-row-Q4_1_correct")).toBeVisible();
+  await expect(table.getByRole("combobox", { name: "Role of Q4_1_correct" })).toHaveValue("test_item");
+});

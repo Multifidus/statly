@@ -80,6 +80,18 @@ export interface ItemsScoreParams extends EditParams {
   total_label?: string | null;
 }
 
+export interface AnswerKeyTemplateParams extends EditParams {
+  /** Where to write the .xlsx (from a save dialog). */
+  path: string;
+  /** Question columns, one row each, in this order. */
+  items: string[];
+}
+
+export interface AnswerKeyTemplateResult {
+  path: string;
+  n_items: number;
+}
+
 export interface ParseAnswerKeyResult {
   entries: AnswerKeyEntry[];
   warnings: EditWarning[];

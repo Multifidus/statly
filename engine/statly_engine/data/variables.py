@@ -391,6 +391,19 @@ def _common_prefix(items: list[str]) -> str | None:
     return None
 
 
+def min_answered_for_total(n_items: int) -> int:
+    """A test total needs at least half of the questions answered (rounded up); otherwise it is blank."""
+    return max(1, -(-n_items // 2))
+
+
+def _question_of(item: dict) -> str:
+    """How a question is named in labels: its label, else its question text, else its column name."""
+    label = (item.get("label") or "").strip()
+    if label and label != item["name"]:
+        return label
+    return (item.get("question_text") or "").strip() or item["name"]
+
+
 def score_items(df: pd.DataFrame, meta: dict, params: dict) -> Result:
     key = params["key"]
     if not key:
@@ -429,13 +442,14 @@ def score_items(df: pd.DataFrame, meta: dict, params: dict) -> Result:
             _insert_after(meta, existing, item["name"])
             by_name = _by_name(meta)
         existing.update(
-            label=f"{item['name']} correct", question_text=item.get("question_text"), role="test_item",
+            label=f"{_question_of(item)} (correct?)", question_text=item.get("question_text"), role="test_item",
             level="nominal", value_labels=[{"value": 0, "label": "Incorrect"}, {"value": 1, "label": "Correct"}],
             computed=defn)
         _validate_var(existing)
         scored_names.append(target)
 
-    # Total = number correct among answered questions (a blank answer earns no point).
+    # Total = number correct among answered questions (a blank answer earns no point). A student
+    # who left more than half of the questions blank gets a blank total rather than a misleading one.
     total_name = (params.get("total_name") or "").strip()
     prefix = _common_prefix(items)
     default_total = f"{prefix}_total" if prefix else "test_total"
@@ -454,10 +468,76 @@ def score_items(df: pd.DataFrame, meta: dict, params: dict) -> Result:
         role="test_total", level="continuous",
         label=params.get("total_label") or f"{prefix or 'Test'} total (number correct)",
         question_text=f"Number of correct answers across {len(scored_names)} questions",
-        computed={"op": "scale_sum", "items": scored_names, "min_items": 1, "scale_id": None})
+        computed={"op": "scale_sum", "items": scored_names, "min_items": min_answered_for_total(len(scored_names)),
+                  "scale_id": None})
     _validate_var(total)
     df, w = recompute(df, meta)
     return df, meta, warns + w, f"Scored {len(scored_names)} test questions with the answer key"
+
+
+TEMPLATE_SHEET = "Answer key"
+TEMPLATE_HEADER = ["question", "question_text", "choices", "correct_answer"]
+TEMPLATE_HELP = [
+    "Each row of the 'Answer key' sheet is one multiple-choice question from your data; leave the "
+    "question column as it is.",
+    "Type the correct answer in the correct_answer column, using one of the answers listed under choices "
+    "(its wording or its code); separate several correct answers with | and leave a row blank to skip "
+    "that question.",
+    "Save the file, then choose 'Load answer key…' in Statly to fill in the correct answers.",
+]
+
+
+def template_choices(df: pd.DataFrame, var: dict) -> list[str]:
+    """The answers listed for a question in the key template: its answer-choice labels when it has
+    them, else the answers people actually gave (sorted)."""
+    labels = [str(vl["label"]).strip() for vl in var.get("value_labels") or [] if str(vl["label"]).strip()]
+    if labels:
+        return list(dict.fromkeys(labels))
+    seen = [str(x) for x in scoring.observed_answers(df, var)]
+    return sorted(seen, key=lambda x: (scoring._num(x) is None, scoring._num(x) or 0, x))
+
+
+def answer_key_template(store: DatasetStore, params: dict) -> dict:
+    """Write an .xlsx answer-key template for `items`: an instructions sheet and an 'Answer key'
+    sheet with columns question, question_text, choices (joined with ' | ') and an empty
+    correct_answer. `items.parse_answer_key` reads the filled-in file back."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font
+
+    state = store.get(params["dataset_id"])
+    snap = params.get("snapshot_id")
+    if snap is not None and snap != state.meta["snapshot_id"]:
+        raise StaleOrUnknown("The data changed since this was opened; please try again.",
+                             snapshot_id=state.meta["snapshot_id"])
+    items = list(dict.fromkeys(params["items"]))
+    rows = []
+    for name in items:
+        v = _var(state.meta, name)
+        rows.append([name, v.get("question_text") or v.get("label") or "",
+                     " | ".join(template_choices(state.df, v)), ""])
+    wb = Workbook()
+    help_ws = wb.active
+    help_ws.title = "How to fill this in"
+    help_ws.column_dimensions["A"].width = 110
+    for i, line in enumerate(TEMPLATE_HELP, 1):
+        help_ws.cell(row=i, column=1, value=line).alignment = Alignment(wrap_text=True, vertical="top")
+    ws = wb.create_sheet(TEMPLATE_SHEET)
+    ws.append(TEMPLATE_HEADER)
+    for c in ws[1]:
+        c.font = Font(bold=True)
+    for r in rows:
+        ws.append(r)
+    for col, width in zip("ABCD", (14, 60, 40, 18)):
+        ws.column_dimensions[col].width = width
+    ws.freeze_panes = "A2"
+    wb.active = 1
+    path = params["path"]
+    try:
+        wb.save(path)
+    except OSError as exc:
+        raise InvalidParams(f"Statly couldn't save the answer key template there ({exc.strerror or exc}). "
+                            "Choose another folder.") from exc
+    return {"path": path, "n_items": len(rows)}
 
 
 def parse_answer_key(path: str) -> dict:
@@ -467,7 +547,10 @@ def parse_answer_key(path: str) -> dict:
     with no recognisable header is read as (question, answer) in the first two columns.
     Several correct answers can be separated with '|' or ';'.
     """
-    grid = read_file(path).grid
+    read = read_file(path)
+    if read.format == "xlsx" and TEMPLATE_SHEET in read.sheets and read.sheet_name != TEMPLATE_SHEET:
+        read = read_file(path, sheet_name=TEMPLATE_SHEET)  # Statly's own template: skip the instructions
+    grid = read.grid
     header = [str(x).strip().lower() for x in grid.iloc[0].tolist()]
 
     def find(words, exclude=()):

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DndContext, KeyboardSensor, PointerSensor, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
-import { FileUp, GripVertical, Plus, Trash2 } from "lucide-react";
+import { FileDown, FileUp, GripVertical, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge, CheckboxField, Input, NativeSelect, Notice } from "@/components/ui/form";
 import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
@@ -8,14 +8,16 @@ import { WhyItMatters } from "@/components/ui/why";
 import { SortableLabels } from "@/components/variables/SortableLabels";
 import { applyChoicePreset, labelsAreJustCodes, presetsForCount } from "@/lib/choicePresets";
 import type { MeasurementLevel, VariableRole, VariableSchema } from "@/contracts";
-import { pickAnswerKeyFile } from "@/lib/dialogs";
+import { pickAnswerKeyFile, pickExportPath } from "@/lib/dialogs";
 import {
   activeScales,
   buildPlan,
   defaultMinItems,
   hasReverseMarker,
+  isKnowledge,
   itemStatement,
   LEVEL_OPTIONS,
+  resolveKeyFile,
   likertItems,
   moveItem,
   ROLE_OPTIONS,
@@ -23,12 +25,14 @@ import {
   scoringExample,
   testItems,
   type DraftScale,
+  type KnowledgeCandidate,
+  type ResolvedKey,
   type Unit,
 } from "@/lib/interviewLogic";
 import { rpc } from "@/lib/rpc";
 import { describeEditError } from "@/lib/variableEdits";
 import { useDatasetStore } from "@/stores/dataset";
-import { useInterview } from "@/stores/interview";
+import { knowledgeNames, useInterview } from "@/stores/interview";
 
 const useByName = () => {
   const meta = useDatasetStore((s) => s.meta);
@@ -225,6 +229,180 @@ export function StepLabels({ unitId }: { unitId: string }) {
   );
 }
 
+// --- knowledge questions -----------------------------------------------------------------
+
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/** Save Statly's answer-key template (.xlsx) for these questions; returns a message for the user. */
+async function saveKeyTemplate(items: string[]): Promise<{ tone: "info" | "error"; text: string } | null> {
+  const meta = useDatasetStore.getState().meta;
+  if (!meta || !items.length) return null;
+  const path = await pickExportPath("answer_key_template", "xlsx");
+  if (!path) return null;
+  try {
+    const res = await rpc.answerKeyTemplate({ dataset_id: meta.dataset_id, snapshot_id: meta.snapshot_id, path, items });
+    return {
+      tone: "info",
+      text: `Saved a template with ${plural(res.n_items, "question")} to ${res.path}. Type each correct answer in its correct_answer column, save the file, then choose Load answer key.`,
+    };
+  } catch (e) {
+    return { tone: "error", text: describeEditError(e) };
+  }
+}
+
+/** Plain-language list of what a loaded key couldn't use. */
+export function describeKeyProblems(r: ResolvedKey): string[] {
+  const out: string[] = [];
+  if (r.unknownQuestions.length) {
+    const names = r.unknownQuestions.slice(0, 6).join(", ") + (r.unknownQuestions.length > 6 ? ", …" : "");
+    out.push(`${plural(r.unknownQuestions.length, "question")} in the file ${r.unknownQuestions.length === 1 ? "isn't" : "aren't"} a multiple-choice question here: ${names}.`);
+  }
+  for (const u of r.unknownAnswers.slice(0, 6)) out.push(`For ${u.item}, “${u.answer}” isn't one of the answers people could choose.`);
+  if (r.unknownAnswers.length > 6) out.push(`…and ${r.unknownAnswers.length - 6} more answers that don't match.`);
+  return out;
+}
+
+function choiceText(c: KnowledgeCandidate["choices"][number]) {
+  return `${c.value}${c.label ? ` = ${c.label}` : ""} (${c.count})`;
+}
+
+export function StepKnowledge() {
+  const draft = useInterview((s) => s.draft)!;
+  const filled = useInterview((s) => s.filledFrom.knowledge);
+  const candidates = useInterview((s) => s.candidates)();
+  const setKnowledge = useInterview((s) => s.setKnowledge);
+  const setCorrect = useInterview((s) => s.setCorrect);
+  const applyKey = useInterview((s) => s.applyKey);
+  const skip = useInterview((s) => s.skipKnowledge);
+  const [msg, setMsg] = useState<{ tone: "info" | "error"; text: string } | null>(null);
+  const [pending, setPending] = useState<{ resolved: ResolvedKey; problems: string[] } | null>(null);
+  const ticked = candidates.filter((c) => isKnowledge(draft, c));
+  const unanswered = ticked.filter((c) => !(draft.key[c.name] ?? []).length);
+
+  const load = async () => {
+    setMsg(null);
+    setPending(null);
+    const path = await pickAnswerKeyFile();
+    if (!path) return;
+    try {
+      const res = await rpc.parseAnswerKey({ path });
+      const resolved = resolveKeyFile(res.entries, candidates);
+      const problems = describeKeyProblems(resolved);
+      const n = Object.keys(resolved.key).length;
+      if (!n) {
+        setMsg({ tone: "error", text: ["No answer in that file matched a question here.", ...problems].join(" ") });
+      } else if (problems.length) {
+        setPending({ resolved, problems });
+      } else {
+        applyKey(resolved.key);
+        setMsg({ tone: "info", text: `Filled in ${plural(n, "correct answer")} from your file. You can still change any of them below.` });
+      }
+    } catch (e) {
+      setMsg({ tone: "error", text: describeEditError(e) });
+    }
+  };
+  const acceptPending = () => {
+    if (!pending) return;
+    applyKey(pending.resolved.key);
+    setMsg({ tone: "info", text: `Filled in ${plural(Object.keys(pending.resolved.key).length, "correct answer")} from your file. You can still change any of them below.` });
+    setPending(null);
+  };
+  const template = async () => {
+    setMsg(null);
+    const m = await saveKeyTemplate(candidates.map((c) => c.name));
+    if (m) setMsg(m);
+  };
+
+  return (
+    <div className="grid gap-4">
+      <p className="text-sm">
+        Some questions look like multiple choice. If any of them are knowledge questions with one right answer, tick them and pick the
+        correct answer. Statly will mark each student's answer as 1 (correct), 0 (incorrect) or blank (no answer), and add a total score.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => void template()}>
+          <FileDown aria-hidden /> Download answer key template
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => void load()}>
+          <FileUp aria-hidden /> Load answer key…
+        </Button>
+        <Button variant="ghost" size="sm" className="ml-auto" onClick={skip} data-testid="knowledge-skip">
+          Skip: none of these are knowledge questions
+        </Button>
+      </div>
+      {pending && (
+        <Notice tone="info" role="status" data-testid="key-problems">
+          <span className="block font-medium">Statly matched {plural(Object.keys(pending.resolved.key).length, "correct answer")}, but not everything in the file:</span>
+          <ul className="my-1 list-disc pl-5">
+            {pending.problems.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
+          <span className="flex gap-2">
+            <Button size="sm" onClick={acceptPending}>
+              Use the matched answers
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setPending(null)}>
+              Cancel
+            </Button>
+          </span>
+        </Notice>
+      )}
+      {msg && (
+        <Notice tone={msg.tone === "error" ? "error" : "info"} role="status">
+          {msg.text}
+        </Notice>
+      )}
+      <ul className="grid gap-2" aria-label="Multiple-choice questions">
+        {candidates.map((c) => {
+          const on = isKnowledge(draft, c);
+          const current = draft.key[c.name]?.[0] ?? "";
+          const options = current && !c.choices.some((x) => x.value === current) ? [...c.choices, { value: current, label: null, code: null, count: 0 }] : c.choices;
+          return (
+            <li key={c.name} className="grid gap-2 rounded-lg border p-3" data-testid={`knowledge-${c.name}`}>
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="font-mono text-sm font-semibold">{c.name}</span>
+                {c.questionText && <span className="text-sm">{c.questionText}</span>}
+                {filled[c.name] && <Badge data-testid={`knowledge-filled-${c.name}`}>Filled in from your survey</Badge>}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Answers: {c.choices.map(choiceText).join(" · ") || "none yet"}
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <CheckboxField label="Knowledge question" aria-label={`Knowledge question: ${c.name}`} checked={on} onChange={(e) => setKnowledge(c.name, e.target.checked)} />
+                {on && (
+                  <NativeSelect aria-label={`Correct answer for ${c.name}`} value={current} onChange={(e) => setCorrect(c.name, e.target.value)} className="h-8 w-auto">
+                    <option value="">Choose the correct answer…</option>
+                    {options.map((x) => (
+                      <option key={x.value} value={x.value}>
+                        {choiceText(x)}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {ticked.length > 0 && (
+        <p className="text-xs text-muted-foreground" data-testid="knowledge-total-rule">
+          {plural(ticked.length, "knowledge question")} ticked
+          {unanswered.length ? ` (${unanswered.length} still need a correct answer; they won't be scored without one)` : ""}. The total score counts the
+          correct answers; a student who left more than half of the questions blank gets a blank total instead of a misleadingly low one.
+        </p>
+      )}
+      <WhyItMatters>
+        <p>
+          Statly only knows which choice each student picked. Once it knows the right answer it can mark each answer right (1) or wrong (0)
+          and add up a total score, which is usually what you compare between groups. A blank answer stays blank rather than counting as
+          wrong. If you have the answers in a spreadsheet, download the template, fill in the correct_answer column and load it here.
+        </p>
+      </WhyItMatters>
+    </div>
+  );
+}
+
 // --- answer key --------------------------------------------------------------------------
 
 export function StepAnswerKey() {
@@ -232,9 +410,18 @@ export function StepAnswerKey() {
   const units = useInterview((s) => s.units);
   const stats = useInterview((s) => s.stats);
   const setDraft = useInterview((s) => s.setDraft);
+  const candidates = useInterview((s) => s.candidates)();
   const byName = useByName();
-  const t = testItems(units, draft, byName);
+  // Knowledge questions were already asked about on their own step: only list the rest.
+  const knowledge = knowledgeNames(candidates);
+  const all = testItems(units, draft, byName, knowledge);
+  const t = { raw: all.raw.filter((n) => !knowledge.has(n)), scored: all.scored };
   const [msg, setMsg] = useState<{ tone: "info" | "error"; text: string } | null>(null);
+  const template = async () => {
+    setMsg(null);
+    const m = await saveKeyTemplate(t.raw);
+    if (m) setMsg(m);
+  };
 
   const load = async () => {
     setMsg(null);
@@ -278,7 +465,10 @@ export function StepAnswerKey() {
           </RadioGroup>
           {draft.keyMode === "key" && (
             <>
-              <div>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={() => void template()}>
+                  <FileDown aria-hidden /> Download answer key template
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => void load()}>
                   <FileUp aria-hidden /> Load answer key file…
                 </Button>
@@ -605,7 +795,8 @@ export function StepSummary() {
   const labelsFor = useInterview((s) => s.labelsFor);
   const meta = useDatasetStore((s) => s.meta)!;
   const byName = useByName();
-  const plan = buildPlan(meta, units, draft, labelsFor);
+  const candidates = useInterview((s) => s.candidates)();
+  const plan = buildPlan(meta, units, draft, labelsFor, knowledgeNames(candidates));
   const scales = activeScales(draft, units, byName);
   return (
     <div className="grid gap-4">
@@ -649,7 +840,8 @@ export function StepSummary() {
         <section aria-labelledby="sum-key" className="grid gap-2">
           <h3 id="sum-key" className="font-semibold">Test scoring</h3>
           <p className="text-sm">
-            {plan.key.length} question{plan.key.length === 1 ? "" : "s"} will be scored right/wrong and added up into a total.
+            {plan.key.length} question{plan.key.length === 1 ? "" : "s"} will be scored right (1) / wrong (0), with blank answers left blank,
+            and added up into a total. The total is blank for anyone who left more than half of them unanswered.
           </p>
         </section>
       )}

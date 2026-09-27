@@ -67,6 +67,7 @@ commits one new snapshot with a history label (undo/redo step).
 | `scales.delete` | `{dataset_id, snapshot_id?, scale_id}` | `DatasetEditResult` |
 | `items.score` | `{dataset_id, snapshot_id?, key: [{item, correct: [value] \| null}], total_name?, total_label?}` | `DatasetEditResult` |
 | `items.parse_answer_key` | `{path}` | `{entries: [{item, correct: [value]}], warnings}` |
+| `items.answer_key_template` | `{dataset_id, snapshot_id?, path, items: [name]}` | `{path, n_items}` |
 | `computed.preview` | `{dataset_id, definition: ComputedDefinition}` | `{snapshot_id, dtype, row_ids, values, n_valid, n_missing, warnings}` (first 10 rows) |
 | `computed.add` | `{dataset_id, snapshot_id?, name, label?, role?, level?, definition: ComputedDefinition}` | `DatasetEditResult` |
 | `computed.remove` | `{dataset_id, snapshot_id?, name}` | `DatasetEditResult` |
@@ -95,19 +96,27 @@ Semantics:
   fewer than two items is removed (warning `scale_removed`). `scales.delete` clears `scale_id`s and
   removes the score variable (rejected while another computed variable uses it).
 - `items.score`: for each key entry with `correct` values, creates/replaces `<item>_correct`
-  (integer 0/1, role `test_item`, value labels Incorrect/Correct, placed after the item) as a
+  (integer 0/1, role `test_item`, label `<question> (correct?)`, level nominal, value labels
+  0 = Incorrect / 1 = Correct, placed after the item) as a
   `recode` of the item: the correct answer(s) -> 1, every other answer observed at scoring time -> 0,
   blank/missing stays missing. Keys match answers ignoring case and surrounding spaces; a key nobody
   chose gives `key_not_observed`. `correct: null` = the item is already scored 0/1 and is used as is.
   The total (`<common prefix>_total`, e.g. `Q4_total`, else `test_total`, or `total_name`) is a
-  `scale_sum` with `min_items: 1`: the number of correct answers among answered questions (same as
-  Qualtrics `SC0`), missing only when every question is blank; role `test_total`. Re-scoring
+  `scale_sum` with `min_items` = half the scored questions, rounded up: the number of correct answers
+  among answered questions (same as Qualtrics `SC0` when everyone answered), missing when more than
+  half of the questions are blank; role `test_total`. Re-scoring
   replaces the same variables. Answers that first appear later (e.g. after stacking another file)
   are not in the recode rules: score the test again after adding data.
 - `items.parse_answer_key` reads a CSV/XLSX with a header naming the question column
   (item/variable/name/question) and the answer column (correct/answer/key); with no such header the
   first two columns are used (warning `answer_key_no_header`). Several correct answers may be
-  separated by `|` or `;`.
+  separated by `|` or `;`. An .xlsx with an `Answer key` sheet (Statly's template) is read from
+  that sheet.
+- `items.answer_key_template` writes an .xlsx to `path`: sheet `How to fill this in` (three
+  sentences) and sheet `Answer key` with columns `question` (column name), `question_text`,
+  `choices` (the variable's value-label texts, else its observed answers, joined with ` | `) and an
+  empty `correct_answer`, one row per item in the given order. The app resolves a loaded
+  `correct_answer` against the choices by wording (case-insensitive) or code.
 - Computed variables use `VariableSchema.computed` ops only (no formula language). Operands with
   `time_level: null` are row-wise. An operand with a `time_level` needs a stacked dataset in linked
   mode (else `-32003` asking the user to link): the participant's value at that level (IDs
@@ -219,7 +228,10 @@ Semantics (see `contracts/README.md` for the table notes):
     Result `{survey_name, columns, scales, unmatched}`: per matched variable (dataset order) the
     survey's `label` (statement / question text), `question_text`, `value_labels`, `level`,
     optional `role` (`likert_item` / `open_text`) and `reverse_hint` (explicit reverse-worded
-    marker only), `notes`, and `differs_from_current` (fields whose current non-empty value
+    marker only), optional `question_kind` (`single` = single-answer multiple choice, `multi`,
+    `matrix`, `text`, `slider`, `other`) and `correct_values` (single-answer questions the survey
+    scores: codes of the choices its GradingData gives positive points, in a category of the SCO
+    scoring element when there is one; the parsed `SurveyColumn` carries the same list), `notes`, and `differs_from_current` (fields whose current non-empty value
     differs: the app never overwrites those); `scales` = matrix questions with 3+ matched ordinal
     statements (`name` = tag, `label` = stem); `unmatched.dataset_columns` = question columns the
     survey doesn't produce. Stale `snapshot_id`: `-32002`.

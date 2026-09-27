@@ -52,6 +52,7 @@ export const MOCK_FILES: { path: string; group: string }[] = [
   { path: `${MOCK_ROOT}/three_groups_prepost_followup/pre.csv`, group: "Three groups, three times" },
   { path: `${MOCK_ROOT}/three_groups_prepost_followup/post.csv`, group: "Three groups, three times" },
   { path: `${MOCK_ROOT}/three_groups_prepost_followup/followup.csv`, group: "Three groups, three times" },
+  { path: `${MOCK_ROOT}/three_groups_prepost_followup/answer_key.csv`, group: "Three groups, three times" },
   { path: `${MOCK_ROOT}/mixed_design_large/pre.csv`, group: "Mixed design, linked, three groups" },
   { path: `${MOCK_ROOT}/mixed_design_large/post.csv`, group: "Mixed design, linked, three groups" },
   { path: `${MOCK_ROOT}/mixed_design_large/followup.csv`, group: "Mixed design, linked, three groups" },

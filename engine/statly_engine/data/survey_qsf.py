@@ -19,6 +19,10 @@ export of a matrix with ChoiceOrder [1, 15, 16, 17, 18] has columns Q131_1..Q131
 name (duplicate export tags) are disambiguated like the importer does for repeated header names:
 the later one becomes name_2, name_3, ...
 
+Scoring: a single-answer MC question whose GradingData gives a choice positive points (in a
+category of the survey's SCO scoring element, when there is one) lists that choice's code in
+the column's `correct_values`, so Statly can offer it as the question's correct answer.
+
 Unknown or unsupported constructs never raise: the question is kept with kind "other", no
 columns, and a note saying why.
 """
@@ -56,6 +60,7 @@ class ColumnSpec:
     value_labels: list[dict] = field(default_factory=list)  # [{"value": code, "label": text}] in display order
     level: str = "nominal"                                    # nominal | ordinal | scale | text
     group: str | None = None                                  # matrix tag for matrix statements
+    correct_values: list = field(default_factory=list)        # scored single-answer MC: codes worth points
 
 
 @dataclass
@@ -190,11 +195,34 @@ def _text_cols(tag: str, opts: list[dict], question: str) -> list[ColumnSpec]:
 # ---------------------------------------------------------------------------
 # Per-type builders (each returns (kind, columns, notes))
 # ---------------------------------------------------------------------------
-def _mc(tag: str, text: str, p: dict, selector: str) -> tuple[str, list[ColumnSpec], list[str]]:
+def _graded_choices(p: dict, categories: set[str] | None) -> set[str]:
+    """Choice ids given positive points by the survey's scoring (GradingData; categories from the
+    SCO element when it is present, else any category)."""
+    out: set[str] = set()
+    grading = p.get("GradingData")
+    for g in grading if isinstance(grading, list) else []:
+        if not isinstance(g, dict) or g.get("ChoiceID") in (None, ""):
+            continue
+        grades = g.get("Grades") if isinstance(g.get("Grades"), dict) else {}
+        for cat, pts in grades.items():
+            if categories is not None and str(cat) not in categories:
+                continue
+            try:
+                if float(str(pts).strip()) > 0:
+                    out.add(str(g["ChoiceID"]))
+            except ValueError:
+                continue
+    return out
+
+
+def _mc(tag: str, text: str, p: dict, selector: str,
+        categories: set[str] | None = None) -> tuple[str, list[ColumnSpec], list[str]]:
     opts = _options(p, "Choices", "ChoiceOrder")
     if selector in SINGLE_SELECTORS:
         level = "ordinal" if selector == "NPS" or _is_ordinal([o["label"] for o in opts]) else "nominal"
-        cols = [ColumnSpec(tag, text, _value_labels(opts), level)]
+        graded = _graded_choices(p, categories)
+        cols = [ColumnSpec(tag, text, _value_labels(opts), level,
+                           correct_values=[o["code"] for o in opts if o["id"] in graded])]
         return "single", cols + _text_cols(tag, opts, text), []
     if selector in MULTI_SELECTORS:
         cols = [ColumnSpec(f"{tag}_{o['id']}", f"{text} - {o['label']}", [{"value": 1, "label": o["label"]}],
@@ -247,7 +275,7 @@ def _timing(tag: str, text: str) -> tuple[str, list[ColumnSpec], list[str]]:
     return "other", cols, ["Page timer: timing metadata, not a question."]
 
 
-def _question(p: dict) -> Question:
+def _question(p: dict, categories: set[str] | None = None) -> Question:
     qid = str(p.get("QuestionID") or "")
     tag = str(p.get("DataExportTag") or qid or "").strip()
     qtype = str(p.get("QuestionType") or "")
@@ -258,7 +286,7 @@ def _question(p: dict) -> Question:
         if not tag:
             kind, cols, notes = "other", [], ["Question has no export tag; no columns produced."]
         elif qtype == "MC":
-            kind, cols, notes = _mc(tag, text, p, str(selector))
+            kind, cols, notes = _mc(tag, text, p, str(selector), categories)
         elif qtype == "Matrix":
             kind, cols, notes = _matrix(tag, text, p, str(selector), sub)
         elif qtype == "TE":
@@ -301,6 +329,17 @@ def _block_order(elements: list[dict]) -> tuple[list[str], set[str]]:
     return list(dict.fromkeys(order)), trash
 
 
+def _scoring_categories(elements: list[dict]) -> set[str] | None:
+    """Scoring category ids from the survey's scoring element (SCO); None when it has none."""
+    for el in elements:
+        if el.get("Element") != "SCO" or not isinstance(el.get("Payload"), dict):
+            continue
+        cats = el["Payload"].get("ScoringCategories")
+        ids = {str(c["ID"]) for c in cats if isinstance(c, dict) and c.get("ID")} if isinstance(cats, list) else set()
+        return ids or None
+    return None
+
+
 def _qid_key(qid: str) -> tuple:
     m = re.match(r"^QID(\d+)", qid)
     return (0, int(m.group(1)), qid) if m else (1, 0, qid)
@@ -336,6 +375,7 @@ def parse_qsf(source: str | bytes | dict) -> Survey:
 
     # Export order = block order; questions in no block follow by QID; Trash questions come last.
     order, trash = _block_order(elements)
+    categories = _scoring_categories(elements)
     active = [q for q in order if q in payloads]
     placed = set(active) | trash
     active += sorted((q for q in payloads if q not in placed), key=_qid_key)
@@ -350,7 +390,7 @@ def parse_qsf(source: str | bytes | dict) -> Survey:
     seen: set[str] = set()
     tag_count: dict[str, int] = {}
     for qid in active:
-        q = _question(payloads[qid])
+        q = _question(payloads[qid], categories)
         tag_count[q.tag] = tag_count.get(q.tag, 0) + 1
         if tag_count[q.tag] == 2:
             survey.notes.append(f"Export tag '{q.tag}' is used by more than one question.")
@@ -365,7 +405,7 @@ def parse_qsf(source: str | bytes | dict) -> Survey:
             seen.add(name)
         survey.questions.append(q)
     for qid in trashed:
-        q = _question(payloads[qid])
+        q = _question(payloads[qid], categories)
         q.in_trash = True
         q.notes.append("In the survey's Trash: not part of data exports.")
         survey.questions.append(q)
