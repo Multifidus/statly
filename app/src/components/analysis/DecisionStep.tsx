@@ -3,9 +3,9 @@ import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge, Notice } from "@/components/ui/form";
 import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
-import { Term } from "@/components/learn/GlossaryTerm";
 import { VerdictBadge } from "@/components/results/ResultsView";
 import { labelFor } from "@/lib/content/labels";
+import { ALTERNATIVE_FALLBACK_BLURB, RECOMMENDED_FALLBACK_BLURB, blurbFor } from "@/lib/testBlurbs";
 import { alternativeFor, catalogLabels, suggestedChoice, useAnalysisFlow, type Choice } from "@/stores/analysisFlow";
 
 /** Final decision (SPEC §7.2): the user chooses; Statly confirms or gently explains a concern. */
@@ -19,6 +19,8 @@ export function DecisionStep({ onBack, onDone }: { onBack: () => void; onDone: (
   const [choice, setChoice] = useState<Choice>(suggestion.choice);
   const primaryLabel = labelFor(f.analysisId!, labels);
   const altLabel = alt ? labelFor(alt, labels) : null;
+  const primaryBlurb = blurbFor(f.analysisId, RECOMMENDED_FALLBACK_BLURB);
+  const altBlurb = altAvailable ? blurbFor(alt, ALTERNATIVE_FALLBACK_BLURB) : "Statly can't run this test yet.";
 
   const confirm = async () => {
     if (await f.choose(choice)) onDone();
@@ -48,11 +50,11 @@ export function DecisionStep({ onBack, onDone }: { onBack: () => void; onDone: (
 
       <RadioGroup value={choice} onValueChange={(v) => setChoice(v as Choice)} aria-labelledby="decision-title">
         <RadioCard value="recommended" id="choice-recommended" title={<>Use the recommended test: {primaryLabel} {suggestion.choice === "recommended" && <Badge tone="ok">Suggested</Badge>}</>}>
-          A <Term k="parametric">parametric</Term> test: compares averages and is the most powerful choice when its assumptions hold.
+          {primaryBlurb}
         </RadioCard>
         {altLabel && (
           <RadioCard value="alternative" id="choice-alternative" title={<>Use the nonparametric alternative: {altLabel} {suggestion.choice === "alternative" && <Badge tone="ok">Suggested</Badge>}</>}>
-            {altAvailable ? "Works with ranks instead of raw scores, so it doesn't need bell-shaped data." : "Statly can't run this test yet."}
+            {altBlurb}
           </RadioCard>
         )}
       </RadioGroup>

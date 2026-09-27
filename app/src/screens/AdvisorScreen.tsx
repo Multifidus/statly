@@ -14,7 +14,7 @@ import { useNav } from "@/stores/nav";
 
 const key = (v: AnswerValue) => JSON.stringify(v);
 
-function contextSummary(ctx: DatasetContext): string | null {
+export function contextSummary(ctx: DatasetContext): string | null {
   const parts: string[] = [];
   if (ctx.outcome_level) {
     parts.push(
@@ -31,8 +31,10 @@ function contextSummary(ctx: DatasetContext): string | null {
   if (ctx.num_time_points !== undefined && ctx.num_time_points > 1) parts.push(`${ctx.num_time_points} time points`);
   if (ctx.linked_mode !== undefined) parts.push(ctx.linked_mode ? "responses linked by ID" : "responses not linked across time");
   if (ctx.n_complete !== undefined) parts.push(`${ctx.n_complete} response${ctx.n_complete === 1 ? "" : "s"}`);
-  const distinct = ctx.second_distinct ?? ctx.outcome_distinct;
-  if (distinct !== undefined) parts.push(`${distinct} distinct value${distinct === 1 ? "" : "s"}, so ties are ${distinct <= 7 || (ctx.n_complete ?? Infinity) < 30 ? "common" : "unlikely"}`);
+  if (ctx.outcome_level === "ordinal" || ctx.outcome_level === "continuous") {
+    const distinct = ctx.second_distinct ?? ctx.outcome_distinct;
+    if (distinct !== undefined) parts.push(`${distinct} distinct value${distinct === 1 ? "" : "s"}, so ties are ${distinct <= 7 || (ctx.n_complete ?? Infinity) < 30 ? "common" : "unlikely"}`);
+  }
   return parts.length ? parts.join(", ") : null;
 }
 

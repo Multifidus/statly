@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import type { MockEngine } from "@/mocks/engine";
 import { useFreshMock } from "@/test/mockTransport";
-import { AdvisorScreen } from "@/screens/AdvisorScreen";
+import { AdvisorScreen, contextSummary } from "@/screens/AdvisorScreen";
 import { useAdvisor } from "@/stores/advisor";
 import { useNav } from "@/stores/nav";
 import { usePlanner } from "@/stores/planner";
@@ -37,6 +37,34 @@ beforeEach(() => {
   useAdvisor.getState().reset();
   useNav.setState({ view: "advisor", prev: null });
   void engine;
+});
+
+describe("contextSummary", () => {
+  it("always shows the response count", () => {
+    expect(contextSummary({ n_complete: 300 })).toContain("300 responses");
+  });
+
+  it("shows the distinct-values/ties clause for a continuous outcome", () => {
+    const text = contextSummary({ outcome_level: "continuous", outcome_distinct: 2, n_complete: 300 });
+    expect(text).toContain("2 distinct values, so ties are common");
+  });
+
+  it("shows the distinct-values/ties clause for an ordinal outcome", () => {
+    const text = contextSummary({ outcome_level: "ordinal", outcome_distinct: 5, n_complete: 300 });
+    expect(text).toContain("5 distinct values, so ties are common");
+  });
+
+  it("omits the distinct-values/ties clause for a yes/no (nominal, 2-level) outcome", () => {
+    const text = contextSummary({ outcome_level: "nominal", outcome_distinct: 2, n_complete: 300 });
+    expect(text).toContain("300 responses");
+    expect(text).not.toContain("distinct value");
+    expect(text).not.toContain("ties");
+  });
+
+  it("omits the distinct-values/ties clause for a category (nominal) outcome", () => {
+    const text = contextSummary({ outcome_level: "nominal", outcome_distinct: 4, n_complete: 300 });
+    expect(text).not.toContain("distinct value");
+  });
 });
 
 describe("AdvisorScreen: plan pre-fill hint", () => {

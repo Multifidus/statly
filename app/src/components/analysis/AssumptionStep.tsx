@@ -39,6 +39,7 @@ export function AssumptionStep({ result, index, onBack, onNext }: { result: Anal
   const analogy = sectionOf(page, "An everyday analogy");
   const ifFails = sectionOf(page, "What to do if it fails");
   const isNormality = a.assumption.startsWith("normality");
+  const isExpectedCellCounts = a.statistic?.symbol === "E_min";
   const largeN = isNormality && (a.verdict === "caution" || (a.applies_to.n ?? 0) >= LARGE_N);
   const charts = a.chart_refs.filter((c) => isSupportedChart(c.chart_type, result.chart_data[c.data_key]));
 
@@ -62,27 +63,35 @@ export function AssumptionStep({ result, index, onBack, onNext }: { result: Anal
 
       <Block title="What Statly checked">
         <p className="text-sm">
-          Statly looked at {SCOPE_TEXT[a.applies_to.kind]}
-          {a.applies_to.kind !== "overall" && ` (${a.applies_to.label})`}
-          {a.applies_to.n !== null && `, ${a.applies_to.n} scores`}
-          {a.test_used ? (
+          {isExpectedCellCounts ? (
             <>
-              {" "}using the {a.test_used.label} test
-              {a.statistic && (
-                <>
-                  : <i>{a.statistic.symbol}</i>
-                  {a.statistic.df.length > 0 && `(${fmtDf(a.statistic.df)})`} = {fmtNum(a.statistic.value)}
-                </>
-              )}
-              {a.p !== null && (
-                <>
-                  , <Term k="p_value"><i>p</i></Term> {fmtPExpr(a.p)}
-                </>
-              )}
-              .
+              Statly worked out the expected count for every cell of the table; the smallest was {fmtNum(a.statistic!.value)}.
             </>
           ) : (
-            " by looking at how the study was designed."
+            <>
+              Statly looked at {SCOPE_TEXT[a.applies_to.kind]}
+              {a.applies_to.kind !== "overall" && ` (${a.applies_to.label})`}
+              {a.applies_to.n !== null && `, ${a.applies_to.n} scores`}
+              {a.test_used ? (
+                <>
+                  {" "}using the {a.test_used.label} test
+                  {a.statistic && (
+                    <>
+                      : <i>{a.statistic.symbol}</i>
+                      {a.statistic.df.length > 0 && `(${fmtDf(a.statistic.df)})`} = {fmtNum(a.statistic.value)}
+                    </>
+                  )}
+                  {a.p !== null && (
+                    <>
+                      , <Term k="p_value"><i>p</i></Term> {fmtPExpr(a.p)}
+                    </>
+                  )}
+                  .
+                </>
+              ) : (
+                " by looking at how the study was designed."
+              )}
+            </>
           )}
         </p>
       </Block>

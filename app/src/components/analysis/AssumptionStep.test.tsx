@@ -19,4 +19,32 @@ describe("AssumptionStep", () => {
     const verdictBlock = screen.getByTestId("assumption-verdict");
     expect(verdictBlock.textContent).toContain("Because the p value");
   });
+
+  it("shows proper 'What it is' / 'Why it matters' copy and a natural rule-based 'What Statly checked' sentence for expected_cell_counts", () => {
+    const base = example as unknown as AnalysisResult;
+    const result: AnalysisResult = {
+      ...base,
+      assumptions: [
+        {
+          ...base.assumptions[0],
+          assumption: "expected_cell_counts",
+          label: "Expected cell counts",
+          test_used: { key: "expected_cell_counts_rule", label: "Expected cell counts (rule of thumb)" },
+          statistic: { symbol: "E_min", value: 3.3, df: [] },
+          p: null,
+          verdict: "failed",
+          explanation: "The smallest expected count (3.30) is below 5.",
+          applies_to: { kind: "overall", label: "All groups", group: null, n: 300 },
+          chart_refs: [],
+        },
+      ],
+    };
+    render(<AssumptionStep result={result} index={0} onBack={vi.fn()} onNext={vi.fn()} />);
+
+    expect(screen.getByText(/Chi-square compares the counts you observed/)).toBeInTheDocument();
+    expect(screen.getByText(/With tiny expected counts, the chi-square p-value can be off/)).toBeInTheDocument();
+    expect(
+      screen.getByText("Statly worked out the expected count for every cell of the table; the smallest was 3.30."),
+    ).toBeInTheDocument();
+  });
 });
