@@ -395,6 +395,55 @@ export function buildImportParams(raw: DatasetImportPreviewResult, d: ImportDeci
   };
 }
 
+// --- row-filter grouping (review + completion screens) -----------------------------------
+
+/** One kind of row filter (e.g. "exclude_values" for Survey Preview/Spam) collapsed across files. */
+export interface RowFilterGroup {
+  kind: RowFilter["kind"];
+  values: RowFilter["values"];
+  threshold: RowFilter["threshold"];
+  /** Plain-language description of what's removed, without any per-file counts. */
+  label: string;
+  perFile: { file_id: string | null; rows_removed: number }[];
+  rowsRemoved: number;
+}
+
+const oxfordJoin = (items: string[]): string =>
+  items.length <= 2 ? items.join(" and ") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+
+const rowFilterGroupKey = (f: Pick<RowFilter, "kind" | "threshold" | "values">) => `${f.kind}:${f.threshold ?? ""}:${(f.values ?? []).join("|")}`;
+
+/**
+ * Collapse per-file row filters (same kind/values, one per imported file) into one group each,
+ * so "Survey Preview, Survey Test and Spam" is shown once instead of once per file.
+ */
+export function groupRowFilters(filters: RowFilter[]): RowFilterGroup[] {
+  const groups = new Map<string, RowFilterGroup>();
+  for (const f of filters) {
+    const key = rowFilterGroupKey(f);
+    let g = groups.get(key);
+    if (!g) {
+      const label =
+        f.kind === "progress_below"
+          ? `progress below ${f.threshold}%`
+          : f.kind === "exclude_unfinished"
+            ? "unfinished responses"
+            : `${oxfordJoin((f.values ?? []).map(String))} responses`;
+      g = { kind: f.kind, values: f.values, threshold: f.threshold, label, perFile: [], rowsRemoved: 0 };
+      groups.set(key, g);
+    }
+    g.perFile.push({ file_id: f.file_id, rows_removed: f.rows_removed });
+    g.rowsRemoved += f.rows_removed;
+  }
+  return [...groups.values()];
+}
+
+/** A group's label, with a per-file count breakdown appended when it spans more than one file. */
+export function formatRowFilterGroup(g: RowFilterGroup, fileName: (fileId: string | null) => string): string {
+  if (g.perFile.length <= 1) return g.label;
+  return `${g.label} (${g.perFile.map((pf) => `${fileName(pf.file_id)}: ${pf.rows_removed.toLocaleString()}`).join(", ")})`;
+}
+
 // --- survey file (.qsf) -------------------------------------------------------------------
 
 /** Variables the survey is matched against before importing: the proposals the user keeps (fields survey.suggest reads). */

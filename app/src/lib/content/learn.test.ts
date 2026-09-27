@@ -72,6 +72,12 @@ describe("bundled Learn library and glossary", () => {
     expect(linkGlossaryTerms("a {{p_value}} and {{nope_not_a_term}}")).toBe("a [p-value](glossary:p_value) and nope not a term");
   });
 
+  it("capitalizes a glossary term that opens the paragraph, but not one mid-sentence", () => {
+    expect(linkGlossaryTerms("{{p_value}} is small.")).toBe("[P-value](glossary:p_value) is small.");
+    expect(linkGlossaryTerms("the {{p_value}} is small.")).toBe("the [p-value](glossary:p_value) is small.");
+    expect(linkGlossaryTerms("{{nope_not_a_term}} is unknown.")).toBe("Nope not a term is unknown.");
+  });
+
   it("maps engine and decision-tree ids to Learn pages and labels", () => {
     expect(learnPageFor("normality_of_differences")?.id).toBe("normality");
     expect(learnPageFor("d_z")?.id).toBe("d_z_d_av");

@@ -50,7 +50,10 @@ export function ExportMenu({ datasetId }: { datasetId: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" disabled={busy || !variable} data-testid="qual-export">
+        {/* disabled:opacity-50 (the Button default) blends outline text to ~3.9:1 on the page background,
+            which axe can catch mid-transition even before the native `disabled` attribute clears; raise it
+            to the point contrast holds (~5.3:1) using the same token-based approach as the muted-foreground fix. */}
+        <Button variant="outline" size="sm" disabled={busy || !variable} data-testid="qual-export" className="disabled:opacity-60">
           <Download aria-hidden /> Export
         </Button>
       </DropdownMenuTrigger>

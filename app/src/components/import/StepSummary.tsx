@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Notice } from "@/components/ui/form";
 import { WhyItMatters } from "@/components/ui/why";
-import { buildImportParams, findResponseSets } from "@/lib/importLogic";
+import { buildImportParams, findResponseSets, formatRowFilterGroup, groupRowFilters } from "@/lib/importLogic";
 import { useImportFlow } from "@/stores/importFlow";
 import { LinkReportView } from "./StepLinking";
 
@@ -18,18 +18,21 @@ export function StepSummary() {
   }, [survey, preview, d, surveyMatch, result, checkSurvey]);
   if (!preview || !d) return <Notice>Statly is still reading your files…</Notice>;
 
+  const fileName = (fileId: string | null) => preview.files.find((f) => f.file_id === fileId)?.name ?? "file";
+
   if (result) {
     const log = result.meta.import_log;
+    const removedGroups = groupRowFilters(log.row_filters);
     return (
       <div className="grid gap-4" data-testid="import-done">
         <Notice tone="info" role="status">
           Imported {result.meta.n_rows.toLocaleString()} responses and {result.meta.variables.length} variables.
         </Notice>
-        {log.row_filters.length > 0 && (
+        {removedGroups.length > 0 && (
           <ul className="grid gap-1 text-sm">
-            {log.row_filters.map((f) => (
-              <li key={f.id}>
-                {f.explanation} <strong>{f.rows_removed.toLocaleString()} removed.</strong>
+            {removedGroups.map((g) => (
+              <li key={`${g.kind}:${g.threshold ?? ""}:${(g.values ?? []).join("|")}`}>
+                {formatRowFilterGroup(g, fileName)} <strong>{g.rowsRemoved.toLocaleString()} removed.</strong>
               </li>
             ))}
           </ul>
@@ -70,7 +73,9 @@ export function StepSummary() {
     [
       "Left out",
       params.row_filters.length
-        ? params.row_filters.map((f) => (f.kind === "progress_below" ? `progress below ${f.threshold}%` : f.kind === "exclude_unfinished" ? "unfinished" : (f.values ?? []).join(", "))).join("; ")
+        ? groupRowFilters(params.row_filters)
+            .map((g) => formatRowFilterGroup(g, fileName))
+            .join("; ")
         : "nothing",
     ],
     ["Survey system columns", d.hideMetadata ? "hidden in the data table" : "shown"],

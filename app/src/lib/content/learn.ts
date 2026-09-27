@@ -156,15 +156,23 @@ export function glossaryMarkers(md: string): string[] {
   return [...new Set([...md.matchAll(/\{\{\s*([a-z0-9_]+)\s*\}\}/g)].map((m) => m[1]))];
 }
 
+/** Capitalize the first character of a string, leaving the rest untouched. */
+export function capitalizeFirst(s: string): string {
+  return s.length > 0 ? s[0].toUpperCase() + s.slice(1) : s;
+}
+
 /**
  * Turn `{{key}}` markers into `[term](glossary:key)` links that the Markdown renderer shows as
- * glossary popovers. Unknown keys fall back to their plain words.
+ * glossary popovers. Unknown keys fall back to their plain words. A marker at the very start of
+ * the paragraph (offset 0) gets its display text capitalized, since that's where a sentence begins.
  */
 export function linkGlossaryTerms(md: string): string {
-  return md.replace(/\{\{\s*([a-z0-9_]+)\s*\}\}/g, (_m, key: string) => {
+  return md.replace(/\{\{\s*([a-z0-9_]+)\s*\}\}/g, (_m, key: string, offset: number) => {
     const e = GLOSSARY[key];
-    if (!e) return key.replace(/_/g, " ");
-    return `[${e.term.replace(/([[\]])/g, "\\$1")}](glossary:${key})`;
+    const label = e ? e.term : key.replace(/_/g, " ");
+    const text = offset === 0 ? capitalizeFirst(label) : label;
+    if (!e) return text;
+    return `[${text.replace(/([[\]])/g, "\\$1")}](glossary:${key})`;
   });
 }
 
