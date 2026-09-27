@@ -43,8 +43,17 @@ export function ProjectMenu() {
   const go = useNav((s) => s.go);
 
   const startImport = async () => {
-    if (hasData && !(await useImportFlow.getState().confirmReplace())) return;
-    go("import");
+    if (!hasData) {
+      go("import");
+      return;
+    }
+    const choice = await useImportFlow.getState().confirmReplace();
+    if (choice === "cancel") return;
+    if (choice === "replace") {
+      go("import");
+      return;
+    }
+    await newProject();
   };
 
   return (

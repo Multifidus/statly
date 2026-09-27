@@ -9,6 +9,7 @@ import { useNav } from "@/stores/nav";
 import { useProjectStore } from "@/stores/project";
 import { ImportReplaceDialog } from "./ImportReplaceDialog";
 import { ProjectMenu } from "./ProjectMenu";
+import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 
 async function importMessy() {
   useProjectStore.getState().newProject("Thesis");
@@ -53,7 +54,7 @@ describe("ProjectMenu: Home and Import data…", () => {
     expect(screen.queryByText(/replace this project's data/i)).not.toBeInTheDocument();
   });
 
-  it("confirms before replacing an already-loaded dataset, and only navigates on Continue", async () => {
+  it("offers a new project before replacing an already-loaded dataset, and only navigates on Replace", async () => {
     const user = userEvent.setup();
     await importMessy();
     render(
@@ -64,14 +65,15 @@ describe("ProjectMenu: Home and Import data…", () => {
     );
     await user.click(screen.getByTestId("project-menu"));
     await user.click(screen.getByTestId("project-menu-import"));
-    expect(await screen.findByText(/replace this project's data/i)).toBeVisible();
+    expect(await screen.findByText(/import into a new project/i)).toBeVisible();
     expect(useNav.getState().view).toBe("data");
 
-    await user.click(screen.getByTestId("import-replace-confirm"));
+    await user.click(screen.getByTestId("import-replace-replace"));
     expect(useNav.getState().view).toBe("import");
+    expect(useDatasetStore.getState().meta).not.toBeNull();
   });
 
-  it("cancelling the replace prompt stays put and leaves the dataset alone", async () => {
+  it("cancelling the prompt stays put and leaves the dataset alone", async () => {
     const user = userEvent.setup();
     await importMessy();
     render(
@@ -82,10 +84,56 @@ describe("ProjectMenu: Home and Import data…", () => {
     );
     await user.click(screen.getByTestId("project-menu"));
     await user.click(screen.getByTestId("project-menu-import"));
-    await screen.findByText(/replace this project's data/i);
+    await screen.findByText(/import into a new project/i);
     await user.click(screen.getByTestId("import-replace-cancel"));
     expect(useNav.getState().view).toBe("data");
     expect(useDatasetStore.getState().meta).not.toBeNull();
+  });
+
+  it("New project (no unsaved changes) opens a fresh, untitled project and goes to Import", async () => {
+    const user = userEvent.setup();
+    await importMessy();
+    useProjectStore.setState({ dirty: false });
+    render(
+      <>
+        <ProjectMenu />
+        <ImportReplaceDialog />
+      </>,
+    );
+    await user.click(screen.getByTestId("project-menu"));
+    await user.click(screen.getByTestId("project-menu-import"));
+    await screen.findByText(/import into a new project/i);
+    expect(screen.queryByText(/unsaved changes/i)).not.toBeInTheDocument();
+
+    await user.click(screen.getByTestId("import-replace-new"));
+    expect(useNav.getState().view).toBe("import");
+    expect(useProjectStore.getState().project?.name).toBe("Untitled project");
+    expect(useDatasetStore.getState().meta).toBeNull();
+  });
+
+  it("New project (with unsaved changes) asks before closing this project, then starts fresh", async () => {
+    const user = userEvent.setup();
+    await importMessy();
+    expect(useProjectStore.getState().dirty).toBe(true);
+    render(
+      <>
+        <ProjectMenu />
+        <ImportReplaceDialog />
+        <UnsavedChangesDialog />
+      </>,
+    );
+    await user.click(screen.getByTestId("project-menu"));
+    await user.click(screen.getByTestId("project-menu-import"));
+    await screen.findByText(/you have unsaved changes/i);
+
+    await user.click(screen.getByTestId("import-replace-new"));
+    expect(await screen.findByText(/start a new project/i)).toBeVisible();
+    expect(useNav.getState().view).toBe("data");
+
+    await user.click(screen.getByRole("button", { name: "Don't save" }));
+    expect(useNav.getState().view).toBe("import");
+    expect(useProjectStore.getState().project?.name).toBe("Untitled project");
+    expect(useDatasetStore.getState().meta).toBeNull();
   });
 
   it("entering Import through go() always starts the flow clean", async () => {

@@ -154,7 +154,8 @@ export default function App() {
           type="button"
           onClick={() => useNav.getState().go("home")}
           aria-label="Home"
-          className="shrink-0 rounded text-base font-semibold tracking-tight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          title="Home"
+          className="shrink-0 cursor-pointer rounded px-1 text-base font-semibold tracking-tight outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:hover:bg-accent/50"
         >
           Statly
         </button>

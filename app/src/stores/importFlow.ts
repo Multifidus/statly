@@ -28,6 +28,10 @@ import { useProjectStore } from "@/stores/project";
 
 export type StepId = "files" | "detect" | "cleanup" | "stack" | "link" | "summary";
 
+/** Answer to the "import into a new project?" prompt: "new" opens a new, untitled project for the
+ * import; "replace" keeps replacing the current project's data; "cancel" backs out. */
+export type ImportGuardChoice = "cancel" | "new" | "replace";
+
 export const STEP_TITLES: Record<StepId, string> = {
   files: "Choose files",
   detect: "Check how we read them",
@@ -66,13 +70,14 @@ interface ImportFlowState {
   surveyMatch: ReturnType<typeof surveyMatchSummary> | null;
   /** Set after a successful import. `survey`: suggestions from the survey file, when one was added. */
   result: { meta: DatasetMeta; linkReport: LinkReport | null; survey?: SurveySuggestResult | null; surveyWarning?: string | null } | null;
-  /** Pending "replace this project's data?" prompt (ProjectMenu's "Import data…"), answered via answerGuard. */
-  guard: { resolve: (ok: boolean) => void } | null;
+  /** Pending "import into a new project?" prompt (ProjectMenu's "Import data…" with a dataset already
+   * loaded), answered via answerGuard. `hasData` records whether "Replace data in this project" applies. */
+  guard: { hasData: boolean; resolve: (choice: ImportGuardChoice) => void } | null;
 
   reset: () => void;
-  /** Ask the user to confirm before an import that would replace an already-loaded dataset. */
-  confirmReplace: () => Promise<boolean>;
-  answerGuard: (ok: boolean) => void;
+  /** Ask the user how to proceed before an import that would otherwise replace an already-loaded dataset. */
+  confirmReplace: () => Promise<ImportGuardChoice>;
+  answerGuard: (choice: ImportGuardChoice) => void;
   addFiles: (paths: string[]) => void;
   removeFile: (path: string) => void;
   /** Parse and attach a survey file (replaces any earlier one). Resolves false if it couldn't be read. */
@@ -122,15 +127,15 @@ export const useImportFlow = create<ImportFlowState>((set, get) => ({
   reset: () => set({ ...initial }),
 
   confirmReplace: () =>
-    new Promise<boolean>((resolve) => {
-      get().guard?.resolve(false);
-      set({ guard: { resolve } });
+    new Promise<ImportGuardChoice>((resolve) => {
+      get().guard?.resolve("cancel");
+      set({ guard: { hasData: !!useDatasetStore.getState().meta, resolve } });
     }),
 
-  answerGuard: (ok) => {
+  answerGuard: (choice) => {
     const g = get().guard;
     set({ guard: null });
-    g?.resolve(ok);
+    g?.resolve(choice);
   },
 
   addFiles: (paths) => {
