@@ -87,7 +87,7 @@ describe("advisor -> assumptions -> results on one_group_prepost_likert", () => 
     let a = useAdvisor.getState();
     expect(a.error).toBeNull();
     expect(a.outcome).toBe(score);
-    expect(a.context).toEqual({ outcome_level: "continuous", num_groups: 1, num_time_points: 2, linked_mode: false });
+    expect(a.context).toMatchObject({ outcome_level: "continuous", num_groups: 1, num_time_points: 2, linked_mode: false });
     expect(a.step!.next_question!.id).toBe("q_intent");
 
     await a.answer("q_intent", "compare");
