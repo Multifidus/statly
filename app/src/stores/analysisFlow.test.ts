@@ -3,10 +3,13 @@ import { resetAnalysisSession } from "@/lib/analysisSession";
 import { outcomeCandidates } from "@/lib/datasetContext";
 import type { MockEngine } from "@/mocks/engine";
 import { answerLabel, useAdvisor } from "@/stores/advisor";
+import { rpc } from "@/lib/rpc";
+import { newRequestId } from "@/lib/resultSummary";
 import { suggestedChoice, useAnalysisFlow } from "@/stores/analysisFlow";
+import { useDatasetStore } from "@/stores/dataset";
 import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
-import { importMockOneGroup, useFreshMock } from "@/test/mockTransport";
+import { importMockCategoricalOutcomes, importMockOneGroup, useFreshMock } from "@/test/mockTransport";
 
 let engine: MockEngine;
 beforeEach(() => {
@@ -168,5 +171,65 @@ describe("guided analysis flow store", () => {
     r.assumptions[0].verdict = "failed"; // normality
     expect(suggestedChoice(r, true).choice).toBe("alternative");
     expect(suggestedChoice(r, false).choice).toBe("recommended");
+  });
+
+  it("pre-selects the alternative when expected_cell_counts fails or cautions, using its explanation as the reason", async () => {
+    await toRecommendation();
+    await useAnalysisFlow.getState().runCheck();
+    const r = structuredClone(useAnalysisFlow.getState().check!.result);
+    for (const x of r.assumptions) x.verdict = "passed";
+    const expectedCounts = {
+      schema_version: 1 as const,
+      assumption: "expected_cell_counts",
+      label: "Expected cell counts",
+      test_used: { key: "expected_cell_counts_rule", label: "Expected cell counts (rule of thumb)" },
+      statistic: { symbol: "E_min", value: 3.3, df: [] as [] },
+      p: null,
+      verdict: "failed" as const,
+      explanation: "25% of the cells have an expected count below 5 (smallest 3.30). Because the smallest expected count (3.30) is below 5, this check fails. Fisher's exact test doesn't rely on large counts.",
+      applies_to: { kind: "overall" as const, label: "Q4 × Q3", group: null, n: 300 },
+      chart_refs: [],
+    };
+    r.assumptions.push(expectedCounts);
+    expect(suggestedChoice(r, true)).toEqual({ choice: "alternative", reason: expectedCounts.explanation });
+    // "caution" still counts as a failure for this check.
+    r.assumptions[r.assumptions.length - 1] = { ...expectedCounts, verdict: "caution" };
+    expect(suggestedChoice(r, true).choice).toBe("alternative");
+    // A passing check doesn't force the alternative.
+    r.assumptions[r.assumptions.length - 1] = { ...expectedCounts, verdict: "passed" };
+    expect(suggestedChoice(r, true).choice).toBe("recommended");
+    // No alternative available: the expected_cell_counts branch never fires.
+    r.assumptions[r.assumptions.length - 1] = { ...expectedCounts, verdict: "failed" };
+    expect(suggestedChoice(r, false).choice).toBe("recommended");
+  });
+
+  it("runs and logs an alternative for an already-logged result, independent of the guided-flow state", async () => {
+    await importMockCategoricalOutcomes();
+    const meta = useDatasetStore.getState().meta!;
+    const request = {
+      schema_version: 1 as const,
+      request_id: newRequestId(),
+      analysis_id: "chi_square.independence",
+      dataset_id: meta.dataset_id,
+      snapshot_id: meta.snapshot_id,
+      variables: { row: ["Q4"], column: ["Q3"] },
+      subset: [],
+      options: {},
+      corrections: [],
+      alpha: 0.05,
+      tails: "two_sided" as const,
+      ci_level: 0.95,
+    };
+    const result = await rpc.analysisRun(request);
+    const chiSquareFailed = result.assumptions.find((a) => a.assumption === "expected_cell_counts")?.verdict === "failed";
+    expect(chiSquareFailed).toBe(true); // Q4 x Q3 is the sparse table the warning is about.
+
+    const entryId = await useAnalysisFlow.getState().runAlternative(result, "fisher_exact");
+    expect(entryId).not.toBeNull();
+    const log = useProjectStore.getState().project!.test_log;
+    expect(log.map((e) => e.request.analysis_id)).toEqual(["fisher_exact"]);
+    expect(log[0].request.variables).toEqual({ row: ["Q4"], column: ["Q3"] });
+    expect(useResults.getState().currentId).toBe(entryId);
+    expect(useResults.getState().byId[entryId!].analysis_id).toBe("fisher_exact");
   });
 });

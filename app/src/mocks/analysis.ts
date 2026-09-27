@@ -1409,6 +1409,36 @@ function fisherExact2x2(table: number[][]): number {
   return Math.min(1, p);
 }
 
+/**
+ * AssumptionResult for the expected-cell-counts rule (SPEC §7.2; mirrors engine
+ * expected_counts_check / _expected_counts_assumption in categorical.py): fails when more than
+ * 20% of cells have expected count < 5, or any cell has expected count < 1 (Cochran's rule).
+ */
+function expectedCountsAssumption(expected: number[][], n: number, scopeLabel: string): AssumptionResult {
+  const flat = expected.flat();
+  const smallest = Math.min(...flat);
+  const share = flat.filter((v) => v < 5).length / flat.length;
+  const failed = share > 0.2 || smallest < 1;
+  const text = failed
+    ? `${Math.round(share * 100)}% of the cells have an expected count below 5 (smallest ${f2(smallest)}). ` +
+      `The chi-square p-value can be inaccurate with counts this small. Because the smallest expected count ` +
+      `(${f2(smallest)}) is below 5, this check fails. Fisher's exact test doesn't rely on large counts.`
+    : `Every expected count is at least 5 (smallest ${f2(smallest)}). Because every expected count is at least ` +
+      `5 (smallest: ${f2(smallest)}), the chi-square test's p-value should be accurate.`;
+  return {
+    schema_version: 1,
+    assumption: "expected_cell_counts",
+    label: "Expected cell counts",
+    test_used: { key: "expected_cell_counts_rule", label: "Expected cell counts (rule of thumb)" },
+    statistic: { symbol: "E_min", value: smallest, df: [] },
+    p: null,
+    verdict: failed ? "failed" : "passed",
+    explanation: text,
+    applies_to: { kind: "overall", label: scopeLabel, group: null, n },
+    chart_refs: [],
+  };
+}
+
 function categoricalTable(title: string, colVar: string, x: ReturnType<typeof crosstabOf>, stat: number | null, df: number | null, p: number, esKey: string, es: number | null): ApaTable {
   const cols = ["", ...x.colLevels, "Total"];
   const rows: ApaTable["rows"] = x.table.map((row, i) => ({
@@ -1451,7 +1481,6 @@ function chiSquareIndependenceRun(req: AnalysisRequest, meta: DatasetMeta, cell:
   if (x.rowLevels.length < 2 || x.colLevels.length < 2) invalid(`Both "${rowVar}" and "${colVar}" need at least two categories with data.`);
   const { stat, df, expected } = chiSquareStat(x.table);
   const p = chi2Sf(stat, df);
-  const minExpected = Math.min(...expected.flat());
   const k = Math.min(x.rowLevels.length, x.colLevels.length);
   const v = Math.sqrt(stat / (x.n * (k - 1)));
   out.statistics = [{ key: "chi_square", label: "Pearson chi-square", symbol: "χ²", value: stat, df: [df], p, term: null }];
@@ -1472,7 +1501,9 @@ function chiSquareIndependenceRun(req: AnalysisRequest, meta: DatasetMeta, cell:
   ];
   out.apa_table = categoricalTable(`${rowVar} by ${colVar}`, colVar, x, stat, df, p, "V", v);
   out.inputs = { ...out.inputs, n_used: x.n, n_excluded: x.excluded, n_by_group: [] };
-  if (minExpected < 5) out.warnings.push({ code: "low_expected_count", severity: "caution", message: `At least one cell has an expected count under 5 (lowest ${f2(minExpected)}); Fisher's exact test is more reliable here.` });
+  const expectedAssumption = expectedCountsAssumption(expected, x.n, `${rowVar} × ${colVar}`);
+  out.assumptions.push(expectedAssumption);
+  if (expectedAssumption.verdict === "failed") out.warnings.push({ code: "low_expected_counts", severity: "caution", message: expectedAssumption.explanation });
   return out;
 }
 

@@ -56,6 +56,11 @@ interface FlowState {
   runCheck: () => Promise<boolean>;
   goAssumption: (index: number) => void;
   choose: (choice: Choice) => Promise<boolean>;
+  /** Re-run an already-logged result under a different analysis (e.g. the results page's "Run
+   * Fisher's exact test instead" button): same variables/dataset, a fresh request id, logged like
+   * any other run. Independent of the guided-flow state (`roles`/`analysisId`), since the source
+   * result may be an older Test Log entry, not the one currently being set up. */
+  runAlternative: (result: AnalysisResult, altAnalysisId: string) => Promise<string | null>;
   reset: () => void;
 }
 
@@ -244,6 +249,25 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
       }
     },
 
+    runAlternative: async (result, altAnalysisId) => {
+      set({ busy: true, error: null });
+      try {
+        const catalog = await get().loadCatalog();
+        if (!catalog.some((a) => a.analysis_id === altAnalysisId)) {
+          set({ busy: false, error: "Statly can't run this test yet." });
+          return null;
+        }
+        const request: AnalysisRequest = { ...result.inputs.request, analysis_id: altAnalysisId, request_id: newRequestId() };
+        const altResult = await rpc.analysisRun(request);
+        const entryId = log(request, altResult);
+        set({ busy: false });
+        return entryId;
+      } catch (e) {
+        set({ busy: false, error: runError(e) });
+        return null;
+      }
+    },
+
     reset: () => set({ ...INITIAL }),
   };
 });
@@ -260,6 +284,12 @@ export function suggestedChoice(result: AnalysisResult, hasAlternative: boolean)
   const caution = result.assumptions.filter((a) => a.verdict === "caution");
   if (!hasAlternative) {
     return { choice: "recommended", reason: failed.length ? "There is no rank-based alternative for this test, so run it and mention the concern when you report it." : "The checks look fine for this test." };
+  }
+  // Expected cell counts (chi-square/goodness-of-fit): a "caution" verdict here still means the
+  // large-sample approximation is shaky, so it counts as a failure for the default choice too.
+  const expectedCounts = result.assumptions.find((a) => a.assumption === "expected_cell_counts");
+  if (expectedCounts && (expectedCounts.verdict === "failed" || expectedCounts.verdict === "caution")) {
+    return { choice: "alternative", reason: expectedCounts.explanation };
   }
   if (failed.some((a) => a.assumption.startsWith("normality") || a.assumption === "symmetry_of_differences" || a.assumption === "outliers")) {
     const smallest = Math.min(...failed.map((a) => a.applies_to.n ?? Infinity));

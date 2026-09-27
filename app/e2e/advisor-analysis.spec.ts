@@ -181,8 +181,65 @@ test("Test Advisor: a categorical outcome (pass/fail) reaches chi-square, not ju
   await expect(page.getByTestId("role-column")).toHaveValue("Q2");
   await page.getByTestId("flow-run").click();
 
-  // No assumption walk-through for this mock test; it lands straight on results.
+  // Q3 x Q2 has no small expected counts, so the expected-cell-counts check passes and the
+  // decision step still suggests the recommended chi-square test.
+  await expect(page.getByTestId("assumption-verdict")).toHaveAttribute("data-verdict", "passed");
+  await page.getByTestId("assumption-next").click();
+  await expect(page.getByTestId("decision-suggestion")).toContainText("Statly suggests: Chi-square test of independence");
+  await page.getByTestId("decision-confirm").click();
+
   await expect(page.getByTestId("results-view")).toBeVisible();
   await expect(page.getByTestId("apa-sentence")).toContainText(/χ²\(\d+\) = \d+\.\d\d/);
   await expect(page.getByTestId("apa-table")).toContainText("Table 1");
+});
+
+test("Test Advisor: chi-square's low-expected-counts check switches the decision step to Fisher's exact test, and the results warning can switch too", async ({ page }) => {
+  await importCategorical(page);
+  await finishInterview(page);
+
+  await page.getByTestId("tab-advisor").click();
+
+  // Pick Q4 (extra-credit yes/no) as the outcome: sparse against Q3 (pass/fail), 10 Yes / 290 No.
+  await page.getByTestId("advisor-outcome").selectOption("Q4");
+  const question = page.getByTestId("advisor-question");
+  await question.getByText("Did scores change over time, or differ between groups?").click();
+  await page.getByTestId("advisor-next").click();
+
+  const rec = page.getByTestId("recommendation");
+  await expect(page.getByTestId("rec-primary")).toHaveText(/Chi-square test of independence/);
+  await expect(rec).toContainText("Fisher's exact test");
+  await page.getByTestId("rec-continue").click();
+
+  await expect(page.getByTestId("role-row")).toHaveValue("Q4");
+  await page.getByTestId("role-column").selectOption("Q3");
+  await page.getByTestId("flow-run").click();
+
+  // The expected-cell-counts assumption fails for this sparse table.
+  await expect(page.getByTestId("assumption-verdict")).toHaveAttribute("data-verdict", "failed");
+  await expect(page.locator("#assumption-title")).toContainText("Expected cell counts");
+  await expect(page.getByTestId("assumption-verdict")).toContainText(/below 5/);
+  await page.getByTestId("assumption-next").click();
+
+  // Fisher's exact test is pre-selected, with the assumption's explanation as the reason.
+  await expect(page.getByTestId("decision-suggestion")).toContainText("Statly suggests: Fisher's exact test");
+  await expect(page.getByTestId("decision-suggestion")).toContainText(/below 5/);
+  await expect(page.locator("#choice-alternative")).toHaveAttribute("data-state", "checked");
+
+  // Override to the recommended chi-square test, to see the results-page warning and its button.
+  await page.locator("#choice-recommended").click();
+  await page.getByTestId("decision-confirm").click();
+
+  await expect(page.getByTestId("results-view")).toBeVisible();
+  await expect(page.getByTestId("apa-sentence")).toContainText("chi-square test of independence");
+  const warning = page.getByTestId("result-warnings");
+  await expect(warning).toContainText(/below 5/);
+  await warning.getByTestId("run-fisher-instead").click();
+
+  // The one-click switch reruns Fisher's exact test on the same Q4 x Q3 table and shows its
+  // results, logged as its own Test Log entry.
+  await expect(page.getByTestId("apa-sentence")).toContainText("Fisher's exact test");
+  await page.getByTestId("to-analyses").click();
+  const log = page.getByTestId("test-log");
+  await expect(log.getByText(/^Fisher's exact test · Q4/)).toBeVisible();
+  await expect(log.getByText(/^Chi-square test of independence · Q4/)).toBeVisible();
 });

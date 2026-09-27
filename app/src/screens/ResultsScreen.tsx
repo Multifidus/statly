@@ -8,7 +8,9 @@ import { RichText } from "@/components/results/RichText";
 import { ResultsView } from "@/components/results/ResultsView";
 import { FamilyBadge } from "@/components/testlog/FamilyBadge";
 import { sentencePayload } from "@/lib/apa";
+import { useAnalysisFlow } from "@/stores/analysisFlow";
 import { useNav } from "@/stores/nav";
+import { useNotify } from "@/stores/notify";
 import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
 import { useTestLog } from "@/stores/testLog";
@@ -23,6 +25,15 @@ export function ResultsScreen() {
   const go = useNav((s) => s.go);
   const focused = useRef<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const runFisher = async () => {
+    if (!result) return;
+    const entryId = await useAnalysisFlow.getState().runAlternative(result, "fisher_exact");
+    if (!entryId) {
+      const err = useAnalysisFlow.getState().error;
+      useNotify.getState().show(err ?? "Statly couldn't run Fisher's exact test.", "error");
+    }
+  };
 
   useEffect(() => {
     if (id && !result) void useResults.getState().reopen(id);
@@ -93,7 +104,7 @@ export function ResultsScreen() {
       </AlertDialog>
 
       {result ? (
-        <ResultsView result={result} title={entry.result_summary.analysis_label} badge={entry.family_id ? <FamilyBadge entry={entry} /> : undefined} />
+        <ResultsView result={result} title={entry.result_summary.analysis_label} badge={entry.family_id ? <FamilyBadge entry={entry} /> : undefined} onRunFisher={() => void runFisher()} />
       ) : loading ? (
         <p className="flex items-center gap-2 text-muted-foreground" role="status">
           <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden /> Loading the full results…

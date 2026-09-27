@@ -99,4 +99,38 @@ describe("ResultsView", () => {
     expect(within(assumptions).getByTestId("chart-qq")).toBeInTheDocument();
     expect(within(assumptions).getByTestId("save-figure")).toBeInTheDocument();
   });
+
+  it("shows 'Run Fisher's exact test instead' on chi-square's low_expected_counts warning and fires onRunFisher", async () => {
+    const base = structuredClone(example) as unknown as AnalysisResult;
+    const result: AnalysisResult = {
+      ...base,
+      analysis_id: "chi_square.independence",
+      warnings: [{ code: "low_expected_counts", severity: "caution", message: "25% of the cells have an expected count below 5 (smallest 3.30)." }],
+    };
+    const onRunFisher = vi.fn();
+    render(<ResultsView result={result} title="Chi-square test of independence" onRunFisher={onRunFisher} />);
+    const button = screen.getByTestId("run-fisher-instead");
+    expect(within(screen.getByTestId("result-warnings")).getByText(/smallest 3.30/)).toBeInTheDocument();
+    await userEvent.click(button);
+    expect(onRunFisher).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not show the Fisher button for other warning codes or other analyses", () => {
+    const base = structuredClone(example) as unknown as AnalysisResult;
+    const otherCode: AnalysisResult = { ...base, analysis_id: "chi_square.independence", warnings: [{ code: "small_sample", severity: "caution", message: "Only 12 people are in the table." }] };
+    const { unmount } = render(<ResultsView result={otherCode} title="x" onRunFisher={vi.fn()} />);
+    expect(screen.queryByTestId("run-fisher-instead")).toBeNull();
+    unmount();
+
+    const otherAnalysis: AnalysisResult = { ...base, analysis_id: "fisher_exact", warnings: [{ code: "low_expected_counts", severity: "caution", message: "..." }] };
+    render(<ResultsView result={otherAnalysis} title="x" onRunFisher={vi.fn()} />);
+    expect(screen.queryByTestId("run-fisher-instead")).toBeNull();
+  });
+
+  it("does not show the Fisher button when no onRunFisher handler is passed", () => {
+    const base = structuredClone(example) as unknown as AnalysisResult;
+    const result: AnalysisResult = { ...base, analysis_id: "chi_square.independence", warnings: [{ code: "low_expected_counts", severity: "caution", message: "..." }] };
+    render(<ResultsView result={result} title="x" />);
+    expect(screen.queryByTestId("run-fisher-instead")).toBeNull();
+  });
 });

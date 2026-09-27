@@ -47,11 +47,16 @@ function effectText(e: EffectSize): string {
   return ` = ${fmtNum(e.value, 2, b)}${ci}`;
 }
 
-function WarningNote({ w }: { w: ResultWarning }) {
+function WarningNote({ w, onRunFisher }: { w: ResultWarning; onRunFisher?: () => void }) {
   return (
-    <Notice tone={w.severity === "serious" ? "error" : w.severity === "caution" ? "warn" : "info"} className="flex gap-2">
+    <Notice tone={w.severity === "serious" ? "error" : w.severity === "caution" ? "warn" : "info"} className="flex flex-wrap items-center gap-2">
       {w.severity === "info" ? <Info className="size-4 shrink-0" aria-hidden /> : <AlertTriangle className="size-4 shrink-0" aria-hidden />}
-      <span>{w.message}</span>
+      <span className="flex-1">{w.message}</span>
+      {onRunFisher && (
+        <Button size="sm" variant="outline" onClick={onRunFisher} data-testid="run-fisher-instead">
+          Run Fisher&apos;s exact test instead
+        </Button>
+      )}
     </Notice>
   );
 }
@@ -61,7 +66,19 @@ function WarningNote({ w }: { w: ResultWarning }) {
  * first, key numbers, APA sentence (copy), APA tables, effect sizes, assumptions,
  * descriptives, warnings and "How to report this" from the Learn page.
  */
-export function ResultsView({ result, title, badge }: { result: AnalysisResult; title: string; badge?: React.ReactNode }) {
+export function ResultsView({
+  result,
+  title,
+  badge,
+  onRunFisher,
+}: {
+  result: AnalysisResult;
+  title: string;
+  badge?: React.ReactNode;
+  /** Handler for the low-expected-counts warning's "Run Fisher's exact test instead" button.
+   * Only rendered when the caller passes it (chi-square test of independence results). */
+  onRunFisher?: () => void;
+}) {
   const stat = primaryStatistic(result);
   const effect = primaryEffect(result);
   const page = learnPageFor(result.analysis_id);
@@ -115,7 +132,11 @@ export function ResultsView({ result, title, badge }: { result: AnalysisResult; 
       {result.warnings.length > 0 && (
         <div className="grid gap-2" data-testid="result-warnings">
           {result.warnings.map((w, i) => (
-            <WarningNote key={`${w.code}-${i}`} w={w} />
+            <WarningNote
+              key={`${w.code}-${i}`}
+              w={w}
+              onRunFisher={w.code === "low_expected_counts" && result.analysis_id === "chi_square.independence" ? onRunFisher : undefined}
+            />
           ))}
         </div>
       )}

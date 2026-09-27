@@ -21,6 +21,7 @@ export function useFreshMock(opts: { seedAutosave?: boolean } = {}): MockEngine 
 }
 
 export const ONE_GROUP = ["pre", "post"].map((t) => `/mock/fixtures/one_group_prepost_likert/${t}.csv`);
+export const CATEGORICAL_OUTCOMES = "/mock/fixtures/categorical_outcomes/survey.csv";
 
 /** Import the mock one-group pre/post Likert files (aggregate) and score the Q3 matrix as a scale. */
 export async function importMockOneGroup(): Promise<import("@/contracts").DatasetMeta> {
@@ -41,6 +42,23 @@ export async function importMockOneGroup(): Promise<import("@/contracts").Datase
   const res = await rpc.upsertScale({ dataset_id: meta.dataset_id, scale: { name: "Reading attitude", items, scoring_method: "mean" } });
   useDatasetStore.getState().setMeta(res.dataset_meta);
   return res.dataset_meta;
+}
+
+/** Import the mock all-categorical survey (Q2 program, Q3 pass/fail, Q4 extra-credit yes/no...),
+ * for chi-square/Fisher tests. A single Qualtrics-style file: no paired/linked setup needed. */
+export async function importMockCategoricalOutcomes(): Promise<import("@/contracts").DatasetMeta> {
+  const { findNoncontiguous, findResponseSets } = await import("@/lib/importLogic");
+  useProjectStore.getState().newProject("Categorical outcomes");
+  const s = useImportFlow.getState();
+  s.addFiles([CATEGORICAL_OUTCOMES]);
+  if (!(await s.runPreview())) throw new Error(useImportFlow.getState().error ?? "preview failed");
+  const { preview, update } = useImportFlow.getState();
+  update({
+    responseConfirmed: Object.fromEntries(findResponseSets(preview!.files).map((x) => [x.key, true])),
+    noncontiguousAck: Object.fromEntries(findNoncontiguous(preview!.files).map((v) => [v.variable, true])),
+  });
+  if (!(await useImportFlow.getState().commit())) throw new Error(useImportFlow.getState().error ?? "import failed");
+  return useDatasetStore.getState().meta!;
 }
 
 /** Import the mock linked mixed-design files (three groups x three linked time points, stand-in
