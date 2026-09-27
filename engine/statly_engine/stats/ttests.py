@@ -117,10 +117,11 @@ def one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
 
     # APA + plain language
     mu_txt = apa.num(mu) if not float(mu).is_integer() else str(int(mu))
-    r = Rich().t(f"{vl} scores (").i("M").t(f" = {apa.num(desc['mean'])}, ").i("SD").t(f" = {apa.num(desc['sd'])}) ")
+    vlp = prep.quote_if_sentence(vl)
+    r = Rich().t(f"{vlp} scores (").i("M").t(f" = {apa.num(desc['mean'])}, ").i("SD").t(f" = {apa.num(desc['sd'])}) ")
     if constant:
         r.t(f"could not be compared with the test value of {mu_txt} because every score was the same.")
-        summary = f"Every {vl} score was the same, so the average can't be tested against {mu_txt}."
+        summary = f"Every {vlp} score was the same, so the average can't be tested against {mu_txt}."
     else:
         sig = p < alpha
         if sig:
@@ -129,7 +130,7 @@ def one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
             r.t(f"did not differ significantly from the test value of {mu_txt}, ")
         _stats_clause(r, "t", [n - 1], t, p, "d", d).t(".")
         direction = "higher" if t > 0 else "lower"
-        summary = (f"On average, {vl} scores ({apa.num(desc['mean'])}) were {direction} than {mu_txt}. "
+        summary = (f"On average, {vlp} scores ({apa.num(desc['mean'])}) were {direction} than {mu_txt}. "
                    + ("This difference is unlikely to be due to chance alone" if sig else
                       "This difference could easily be due to chance, so there is no strong evidence the "
                       "true average differs from " + mu_txt) + f" ({_p_phrase(p)})."
@@ -243,19 +244,20 @@ def independent(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
 
     # APA sentence + plain-language summary
     lab = tests[order[0]][2]
+    vlp = prep.quote_if_sentence(vl)
     r = Rich().t(f"An independent-samples {'Welch' if variant == 'welch' else 'Student'} ").i("t").t(" test ")
     desc_run = lambda d, nm: Rich().t(f"{nm} (").i("M").t(f" = {apa.num(d['mean'])}, ").i("SD").t(f" = {apa.num(d['sd'])})")  # noqa: E731
     if not finite(t):
-        r.t(f"could not be computed because {vl} scores do not vary within either group.")
-        summary = f"{vl} scores did not vary within the groups, so the groups can't be compared with a t test."
+        r.t(f"could not be computed because {vlp} scores do not vary within either group.")
+        summary = f"{vlp} scores did not vary within the groups, so the groups can't be compared with a t test."
     else:
         sig = p < alpha
         higher = "higher" if t > 0 else "lower"
         if sig:
-            r.t(f"showed that {vl} scores were significantly {higher} for ").extend(desc_run(d1, names[0])) \
+            r.t(f"showed that {vlp} scores were significantly {higher} for ").extend(desc_run(d1, names[0])) \
                 .t(" than for ").extend(desc_run(d2, names[1])).t(", ")
         else:
-            r.t(f"showed no significant difference in {vl} scores between ").extend(desc_run(d1, names[0])) \
+            r.t(f"showed no significant difference in {vlp} scores between ").extend(desc_run(d1, names[0])) \
                 .t(" and ").extend(desc_run(d2, names[1])).t(", ")
         _stats_clause(r, "t", [dfh], t, p, "g", hg).t(".")
         hi_name, lo_name = (names[0], names[1]) if t > 0 else (names[1], names[0])
@@ -414,6 +416,7 @@ def paired(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.inputs(n, data["n_excluded"], [(data["groups"][0], n), (data["groups"][1], n)] if data["groups"][0] else [],
              excluded_reasons=data["reasons"])
 
+    names_p = [prep.quote_if_sentence(nm) for nm in names]
     r = Rich().t("A paired-samples ").i("t").t(" test ")
     desc_run = lambda d, nm: Rich().t(f"{nm} (").i("M").t(f" = {apa.num(d['mean'])}, ").i("SD").t(f" = {apa.num(d['sd'])})")  # noqa: E731
     if constant:
@@ -423,12 +426,12 @@ def paired(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         sig = p < alpha
         if sig:
             r.t(f"showed that scores were significantly {'higher' if t > 0 else 'lower'} at ") \
-                .extend(desc_run(d1, names[0])).t(" than at ").extend(desc_run(d2, names[1])).t(", ")
+                .extend(desc_run(d1, names_p[0])).t(" than at ").extend(desc_run(d2, names_p[1])).t(", ")
         else:
-            r.t("showed no significant difference between ").extend(desc_run(d1, names[0])).t(" and ") \
-                .extend(desc_run(d2, names[1])).t(", ")
+            r.t("showed no significant difference between ").extend(desc_run(d1, names_p[0])).t(" and ") \
+                .extend(desc_run(d2, names_p[1])).t(", ")
         _stats_clause(r, "t", [n - 1], t, p, dav_sym, dav).t(".")
-        hi, lo = (names[0], names[1]) if t > 0 else (names[1], names[0])
+        hi, lo = (names_p[0], names_p[1]) if t > 0 else (names_p[1], names_p[0])
         summary = (f"For the {n} people with both scores, scores were higher at {hi} than at {lo} on average "
                    f"(a difference of {apa.num(abs(md.value))} points). " +
                    ("This change is unlikely to be due to chance alone" if sig else

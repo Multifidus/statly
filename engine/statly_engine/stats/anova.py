@@ -225,19 +225,20 @@ def _oneway(df: pd.DataFrame, request, meta, variant: str) -> dict:
 
     test_name = "one-way ANOVA" if variant == "classic" else "Welch's one-way ANOVA"
     eta = effects["eta_sq"]
+    vlp, glp = prep.quote_if_sentence(d["vl"]), prep.quote_if_sentence(d["gl"])
     r = Rich().t(f"{'A one-way ANOVA' if variant == 'classic' else 'Welch' + chr(39) + 's one-way ANOVA'} ")
     if f is None:
-        r.t(f"could not be computed for {d['vl']} across the groups of {d['gl']}.")
-        summary = (f"The {test_name} could not be calculated because {d['vl']} scores do not vary within the "
+        r.t(f"could not be computed for {vlp} across the groups of {glp}.")
+        summary = (f"The {test_name} could not be calculated because {vlp} scores do not vary within the "
                    "groups" + (" (at least one group has identical scores)." if variant == "welch" else "."))
     else:
         sig = p < alpha
-        r.t(f"showed that {d['vl']} scores {'differed significantly' if sig else 'did not differ significantly'} "
-            f"across the {k} groups of {d['gl']}, ").stat("F", dfs, f).t(", ").p(p)
+        r.t(f"showed that {vlp} scores {'differed significantly' if sig else 'did not differ significantly'} "
+            f"across the {k} groups of {glp}, ").stat("F", dfs, f).t(", ").p(p)
         if eta.value is not None:
             r.t(", ").es(ETA, eta.value, eta.lower, eta.upper, level, bounded=True)
         r.t(".")
-        summary = (f"Average {d['vl']} scores were compared across the {k} groups of {d['gl']} ({_range_phrase(rows)}). "
+        summary = (f"Average {vlp} scores were compared across the {k} groups of {glp} ({_range_phrase(rows)}). "
                    + ("Differences this large are unlikely to be due to chance alone" if sig else
                       "The differences could easily be due to chance, so there is no strong evidence that the "
                       "groups really differ") + f" ({p_phrase(p)})." + _size_sentence("η²", eta)
@@ -475,14 +476,16 @@ def repeated_measures(df: pd.DataFrame, request, meta: dict | None = None) -> di
     corr_txt = {"none": "", "gg": "with a Greenhouse-Geisser correction ",
                 "hf": "with a Huynh-Feldt correction "}[used]
     pes = es["partial_eta_sq"]
+    olp = prep.quote_if_sentence(d["outcome_label"])
+    tlp = prep.quote_if_sentence(d["time_label"]) if d["groups"][0] else None
     r = Rich().t(f"A repeated-measures ANOVA {corr_txt}")
     if f is None:
         r.t("could not be computed because every person changed by exactly the same amount.")
         summary = "Every person's scores changed in exactly the same way, so there is no variation to test."
     else:
         sig = p_head < alpha
-        r.t(f"showed that {d['outcome_label']} scores {'differed significantly' if sig else 'did not differ significantly'} "
-            f"across the {k} {'measures' if not d['groups'][0] else d['time_label'] + ' points'}, ") \
+        r.t(f"showed that {olp} scores {'differed significantly' if sig else 'did not differ significantly'} "
+            f"across the {k} {'measures' if not d['groups'][0] else tlp + ' points'}, ") \
             .stat("F", df_head, f).t(", ").p(p_head)
         if pes.value is not None:
             r.t(", ").es(ETA_P, pes.value, pes.lower, pes.upper, level, bounded=True)

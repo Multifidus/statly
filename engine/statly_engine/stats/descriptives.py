@@ -157,8 +157,8 @@ def run_descriptives(df: pd.DataFrame, request, meta: dict | None = None) -> dic
         b.summary(_summary(rows, meta))
     else:
         b.table(b.additional_tables.pop(0) if b.additional_tables else None)
-        b.sentence(_freq_sentence(b.frequencies[0], prep.label(meta, b.frequencies[0]["variable"])))
-        b.summary(_freq_summary(b.frequencies[0], prep.label(meta, b.frequencies[0]["variable"])))
+        b.sentence(_freq_sentence(b.frequencies[0], prep.label_in_prose(meta, b.frequencies[0]["variable"])))
+        b.summary(_freq_summary(b.frequencies[0], prep.label_in_prose(meta, b.frequencies[0]["variable"])))
     return b.build()
 
 
@@ -197,7 +197,7 @@ def _frequency_apa(t: dict, vlabel: str, cell_label: str | None) -> dict:
 def _sentence(rows: list[dict], meta, grouped: bool) -> Rich:
     r = Rich()
     first = rows[0]["variable"]
-    vl = prep.label(meta, first)
+    vl = prep.label_in_prose(meta, first)
     cells = [x for x in rows if x["variable"] == first and (x["group"] or not grouped)]
     if not grouped:
         c = cells[0]
@@ -216,7 +216,7 @@ def _summary(rows: list[dict], meta) -> str:
     parts = []
     for name in dict.fromkeys(r["variable"] for r in rows):
         cells = [r for r in rows if r["variable"] == name and r["label"] != "Total"]
-        vl = prep.label(meta, name)
+        vl = prep.label_in_prose(meta, name)
         if len(cells) == 1:
             c = cells[0]
             if c["mean"] is None:

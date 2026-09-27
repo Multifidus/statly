@@ -342,15 +342,17 @@ def factorial(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.chart("marginal_means", marg).chart("interaction_plot", inter)
     factorial_inputs(b, d)
 
-    r = Rich().t(f"A {ka} {TIMES} {kb} between-subjects ANOVA of {d['labs']['y']} ")
+    ylp, alp, blp = (prep.quote_if_sentence(d["labs"]["y"]), prep.quote_if_sentence(d["labs"]["a"]),
+                    prep.quote_if_sentence(d["labs"]["b"]))
+    r = Rich().t(f"A {ka} {TIMES} {kb} between-subjects ANOVA of {ylp} ")
     if t["A"]["f"] is None:
         r.t("could not be computed because the scores do not vary within the groups.")
-        summary = f"The two-way ANOVA could not be calculated because {d['labs']['y']} scores do not vary within the groups."
+        summary = f"The two-way ANOVA could not be calculated because {ylp} scores do not vary within the groups."
     else:
         r.t("showed ")
         term_sentence(r, rows, alpha, level)
-        summary = (f"Mean {d['labs']['y']} was compared across the {ka * kb} groups formed by "
-                   f"{d['labs']['a']} and {d['labs']['b']}. " + term_summary(rows, alpha))
+        summary = (f"Mean {ylp} was compared across the {ka * kb} groups formed by "
+                   f"{alp} and {blp}. " + term_summary(rows, alpha))
         if rows[2]["f"] is not None and rows[2]["p"] < alpha:
             summary += (" Because of the interaction, the main effects should be read with care; simple-effects "
                         "tests show where the groups differ.")

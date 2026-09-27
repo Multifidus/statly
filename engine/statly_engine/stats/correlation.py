@@ -361,9 +361,10 @@ def _bivariate_result(request, meta, method: str, x, y, xl: str, yl: str, xname:
     b.inputs(n, n_excluded)
 
     # APA sentence + plain language
+    xlp, ylp = prep.quote_if_sentence(xl), prep.quote_if_sentence(yl)
     r_run = _sym_rich(sym)
     what = "A point-biserial correlation" if groups else ("A " + head_label if method == "pearson" else head_label)
-    s = Rich().t(f"{what} was computed to assess the relationship between {xl} and {yl}. ")
+    s = Rich().t(f"{what} was computed to assess the relationship between {xlp} and {ylp}. ")
     if res is None:
         s.t(f"It could not be computed because {' and '.join(constant)} did not vary.")
         summary = (f"{' and '.join(constant)} had the same value for everyone, so its relationship with the other "
@@ -381,9 +382,9 @@ def _bivariate_result(request, meta, method: str, x, y, xl: str, yl: str, xname:
             s.t(f", {apa.level_text(level)} CI {apa.ci_text(res['lower'], res['upper'], 2, True)}")
         s.t(f", n = {n}.")
         direction = ("higher" if r > 0 else "lower")
-        lead = (f"The {groups[1] if r > 0 else groups[0]} group tended to have higher {yl} than the "
+        lead = (f"The {groups[1] if r > 0 else groups[0]} group tended to have higher {ylp} than the "
                 f"{groups[0] if r > 0 else groups[1]} group" if groups else
-                f"People with higher {xl} tended to have {direction} {yl}")
+                f"People with higher {xlp} tended to have {direction} {ylp}")
         summary = (f"{lead}. The relationship was "
                    f"{_strength(r)}" + (" (by common benchmarks)" if magnitude(r, 'r') else "") + ". " +
                    ("It is unlikely to be due to chance alone" if sig else
@@ -537,12 +538,14 @@ def partial(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.inputs(n, n_excl)
 
     sig = res["p"] < alpha
-    s = Rich().t(f"Controlling for {cl}, there was " + ("a significant " if sig else "no significant ") +
-                 ("positive" if res["r"] > 0 else "negative") + f" partial correlation between {xl} and {yl}, ")
+    xlp, ylp = prep.quote_if_sentence(xl), prep.quote_if_sentence(yl)
+    clp = ", ".join(prep.quote_if_sentence(c) for c in cl.split(", "))
+    s = Rich().t(f"Controlling for {clp}, there was " + ("a significant " if sig else "no significant ") +
+                 ("positive" if res["r"] > 0 else "negative") + f" partial correlation between {xlp} and {ylp}, ")
     s.i("r").t(f"({res['df']}) = {apa.no_zero(res['r'])}, ").p(res["p"])
     s.t(f", {apa.level_text(level)} CI {apa.ci_text(res['lower'], res['upper'], 2, True)}.")
-    summary = (f"After taking {cl} into account, people with higher {xl} tended to have "
-               f"{'higher' if res['r'] > 0 else 'lower'} {yl}; the relationship was {_strength(res['r'])}. "
+    summary = (f"After taking {clp} into account, people with higher {xlp} tended to have "
+               f"{'higher' if res['r'] > 0 else 'lower'} {ylp}; the relationship was {_strength(res['r'])}. "
                f"Without that control the correlation was {apa.no_zero(res['zero_order'])}. " +
                ("The controlled relationship is unlikely to be due to chance alone" if sig else
                 "The controlled relationship could easily be due to chance") + f" ({_p_phrase(res['p'])}).")
@@ -719,7 +722,8 @@ def matrix(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     summary = (f"{len(sig)} of the {m} pairs of variables were significantly related"
                + (f" after the {_ADJ_NAME[adjust]} correction" if adjust != "none" else "") + ".")
     if strongest:
-        summary += (f" The strongest relationship was between {strongest['x_label']} and {strongest['y_label']} "
+        summary += (f" The strongest relationship was between {prep.quote_if_sentence(strongest['x_label'])} and "
+                    f"{prep.quote_if_sentence(strongest['y_label'])} "
                     f"({sym} = {apa.no_zero(strongest['r'])}, {_strength(strongest['r'])}).")
     s = Rich().t(f"{_NAME[method]} coefficients were computed among {k} variables (Table 1). ")
     s.t(f"{len(sig)} of {m} correlations were significant at ").i("p").t(f" < {apa.no_zero(alpha)}")

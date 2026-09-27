@@ -314,7 +314,7 @@ def _text(b: ResultBuilder, d: dict, res: dict, suppress: float, scale: str) -> 
     pa_s = res["parallel"]["suggested"]
     groups = []
     for j in range(k):
-        items = [d["labels"][i] for i in range(len(d["labels"]))
+        items = [prep.quote_if_sentence(d["labels"][i]) for i in range(len(d["labels"]))
                  if int(np.argmax(np.abs(lam[i]))) == j and abs(lam[i, j]) >= suppress]
         groups.append(f"factor {j + 1}: {', '.join(items) if items else 'no clear items'}")
     how = ("the number suggested by parallel analysis" if res["pa_note"] is None and pa_s == k and

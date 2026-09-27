@@ -31,6 +31,28 @@ def label(meta: dict | None, name: str) -> str:
     return v.get("label") or v.get("question_text") or name
 
 
+def _looks_like_sentence(text: str) -> bool:
+    """True when a label reads as a question or sentence rather than a short tag: it ends with a
+    '?' or '.', or it runs longer than about five words. Such labels are hard to parse when they're
+    embedded bare mid-sentence (e.g. "What is your program? and Did you pass? appear related")."""
+    stripped = text.strip()
+    return stripped.endswith(("?", ".")) or len(stripped.split()) > 5
+
+
+def quote_if_sentence(text: str) -> str:
+    """Wrap an already-resolved label in typographic quotes when it looks like a question or
+    sentence, so it reads clearly when embedded mid-sentence in a summary or APA sentence. Use this
+    on a label string you already have (e.g. one built via value_label()); table titles, headings
+    and axis labels should keep the plain, unquoted text instead."""
+    return f"“{text}”" if _looks_like_sentence(text) else text
+
+
+def label_in_prose(meta: dict | None, name: str) -> str:
+    """label(), wrapped for mid-sentence prose via quote_if_sentence(). Table titles, headings and
+    axis labels should keep the plain, unquoted label() instead."""
+    return quote_if_sentence(label(meta, name))
+
+
 def _is_missing(series: pd.Series, meta: dict | None, name: str) -> pd.Series:
     mask = series.isna()
     v = variable_meta(meta, name)

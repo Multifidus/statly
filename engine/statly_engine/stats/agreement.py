@@ -348,7 +348,7 @@ def cohen_kappa(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     s = Rich().t(f"The two raters showed {word} agreement ({apa.num(100 * res['unweighted']['po'], 1)}% identical ratings), ")
     s.extend(sym).t(f" = {apa.no_zero(h['kappa'])}, {apa.level_text(level)} CI {apa.ci_text(hlo, hi_, 2, True)}, ") \
         .i("z").t(f" = {apa.num(h['z'])}, ").p(h["p"]).t(".")
-    summary = (f"{d['labels'][0]} and {d['labels'][1]} gave the same rating for "
+    summary = (f"{prep.quote_if_sentence(d['labels'][0])} and {prep.quote_if_sentence(d['labels'][1])} gave the same rating for "
                f"{apa.num(100 * res['unweighted']['po'], 1)}% of the {n} cases. After removing the agreement expected "
                f"by chance, {_KAPPA_LABEL[weighting].lower().replace('cohen', 'Cohen')} is {apa.no_zero(h['kappa'])}, "
                f"which is {word} agreement by Landis and Koch's (1977) benchmarks ({_p_phrase(h['p'])} compared with "

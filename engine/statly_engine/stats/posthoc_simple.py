@@ -31,7 +31,7 @@ import pandas as pd
 from scipy import stats
 
 from statly_engine.errors import InvalidParams
-from statly_engine.stats import apa, effect_sizes_anova as esa
+from statly_engine.stats import apa, effect_sizes_anova as esa, prep
 from statly_engine.stats.anova import ETA_P, p_phrase, require_two_sided
 from statly_engine.stats.anova_factorial import (FACTORIAL_ROLES, cell_table, factorial_data, factorial_descriptives,
                                                  factorial_inputs, factorial_warnings, type3)
@@ -179,7 +179,8 @@ def simple_effects(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         for c in fm["comps"]:
             b.effect("mean_difference", "Mean difference", "Mdiff", c["md"], term=c["term"])
 
-    r = Rich().t(f"Simple-effects tests of {eff_label} at each level of {by_label} showed ")
+    eff_p, by_p = prep.quote_if_sentence(eff_label), prep.quote_if_sentence(by_label)
+    r = Rich().t(f"Simple-effects tests of {eff_p} at each level of {by_p} showed ")
     parts = []
     for n_, fm in enumerate(fams):
         if n_:
@@ -197,12 +198,12 @@ def simple_effects(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
             desc = "; ".join(f"{(c['names'][0] if c['md'].value > 0 else c['names'][1])} higher than "
                              f"{(c['names'][1] if c['md'].value > 0 else c['names'][0])} ({p_phrase(c['p'])})"
                              for c in sig_pairs)
-            parts.append(f"At {fm['level']}, {eff_label} made a difference ({p_phrase(fm['p'])})"
+            parts.append(f"At {fm['level']}, {eff_p} made a difference ({p_phrase(fm['p'])})"
                          + (f": {desc}." if desc else ", although no single pair differed clearly after adjustment."))
         else:
-            parts.append(f"At {fm['level']}, there was no clear difference across {eff_label} ({p_phrase(fm['p'])}).")
+            parts.append(f"At {fm['level']}, there was no clear difference across {eff_p} ({p_phrase(fm['p'])}).")
     r.t(".")
-    summary = (f"To follow up the interaction, {eff_label} was compared separately at each level of {by_label}. "
+    summary = (f"To follow up the interaction, {eff_p} was compared separately at each level of {by_p}. "
                + " ".join(parts))
     b.sentence(r).summary(summary)
 

@@ -269,22 +269,23 @@ def ancova(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.chart("scatter_covariate", [{"group": d["names"][codes[i]], **{cl: float(C[i, c]) for c, cl in enumerate(d["cl"])},
                                    vl: float(y[i])} for i in range(len(y))])
 
-    covtxt = " and ".join(d["cl"])
+    vlp, glp = prep.quote_if_sentence(vl), prep.quote_if_sentence(gl)
+    covtxt = " and ".join(prep.quote_if_sentence(c) for c in d["cl"])
     eta = tg["eta"]
     r = Rich().t(f"A one-way ANCOVA controlling for {covtxt} ")
     if tg["F"] is None:
-        r.t(f"could not be computed for {vl}.")
-        summary = f"The ANCOVA could not be calculated because {vl} has no variation left after the adjustment."
+        r.t(f"could not be computed for {vlp}.")
+        summary = f"The ANCOVA could not be calculated because {vlp} has no variation left after the adjustment."
     else:
         sig = tg["p"] < alpha
-        r.t(f"showed that adjusted {vl} scores {'differed significantly' if sig else 'did not differ significantly'} "
-            f"across the {k} groups of {gl}, ").stat("F", [tg["df"], m["df_e"]], tg["F"]).t(", ").p(tg["p"])
+        r.t(f"showed that adjusted {vlp} scores {'differed significantly' if sig else 'did not differ significantly'} "
+            f"across the {k} groups of {glp}, ").stat("F", [tg["df"], m["df_e"]], tg["F"]).t(", ").p(tg["p"])
         if eta.value is not None:
             r.t(", ").es(ETA_P, eta.value, eta.lower, eta.upper, level, bounded=True)
         r.t(".")
         hi = int(np.argmax(m["means"]))
         lo = int(np.argmin(m["means"]))
-        summary = (f"After adjusting for {covtxt}, average {vl} scores were compared across the {k} groups of {gl} "
+        summary = (f"After adjusting for {covtxt}, average {vlp} scores were compared across the {k} groups of {glp} "
                    f"(adjusted means highest: {d['names'][hi]}, {apa.num(m['means'][hi])}; lowest: {d['names'][lo]}, "
                    f"{apa.num(m['means'][lo])}). "
                    + ("Differences this large are unlikely to be due to chance alone" if sig else

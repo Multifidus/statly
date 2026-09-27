@@ -238,18 +238,19 @@ def mann_whitney(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.warn(small_sample_warning(counts)).warn(unequal_groups_warning(counts)).warn(missing_warning(g["n_excluded"]))
     b.inputs(n1 + n2, g["n_excluded"], [({g["gname"]: levels[0]}, n1), ({g["gname"]: levels[1]}, n2)])
 
+    vlp = prep.quote_if_sentence(vl)
     r = Rich().t("A Mann-Whitney ").i("U").t(" test ")
     if constant:
-        r.t(f"could not be computed because every {vl} score was the same.")
-        summary = f"Every {vl} score was the same, so the groups can't be compared."
+        r.t(f"could not be computed because every {vlp} score was the same.")
+        summary = f"Every {vlp} score was the same, so the groups can't be compared."
     else:
         p, sig = test["p"], test["p"] < alpha
         up = (rb.value or 0) > 0
         if sig:
-            r.t(f"showed that {vl} scores tended to be {'higher' if up else 'lower'} for ").extend(mdn_run(d1, names[0])) \
+            r.t(f"showed that {vlp} scores tended to be {'higher' if up else 'lower'} for ").extend(mdn_run(d1, names[0])) \
                 .t(" than for ").extend(mdn_run(d2, names[1])).t(", ")
         else:
-            r.t(f"showed no significant difference in {vl} scores between ").extend(mdn_run(d1, names[0])) \
+            r.t(f"showed no significant difference in {vlp} scores between ").extend(mdn_run(d1, names[0])) \
                 .t(" and ").extend(mdn_run(d2, names[1])).t(", ")
         r.stat("U", [], test["w"]).t(", ").stat("z", [], test["z"]).t(", ").p(p)
         _es_clause(r, rr).t(".")
@@ -331,18 +332,19 @@ def wilcoxon_signed_rank(df: pd.DataFrame, request, meta: dict | None = None) ->
     b.inputs(n, data["n_excluded"], [(data["groups"][0], n), (data["groups"][1], n)] if data["groups"][0] else [])
 
     up = (rb.value or 0) > 0
-    hi, lo = (names[0], names[1]) if up else (names[1], names[0])
+    names_p = [prep.quote_if_sentence(nm) for nm in names]
+    hi, lo = (names_p[0], names_p[1]) if up else (names_p[1], names_p[0])
     r = Rich().t("A Wilcoxon signed-rank test ")
     if test["n_nonzero"]:
         sent = Rich().t(f"showed that scores were significantly {'higher' if up else 'lower'} at ") \
-            .extend(mdn_run(d1, names[0])).t(" than at ").extend(mdn_run(d2, names[1])).t(", ")
-        ns = Rich().t("showed no significant difference between ").extend(mdn_run(d1, names[0])).t(" and ") \
-            .extend(mdn_run(d2, names[1])).t(", ")
+            .extend(mdn_run(d1, names_p[0])).t(" than at ").extend(mdn_run(d2, names_p[1])).t(", ")
+        ns = Rich().t("showed no significant difference between ").extend(mdn_run(d1, names_p[0])).t(" and ") \
+            .extend(mdn_run(d2, names_p[1])).t(", ")
         r.extend(sent if test["p"] < alpha else ns)
         r.stat("V", [], test["v"]).t(", ").stat("z", [], test["z"]).t(", ").p(test["p"])
         _es_clause(r, rr).t(".")
         summary = (f"For the {n} people with both scores, scores tended to be higher at {hi} than at {lo} "
-                   f"(medians {apa.num(d1['median'])} and {apa.num(d2['median'])} for {names[0]} and {names[1]}). "
+                   f"(medians {apa.num(d1['median'])} and {apa.num(d2['median'])} for {names_p[0]} and {names_p[1]}). "
                    + ("This change is unlikely to be due to chance alone" if test["p"] < alpha else
                       "This change could easily be due to chance, so there is no strong evidence of a real change")
                    + f" ({p_phrase(test['p'])})." + size_sentence(rr.value, "r", "change"))
@@ -410,17 +412,18 @@ def wilcoxon_one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> 
     b.inputs(n, int(x_all.isna().sum()))
 
     up = (rb.value or 0) > 0
-    r = Rich().t(f"A Wilcoxon signed-rank test showed that {vl} scores (").i("Mdn").t(f" = {apa.num(desc['median'])}) ")
+    vlp = prep.quote_if_sentence(vl)
+    r = Rich().t(f"A Wilcoxon signed-rank test showed that {vlp} scores (").i("Mdn").t(f" = {apa.num(desc['median'])}) ")
     if test["n_nonzero"] == 0:
-        r = Rich().t(f"A Wilcoxon signed-rank test could not be computed because every {vl} score equals {mu_txt}.")
-        summary = f"Every {vl} score equals {mu_txt}, so there is nothing to test."
+        r = Rich().t(f"A Wilcoxon signed-rank test could not be computed because every {vlp} score equals {mu_txt}.")
+        summary = f"Every {vlp} score equals {mu_txt}, so there is nothing to test."
     else:
         sig = test["p"] < alpha
         r.t(f"were significantly {'higher' if up else 'lower'} than {mu_txt}, " if sig else
             f"did not differ significantly from {mu_txt}, ")
         r.stat("V", [], test["v"]).t(", ").stat("z", [], test["z"]).t(", ").p(test["p"])
         _es_clause(r, rr).t(".")
-        summary = (f"{vl} scores tended to be {'higher' if up else 'lower'} than {mu_txt} (median "
+        summary = (f"{vlp} scores tended to be {'higher' if up else 'lower'} than {mu_txt} (median "
                    f"{apa.num(desc['median'])}). " +
                    ("This is unlikely to be due to chance alone" if sig else
                     f"This could easily be due to chance, so there is no strong evidence that the typical score "
@@ -554,13 +557,14 @@ def kruskal_wallis(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
 
     ranks = esr.rank(values)
     mean_ranks = [float(ranks[codes == i].mean()) for i in range(k)]
+    vlp = prep.quote_if_sentence(vl)
     r = Rich().t("A Kruskal-Wallis test ")
     if not finite(h):
-        r.t(f"could not be computed because every {vl} score was the same.")
-        summary = f"Every {vl} score was the same, so the groups can't be compared."
+        r.t(f"could not be computed because every {vlp} score was the same.")
+        summary = f"Every {vlp} score was the same, so the groups can't be compared."
     else:
         sig = p < alpha
-        r.t(f"showed {'a significant' if sig else 'no significant'} difference in {vl} scores across the {k} groups, ")
+        r.t(f"showed {'a significant' if sig else 'no significant'} difference in {vlp} scores across the {k} groups, ")
         r.stat("H", [k - 1], h).t(", ").p(p)
         if eps.value is not None:
             r.t(", ").es("ε²", eps.value, eps.lower, eps.upper, level, bounded=True)
@@ -651,7 +655,8 @@ def friedman(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         if w.value is not None:
             r.t(", ").es("W", w.value, w.lower, w.upper, level, bounded=True)
         r.t(".")
-        top, low = names[int(np.argmax(mean_ranks))], names[int(np.argmin(mean_ranks))]
+        top = prep.quote_if_sentence(names[int(np.argmax(mean_ranks))])
+        low = prep.quote_if_sentence(names[int(np.argmin(mean_ranks))])
         summary = (f"For the {n} people with every score, scores tended to be highest at {top} and lowest at {low}. " +
                    (f"Differences this large are unlikely to be due to chance alone ({p_phrase(p)}); a follow-up "
                     "test (Conover or Nemenyi) shows which time points differ." if sig else

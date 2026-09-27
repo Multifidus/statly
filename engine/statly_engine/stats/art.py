@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from statly_engine.stats import apa, effect_sizes_anova as esa
+from statly_engine.stats import apa, effect_sizes_anova as esa, prep
 from statly_engine.stats.anova import ETA_P, require_two_sided
 from statly_engine.stats.anova_factorial import (FACTORIAL_ROLES, TIMES, cell_table, factorial_data,
                                                  factorial_descriptives, factorial_inputs, factorial_warnings,
@@ -154,9 +154,10 @@ def art(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
                    "other effects, so it does not assume bell-shaped scores. It still assumes independent people "
                    "and similar spread across groups."))
 
-    r = Rich().t(f"An aligned rank transform ANOVA ({design}) of {yl} showed ")
+    ylp, alp, blp = prep.quote_if_sentence(yl), prep.quote_if_sentence(al), prep.quote_if_sentence(bl)
+    r = Rich().t(f"An aligned rank transform ANOVA ({design}) of {ylp} showed ")
     term_sentence(r, rows, alpha, level)
-    summary = (f"Ranks of {yl} for {n_used} people were compared across {al} and {bl} with the aligned rank "
+    summary = (f"Ranks of {ylp} for {n_used} people were compared across {alp} and {blp} with the aligned rank "
                "transform, a rank-based version of the two-way ANOVA. " + term_summary(rows, alpha))
     b.sentence(r).summary(summary)
     cols = [apa.column("source", "Source", "left"), apa.column("f", Rich().i("F")),

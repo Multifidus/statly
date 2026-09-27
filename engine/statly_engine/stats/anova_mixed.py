@@ -491,10 +491,13 @@ def mixed(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     terms = [r for r in rows if not r.get("error")]
     corr_txt = {"none": "", "gg": " (Greenhouse-Geisser corrected for the within-subjects effects)",
                 "hf": " (Huynh-Feldt corrected for the within-subjects effects)"}[used]
-    r = Rich().t(f"A {G} {TIMES} {k} mixed ANOVA{corr_txt} of {d['outcome_label']}, with {d['glabel']} between "
-                 f"subjects and {d['tlabel'].lower() if d['tlabel'] == 'Time' else d['tlabel']} within subjects, showed ")
+    olp = prep.quote_if_sentence(d["outcome_label"])
+    glp = prep.quote_if_sentence(d["glabel"])
+    tlp = prep.quote_if_sentence(d["tlabel"])
+    r = Rich().t(f"A {G} {TIMES} {k} mixed ANOVA{corr_txt} of {olp}, with {glp} between "
+                 f"subjects and {tlp.lower() if d['tlabel'] == 'Time' else tlp} within subjects, showed ")
     term_sentence(r, terms, alpha, level)
-    summary = (f"{n} people in {G} groups ({d['glabel']}) were each measured {k} times. " + term_summary(terms, alpha))
+    summary = (f"{n} people in {G} groups ({glp}) were each measured {k} times. " + term_summary(terms, alpha))
     if terms[2]["f"] is not None and terms[2]["p"] < alpha:
         summary += (" Because the groups changed differently over time, simple-effects tests show where they "
                     "differ.")

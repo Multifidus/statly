@@ -171,7 +171,7 @@ def _or_phrase(recs, alpha, outcome_phrase) -> str:
     for r in sig[:3]:
         o = r["or"]
         word = "raised" if o > 1 else "lowered"
-        parts.append(f"{r['label']} {word} the odds of {outcome_phrase} (odds ratio {o:.2f})")
+        parts.append(f"{prep.quote_if_sentence(r['label'])} {word} the odds of {outcome_phrase} (odds ratio {o:.2f})")
     return " " + "; ".join(parts) + "."
 
 
@@ -290,8 +290,9 @@ def logistic(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.inputs(d.n_used, d.n_excluded, [({d.outcome: lv}, int((d.y == k).sum())) for k, lv in enumerate(d.outcome_levels)])
 
     sig = p_m < alpha
-    phrase = f"{d.outcome_label} = {ev_label}"
-    r = (Rich().t(f"A binary logistic regression predicted {phrase} from {', '.join(d.pred_labels)}. The model "
+    phrase = f"{prep.quote_if_sentence(d.outcome_label)} = {ev_label}"
+    r = (Rich().t(f"A binary logistic regression predicted {phrase} from "
+                  f"{', '.join(prep.quote_if_sentence(lab) for lab in d.pred_labels)}. The model "
                   f"{'was' if sig else 'was not'} significantly better than one with no predictors, ")
          .stat("χ²", [df_m], chi2).t(", ").p(p_m).t(", Nagelkerke ").extend(Rich().i("R").sup("2"))
          .t(f" = {apa.no_zero(nk)}, and classified {cls['percent_correct']:.1f}% of cases correctly."))
@@ -478,14 +479,16 @@ def ordinal(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.inputs(d.n_used, d.n_excluded, [({d.outcome: lv}, int(c)) for lv, c in zip(d.outcome_levels, counts)])
 
     sig = p_m < alpha
-    r = (Rich().t(f"An ordinal (proportional-odds) logistic regression predicted {d.outcome_label} from "
-                  f"{', '.join(d.pred_labels)}. The model {'was' if sig else 'was not'} significantly better than one "
+    olp = prep.quote_if_sentence(d.outcome_label)
+    r = (Rich().t(f"An ordinal (proportional-odds) logistic regression predicted {olp} from "
+                  f"{', '.join(prep.quote_if_sentence(lab) for lab in d.pred_labels)}. The model "
+                  f"{'was' if sig else 'was not'} significantly better than one "
                   "with no predictors, ").stat("χ²", [k], chi2).t(", ").p(p_m).t(", Nagelkerke ")
          .extend(Rich().i("R").sup("2")).t(f" = {apa.no_zero(nk)}."))
     b.sentence(r)
-    b.summary(f"The model looks at what makes people more likely to be in a higher {d.outcome_label} category "
+    b.summary(f"The model looks at what makes people more likely to be in a higher {olp} category "
               f"({lvl[0]} to {lvl[-1]}). {'Together the predictors clearly help' if sig else 'The predictors do not clearly help'} "
-              f"({p_phrase(p_m)})." + _or_phrase(recs, alpha, f"a higher {d.outcome_label}"))
+              f"({p_phrase(p_m)})." + _or_phrase(recs, alpha, f"a higher {olp}"))
     note = (Rich().t(f"N = {n}. ").i("OR").t(f" > 1 means higher {d.outcome_label} categories are more likely "
                                               "(profile-likelihood CI). Thresholds are the cut-points on the logit "
                                               "scale. Model ").stat("χ²", [k], chi2).t(", ").p(p_m)

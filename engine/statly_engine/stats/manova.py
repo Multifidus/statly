@@ -28,7 +28,7 @@ import numpy as np
 import pandas as pd
 
 from statly_engine.errors import InvalidParams
-from statly_engine.stats import apa, assumptions as asm, assumptions_multivariate as amv, effect_sizes_anova as esa
+from statly_engine.stats import apa, assumptions as asm, assumptions_multivariate as amv, effect_sizes_anova as esa, prep
 from statly_engine.stats.ancova import (ancova_fit, adjusted_mean_records, check_rank, data_inputs, data_warnings,
                                         group_descriptives, model_data, LEVELS_OPT)
 from statly_engine.stats.anova import p_phrase, require_two_sided
@@ -147,18 +147,21 @@ def _run(df: pd.DataFrame, request, meta, with_covs: bool) -> dict:
     data_inputs(b, d)
 
     # text
-    covtxt = " and ".join(d["cl"])
-    outs = ", ".join(d["ol"][:-1]) + f" and {d['ol'][-1]}"
+    covtxt = " and ".join(prep.quote_if_sentence(c) for c in d["cl"])
+    ol_p = [prep.quote_if_sentence(o) for o in d["ol"]]
+    outs = ", ".join(ol_p[:-1]) + f" and {ol_p[-1]}"
+    glp = prep.quote_if_sentence(gl)
     sig = pg < alpha
     r = Rich().t(f"A one-way {'MANCOVA controlling for ' + covtxt if with_covs else 'MANOVA'} on {outs} showed "
-                 f"{'a significant' if sig else 'no significant'} multivariate effect of {gl}, Pillai's ").i("V") \
+                 f"{'a significant' if sig else 'no significant'} multivariate effect of {glp}, Pillai's ").i("V") \
         .t(f" = {apa.no_zero(v)}, ").stat("F", [d1g, d2g], fg).t(", ").p(pg)
     if pes.value is not None:
         r.t(", ").es(ETA_P, pes.value, pes.lower, pes.upper, level, bounded=True)
     r.t(".")
-    sig_uni = [u["outcome"] for u in uni if u["p_bonferroni"] is not None and u["p_bonferroni"] < alpha]
+    sig_uni = [prep.quote_if_sentence(u["outcome"]) for u in uni
+               if u["p_bonferroni"] is not None and u["p_bonferroni"] < alpha]
     mag = magnitude(pes.value, "eta_sq")
-    summary = (f"The {k} groups of {gl} were compared on {len(d['ol'])} outcomes at once ({outs})"
+    summary = (f"The {k} groups of {glp} were compared on {len(d['ol'])} outcomes at once ({outs})"
                + (f", adjusting for {covtxt}" if with_covs else "") + ". "
                + ("Taken together, the groups differ by more than chance would explain" if sig else
                   "Taken together, the differences could easily be due to chance, so there is no strong evidence "

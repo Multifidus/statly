@@ -490,7 +490,7 @@ def _text(b, res, load_recs, factors, scale) -> None:
     word = {"good": "fits the data well", "acceptable": "fits the data acceptably",
             "poor": "does not fit the data well"}[v]
     summary = (f"The proposed structure for {scale} ({m} factor{'s' if m > 1 else ''}: "
-               f"{'; '.join(f + ' = ' + ', '.join(r['label'] for r in load_recs if r['factor'] == f) for f in factors)}) "
+               f"{'; '.join(f + ' = ' + ', '.join(prep.quote_if_sentence(r['label']) for r in load_recs if r['factor'] == f) for f in factors)}) "
                f"{word} by common guidelines (CFI {apa.no_zero(res['cfi'])}, RMSEA {apa.no_zero(res['rmsea'], 3)}, "
                f"SRMR {apa.no_zero(res['srmr'], 3)}). Standardized loadings show how strongly each item reflects its "
                f"factor; they ranged from {apa.no_zero(min(stds))} to {apa.no_zero(max(stds))}.")

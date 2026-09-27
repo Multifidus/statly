@@ -39,7 +39,7 @@ from statly_engine.stats import apa, effect_sizes_cat as esc, prep
 from statly_engine.stats.apa import Rich
 from statly_engine.stats.core import SMALL_N, ResultBuilder, missing_warning, size_clause, warning
 from statly_engine.text import plural
-from statly_engine.stats.descriptives import frequency_table
+from statly_engine.stats.descriptives import frequency_table, _frequency_apa
 from statly_engine.stats.registry import Role, register
 
 FISHER_MAX_TABLES = 2_000_000
@@ -177,7 +177,10 @@ def _crosstab_outputs(b: ResultBuilder, x: dict, rname: str, cname: str, meta, n
     e = expected_counts(tab)
     res = adjusted_residuals(tab)
     rows_tot, cols_tot, n = tab.sum(1), tab.sum(0), tab.sum()
-    b.frequency_tables([frequency_table(x["r"], rname, {}, meta), frequency_table(x["c"], cname, {}, meta)])
+    rtab, ctab = frequency_table(x["r"], rname, {}, meta), frequency_table(x["c"], cname, {}, meta)
+    b.frequency_tables([rtab, ctab])
+    b.extra_table(_frequency_apa(rtab, x["row_label"], None))
+    b.extra_table(_frequency_apa(ctab, x["col_label"], None))
     recs = []
     for i, rn in enumerate(x["row_names"]):
         for j, cn in enumerate(x["col_names"]):
@@ -289,7 +292,8 @@ def _pattern_sentence(x: dict, tab: np.ndarray, sig: bool) -> str:
         itop, ibot = int(np.nanargmax(pct)), int(np.nanargmin(pct))
         return (f"{col_name} rates were highest for {x['row_names'][itop]} ({pct[itop]:.0f}%) and lowest for "
                 f"{x['row_names'][ibot]} ({pct[ibot]:.0f}%).")
-    return f"Rates were similar across {x['row_label']}: {np.nanmin(pct):.0f}% to {np.nanmax(pct):.0f}%."
+    return (f"Rates were similar across {prep.quote_if_sentence(x['row_label'])}: "
+            f"{np.nanmin(pct):.0f}% to {np.nanmax(pct):.0f}%.")
 
 
 def _need_two_levels(x: dict):
@@ -341,13 +345,14 @@ def chi_square_independence(df: pd.DataFrame, request, meta: dict | None = None)
     b.inputs(n, x["n_excluded"])
 
     sig = p < alpha
+    rlp, clp = prep.quote_if_sentence(x["row_label"]), prep.quote_if_sentence(x["col_label"])
     s = Rich().t("A chi-square test of independence showed " + ("a significant" if sig else "no significant") +
-                 f" association between {x['row_label']} and {x['col_label']}, ")
+                 f" association between {rlp} and {clp}, ")
     s.extend(_chi_sym()).t(f"({dfree}, ").i("N").t(f" = {n}) = {apa.num(chi)}, ").p(p)
     s.t(", ").es("V", v.value, v.lower, v.upper, level, bounded=True).t(".")
-    summary = ((f"{x['row_label']} and {x['col_label']} appear to be related: the pattern of {x['col_label']} "
+    summary = ((f"{rlp} and {clp} appear to be related: the pattern of {clp} "
                 "differs across the rows more than chance alone would explain") if sig else
-               (f"There is no strong evidence that {x['row_label']} and {x['col_label']} are related; the "
+               (f"There is no strong evidence that {rlp} and {clp} are related; the "
                 "differences in the table could easily be due to chance")) + f" ({_p_phrase(p)})."
     summary += size_clause("Cramér's V", v.value, "r", bounded=True, what="association")
     summary += " " + _pattern_sentence(x, tab, sig)
@@ -403,13 +408,14 @@ def fisher_exact(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
 
     sig = p < alpha
     sym, est, bounded = head_es
+    rlp, clp = prep.quote_if_sentence(x["row_label"]), prep.quote_if_sentence(x["col_label"])
     s = Rich().t("Fisher's exact test showed " + ("a significant" if sig else "no significant") +
-                 f" association between {x['row_label']} and {x['col_label']}, ").p(p)
+                 f" association between {rlp} and {clp}, ").p(p)
     if est.value is not None:
         s.t(", ").es(sym, est.value, est.lower, est.upper, level, bounded=bounded)
     s.t(f", N = {n}.")
-    summary = ((f"{x['row_label']} and {x['col_label']} appear to be related" if sig else
-                f"There is no strong evidence that {x['row_label']} and {x['col_label']} are related")
+    summary = ((f"{rlp} and {clp} appear to be related" if sig else
+                f"There is no strong evidence that {rlp} and {clp} are related")
                + f" ({_p_phrase(p)}). Fisher's exact test works even when some cells have very few people.")
     if is2 and est.value is not None and est.value > 0:
         summary += (f" The odds of {x['col_names'][0]} were {apa.num(est.value)} times as high for "
@@ -497,14 +503,15 @@ def goodness_of_fit(df: pd.DataFrame, request, meta: dict | None = None) -> dict
     note.t(". " + _TWO_SIDED_CI_NOTE)
     b.table(apa.table(f"Observed and Expected Frequencies of {vl}", cols, rows, general_note=note))
     sig = pv < alpha
-    s = Rich().t("A chi-square goodness-of-fit test showed that the distribution of " + vl +
+    vlp = prep.quote_if_sentence(vl)
+    s = Rich().t("A chi-square goodness-of-fit test showed that the distribution of " + vlp +
                  (" differed significantly from " if sig else " did not differ significantly from ") +
                  ("equal shares" if equal else "the expected shares") + ", ")
     s.extend(_chi_sym()).t(f"({dfree}, ").i("N").t(f" = {n}) = {apa.num(chi)}, ").p(pv)
     s.t(", ").es("w", w.value, w.lower, w.upper, level).t(".")
     top = names[int(np.argmax(resid))]
-    summary = ((f"The answers for {vl} were not spread the way we expected: '{top}' was chosen more often than "
-                "expected" if sig else f"The answers for {vl} were spread about as expected")
+    summary = ((f"The answers for {vlp} were not spread the way we expected: '{top}' was chosen more often than "
+                "expected" if sig else f"The answers for {vlp} were spread about as expected")
                + f" ({_p_phrase(pv)}).")
     b.sentence(s).summary(summary)
     return b.build()
@@ -585,8 +592,9 @@ def mcnemar(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.table(apa.table(f"{names[0]} and {names[1]}", cols, rows,
                       column_groups=[apa.column_group(names[1], 1, 2)], general_note=note))
     p1s, p2s = tab[1].sum() / n, tab[:, 1].sum() / n
-    s = Rich().t(f"The proportion answering {lv[1]} was {_pct(100 * p1s)} for {names[0]} and {_pct(100 * p2s)} for "
-                 f"{names[1]}. ")
+    names_p = [prep.quote_if_sentence(nm) for nm in names]
+    s = Rich().t(f"The proportion answering {lv[1]} was {_pct(100 * p1s)} for {names_p[0]} and {_pct(100 * p2s)} for "
+                 f"{names_p[1]}. ")
     if chi1 is None:
         s.t("A McNemar test could not be computed because no one changed their answer.")
         summary = "Nobody changed their answer between the two measurements, so there is no change to test."

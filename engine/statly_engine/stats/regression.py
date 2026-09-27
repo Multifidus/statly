@@ -429,7 +429,7 @@ def _model_note(fit: dict, level: float, d: Design) -> Rich:
 
 
 def _strongest(d: Design, fit: dict, alpha: float) -> str:
-    sig = [(abs(fit["beta"][i]), d.labels[j], fit["coef"][i]) for i, j in enumerate(fit["cols"])
+    sig = [(abs(fit["beta"][i]), prep.quote_if_sentence(d.labels[j]), fit["coef"][i]) for i, j in enumerate(fit["cols"])
            if j and fit["p"][i] < alpha and finite(fit["beta"][i])]
     if not sig:
         return " None of the predictors had a clear effect of its own once the others were taken into account."
@@ -464,20 +464,23 @@ def linear(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     kind = "simple linear regression" if simple else "multiple linear regression"
     sig = fit["f_p"] < alpha
     who = ", ".join(d.pred_labels)
-    r = (Rich().t(f"A {kind} was used to predict {d.outcome_label} from {who}. The model "
+    olp = prep.quote_if_sentence(d.outcome_label)
+    whop = ", ".join(prep.quote_if_sentence(lab) for lab in d.pred_labels)
+    pred0p = prep.quote_if_sentence(d.pred_labels[0])
+    r = (Rich().t(f"A {kind} was used to predict {olp} from {whop}. The model "
                   f"{'explained a significant' if sig else 'did not explain a significant'} share of the variance, ")
          .stat("F", [fit["df1"], fit["df_res"]], fit["f"]).t(", ").p(fit["f_p"]).t(", ")
          .es(R2, fit["r2"], fit["r2_est"].lower, fit["r2_est"].upper, level, bounded=True).t("."))
     if simple:
-        r.t(f" Each one-unit increase in {d.pred_labels[0]} went with a change of {apa.num(fit['coef'][1])} in "
-            f"{d.outcome_label}, ").es(BETA, fit["beta"][1], fit["beta_lower"][1], fit["beta_upper"][1], level).t(".")
+        r.t(f" Each one-unit increase in {pred0p} went with a change of {apa.num(fit['coef'][1])} in "
+            f"{olp}, ").es(BETA, fit["beta"][1], fit["beta_lower"][1], fit["beta_upper"][1], level).t(".")
     b.sentence(r)
     pct = fit["r2"] * 100
-    summary = (f"Together, {who} explain about {pct:.0f}% of the differences in {d.outcome_label} "
+    summary = (f"Together, {whop} explain about {pct:.0f}% of the differences in {olp} "
                f"({'unlikely to be chance' if sig else 'this could easily be chance'}, {p_phrase(fit['f_p'])}).")
     if simple and sig:
-        summary += (f" People with higher {d.pred_labels[0]} tended to have "
-                    f"{'higher' if fit['coef'][1] > 0 else 'lower'} {d.outcome_label}.")
+        summary += (f" People with higher {pred0p} tended to have "
+                    f"{'higher' if fit['coef'][1] > 0 else 'lower'} {olp}.")
     elif not simple:
         summary += _strongest(d, fit, alpha)
     b.summary(summary)
@@ -547,8 +550,13 @@ def hierarchical(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
 
     last = recs[-1]
     sig = last["p_change"] < alpha
-    r = (Rich().t(f"A hierarchical regression predicted {d.outcome_label} in {k} steps. Adding "
-                  f"{last['predictors']} in step {k} ")
+    olp = prep.quote_if_sentence(d.outcome_label)
+
+    def _preds_prose(preds_csv: str) -> str:
+        return ", ".join(prep.quote_if_sentence(p) for p in preds_csv.split(", "))
+
+    r = (Rich().t(f"A hierarchical regression predicted {olp} in {k} steps. Adding "
+                  f"{_preds_prose(last['predictors'])} in step {k} ")
          .t("significantly improved the model, " if sig else "did not significantly improve the model, ")
          .extend(DR2).t(f" = {apa.no_zero(last['delta_r_squared'])}, ").stat("F", [last["df1"], last["df2"]],
                                                                             last["f_change"])
@@ -556,9 +564,9 @@ def hierarchical(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
          .es(R2, fin["r2"], fin["r2_est"].lower, fin["r2_est"].upper, level, bounded=True).t(" of the variance, ")
          .stat("F", [fin["df1"], fin["df_res"]], fin["f"]).t(", ").p(fin["f_p"]).t("."))
     b.sentence(r)
-    steps = "; ".join(f"step {rc['block']} ({rc['predictors']}) added {rc['delta_r_squared'] * 100:.0f}%"
+    steps = "; ".join(f"step {rc['block']} ({_preds_prose(rc['predictors'])}) added {rc['delta_r_squared'] * 100:.0f}%"
                       for rc in recs)
-    b.summary(f"Predictors were added in {k} steps to see how much each step adds to explaining {d.outcome_label}: "
+    b.summary(f"Predictors were added in {k} steps to see how much each step adds to explaining {olp}: "
               f"{steps}. The last step {'added a real improvement' if sig else 'did not add a clear improvement'} "
               f"({p_phrase(last['p_change'])}). All together, the predictors explain about {fin['r2'] * 100:.0f}% "
               "of the differences.")

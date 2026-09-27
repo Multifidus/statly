@@ -149,9 +149,10 @@ def gain_score(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     b.inputs(n, d["n_excluded"])
 
     npre, npost = d["names"]
+    npre_p, npost_p = prep.quote_if_sentence(npre), prep.quote_if_sentence(npost)
     dg = b.continuous[2]
-    r = Rich().t(f"Scores changed from {npre} (").i("M").t(f" = {apa.num(b.continuous[0]['mean'])}, ").i("SD") \
-        .t(f" = {apa.num(b.continuous[0]['sd'])}) to {npost} (").i("M").t(f" = {apa.num(b.continuous[1]['mean'])}, ") \
+    r = Rich().t(f"Scores changed from {npre_p} (").i("M").t(f" = {apa.num(b.continuous[0]['mean'])}, ").i("SD") \
+        .t(f" = {apa.num(b.continuous[0]['sd'])}) to {npost_p} (").i("M").t(f" = {apa.num(b.continuous[1]['mean'])}, ") \
         .i("SD").t(f" = {apa.num(b.continuous[1]['sd'])}), a mean gain of {apa.num(mg.value)}")
     if constant:
         r.t("; every person's gain was the same, so no test was possible.")
@@ -161,7 +162,7 @@ def gain_score(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
             .t(", ").extend(Rich().i("d").sub("av")).t(f" = {apa.num(dav.value)}.")
         sig = p < request.alpha
         direction = "went up" if mg.value > 0 else "went down"
-        summary = (f"On average, scores {direction} by {apa.num(abs(mg.value))} points from {npre} to {npost} "
+        summary = (f"On average, scores {direction} by {apa.num(abs(mg.value))} points from {npre_p} to {npost_p} "
                    f"(the {n} people with both scores). " +
                    ("This change is unlikely to be due to chance alone" if sig else
                     "This change could easily be due to chance") + f" ({_p_phrase(p)}).")
@@ -243,7 +244,8 @@ def _gain_grouped(d: dict, request) -> dict:
     r = Rich().t(f"Mean gains were {means}. The groups' gains ") \
         .t("differed significantly, " if sig else "did not differ significantly, ").stat(sym, dfs, stat).t(", ").p(p).t(".")
     best = max(zip(per, gains), key=lambda t: np.mean(t[1]))
-    summary = (f"Everyone's gain is their post score minus their pre score. Average gains by {d['glabel']}: {means} "
+    glp = prep.quote_if_sentence(d["glabel"])
+    summary = (f"Everyone's gain is their post score minus their pre score. Average gains by {glp}: {means} "
                f"points. {best[0]['label']} gained the most. " +
                ("The difference between the groups' gains is unlikely to be due to chance alone" if sig else
                 "The differences between the groups' gains could easily be due to chance") + f" ({_p_phrase(p)}).")

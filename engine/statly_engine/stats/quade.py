@@ -19,7 +19,7 @@ import pandas as pd
 from scipy import stats
 
 from statly_engine.errors import InvalidParams
-from statly_engine.stats import apa, assumptions_multivariate as amv, effect_sizes_anova as esa
+from statly_engine.stats import apa, assumptions_multivariate as amv, effect_sizes_anova as esa, prep
 from statly_engine.stats.ancova import (ANCOVA_ROLES, LEVELS_OPT, data_inputs, data_warnings, group_descriptives,
                                         model_data)
 from statly_engine.stats.anova import classical_f, descriptives_table, p_phrase, require_two_sided
@@ -68,23 +68,24 @@ def quade(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
             for j, (nm, x) in enumerate(zip(d["names"], xs))]
     b.chart("rank_residuals", recs)
 
-    covtxt = " and ".join(d["cl"])
+    covtxt = " and ".join(prep.quote_if_sentence(c) for c in d["cl"])
+    vlp, glp = prep.quote_if_sentence(vl), prep.quote_if_sentence(gl)
     eta = es["eta_sq"]
     r = Rich().t(f"Quade's rank ANCOVA controlling for {covtxt} ")
     if cf["f"] is None:
-        r.t(f"could not be computed for {vl}.")
-        summary = f"Quade's test could not be calculated because the adjusted ranks of {vl} do not vary within groups."
+        r.t(f"could not be computed for {vlp}.")
+        summary = f"Quade's test could not be calculated because the adjusted ranks of {vlp} do not vary within groups."
     else:
         sig = cf["p"] < alpha
-        r.t(f"showed that {vl} ranks {'differed significantly' if sig else 'did not differ significantly'} across the "
-            f"{k} groups of {gl}, ").stat("F", [cf["df1"], cf["df2"]], cf["f"]).t(", ").p(cf["p"])
+        r.t(f"showed that {vlp} ranks {'differed significantly' if sig else 'did not differ significantly'} across the "
+            f"{k} groups of {glp}, ").stat("F", [cf["df1"], cf["df2"]], cf["f"]).t(", ").p(cf["p"])
         if eta.value is not None:
             r.t(", ").es(ETA, eta.value, eta.lower, eta.upper, level, bounded=True)
         r.t(".")
         hi = max(recs, key=lambda x: x["mean_residual"])
         lo = min(recs, key=lambda x: x["mean_residual"])
         mag = magnitude(eta.value, "eta_sq")
-        summary = (f"This rank-based test compares {vl} across the {k} groups of {gl} after taking {covtxt} into "
+        summary = (f"This rank-based test compares {vlp} across the {k} groups of {glp} after taking {covtxt} into "
                    f"account, without assuming bell-shaped scores (highest adjusted ranks: {hi['group']}; lowest: "
                    f"{lo['group']}). "
                    + ("Differences this large are unlikely to be due to chance alone" if sig else
