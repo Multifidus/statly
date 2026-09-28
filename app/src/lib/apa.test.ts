@@ -30,6 +30,14 @@ describe("APA copy payloads", () => {
     expect(html).not.toMatch(/border-(left|right)/);
     expect(html).toContain("<i>Note.</i>");
     for (const row of t.rows) for (const c of row.cells) if (c.type === "p_value") expect(html).toContain(c.display.replace("<", "&lt;"));
+    // Numeric/statistic cells and header cells must not wrap when pasted into Word/Pages; the
+    // first (label) column is allowed to wrap.
+    expect(html).toMatch(/<th style="[^"]*white-space:nowrap;[^"]*">/);
+    const firstRowTds = html.match(/<tr>((?:<td[^>]*>.*?<\/td>)+)<\/tr>/)?.[1] ?? "";
+    const tdCells = [...firstRowTds.matchAll(/<td style="([^"]*)">/g)];
+    expect(tdCells.length).toBeGreaterThan(1);
+    expect(tdCells[0][1]).not.toContain("white-space:nowrap;");
+    for (const cell of tdCells.slice(1)) expect(cell[1]).toContain("white-space:nowrap;");
     const plain = tablePayload(t).text.split("\n");
     expect(plain[0]).toBe(`Table ${t.number ?? 1}`);
     expect(plain[1]).toBe(t.title);

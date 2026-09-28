@@ -129,6 +129,13 @@ def _set_cell_border(cell, **edges):
             el.set(qn("w:val"), "nil")
 
 
+def _set_no_wrap(cell):
+    """Prevent Word from breaking a cell's content across lines (autofit can otherwise squeeze
+    numeric columns narrow enough that values like "-5.86" or "< .001" wrap)."""
+    tc_pr = cell._tc.get_or_add_tcPr()
+    tc_pr.append(parse_xml(f'<w:noWrap {nsdecls("w")}/>'))
+
+
 def _repeat_header(row):
     tr_pr = row._tr.get_or_add_trPr()
     tr_pr.append(parse_xml(f'<w:tblHeader {nsdecls("w")} w:val="true"/>'))
@@ -187,11 +194,13 @@ def add_apa_table(doc, table: dict, number: int | None = None, font_size: int | 
             _fill(c, runs, "center", size=size)
             if runs:
                 _set_cell_border(c, bottom=True)
+            _set_no_wrap(c)
         _repeat_header(t.rows[0])
     hdr = t.rows[n_head - 1]
     for i, col in enumerate(cols):
         _fill(hdr.cells[i], col["header"], "left" if aligns[i] == "left" and i == 0 else "center", size=size)
         _set_cell_border(hdr.cells[i], bottom=True)
+        _set_no_wrap(hdr.cells[i])
     _repeat_header(hdr)
     for ri, row in enumerate(body):
         cells = t.rows[n_head + ri].cells
@@ -200,6 +209,10 @@ def add_apa_table(doc, table: dict, number: int | None = None, font_size: int | 
             if row.get("kind") == "section_header" and ci == 0:
                 runs = [{**r, "italic": True} for r in runs]
             _fill(cells[ci], runs, aligns[ci], row.get("indent", 0) if ci == 0 else 0, size=size)
+            # First column holds row labels (allowed to wrap); every other column holds
+            # numeric/statistic values, which must stay on one line.
+            if ci != 0:
+                _set_no_wrap(cells[ci])
     _outer_rules(t)
     for para in note_paragraphs(table):
         p = paragraph(doc, para, space_after=0)

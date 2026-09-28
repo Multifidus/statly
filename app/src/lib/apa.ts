@@ -129,18 +129,18 @@ export function tableToHtml(t: ApaTable, fallbackNumber = 1): string {
         const cells: string[] = [];
         let col = 0;
         for (const g of [...t.column_groups].sort((a, b) => a.first_column - b.first_column)) {
-          if (g.first_column > col) cells.push(`<th colspan="${g.first_column - col}" style="${pad}"></th>`);
+          if (g.first_column > col) cells.push(`<th colspan="${g.first_column - col}" style="${pad}white-space:nowrap;"></th>`);
           cells.push(
-            `<th colspan="${g.span}" style="${pad}text-align:center;font-weight:normal;border-bottom:${RULE};">${richToHtml(g.label)}</th>`,
+            `<th colspan="${g.span}" style="${pad}text-align:center;font-weight:normal;border-bottom:${RULE};white-space:nowrap;">${richToHtml(g.label)}</th>`,
           );
           col = g.first_column + g.span;
         }
-        if (col < t.columns.length) cells.push(`<th colspan="${t.columns.length - col}" style="${pad}"></th>`);
+        if (col < t.columns.length) cells.push(`<th colspan="${t.columns.length - col}" style="${pad}white-space:nowrap;"></th>`);
         return `<tr>${cells.join("")}</tr>`;
       })()
     : "";
   const header = t.columns
-    .map((c) => `<th style="${pad}text-align:${alignOf(c)};font-weight:normal;border-bottom:${RULE};">${richToHtml(c.header)}</th>`)
+    .map((c) => `<th style="${pad}text-align:${alignOf(c)};font-weight:normal;border-bottom:${RULE};white-space:nowrap;">${richToHtml(c.header)}</th>`)
     .join("");
   const body = t.rows
     .map((row, ri) => {
@@ -151,7 +151,10 @@ export function tableToHtml(t: ApaTable, fallbackNumber = 1): string {
           const indent = ci === 0 && row.indent ? `padding-left:${8 + row.indent * 12}pt;` : "";
           const weight = row.kind === "section_header" ? "font-style:italic;" : "";
           const bottom = last ? `border-bottom:${RULE};` : "";
-          return `<td style="${pad}${indent}${weight}${bottom}text-align:${col ? alignOf(col) : "left"};">${cellToHtml(c)}</td>`;
+          // First column holds row labels, which should wrap; every other column holds
+          // numeric/statistic values, which must not break across lines when pasted into Word.
+          const nowrap = ci === 0 ? "" : "white-space:nowrap;";
+          return `<td style="${pad}${indent}${weight}${bottom}text-align:${col ? alignOf(col) : "left"};${nowrap}">${cellToHtml(c)}</td>`;
         })
         .join("");
       return `<tr>${cells}</tr>`;
