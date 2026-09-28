@@ -53,5 +53,6 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 47 | Planner sample-size page never states that bigger effects need fewer people; add the sentence under the effect picker | fixed |
 | 48 | Planner plan page: pin Save plan / Export Word / Start analysis project in a sticky bar | open |
 | 49 | Exported figures: axis titles/tick labels use the dark-theme muted grey on white paper (nearly invisible in PDF) | open |
+| 50 | Import check step: repeated per-column notes (e.g. seven '-99' lines) should be grouped into one | open |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
