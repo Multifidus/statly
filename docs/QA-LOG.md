@@ -33,9 +33,12 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 27 | Ties note shown for categorical outcomes | fixed |
 | 28 | Expected-counts check page had placeholder "What it is" | fixed |
 | 29 | Decision step used generic t-test blurbs for every test | fixed |
-| 30 | Descriptives table used raw names while summary used labels | fixed |
+| 30 | Descriptives table used raw names while summary used labels | reopened: t-test descriptives still show Q4 |
 | 31 | Question-text labels unquoted in prose | fixed |
 | 32 | Recommendation card: headings wrap; wants two clean columns | open (styling) |
 | 33 | Chart builder numbers table: "1 rows used" | open |
+| 34 | Summary stat chip shows d_z while the sentence names d_av | open |
+| 35 | d_av / d_z shown with literal underscores outside the APA sentence | open |
+| 36 | "Because the p value…" is a fragment after "looks reasonable." | open |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
