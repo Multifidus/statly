@@ -27,6 +27,7 @@ from statly_engine.data.store import DatasetStore
 from statly_engine.errors import InvalidParams
 from statly_engine.export import plain
 from statly_engine.rpc_methods import export as ex
+from statly_engine.stats.apa import Rich
 
 HERE = Path(__file__).parent
 REPO = HERE.parents[2]
@@ -132,6 +133,26 @@ def test_report_include_flags(store, tmp_path):
     assert plain(REAL["apa_sentence"]) in texts
 
 
+def test_report_project_charts_grouped_under_one_figures_section(store, tmp_path):
+    """Project charts (Chart Builder figures picked in Export > Report's "Project charts" list) are
+    keyed by a request_id that matches no result, so they fall through to the trailing figures
+    loop in report.sections(). Two of them must land under a single 'Figures' heading, numbered
+    after the per-result figure, not as two separate chart-titled sections."""
+    charts = [{"request_id": REAL["inputs"]["request"]["request_id"], "png_base64": _png_b64(),
+               "title": "Q3_10 by Time Point"},
+              {"request_id": "chart-builder:proj-1", "png_base64": _png_b64(), "title": "Anxiety by Group"},
+              {"request_id": "chart-builder:proj-2", "png_base64": _png_b64(), "title": "Mood over Time"}]
+    out = _report(store, tmp_path, "docx", charts=charts)
+    doc = Document(out["path"])
+    texts = [p.text for p in doc.paragraphs]
+    assert texts.count("Figures") == 1
+    assert texts.index("Anxiety by Group") > texts.index("Figures")
+    assert texts.index("Mood over Time") > texts.index("Anxiety by Group")
+    assert len(doc.inline_shapes) == 3  # the per-result figure plus the two project charts
+    # numbered after the per-result figure (Figure 1), consecutively: Figure 2, Figure 3
+    assert "Figure 2" in texts and "Figure 3" in texts
+
+
 def test_report_pdf_smoke(store, tmp_path):
     out = _report(store, tmp_path, "pdf")
     reader = PdfReader(out["path"])
@@ -140,6 +161,60 @@ def test_report_pdf_smoke(store, tmp_path):
     assert _norm(plain(REAL["apa_sentence"])) in text
     assert "Table 3" in text and "Figure 1" in text and "< .001" in text and "Attitude Study" in text
     assert reader.metadata.title == "Attitude Study"
+
+
+def test_pdf_subscript_and_superscript_markup_is_sized_and_raised():
+    """reportlab's <sub>/<super> defaults (rise = 0.5 * fontSize) push the glyph far enough below
+    baseline to land on the header rule / the next line (owner screenshot: d_av's 'av' overlapping
+    both). runs_markup must pin an explicit, proportional size/rise instead of relying on the
+    reportlab default."""
+    from statly_engine.export import pdf as pdf_mod
+
+    dav = Rich().i("d").sub("av").runs  # same construction as ttests.paired's d_av header/note
+    markup = pdf_mod.runs_markup(dav)
+    assert markup == '<i>d</i><sub rise="25%" size="70%">av</sub>'
+
+    chi2 = Rich().i("χ").sup("2").runs
+    markup = pdf_mod.runs_markup(chi2)
+    assert markup == '<i>χ</i><super rise="35%" size="70%">2</super>'
+
+
+def test_pdf_paired_t_apa_table_header_has_extra_clearance_below_subscript(tmp_path):
+    """Build the same d_av-headed table ttests.paired() produces and render it through
+    pdf.apa_table -> a real PDF, the way test_report_pdf_smoke does for the whole report. Assert
+    both the structural fix (extra bottom padding under the header row that carries the 'av'
+    subscript) and that the document actually renders."""
+    from statly_engine.export import pdf as pdf_mod
+    from statly_engine.stats import apa
+
+    dav_header = apa.column("d_av", Rich().i("d").sub("av"))
+    cols = [apa.column("variable", "Variable", "left"), apa.column("m1", Rich().i("M")),
+            apa.column("t", Rich().i("t")), apa.column("df", Rich().i("df")),
+            apa.column("p", Rich().i("p")), dav_header]
+    row = apa.row([apa.cell_text("Anxiety"), apa.cell_num(3.42), apa.cell_num(2.10),
+                   apa.cell_df(28), apa.cell_p(0.045), apa.cell_num(0.52)])
+    note = apa.italic("n") + [{"text": " = 29 people with both scores. "}] + Rich().i("d").sub("av").runs + \
+        [{"text": " is the paired Cohen's d."}]
+    table = {"label": "Table", "number": 1, "title": "Paired Comparison of Anxiety",
+             "columns": cols, "rows": [row], "notes": {"general": note}}
+
+    flowables = pdf_mod.apa_table(table, 1, avail_width=6.5 * pdf_mod.inch)
+    keep_together = flowables[0]
+    grid = keep_together._content[-1]
+    n_head = 1  # no column-group row in this table
+    for col in range(len(cols)):
+        assert grid._cellStyles[n_head - 1][col].bottomPadding == 4  # header row: extra clearance
+        assert grid._cellStyles[n_head][col].bottomPadding == 2  # body row: unchanged
+
+    from reportlab.platypus import SimpleDocTemplate
+
+    out = tmp_path / "paired_table.pdf"
+    doc = SimpleDocTemplate(str(out), pagesize=(8.5 * pdf_mod.inch, 11 * pdf_mod.inch))
+    doc.build(flowables)
+    reader = PdfReader(str(out))
+    assert len(reader.pages) == 1
+    text = _norm(reader.pages[0].extract_text())
+    assert "Anxiety" in text and "dav" in text.replace(" ", "")
 
 
 def test_report_rejects_bad_input(store, tmp_path):

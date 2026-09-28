@@ -4,14 +4,21 @@
  * the multiple-comparison choice: every selected entry's TestLogEntry (family_id, correction_method,
  * adjusted_p) and the project's test_families go to the engine so a Holm/Bonferroni/BH family
  * member's APA sentence gets its adjusted-p note (SPEC §9).
+ *
+ * Saved Chart Builder charts (project.chart_specs) are a second, independent selection ("Project
+ * charts" in the dialog): every saved chart, ticked by default. They render the same way (off-screen,
+ * same theme/DPI) and get appended by the engine after the tests as a "Figures" section
+ * (statly_engine/export/report.py); with no tests selected at all they're the whole report.
  */
 import { create } from "zustand";
 import type { AnalysisResult } from "@/contracts";
 import { pickReportChart } from "@/lib/export/chartSelection";
 import { chartPngDataUrl } from "@/lib/export/figure";
+import { renderProjectCharts, type RenderedProjectChart } from "@/lib/export/projectCharts";
 import { isFileExists } from "@/lib/export/writeRetry";
 import { pickExportPath } from "@/lib/dialogs";
 import { describeRpcError, rpc, type ExportInclude } from "@/lib/rpc";
+import { useDatasetStore } from "@/stores/dataset";
 import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
 import { useThemeStore } from "@/stores/theme";
@@ -22,6 +29,8 @@ export type ExportStatus = "idle" | "rendering" | "saving" | "done" | "error";
 interface ExportFlowState {
   open: boolean;
   selectedIds: string[];
+  /** Selected project chart ids (project.chart_specs), independent of `include.charts`. */
+  projectChartIds: string[];
   include: Required<ExportInclude>;
   title: string;
   author: string;
@@ -37,6 +46,9 @@ interface ExportFlowState {
   toggleSelected: (id: string) => void;
   selectAll: (ids: string[]) => void;
   clearSelection: () => void;
+  toggleProjectChart: (id: string) => void;
+  selectAllProjectCharts: (ids: string[]) => void;
+  clearProjectCharts: () => void;
   setInclude: (key: keyof ExportInclude, value: boolean) => void;
   setTitle: (title: string) => void;
   setAuthor: (author: string) => void;
@@ -49,6 +61,7 @@ interface ExportFlowState {
 const defaults = {
   open: false,
   selectedIds: [] as string[],
+  projectChartIds: [] as string[],
   include: { tables: true, sentences: true, assumptions: true, charts: true } as Required<ExportInclude>,
   title: "",
   author: "",
@@ -88,12 +101,20 @@ async function save(path: string, overwrite: boolean) {
     const r = await useResults.getState().reopen(e.id);
     if (r) results.push(r);
   }
-  if (results.length === 0) {
+  if (entries.length > 0 && results.length === 0) {
     useExportFlow.setState({ status: "error", error: "Statly couldn't load those results. Try reopening them from the Test Log first." });
     return;
   }
+  const projectSpecs = (project.chart_specs ?? []).filter((c) => s.projectChartIds.includes(c.id));
   useExportFlow.setState({ status: "rendering" });
-  const charts = s.include.charts ? await renderCharts(results) : [];
+  const resultCharts = s.include.charts ? await renderCharts(results) : [];
+  let projectCharts: RenderedProjectChart[] = [];
+  if (projectSpecs.length > 0) {
+    const meta = useDatasetStore.getState().meta;
+    const theme = useThemeStore.getState().resolved;
+    projectCharts = await renderProjectCharts(projectSpecs, { dataset_id: meta?.dataset_id ?? null, snapshot_id: meta?.snapshot_id ?? null }, theme);
+  }
+  const charts = [...resultCharts, ...projectCharts];
   useExportFlow.setState({ status: "saving" });
   try {
     const out = await rpc.exportReport({
@@ -114,12 +135,23 @@ async function save(path: string, overwrite: boolean) {
 export const useExportFlow = create<ExportFlowState>((set, get) => ({
   ...defaults,
 
-  show: () => set({ ...defaults, open: true, title: useProjectStore.getState().project?.name ?? "Report" }),
+  show: () => {
+    const project = useProjectStore.getState().project;
+    set({
+      ...defaults, open: true, title: project?.name ?? "Report",
+      // Every saved project chart starts ticked (SPEC §10.3): the owner already chose to save it.
+      projectChartIds: (project?.chart_specs ?? []).map((c) => c.id),
+    });
+  },
   hide: () => set({ open: false }),
   toggleSelected: (id) =>
     set((s) => ({ selectedIds: s.selectedIds.includes(id) ? s.selectedIds.filter((x) => x !== id) : [...s.selectedIds, id] })),
   selectAll: (ids) => set({ selectedIds: ids }),
   clearSelection: () => set({ selectedIds: [] }),
+  toggleProjectChart: (id) =>
+    set((s) => ({ projectChartIds: s.projectChartIds.includes(id) ? s.projectChartIds.filter((x) => x !== id) : [...s.projectChartIds, id] })),
+  selectAllProjectCharts: (ids) => set({ projectChartIds: ids }),
+  clearProjectCharts: () => set({ projectChartIds: [] }),
   setInclude: (key, value) => set((s) => ({ include: { ...s.include, [key]: value } })),
   setTitle: (title) => set({ title }),
   setAuthor: (author) => set({ author }),
@@ -127,8 +159,8 @@ export const useExportFlow = create<ExportFlowState>((set, get) => ({
 
   run: async () => {
     const s = get();
-    if (s.selectedIds.length === 0) {
-      set({ error: "Choose at least one test to include." });
+    if (s.selectedIds.length === 0 && s.projectChartIds.length === 0) {
+      set({ error: "Choose at least one test or project chart to include." });
       return;
     }
     const path = await pickExportPath(s.title.trim() || "Report", s.format);

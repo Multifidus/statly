@@ -3,6 +3,10 @@
   heading (analysis label) -> plain-language summary -> APA sentence -> table(s) ->
   assumption checks -> optional figure (PNG rendered by the frontend's WebView).
 
+Any charts not tied to a result by request_id (Chart Builder / project charts picked in the Export
+> Report dialog's "Project charts" list) are appended after every result as one trailing "Figures"
+section -- in a figure-only report (no results selected at all) this section is the whole body.
+
 Tables and figures are numbered consecutively across the report (overriding ApaTable.number, which
 is per-result). The same section model feeds both writers so DOCX and PDF stay in step.
 """
@@ -113,16 +117,18 @@ def sections(results: list[dict], include: dict, charts: dict[str, dict],
                 sec.figures.append((chart["png"], f_no, title, chart.get("note")))
         out.append(sec)
     if include.get("charts", True):
-        # Charts not tied to any analysis in `results` (Chart Builder figures) get their own
-        # figure-only section, headed by the chart title, in the order they were sent.
+        # Charts not tied to any analysis in `results` (Chart Builder / project figures) go in one
+        # trailing "Figures" section, each captioned "Figure N" + its own title, in the order sent.
+        # In a figure-only report (no results at all) this section is the whole body.
+        figures_sec = Section("Figures", "", [])
         for req_id, chart in charts.items():
             if req_id in used:
                 continue
             f_no += 1
             title = chart.get("title") or "Figure"
-            sec = Section(title, "", [])
-            sec.figures.append((chart["png"], f_no, title, chart.get("note")))
-            out.append(sec)
+            figures_sec.figures.append((chart["png"], f_no, title, chart.get("note")))
+        if figures_sec.figures:
+            out.append(figures_sec)
     return out
 
 

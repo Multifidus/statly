@@ -73,14 +73,24 @@ def style(size: float = 12, align=TA_LEFT, leading: float | None = None, space_a
                           firstLineIndent=first_indent)
 
 
+# reportlab's <sub>/<super> defaults (subFraction/supFraction = 0.5 of fontSize, sizeDelta = a flat
+# 2pt) drop a subscript half the font's height below baseline -- at the 8-12pt sizes APA tables use,
+# that lands the glyph on or below the row's rule / the next line. Pin explicit, proportional values
+# instead: ~70% size, ~0.25em below baseline for subscripts, ~0.35em above for superscripts. (The
+# `rise` attribute is always positive here -- reportlab's <sub>/<super> handlers subtract/add it
+# from the baseline themselves; a negative value fails attribute parsing.)
+_SUB = ' rise="25%" size="70%"'
+_SUP = ' rise="35%" size="70%"'
+
+
 def runs_markup(runs: list[dict]) -> str:
     out = []
     for r in runs:
         s = escape(r.get("text", ""), quote=False)
         if r.get("subscript"):
-            s = f"<sub>{s}</sub>"
+            s = f"<sub{_SUB}>{s}</sub>"
         if r.get("superscript"):
-            s = f"<super>{s}</super>"
+            s = f"<super{_SUP}>{s}</super>"
         if r.get("italic"):
             s = f"<i>{s}</i>"
         if r.get("bold"):
@@ -144,6 +154,9 @@ def apa_table(table: dict, number: int | None, avail_width: float) -> list:
     data.append([para(h, cell_style("left" if i == 0 and aligns[i] == "left" else "center"))
                  for i, h in enumerate(head_runs)])
     n_head = len(data)
+    # Extra clearance below the header text: several header cells carry a subscript (d_av, chi-square
+    # df, ...) that sits below the cap-height baseline, and the header rule is drawn right under it.
+    cmds.append(("BOTTOMPADDING", (0, 0), (-1, n_head - 1), 4))
     for r, cells in zip(body, body_runs):
         row = []
         for ci, runs in enumerate(cells):

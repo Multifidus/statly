@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { CheckboxField, Input, NativeSelect, Notice } from "@/components/ui/form";
 import { copyRich } from "@/lib/clipboard";
+import { projectChartTitle } from "@/lib/export/projectCharts";
 import { useExportFlow } from "@/stores/exportFlow";
 import { useProjectStore } from "@/stores/project";
 
@@ -25,6 +26,10 @@ export function ReportExportDialog() {
   const toggleSelected = useExportFlow((s) => s.toggleSelected);
   const selectAll = useExportFlow((s) => s.selectAll);
   const clearSelection = useExportFlow((s) => s.clearSelection);
+  const projectChartIds = useExportFlow((s) => s.projectChartIds);
+  const toggleProjectChart = useExportFlow((s) => s.toggleProjectChart);
+  const selectAllProjectCharts = useExportFlow((s) => s.selectAllProjectCharts);
+  const clearProjectCharts = useExportFlow((s) => s.clearProjectCharts);
   const include = useExportFlow((s) => s.include);
   const setInclude = useExportFlow((s) => s.setInclude);
   const title = useExportFlow((s) => s.title);
@@ -43,6 +48,7 @@ export function ReportExportDialog() {
   const project = useProjectStore((s) => s.project);
   const entries = project?.test_log ?? [];
   const families = project?.test_families ?? [];
+  const chartSpecs = project?.chart_specs ?? [];
   const busy = status === "rendering" || status === "saving";
 
   return (
@@ -110,11 +116,44 @@ export function ReportExportDialog() {
               )}
             </div>
 
+            {chartSpecs.length > 0 && (
+              <div>
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-sm font-medium">Project charts</span>
+                  <div className="flex gap-2 text-xs">
+                    <button
+                      type="button"
+                      className="underline"
+                      onClick={() => selectAllProjectCharts(chartSpecs.map((c) => c.id))}
+                      data-testid="report-select-all-charts"
+                    >
+                      Select all
+                    </button>
+                    <button type="button" className="underline" onClick={clearProjectCharts} data-testid="report-clear-charts">
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                <ul className="grid max-h-56 gap-1 overflow-auto rounded-md border p-2">
+                  {chartSpecs.map((c) => (
+                    <li key={c.id}>
+                      <CheckboxField
+                        label={projectChartTitle(c)}
+                        checked={projectChartIds.includes(c.id)}
+                        onChange={() => toggleProjectChart(c.id)}
+                        data-testid={`report-chart-${c.id}`}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="grid gap-1.5 sm:grid-cols-2">
               <CheckboxField label="Tables" checked={include.tables} onChange={(e) => setInclude("tables", e.target.checked)} />
               <CheckboxField label="APA sentences" checked={include.sentences} onChange={(e) => setInclude("sentences", e.target.checked)} />
               <CheckboxField label="Assumption checks" checked={include.assumptions} onChange={(e) => setInclude("assumptions", e.target.checked)} />
-              <CheckboxField label="Charts" checked={include.charts} onChange={(e) => setInclude("charts", e.target.checked)} />
+              <CheckboxField label="Charts from each test" checked={include.charts} onChange={(e) => setInclude("charts", e.target.checked)} />
             </div>
 
             <label className="grid max-w-40 gap-1 text-sm font-medium">
@@ -141,7 +180,11 @@ export function ReportExportDialog() {
               <Button variant="ghost" onClick={hide} disabled={busy}>
                 Cancel
               </Button>
-              <Button onClick={() => void run()} disabled={busy || entries.length === 0} data-testid="report-export-run">
+              <Button
+                onClick={() => void run()}
+                disabled={busy || (selectedIds.length === 0 && projectChartIds.length === 0)}
+                data-testid="report-export-run"
+              >
                 {busy && <Loader2 aria-hidden className="size-4 animate-spin" />}
                 {status === "rendering" ? "Rendering charts…" : status === "saving" ? "Saving…" : "Export"}
               </Button>

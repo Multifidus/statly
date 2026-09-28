@@ -161,3 +161,42 @@ describe("Chart Builder Save figure > PDF (real engine)", () => {
     }
   });
 });
+
+describe("Export > Report: project charts (real engine)", () => {
+  it("saves a builder chart, then a report with that chart selected embeds it in both DOCX and PDF", async () => {
+    // Same pipeline lib/export/projectCharts.ts drives: fetch the saved ChartSpec's data from the
+    // real engine and compile it, proving that half of the path actually works end to end. Node has
+    // no canvas to rasterise the compiled Vega spec (see the comment above), so the bytes actually
+    // embedded in the report are a placeholder PNG, same trick the figure-only test above uses.
+    const s = spec("box", { x: f("Time"), y: f("Q3_5") }, { id: "proj_box_1" });
+    const data = await chartsRpc.data({ ...ids(), spec: s });
+    expect(data.rows.length).toBeGreaterThan(0);
+    const vl = compile(compileChart(s, data, { theme: "light" }) as never).spec;
+    const view = new View(parse(vl), { renderer: "none" });
+    await view.runAsync();
+    expect(await view.toSVG()).toContain("<svg");
+    view.finalize();
+
+    const png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC";
+    const charts = [{ request_id: `chart-builder:${s.id}`, png_base64: png, title: "Q3_5 by Time" }];
+    const dir = mkdtempSync(path.join(os.tmpdir(), "statly-project-chart-"));
+    try {
+      // No results selected at all -- a figure-only report, same as saving a project chart with
+      // nothing else ticked in the Export > Report dialog (the owner's box-plot bug).
+      const base = { title: "Box plot report", results: [] as never[],
+        include: { tables: false, sentences: false, assumptions: false, charts: true }, charts };
+
+      const docxOut = await rpc.exportReport({ ...base, format: "docx", path: path.join(dir, "figure.docx") } as never);
+      expect(docxOut.bytes).toBe(statSync(docxOut.path).size);
+      expect(readFileSync(docxOut.path).includes("word/media/image")).toBe(true);
+
+      const pdfOut = await rpc.exportReport({ ...base, format: "pdf", path: path.join(dir, "figure.pdf") } as never);
+      expect(readFileSync(pdfOut.path).subarray(0, 5).toString()).toBe("%PDF-");
+      const pdfBytes = readFileSync(pdfOut.path);
+      expect(pdfBytes.includes("/Subtype /Image")).toBe(true);
+      expect(pdfBytes.includes("/XObject")).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
