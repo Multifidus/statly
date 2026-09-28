@@ -47,6 +47,7 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 41 | Report export never includes Chart Builder charts saved in the project ("Charts" meant per-test charts only) | open |
 | 42 | PDF export: subscripts (d_av, d_z) drop into the table rule and the next line | open |
 | 43 | Copy table: numeric cells wrap ("-5.86", "< .001") when pasted; mark them no-wrap | open |
-| 44 | Responses: tag menu stays open after picking a tag; should close (number keys cover multi-tagging) | open |
+| 44 | Responses: tag menu stays open after picking a tag; should close (number keys cover multi-tagging) | fixed |
+| 45 | Data tab: after creating columns (yes/no tags, computed), jump to and highlight the new columns | open |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
