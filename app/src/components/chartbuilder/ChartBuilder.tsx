@@ -3,6 +3,7 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { cn } from "cn";
 import type { ChartSpec } from "@/contracts";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/dialog";
 import { Badge, NativeSelect, Notice } from "@/components/ui/form";
 import { BuilderChart, type BuilderChartHandle } from "@/components/chartbuilder/BuilderChart";
 import { chartName } from "@/components/chartbuilder/ChartsList";
@@ -15,8 +16,9 @@ import { CHART_INFO, missingPiece } from "@/lib/chartbuilder/catalog";
 import { autoTitle } from "@/lib/chartbuilder/compile";
 import { dataKey } from "@/lib/chartbuilder/spec";
 import { filenameFor } from "@/lib/export/saveFigure";
-import { useChartBuilder, type PreviewTheme } from "@/stores/chartBuilder";
+import { guardLeaveChartBuilder, useChartBuilder, type PreviewTheme } from "@/stores/chartBuilder";
 import { useDatasetStore, visibleVariables } from "@/stores/dataset";
+import { useNav } from "@/stores/nav";
 import { useNotify } from "@/stores/notify";
 import { useProjectStore } from "@/stores/project";
 import { useThemeStore } from "@/stores/theme";
@@ -114,6 +116,31 @@ function Preview({ spec }: { spec: ChartSpec }) {
   );
 }
 
+/** Save / Don't save / Cancel prompt driven by useChartBuilder.confirmUnsaved(). */
+function UnsavedChartDialog() {
+  const guard = useChartBuilder((s) => s.guard);
+  const answer = useChartBuilder((s) => s.answerGuard);
+  return (
+    <AlertDialog open={!!guard} onOpenChange={(open) => !open && answer("cancel")}>
+      <AlertDialogContent>
+        <AlertDialogTitle>Save this chart?</AlertDialogTitle>
+        <AlertDialogDescription>It isn't in your project yet, so it won't appear in reports.</AlertDialogDescription>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button variant="ghost" onClick={() => answer("cancel")}>
+            Cancel
+          </Button>
+          <Button variant="outline" onClick={() => answer("discard")}>
+            Don't save
+          </Button>
+          <Button onClick={() => answer("save")} autoFocus>
+            Save chart
+          </Button>
+        </div>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 /** The shelf-style chart builder for one chart (SPEC §10.2). */
 export function ChartBuilder({ spec }: { spec: ChartSpec }) {
   const meta = useDatasetStore((s) => s.meta);
@@ -123,13 +150,19 @@ export function ChartBuilder({ spec }: { spec: ChartSpec }) {
   const refresh = useChartBuilder((s) => s.refresh);
   const data = useChartBuilder((s) => s.data);
   const save = useChartBuilder((s) => s.save);
-  const close = useChartBuilder((s) => s.close);
   const key = dataKey(spec);
 
   useEffect(() => {
     const t = window.setTimeout(() => void refresh(), 120);
     return () => window.clearTimeout(t);
   }, [key, snapshot, refresh]);
+
+  // While this draft is open, block navigating away (DatasetTabs, the wordmark/Home) until the
+  // unsaved-chart prompt is answered; see guardLeaveChartBuilder in stores/chartBuilder.ts.
+  useEffect(() => {
+    useNav.getState().setLeaveGuard(guardLeaveChartBuilder);
+    return () => useNav.getState().setLeaveGuard(null);
+  }, []);
 
   const vars = meta ? visibleVariables(meta, false).filter((v) => !["ignore", "open_text", "identifier"].includes(v.role)) : [];
   const fromAnalysis = CHART_INFO[spec.chart_type].source === "analysis";
@@ -138,8 +171,8 @@ export function ChartBuilder({ spec }: { spec: ChartSpec }) {
   };
   return (
     <div className="grid w-full gap-4" data-testid="chart-builder">
-      <div className="flex flex-wrap items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={close} data-testid="back-to-charts">
+      <div className="sticky top-0 z-10 -mx-6 -mt-6 flex flex-wrap items-center gap-2 border-b bg-background px-6 py-3">
+        <Button variant="ghost" size="sm" onClick={() => void guardLeaveChartBuilder()} data-testid="back-to-charts">
           <ArrowLeft aria-hidden /> Charts
         </Button>
         <h2 className="min-w-0 truncate text-xl font-semibold">{isSaved ? chartName(spec) : "New chart"}</h2>
@@ -164,6 +197,7 @@ export function ChartBuilder({ spec }: { spec: ChartSpec }) {
         </div>
         <CustomizePanel spec={spec} data={data} />
       </div>
+      <UnsavedChartDialog />
     </div>
   );
 }

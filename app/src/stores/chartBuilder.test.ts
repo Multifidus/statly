@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MockEngine } from "@/mocks/engine";
 import { MOCK_EXAMPLE_PROJECT_PATH } from "@/mocks/shapes";
 import { useFreshMock } from "@/test/mockTransport";
-import { useChartBuilder } from "@/stores/chartBuilder";
+import { guardLeaveChartBuilder, useChartBuilder } from "@/stores/chartBuilder";
 import { useProjectStore } from "@/stores/project";
 
 let engine: MockEngine;
@@ -97,5 +97,49 @@ describe("chart builder store", () => {
     expect(cb().draft!.theme_preset).toBe("apa");
     await cb().refresh();
     expect(cb().data!.rows.some((r) => r.kind === "box")).toBe(true);
+  });
+
+  it("does not prompt, and closes immediately, when there is nothing unsaved to lose", async () => {
+    cb().open(useProjectStore.getState().project!.chart_specs[0].id);
+    expect(cb().unsaved).toBe(false);
+    await expect(guardLeaveChartBuilder()).resolves.toBe(true);
+    expect(cb().draft).toBeNull();
+  });
+
+  describe("guardLeaveChartBuilder", () => {
+    it("cancel: leaves the draft open and unsaved", async () => {
+      cb().startNew("bar");
+      cb().addField("x", "Time");
+      const before = useProjectStore.getState().project!.chart_specs.length;
+      const result = guardLeaveChartBuilder();
+      expect(cb().guard).not.toBeNull();
+      cb().answerGuard("cancel");
+      await expect(result).resolves.toBe(false);
+      expect(cb().draft).not.toBeNull();
+      expect(cb().unsaved).toBe(true);
+      expect(useProjectStore.getState().project!.chart_specs).toHaveLength(before);
+    });
+
+    it("don't save: discards the draft without adding it to the project", async () => {
+      cb().startNew("bar");
+      cb().addField("x", "Time");
+      const before = useProjectStore.getState().project!.chart_specs.length;
+      const result = guardLeaveChartBuilder();
+      cb().answerGuard("discard");
+      await expect(result).resolves.toBe(true);
+      expect(cb().draft).toBeNull();
+      expect(useProjectStore.getState().project!.chart_specs).toHaveLength(before);
+    });
+
+    it("save chart: saves the draft into the project and closes the builder", async () => {
+      cb().startNew("bar");
+      cb().addField("x", "Time");
+      const before = useProjectStore.getState().project!.chart_specs.length;
+      const result = guardLeaveChartBuilder();
+      cb().answerGuard("save");
+      await expect(result).resolves.toBe(true);
+      expect(cb().draft).toBeNull();
+      expect(useProjectStore.getState().project!.chart_specs).toHaveLength(before + 1);
+    });
   });
 });

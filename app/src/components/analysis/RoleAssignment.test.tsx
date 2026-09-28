@@ -27,6 +27,21 @@ describe("RoleAssignment", () => {
     expect(screen.getByTestId("flow-run")).not.toBeDisabled();
   });
 
+  it("falls back to the generic prompt when no suggestion can be derived", async () => {
+    const meta = await importMockOneGroup();
+    await useAnalysisFlow.getState().loadCatalog();
+    useAnalysisFlow.setState({ outcome: null });
+    useAnalysisFlow.getState().selectAnalysis("t_test.one_sample");
+    useAnalysisFlow.getState().setRole("outcome", ["Q3_1"]);
+    render(<RoleAssignment meta={meta} />);
+    expect(
+      screen.getByText(
+        "Statly never assumes a value to compare against. Enter the one you want to test, such as the middle of the scale."
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Suggested:/)).not.toBeInTheDocument();
+  });
+
   it("disables Run when the test value is cleared, and re-enables it once one is entered", async () => {
     const meta = await setUpOneSample();
     render(<RoleAssignment meta={meta} />);

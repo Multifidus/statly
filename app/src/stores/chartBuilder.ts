@@ -10,7 +10,7 @@ import { addToShelf, cleanSpec, dataKey, newChartId, newChartSpec, removeFromShe
 import type { BuilderCustomization, ChartsDataResult, ShelfName } from "@/lib/chartbuilder/types";
 import { chartsRpc, describeRpcError } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
-import { useProjectStore } from "@/stores/project";
+import { useProjectStore, type GuardChoice } from "@/stores/project";
 
 export type PreviewTheme = "app" | "light" | "dark";
 
@@ -28,6 +28,8 @@ interface ChartBuilderState {
   loading: boolean;
   error: string | null;
   previewTheme: PreviewTheme;
+  /** Unsaved-chart prompt awaiting the user's answer (rendered by ChartBuilder next to its Save button). */
+  guard: { resolve: (c: GuardChoice) => void } | null;
 
   startNew: (type?: ChartType) => void;
   open: (id: string) => void;
@@ -50,6 +52,9 @@ interface ChartBuilderState {
   save: () => ChartSpec | null;
   remove: (id: string) => void;
   duplicate: (id: string) => ChartSpec | null;
+  /** Ask the user what to do with the unsaved draft. Resolves immediately with "discard" when clean. */
+  confirmUnsaved: () => Promise<GuardChoice>;
+  answerGuard: (c: GuardChoice) => void;
 }
 
 let seq = 0;
@@ -74,6 +79,7 @@ export const useChartBuilder = create<ChartBuilderState>((set, get) => {
     loading: false,
     error: null,
     previewTheme: "app",
+    guard: null,
 
     startNew: (type = "bar") => {
       const spec = newChartSpec(type);
@@ -170,5 +176,36 @@ export const useChartBuilder = create<ChartBuilderState>((set, get) => {
       useProjectStore.getState().updateProject((p) => ({ ...p, chart_specs: [...(p.chart_specs ?? []), copy] }));
       return copy;
     },
+
+    confirmUnsaved: () => {
+      if (!get().unsaved) return Promise.resolve<GuardChoice>("discard");
+      return new Promise<GuardChoice>((resolve) => {
+        get().guard?.resolve("cancel");
+        set({ guard: { resolve } });
+      });
+    },
+
+    answerGuard: (c) => {
+      const g = get().guard;
+      set({ guard: null });
+      g?.resolve(c);
+    },
   };
 });
+
+/**
+ * Model: useProjectStore.confirmUnsaved. Asks about the draft chart (if any) before letting the
+ * caller navigate away from the builder; "cancel" refuses, "save"/"discard" resolve it and close
+ * the draft. Installed as nav's leaveGuard while a draft is open, and used directly by the
+ * builder's own Back button.
+ */
+export async function guardLeaveChartBuilder(): Promise<boolean> {
+  const s = useChartBuilder.getState();
+  if (s.unsaved) {
+    const choice = await s.confirmUnsaved();
+    if (choice === "cancel") return false;
+    if (choice === "save" && !s.save()) return false;
+  }
+  useChartBuilder.getState().close();
+  return true;
+}

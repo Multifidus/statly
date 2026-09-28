@@ -117,9 +117,11 @@ export function RoleAssignment({ meta }: { meta: DatasetMeta }) {
           <label htmlFor="flow-test-value" className="text-sm font-medium">
             Compare the average against this value
           </label>
-          <p className="text-xs text-muted-foreground">
-            Statly never assumes a value to compare against &mdash; enter the one you want to test, such as the middle of the scale.
-          </p>
+          {!f.testValueHint && (
+            <p className="text-xs text-muted-foreground">
+              Statly never assumes a value to compare against. Enter the one you want to test, such as the middle of the scale.
+            </p>
+          )}
           <Input
             id="flow-test-value"
             type="number"
