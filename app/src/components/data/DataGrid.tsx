@@ -4,11 +4,15 @@ import { ShieldAlert } from "lucide-react";
 import { cn } from "cn";
 import type { CellValue, DatasetMeta, VariableSchema } from "@/contracts";
 import { RowPageCache } from "@/lib/rowPages";
+import { useDatasetStore } from "@/stores/dataset";
 
 const ROW_H = 32;
 const HEADER_H = 52;
 const ROWNUM_W = 64;
 const COL_W = 150;
+/** How long a "just created" column header stays highlighted. Reduced motion (see
+ * `motion-reduce:` below) skips the fade transition but keeps the same highlighted duration. */
+const HIGHLIGHT_MS = 3000;
 
 export function formatCell(v: CellValue | undefined): string {
   if (v === undefined || v === null) return "";
@@ -20,14 +24,19 @@ export function formatCell(v: CellValue | undefined): string {
 interface Props {
   meta: DatasetMeta;
   variables: VariableSchema[];
+  /** Set by the "Jump to variable" search box: scrolls to and highlights this column. */
+  jumpTarget?: { name: string; ts: number } | null;
 }
 
 /** Virtualized (rows and columns) data grid that pages rows from the engine. */
-export function DataGrid({ meta, variables }: Props) {
+export function DataGrid({ meta, variables, jumpTarget }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [, bump] = useReducer((x: number) => x + 1, 0);
   const columns = useMemo(() => variables.map((v) => v.name), [variables]);
   const colKey = columns.join("\u0001");
+  const recentColumns = useDatasetStore((s) => s.recentColumns);
+  const clearRecentColumns = useDatasetStore((s) => s.clearRecentColumns);
+  const [highlighted, setHighlighted] = useState<Set<string>>(new Set());
 
   const cache = useMemo(
     () => new RowPageCache(meta.dataset_id, meta.snapshot_id, columns, bump),
@@ -62,6 +71,39 @@ export function DataGrid({ meta, variables }: Props) {
   useEffect(() => {
     cache.ensureRange(firstRow, lastRow, meta.n_rows);
   }, [cache, firstRow, lastRow, meta.n_rows]);
+
+  // Scroll to and briefly highlight columns Statly just created (yes/no tags, scale scores,
+  // computed variables, knowledge scoring), instead of opening the Data tab at the top-left.
+  useEffect(() => {
+    if (!recentColumns || !recentColumns.names.length) return;
+    const present = recentColumns.names.filter((n) => columns.includes(n));
+    // Consuming the flag re-renders with recentColumns === null; that must not cancel the
+    // highlight-clearing timer below, so it lives in its own effect keyed on `highlighted`.
+    clearRecentColumns();
+    if (!present.length) return;
+    const firstIndex = columns.indexOf(present[0]);
+    cols.scrollToIndex(firstIndex, { align: "center" });
+    setHighlighted(new Set(present));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recentColumns, colKey]);
+
+  // "Jump to variable" search: scroll to and highlight a single column by name.
+  useEffect(() => {
+    if (!jumpTarget) return;
+    const idx = columns.indexOf(jumpTarget.name);
+    if (idx < 0) return;
+    cols.scrollToIndex(idx, { align: "center" });
+    setHighlighted(new Set([jumpTarget.name]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jumpTarget, colKey]);
+
+  // Clear whatever is highlighted after HIGHLIGHT_MS, independent of what triggered it so
+  // consuming `recentColumns` (above) can't cancel this timer.
+  useEffect(() => {
+    if (!highlighted.size) return;
+    const t = setTimeout(() => setHighlighted(new Set()), HIGHLIGHT_MS);
+    return () => clearTimeout(t);
+  }, [highlighted]);
 
   const [active, setActive] = useState<{ r: number; c: number }>({ r: 0, c: 0 });
   useEffect(() => setActive((a) => ({ r: Math.min(a.r, Math.max(0, meta.n_rows - 1)), c: Math.min(a.c, Math.max(0, variables.length - 1)) })), [meta.n_rows, variables.length]);
@@ -117,13 +159,19 @@ export function DataGrid({ meta, variables }: Props) {
           </div>
           {vCols.map((vc) => {
             const v = variables[vc.index];
+            const isHighlighted = highlighted.has(v.name);
             return (
               <div
                 key={v.name}
                 role="columnheader"
                 aria-colindex={vc.index + 2}
                 title={v.question_text ?? v.label ?? v.name}
-                className="absolute top-0 grid content-center gap-0.5 border-r px-2"
+                data-testid={`col-header-${v.name}`}
+                data-recent={isHighlighted || undefined}
+                className={cn(
+                  "absolute top-0 grid content-center gap-0.5 border-r px-2 transition-colors duration-1000 motion-reduce:transition-none",
+                  isHighlighted && "bg-amber-200/70 dark:bg-amber-900/50",
+                )}
                 style={{ left: ROWNUM_W + vc.start, width: vc.size, height: HEADER_H }}
               >
                 <span className="flex items-center gap-1 truncate font-mono text-xs font-semibold">

@@ -70,6 +70,11 @@ test("reads, tags, searches, summarizes, and exports open-ended responses", asyn
   await expect(page.getByTestId("yes-no-created")).toContainText("Q10_pacing");
   await expect(page.getByTestId("yes-no-created")).toContainText("chi-square");
 
+  // Opening the Data tab jumps to (and doesn't land to the left of) the new yes/no column.
+  await page.getByTestId("tab-data").click();
+  await expect(page.getByTestId("col-header-Q10_pacing")).toBeVisible();
+  await page.getByTestId("tab-qualitative").click();
+
   // Export coded responses (mock save dialog).
   await page.getByTestId("qual-export").click();
   await page.getByRole("menuitem", { name: /Coded responses \(Excel/ }).click();

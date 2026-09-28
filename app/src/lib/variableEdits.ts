@@ -38,6 +38,7 @@ export async function runEdit(
   opts: { quiet?: boolean } = {},
 ): Promise<EditWarning[]> {
   const meta = currentMeta();
+  const priorNames = new Set(meta.variables.map((v) => v.name));
   let res: DatasetEditResult;
   try {
     res = await op(meta.dataset_id, meta.snapshot_id);
@@ -45,6 +46,8 @@ export async function runEdit(
     throw new EditError(describeEditError(e));
   }
   useDatasetStore.getState().setMeta(res.dataset_meta);
+  const newNames = res.dataset_meta.variables.map((v) => v.name).filter((n) => !priorNames.has(n));
+  if (newNames.length) useDatasetStore.getState().setRecentColumns(newNames);
   useProjectStore.getState().markDirty();
   await useHistory.getState().refresh();
   if (res.warnings.length && !opts.quiet) useNotify.getState().show(res.warnings.map((w) => w.message).join(" "));

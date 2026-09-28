@@ -290,6 +290,7 @@ export const useQualitative = create<QualState>((set, get) => {
           tag_ids: tagIds ?? null,
         });
         useDatasetStore.getState().setMeta(res.dataset_meta);
+        if (res.created.length) useDatasetStore.getState().setRecentColumns(res.created.map((c) => c.variable));
         dirty();
         await useHistory.getState().refresh();
         return res.created;

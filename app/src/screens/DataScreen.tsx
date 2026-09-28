@@ -93,6 +93,8 @@ export function DataScreen() {
   const setShowMetadata = useDatasetStore((s) => s.setShowMetadata);
   const go = useNav((s) => s.go);
   const resetFlow = useImportFlow((s) => s.reset);
+  const [jumpQuery, setJumpQuery] = useState("");
+  const [jumpTarget, setJumpTarget] = useState<{ name: string; ts: number } | null>(null);
 
   if (!meta) {
     return (
@@ -111,6 +113,18 @@ export function DataScreen() {
   const metaCount = meta.variables.filter((v) => v.is_metadata).length;
   const piiCount = meta.variables.filter((v) => v.is_pii).length;
 
+  const jumpToVariable = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    const q = jumpQuery.trim().toLowerCase();
+    if (!q) return;
+    const match =
+      vars.find((v) => v.name.toLowerCase() === q) ??
+      vars.find((v) => (v.label ?? "").toLowerCase() === q) ??
+      vars.find((v) => v.name.toLowerCase().includes(q)) ??
+      vars.find((v) => (v.label ?? "").toLowerCase().includes(q));
+    if (match) setJumpTarget({ name: match.name, ts: Date.now() });
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -121,6 +135,16 @@ export function DataScreen() {
         </p>
         {piiCount > 0 && <p className="text-sm text-amber-800 dark:text-amber-300">{piiCount} column{piiCount > 1 ? "s" : ""} marked PII</p>}
         <div className="ml-auto flex flex-wrap items-center gap-3">
+          <input
+            type="search"
+            value={jumpQuery}
+            onChange={(e) => setJumpQuery(e.target.value)}
+            onKeyDown={jumpToVariable}
+            placeholder="Jump to variable…"
+            aria-label="Jump to variable"
+            data-testid="jump-to-variable"
+            className="h-8 w-48 rounded-md border bg-background px-2 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          />
           {metaCount > 0 && (
             <CheckboxField
               label={`Show survey system columns (${metaCount})`}
@@ -133,7 +157,7 @@ export function DataScreen() {
       </div>
       <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-h-[20rem] min-w-0">
-          <DataGrid meta={meta} variables={vars} />
+          <DataGrid meta={meta} variables={vars} jumpTarget={jumpTarget} />
         </div>
         <aside className="min-h-0 overflow-hidden rounded-md border p-4">
           <MissingSummary meta={meta} />
