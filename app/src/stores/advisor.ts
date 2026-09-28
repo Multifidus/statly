@@ -6,7 +6,7 @@
  */
 import { create } from "zustand";
 import type { AdvisorQuestion, AdvisorStep, AnswerValue, DatasetContext } from "@/lib/analysisRpc";
-import { deriveDatasetContext, outcomeCandidates } from "@/lib/datasetContext";
+import { deriveDatasetContext, outcomeCandidates, relateLevelGuess } from "@/lib/datasetContext";
 import { describeRpcError, rpc } from "@/lib/rpc";
 import { useDatasetStore } from "@/stores/dataset";
 import { useProjectStore } from "@/stores/project";
@@ -19,6 +19,10 @@ interface AdvisorState {
   error: string | null;
   /** Outcome variable the context was derived from (null = none chosen / no data). */
   outcome: string | null;
+  /** The correlation branch's second variable (QA-38 #39), once the "Which other variable?"
+   * picker has one. Not a question in content/decision_tree.yaml: it's how the frontend learns
+   * the real second_distinct/second_level for that branch instead of guessing from the outcome. */
+  secondVariable: string | null;
   context: DatasetContext;
   /** Explicit (user) answers, question id -> value. */
   answers: Record<string, AnswerValue>;
@@ -28,12 +32,21 @@ interface AdvisorState {
   /** Question ids whose current (explicit "user") answer came from the study plan seed, not
    * something the person picked in this session. Cleared per-question once they answer it. */
   planSeeded: Record<string, boolean>;
+  /** Question ids whose current (explicit "user") answer was filled in from both variables'
+   * levels once the second variable was known (q_relate_variable_types). Cleared once the person
+   * changes that answer themselves. Shown with the same "Filled in from your data" note as a real
+   * dataset_context auto-answer. */
+  levelSeeded: Record<string, boolean>;
 
   start: (outcome?: string | null) => Promise<void>;
   setOutcome: (outcome: string | null) => Promise<void>;
+  setSecondVariable: (name: string | null) => Promise<void>;
   answer: (questionId: string, value: AnswerValue) => Promise<void>;
   /** Undo the most recent explicit answer. */
   back: () => Promise<void>;
+  /** Clear the answers (and second variable) but keep the chosen outcome, then show the first
+   * question again (QA-38 #38: "Start another analysis"/"New analysis"). */
+  startAnother: () => Promise<void>;
   reset: () => void;
 }
 
@@ -41,11 +54,13 @@ const INITIAL = {
   status: "idle" as AdvisorStatus,
   error: null,
   outcome: null,
+  secondVariable: null,
   context: {},
   answers: {},
   step: null,
   questions: {},
   planSeeded: {},
+  levelSeeded: {},
 };
 
 let seq = 0;
@@ -120,7 +135,9 @@ export const useAdvisor = create<AdvisorState>((set, get) => {
     setOutcome: async (outcome) => {
       const meta = useDatasetStore.getState().meta;
       const answers = get().answers;
-      set({ outcome, status: "loading" });
+      // A new outcome changes outcome_level, so the second variable (if any) has to be re-picked
+      // for the correlation branch's picker to gate progress again.
+      set({ outcome, secondVariable: null, status: "loading" });
       try {
         const context = meta ? await deriveDatasetContext(meta, outcome) : {};
         set({ context });
@@ -129,6 +146,39 @@ export const useAdvisor = create<AdvisorState>((set, get) => {
         return;
       }
       await evaluate(answers);
+    },
+
+    setSecondVariable: async (name) => {
+      const meta = useDatasetStore.getState().meta;
+      set({ secondVariable: name });
+      if (!meta) return;
+      try {
+        const context = await deriveDatasetContext(meta, get().outcome, name);
+        set({ context });
+      } catch (e) {
+        set({ status: "error", error: describeRpcError(e) });
+        return;
+      }
+      await evaluate(get().answers);
+      // Auto-answer "What kind of variables are you relating?" once both levels are known
+      // (QA-38 #39). Not a real dataset_context auto-answer (engine's DatasetContextField enum
+      // has no per-branch "second variable level"), so it's submitted here as an explicit answer
+      // and flagged in levelSeeded to show the same "Filled in from your data" note; the person
+      // can still change it, which clears the flag like any other explicit answer.
+      const step = get().step;
+      const qid = "q_relate_variable_types";
+      if (step?.next_question?.id === qid) {
+        const ctx = get().context;
+        const guess = relateLevelGuess(ctx.outcome_level, ctx.second_level);
+        if (guess !== null) {
+          const path = step.path;
+          const kept: Record<string, AnswerValue> = {};
+          for (const p of path) if (p.source === "user") kept[p.question] = p.value;
+          kept[qid] = guess;
+          set({ levelSeeded: { ...get().levelSeeded, [qid]: true } });
+          await evaluate(kept);
+        }
+      }
     },
 
     answer: async (questionId, value) => {
@@ -146,7 +196,16 @@ export const useAdvisor = create<AdvisorState>((set, get) => {
         delete planSeeded[questionId];
         set({ planSeeded });
       }
+      if (get().levelSeeded[questionId]) {
+        const levelSeeded = { ...get().levelSeeded };
+        delete levelSeeded[questionId];
+        set({ levelSeeded });
+      }
       await evaluate(kept);
+    },
+
+    startAnother: async () => {
+      await get().start(get().outcome);
     },
 
     back: async () => {

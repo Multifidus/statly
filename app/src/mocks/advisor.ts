@@ -5,7 +5,7 @@
  */
 import type { AdvisorPath, AdvisorQuestion, AdvisorRecommendation, AdvisorStep, AnswerValue, DatasetContext } from "@/lib/analysisRpc";
 
-type Auto = { field: keyof DatasetContext; rules: { when: { equals?: unknown; min?: number }; value: AnswerValue }[] };
+type Auto = { field: keyof DatasetContext; rules: { when: { equals?: unknown; min?: number; max?: number }; value: AnswerValue }[] };
 type QNode = { type: "question"; text: string; why: string; hint?: string; auto?: Auto; options: { value: AnswerValue; label: string; description?: string; next: string }[] };
 type RNode = { type: "recommendation" } & Omit<AdvisorRecommendation, "id">;
 type Node = QNode | RNode;
@@ -33,7 +33,7 @@ const TREE: { root: string; nodes: Record<string, Node> } = {
       hint: "Different questions call for different statistical tests, so start with what you're trying to find out.",
       options: [
         { value: "compare", label: "Did scores change over time, or differ between groups?", description: "For example, comparing test scores before and after a workshop.", next: "q_compare_outcome_level" },
-        { value: "relate", label: "Are two things related?", description: "For example, whether hours studied is related to exam score.", next: "rec_pearson" },
+        { value: "relate", label: "Are two things related?", description: "For example, whether hours studied is related to exam score.", next: "q_relate_variable_types" },
         { value: "reliability", label: "Do my survey questions hang together?", description: "For example, checking whether ten survey items all measure classroom engagement.", next: "rec_alpha" },
       ],
     },
@@ -125,6 +125,32 @@ const TREE: { root: string; nodes: Record<string, Node> } = {
       post_hoc: ["posthoc.pairwise"],
       why_this_test: "A mixed ANOVA combines a between-subjects grouping variable (e.g. control vs. intervention) with a within-subjects factor (time), so you can see the group x time interaction.",
     }),
+    // Relate branch (correlation): "What kind of variables are you relating?" (mirrors
+    // content/decision_tree.yaml q_relate_variable_types/q_relate_ordinal_detail; only the two
+    // options the app currently exercises, per this file's "shaped like it" contract).
+    q_relate_variable_types: {
+      type: "question",
+      text: "What kind of variables are you relating?",
+      why: "The right correlation coefficient depends on how both variables are measured.",
+      hint: "Correlation measures how two variables move together; the right coefficient depends on how each variable is measured.",
+      options: [
+        { value: "continuous_continuous", label: "Both are scores or scale totals (continuous)", description: "For example, hours studied and exam score, both measured as numbers.", next: "rec_pearson" },
+        { value: "ordinal_involved", label: "One or both are ranks or single rating-scale items (ordinal)", description: "For example, a single satisfaction rating (1-5) and exam score.", next: "q_relate_ordinal_detail" },
+      ],
+    },
+    q_relate_ordinal_detail: {
+      type: "question",
+      text: "Do you have a small sample or a lot of tied ranks (e.g. many identical ratings)?",
+      why: "Spearman's correlation is the usual rank-based choice. Kendall's tau-b handles tied ranks more precisely and tends to be more reliable in small samples.",
+      hint: "A tied rank happens when two or more responses share the exact same rating, which is common with small rating scales.",
+      auto: { field: "second_distinct", rules: [{ when: { max: 7 }, value: "yes" }] },
+      options: [
+        { value: "no", label: "No, use the usual choice", description: "Use Spearman's correlation, the standard rank-based choice.", next: "rec_spearman" },
+        { value: "yes", label: "Yes", description: "For example, a survey with only 15 respondents, or a 5-point scale where many people picked the same rating.", next: "rec_kendall" },
+      ],
+    },
+    rec_spearman: rec({ primary_test: "correlation.spearman", nonparametric_alternative: "correlation.kendall_tau_b", assumptions: ["monotonic_relationship"], effect_size: ["spearman_rho"], why_this_test: "Spearman's correlation measures the strength of a monotonic relationship using ranks, which fits ordinal data such as a single rating-scale item." }),
+    rec_kendall: rec({ primary_test: "correlation.kendall_tau_b", assumptions: ["monotonic_relationship"], effect_size: ["kendall_tau_b"], why_this_test: "Kendall's tau-b measures the relationship between two ranked variables based on how often pairs of observations agree in order. It handles tied ranks explicitly, which makes it a good choice for a small sample or many identical ratings." }),
     rec_mann_whitney: rec({ primary_test: "mann_whitney", assumptions: ["similar_shape_of_distributions"], effect_size: ["rank_biserial"], why_this_test: "A Mann-Whitney U test compares two groups using ranks.", likert_note: "A single Likert item is ordinal: the gaps between answer choices aren't guaranteed to be equal, so a rank-based test is recommended." }),
     rec_chi_square: rec({ primary_test: "chi_square.independence", nonparametric_alternative: "fisher_exact", assumptions: ["expected_cell_counts"], effect_size: ["cramers_v"], why_this_test: "A chi-square test checks whether two categorical variables are related." }),
     rec_pearson: rec({ primary_test: "correlation.pearson", nonparametric_alternative: "correlation.spearman", assumptions: ["linearity", "normality"], effect_size: ["pearson_r"], why_this_test: "A Pearson correlation measures how strongly two scores move together." }),
@@ -139,6 +165,7 @@ function autoValue(auto: Auto | undefined, ctx: DatasetContext): AnswerValue | n
   for (const r of auto.rules) {
     if ("equals" in r.when && r.when.equals === v) return r.value;
     if (r.when.min !== undefined && typeof v === "number" && v >= r.when.min) return r.value;
+    if (r.when.max !== undefined && typeof v === "number" && v <= r.when.max) return r.value;
   }
   return null;
 }

@@ -6,7 +6,7 @@ import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { WhyItMatters } from "@/components/ui/why";
 import { RecommendationCard } from "@/components/advisor/RecommendationCard";
 import type { AdvisorQuestion, AnswerValue, DatasetContext } from "@/lib/analysisRpc";
-import { groupedOutcomeCandidates } from "@/lib/datasetContext";
+import { groupedSecondVariableCandidates, groupedOutcomeCandidates } from "@/lib/datasetContext";
 import { answerLabel, useAdvisor } from "@/stores/advisor";
 import { catalogLabels, useAnalysisFlow } from "@/stores/analysisFlow";
 import { useDatasetStore } from "@/stores/dataset";
@@ -105,6 +105,13 @@ export function AdvisorScreen() {
   const ctxText = contextSummary(a.context);
   const hasUserAnswer = a.step?.path.some((p) => p.source === "user") ?? false;
 
+  // Correlation branch (QA-38 #39): once "Are two things related?" is answered, ask which other
+  // variable before showing any further question, so the ties/level questions downstream see the
+  // real second variable instead of guessing from the outcome alone.
+  const inRelateBranch = a.step?.path.some((p) => p.question === "q_intent" && p.value === "relate") ?? false;
+  const needsSecondVariable = inRelateBranch && !a.secondVariable;
+  const secondCandidateGroups = meta ? groupedSecondVariableCandidates(meta, a.outcome) : [];
+
   const setUp = async () => {
     if (!rec) return;
     await useAnalysisFlow.getState().setup(rec, a.outcome);
@@ -120,7 +127,7 @@ export function AdvisorScreen() {
           </h1>
           <p className="text-muted-foreground">Answer a few plain-language questions and Statly will suggest the right test.</p>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => void a.start(a.outcome)}>
+        <Button variant="ghost" size="sm" onClick={() => void a.start(null)}>
           <RotateCcw aria-hidden /> Start over
         </Button>
       </div>
@@ -161,6 +168,7 @@ export function AdvisorScreen() {
                       <p className="font-medium">{answerLabel(pq, p.value)}</p>
                       {p.source === "auto" && <p className="text-xs text-muted-foreground">Filled in from your data</p>}
                       {p.source === "user" && a.planSeeded[p.question] && <p className="text-xs text-muted-foreground">Filled in from your plan</p>}
+                      {p.source === "user" && a.levelSeeded[p.question] && <p className="text-xs text-muted-foreground">Filled in from your data</p>}
                     </div>
                     {pq && (
                       <Button variant="ghost" size="sm" onClick={() => setEditing(editing === p.question ? null : p.question)} aria-expanded={editing === p.question} aria-label={`Change answer: ${pq.text}`}>
@@ -195,7 +203,48 @@ export function AdvisorScreen() {
         </p>
       )}
 
-      {q && (
+      {inRelateBranch && a.secondVariable && (
+        <div className="rounded-md border p-3 text-sm" data-testid="advisor-second-variable-chosen">
+          <div className="flex flex-wrap items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-muted-foreground">Which other variable?</p>
+              <p className="font-medium">{a.secondVariable}</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => void a.setSecondVariable(null)} aria-label="Change the other variable">
+              <Pencil aria-hidden /> Change
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {needsSecondVariable && (
+        <section aria-labelledby="q-second-variable" className="grid gap-4 rounded-xl border p-5" data-testid="advisor-second-variable">
+          <h2 id="q-second-variable" className="text-lg font-semibold outline-none">
+            Which other variable?
+          </h2>
+          <p className="text-sm text-muted-foreground">Choose the second thing you want to relate to {a.outcome ?? "your outcome"}.</p>
+          <NativeSelect
+            aria-label="Which other variable?"
+            value=""
+            onChange={(e) => void a.setSecondVariable(e.target.value || null)}
+            className="max-w-md"
+            data-testid="advisor-second-variable-select"
+          >
+            <option value="">Choose a variable…</option>
+            {secondCandidateGroups.map((g) => (
+              <optgroup key={g.group} label={g.label}>
+                {g.variables.map((v) => (
+                  <option key={v.name} value={v.name}>
+                    {v.label && v.label !== v.name ? `${v.name}: ${v.label}` : v.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </NativeSelect>
+        </section>
+      )}
+
+      {q && !needsSecondVariable && (
         <section aria-labelledby={`q-${q.id}`} className="grid gap-4 rounded-xl border p-5" data-testid="advisor-question">
           <h2 id={`q-${q.id}`} ref={heading} tabIndex={-1} className="text-lg font-semibold outline-none">
             {q.text}

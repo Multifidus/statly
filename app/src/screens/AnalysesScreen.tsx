@@ -10,6 +10,7 @@ import { FalsePositiveExplainer } from "@/components/testlog/FalsePositiveExplai
 import { FamilyDialog, type FamilyDraft } from "@/components/testlog/FamilyDialog";
 import { fmtPExpr } from "@/lib/apa";
 import { adjustedLabel, eligibility, familyMembers, familyMethod, METHOD_INFO, METHOD_ORDER, suggestFamilies } from "@/lib/testFamilies";
+import { useAdvisor } from "@/stores/advisor";
 import { useNav } from "@/stores/nav";
 import { useProjectStore } from "@/stores/project";
 import { useResults } from "@/stores/results";
@@ -70,7 +71,13 @@ export function AnalysesScreen() {
             <Plus aria-hidden /> Group tests
           </Button>
         )}
-        <Button onClick={() => go("advisor")} data-testid="new-analysis">
+        <Button
+          onClick={() => {
+            void useAdvisor.getState().startAnother();
+            go("advisor");
+          }}
+          data-testid="new-analysis"
+        >
           <Wand2 aria-hidden /> New analysis
         </Button>
       </div>

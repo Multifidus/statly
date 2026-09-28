@@ -243,3 +243,50 @@ test("Test Advisor: chi-square's low-expected-counts check switches the decision
   await expect(log.getByText(/^Fisher's exact test · Q4/)).toBeVisible();
   await expect(log.getByText(/^Chi-square test of independence · Q4/)).toBeVisible();
 });
+
+async function importMessyQualtrics(page: Page) {
+  await page.goto("/");
+  await page.getByTestId("new-project").click();
+  await page.getByTestId("choose-files").click();
+  const dialog = page.getByTestId("mock-dialog");
+  await dialog.getByRole("checkbox", { name: "messy_3header.csv" }).check();
+  await dialog.getByRole("button", { name: "Open" }).click();
+  await page.getByTestId("wizard-next").click(); // read files -> detection
+  await page.getByTestId("wizard-next").click(); // detection -> clean-up
+  await page.getByRole("checkbox", { name: /checked the codes for Q6/ }).check();
+  await page.getByTestId("wizard-next").click(); // -> summary
+  await page.getByTestId("wizard-next").click(); // import
+  await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
+}
+
+test("Test Advisor: correlation asks for the second variable before the tied-ranks question, so a 5-point item reaches Kendall's tau-b (QA-38 #39)", async ({ page }) => {
+  await importMessyQualtrics(page);
+  await finishInterview(page);
+
+  await page.getByTestId("tab-advisor").click();
+
+  // The Q5 scale score (continuous) is pre-selected as the outcome.
+  await expect(page.getByTestId("advisor-outcome")).toHaveValue(/_score$/);
+
+  const question = page.getByTestId("advisor-question");
+  await question.getByText("Are two things related?").click();
+  await page.getByTestId("advisor-next").click();
+
+  // Before any further relate-branch question, Statly asks which other variable - the outcome
+  // itself is not offered.
+  const picker = page.getByTestId("advisor-second-variable");
+  await expect(picker).toBeVisible();
+  const pickerSelect = page.getByTestId("advisor-second-variable-select");
+  await expect(pickerSelect.locator("option", { hasText: /^Q6/ })).toHaveCount(1);
+  const outcomeValue = await page.getByTestId("advisor-outcome").inputValue();
+  await expect(pickerSelect.locator(`option[value="${outcomeValue}"]`)).toHaveCount(0);
+
+  await pickerSelect.selectOption("Q6");
+
+  // "What kind of variables are you relating?" is filled in from both variables' levels (one
+  // ordinal), and the tied-ranks question sees Q6's own 5 distinct values (not the outcome's
+  // much larger distinct count, the old bug), landing straight on Kendall's tau-b.
+  await expect(page.getByTestId("path-q_relate_variable_types")).toContainText("Filled in from your data");
+  await expect(page.getByTestId("recommendation")).toBeVisible();
+  await expect(page.getByTestId("rec-primary")).toHaveText(/Kendall's tau-b/);
+});

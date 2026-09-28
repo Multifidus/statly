@@ -11,6 +11,7 @@ import { prefillRoles, roleProblem, suggestTestValue } from "@/lib/datasetContex
 import { labelFor } from "@/lib/content/labels";
 import { newRequestId } from "@/lib/resultSummary";
 import { describeRpcError, rpc, RpcErrorCode } from "@/lib/rpc";
+import { useAdvisor } from "@/stores/advisor";
 import { useDatasetStore } from "@/stores/dataset";
 import { useResults } from "@/stores/results";
 import { logRun } from "@/stores/testLog";
@@ -130,7 +131,7 @@ export const useAnalysisFlow = create<FlowState>((set, get) => {
     const meta = useDatasetStore.getState().meta;
     const info = get().catalog?.find((a) => a.analysis_id === analysisId);
     if (!meta || !info) return { layout: null, roles: {}, testValue: "", testValueHint: null };
-    const roles = prefillRoles(info, meta, get().outcome);
+    const roles = prefillRoles(info, meta, get().outcome, useAdvisor.getState().secondVariable);
     if (!needsTestValue(analysisId)) return { ...roles, testValue: "", testValueHint: null };
     const suggestion = suggestTestValue(meta, get().outcome);
     return { ...roles, testValue: suggestion ? String(suggestion.value) : "", testValueHint: suggestion?.note ?? null };

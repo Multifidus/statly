@@ -59,10 +59,33 @@ export function groupedOutcomeCandidates(meta: DatasetMeta): { group: OutcomeGro
   })).filter((g) => g.variables.length > 0);
 }
 
+/**
+ * Candidates for the correlation branch's "Which other variable?" picker: the same grouped list
+ * as the outcome dropdown, minus the outcome itself (SPEC/QA-38 #39).
+ */
+export function groupedSecondVariableCandidates(meta: DatasetMeta, outcome: string | null): { group: OutcomeGroup; label: string; variables: VariableSchema[] }[] {
+  return groupedOutcomeCandidates(meta)
+    .map((g) => ({ ...g, variables: g.variables.filter((v) => v.name !== outcome) }))
+    .filter((g) => g.variables.length > 0);
+}
+
 export function outcomeLevelOf(v: VariableSchema): OutcomeLevel {
   if (v.role === "scale_score" || v.role === "test_total") return "continuous";
   const lvl: MeasurementLevel = v.level;
   return lvl;
+}
+
+/**
+ * "What kind of variables are you relating?" (content/decision_tree.yaml q_relate_variable_types)
+ * answered from both variables' levels, once known (QA-38 #39). Only "both continuous" and
+ * "either ordinal" are safe to guess this way: a nominal variable (categorical/binary) always
+ * needs the person to say so explicitly, so this returns null rather than a wrong guess.
+ */
+export function relateLevelGuess(outcomeLevel: OutcomeLevel | undefined, secondLevel: OutcomeLevel | undefined): "continuous_continuous" | "ordinal_involved" | null {
+  if (!outcomeLevel || !secondLevel) return null;
+  if (outcomeLevel === "ordinal" || secondLevel === "ordinal") return "ordinal_involved";
+  if (outcomeLevel === "continuous" && secondLevel === "continuous") return "continuous_continuous";
+  return null;
 }
 
 export function timeVariable(meta: DatasetMeta): string | null {
@@ -91,7 +114,13 @@ export async function countLevels(meta: DatasetMeta, name: string): Promise<numb
   return seen.size;
 }
 
-export async function deriveDatasetContext(meta: DatasetMeta, outcome: string | null): Promise<DatasetContext> {
+/**
+ * @param second The correlation branch's second variable (QA-38 #39), once the "Which other
+ * variable?" picker has one. Without it, `second_distinct` falls back to the outcome's own
+ * distinct count (the old behavior, still right for every non-correlation branch) and
+ * `second_level` is left unset.
+ */
+export async function deriveDatasetContext(meta: DatasetMeta, outcome: string | null, second?: string | null): Promise<DatasetContext> {
   const ctx: DatasetContext = {};
   const out = outcome ? meta.variables.find((v) => v.name === outcome) : undefined;
   if (out) ctx.outcome_level = outcomeLevelOf(out);
@@ -106,9 +135,15 @@ export async function deriveDatasetContext(meta: DatasetMeta, outcome: string | 
     // to auto-answer itself (content/decision_tree.yaml: q_relate_ordinal_detail).
     ctx.n_complete = meta.missing_summary.find((m) => m.variable === outcome)?.n_valid ?? undefined;
     ctx.outcome_distinct = await countLevels(meta, out.name);
-    // The advisor doesn't yet know the correlation's second variable at this point in the
-    // flow, so fall back to the outcome's own distinct count.
-    ctx.second_distinct = ctx.outcome_distinct;
+    const sec = second ? meta.variables.find((v) => v.name === second) : undefined;
+    if (sec) {
+      ctx.second_distinct = await countLevels(meta, sec.name);
+      ctx.second_level = outcomeLevelOf(sec);
+    } else {
+      // The correlation branch's second variable isn't known yet, so fall back to the
+      // outcome's own distinct count.
+      ctx.second_distinct = ctx.outcome_distinct;
+    }
   }
   return ctx;
 }
@@ -119,7 +154,7 @@ export interface RolePrefill {
 }
 
 /** Pick the layout whose required roles we can fill best, and fill them from the variable roles. */
-export function prefillRoles(info: AnalysisInfo, meta: DatasetMeta, outcome: string | null): RolePrefill {
+export function prefillRoles(info: AnalysisInfo, meta: DatasetMeta, outcome: string | null, second?: string | null): RolePrefill {
   const time = timeVariable(meta);
   const group = groupVariables(meta)[0]?.name ?? null;
   const subject = subjectIdVariable(meta);
@@ -131,10 +166,14 @@ export function prefillRoles(info: AnalysisInfo, meta: DatasetMeta, outcome: str
   const guess = (role: string): string[] => {
     switch (role) {
       case "outcome":
-      case "y":
       case "variable":
       case "row":
+      case "x":
+        // Correlation's first variable (roles x/y, engine/statly_engine/stats/correlation.py) is
+        // the outcome chosen up front; the second variable is its own role, below.
         return outcome ? [outcome] : [];
+      case "y":
+        return second ? [second] : [];
       case "column":
         // Chi-square/Fisher's exact (roles row/column, engine/statly_engine/stats/categorical.py):
         // the outcome is the row, the dataset's group variable is the column.

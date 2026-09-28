@@ -19,6 +19,11 @@ export interface DatasetContext {
   outcome_distinct?: number;
   /** Distinct non-missing values of a correlation's second variable, when known; otherwise the outcome's. */
   second_distinct?: number;
+  /** Measurement level of a correlation's second variable, when chosen. Frontend-only (not a
+   * decision_tree.yaml `auto.field`): the advisor store uses it to auto-answer
+   * q_relate_variable_types itself, since the engine's dataset_context schema has no combinator
+   * for "both fields must match" (only OR-across-fields). */
+  second_level?: OutcomeLevel;
 }
 
 export type AnswerValue = string | number | boolean;

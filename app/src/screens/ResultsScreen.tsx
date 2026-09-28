@@ -8,6 +8,7 @@ import { RichText } from "@/components/results/RichText";
 import { ResultsView } from "@/components/results/ResultsView";
 import { FamilyBadge } from "@/components/testlog/FamilyBadge";
 import { sentencePayload } from "@/lib/apa";
+import { useAdvisor } from "@/stores/advisor";
 import { useAnalysisFlow } from "@/stores/analysisFlow";
 import { useNav } from "@/stores/nav";
 import { useNotify } from "@/stores/notify";
@@ -51,7 +52,14 @@ export function ResultsScreen() {
       <Button variant="outline" size="sm" onClick={() => go("analyses")} data-testid="to-analyses">
         <ListChecks aria-hidden /> Test Log
       </Button>
-      <Button variant="outline" size="sm" onClick={() => go("advisor")}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => {
+          void useAdvisor.getState().startAnother();
+          go("advisor");
+        }}
+      >
         <Wand2 aria-hidden /> Start another analysis
       </Button>
     </div>
