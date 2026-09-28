@@ -2,6 +2,7 @@ import { AlertTriangle, Info } from "lucide-react";
 import { Badge, CheckboxField, NativeSelect, Notice } from "@/components/ui/form";
 import { WhyItMatters } from "@/components/ui/why";
 import type { FilePreview } from "@/contracts";
+import { groupImportIssues } from "@/lib/importIssues";
 import { useImportFlow } from "@/stores/importFlow";
 
 export function describeEncoding(enc: string | null): string {
@@ -90,7 +91,7 @@ function FileCard({ f }: { f: FilePreview }) {
       )}
       {f.issues.length > 0 && (
         <ul className="grid gap-1.5">
-          {f.issues.map((i, k) =>
+          {groupImportIssues(f.issues).map((i, k) =>
             i.severity === "info" ? (
               <li key={k} className="flex items-start gap-2 text-sm">
                 <Info className="mt-0.5 size-4 shrink-0 text-sky-700 dark:text-sky-300" aria-label="Note" />
