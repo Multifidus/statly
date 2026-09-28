@@ -72,10 +72,7 @@ export const ResponseCard = forwardRef<HTMLElement, Props>(function ResponseCard
               return (
                 <DropdownMenuItem
                   key={t.id}
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    onToggle(t.id);
-                  }}
+                  onSelect={() => onToggle(t.id)}
                   aria-checked={on}
                   role="menuitemcheckbox"
                 >

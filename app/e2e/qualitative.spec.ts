@@ -48,7 +48,7 @@ test("reads, tags, searches, summarizes, and exports open-ended responses", asyn
   // Tag through the menu too.
   await cards.nth(2).getByTestId("tag-menu").click();
   await page.getByRole("menuitemcheckbox", { name: /Fairness/ }).click();
-  await page.keyboard.press("Escape");
+  await expect(page.getByRole("menu")).toBeHidden();
   await expect(cards.nth(2).getByTestId("tag-chip")).toHaveText(["Fairness"]);
 
   // Search highlights matches.
