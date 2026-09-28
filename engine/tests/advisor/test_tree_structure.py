@@ -56,6 +56,20 @@ def test_recommendation_ids_are_unique_and_snake_case(tree):
         assert " " not in node_id
 
 
+def test_every_question_has_a_hint_and_every_option_a_description(tree):
+    """Test Advisor and Study Planner are teaching tools: every question
+    needs a plain-language `hint` and every option a `description`, both
+    shown inline (not only behind "Why does this matter?")."""
+    questions = {n_id: n for n_id, n in tree["nodes"].items() if n["type"] == "question"}
+    assert len(questions) >= 25
+    for node_id, node in questions.items():
+        hint = node.get("hint")
+        assert hint and hint.strip(), f"{node_id} is missing a hint"
+        for option in node["options"]:
+            description = option.get("description")
+            assert description and description.strip(), f"{node_id} option {option['value']!r} is missing a description"
+
+
 def _write_tree(tmp_path, tree_dict):
     path = tmp_path / "broken.yaml"
     path.write_text(yaml.safe_dump(tree_dict), encoding="utf-8")

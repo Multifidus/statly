@@ -36,21 +36,29 @@ nodes:
       Statly picks a test by first understanding the shape of your question,
       then the shape of your data. Starting here keeps the questions that
       follow short and relevant.
+    hint: >
+      Different questions call for different statistical tests, so start
+      with what you're trying to find out.
     options:
       - value: compare
         label: "Did scores change over time, or differ between groups?"
+        description: "For example, comparing test scores before and after a workshop, or across three class sections."
         next: q_compare_outcome_level
       - value: relate
         label: "Are two things related?"
+        description: "For example, whether hours studied is related to exam score."
         next: q_relate_variable_types
       - value: predict
         label: "Can one thing predict another?"
+        description: "For example, using pretest score and attendance to predict final exam score."
         next: q_predict_outcome_type
       - value: reliability
         label: "Do my survey questions hang together?"
+        description: "For example, checking whether ten survey items all measure the same thing, like classroom engagement."
         next: q_reliability_type
       - value: validity
         label: "Do my questions measure what I think they measure?"
+        description: "For example, checking whether a 20-item survey really captures the four topics it's supposed to."
         next: q_validity_stage
 
   # =======================================================================
@@ -64,6 +72,10 @@ nodes:
       for it. A single survey question answered on a 1-5 scale behaves very
       differently from a total test score, and both behave differently from
       a category like pass/fail.
+    hint: >
+      The outcome is the variable you're comparing across groups or time
+      points; how it's measured (a category, a rating, or a score) decides
+      which test fits.
     auto:
       field: outcome_level
       rules:
@@ -76,12 +88,15 @@ nodes:
     options:
       - value: nominal
         label: "A category, like pass/fail or yes/no"
+        description: "For example, whether each student passed or failed the course."
         next: q_compare_categorical
       - value: ordinal
         label: "A single survey item on a rating scale (e.g. one Likert question)"
+        description: "For example, one question like \"I enjoyed this class\" rated 1 to 5."
         next: q_compare_design_ordinal
       - value: continuous
         label: "A score or scale total (e.g. a test score or a multi-item scale average)"
+        description: "For example, a 0-100 exam score, or the average of ten satisfaction items."
         next: q_compare_design
 
   # --- categorical (nominal) outcome ------------------------------------
@@ -92,18 +107,26 @@ nodes:
       With categories, the right test depends on whether you're checking
       against an expected pattern, comparing independent groups, or
       comparing the same respondents' answers across time.
+    hint: >
+      This decides whether you're checking one variable against an
+      expected pattern, comparing two separate groups, or tracking the
+      same people's category over time.
     options:
       - value: one_var_vs_expected
         label: "One category variable vs. an expected pattern (e.g. is enrollment evenly split by major?)"
+        description: "For example, checking whether students are evenly split across three majors."
         next: rec_chi_square_gof
       - value: two_groups_independent
         label: "Two category variables, independent groups (e.g. pass/fail by class section)"
+        description: "For example, comparing pass/fail rates between two different class sections."
         next: rec_chi_square_independence
       - value: linked_two_time_points
         label: "Same respondents, yes/no answer, two time points (linked)"
+        description: "For example, the same students answering yes/no both before and after an intervention."
         next: rec_mcnemar
       - value: linked_three_plus_time_points
         label: "Same respondents, yes/no answer, three or more time points (linked)"
+        description: "For example, the same students answering yes/no at the start, middle, and end of the semester."
         next: rec_cochran_q
 
   rec_chi_square_gof:
@@ -175,18 +198,26 @@ nodes:
       "agree" and "strongly agree" isn't guaranteed to equal the gap between
       "disagree" and "agree". Statly recommends rank-based (nonparametric)
       tests for this kind of variable, which compare ranks instead of means.
+    hint: >
+      Ratings like "agree" vs "strongly agree" aren't guaranteed to be
+      evenly spaced, so single rating-scale questions use rank-based tests
+      instead of tests built for scores.
     options:
       - value: vs_fixed_value
         label: "Comparing to a known or expected value"
+        description: "For example, checking whether the average rating differs from the scale's midpoint of 3."
         next: rec_wilcoxon_one_sample
       - value: independent_groups
         label: "Independent groups (different people in each group)"
+        description: "For example, comparing one class's rating of a lesson to a different class's rating."
         next: q_compare_ordinal_groups
       - value: repeated_linked
         label: "Same respondents, measured more than once (linked)"
+        description: "For example, the same students rating their confidence before and after a unit, matched by ID."
         next: q_compare_ordinal_time
       - value: repeated_aggregate
         label: "Comparing time points, but respondents are NOT linked across them"
+        description: "For example, comparing this term's rating average to last term's, with no way to match students."
         next: q_compare_ordinal_aggregate
 
   rec_wilcoxon_one_sample:
@@ -209,6 +240,7 @@ nodes:
     type: question
     text: "How many groups are you comparing?"
     why: "The number of groups decides whether you need a two-group or a multi-group rank test."
+    hint: "A group here means a set of different people being compared to each other, like two separate classes."
     auto:
       field: num_groups
       rules:
@@ -219,9 +251,11 @@ nodes:
     options:
       - value: two
         label: "Two groups"
+        description: "For example, comparing one rating between Class A and Class B."
         next: rec_mann_whitney
       - value: three_plus
         label: "Three or more groups"
+        description: "For example, comparing one rating across three or more class sections."
         next: rec_kruskal_wallis
 
   rec_mann_whitney:
@@ -261,6 +295,7 @@ nodes:
     type: question
     text: "How many time points or conditions?"
     why: "Two linked time points and three-or-more linked time points need different rank tests."
+    hint: "A time point is one occasion the same people were measured, like before and after a lesson."
     auto:
       field: num_time_points
       rules:
@@ -271,9 +306,11 @@ nodes:
     options:
       - value: two
         label: "Two"
+        description: "For example, the same students rated confidence once before and once after a unit."
         next: q_compare_ordinal_paired_method
       - value: three_plus
         label: "Three or more"
+        description: "For example, the same students rated confidence at the start, middle, and end of a course."
         next: rec_friedman
 
   q_compare_ordinal_paired_method:
@@ -285,12 +322,17 @@ nodes:
       the direction of change (up or down); it's simpler and more robust,
       but less powerful, and is sometimes preferred when the size of the
       change isn't meaningful.
+    hint: >
+      Both tests compare each person's rating at two time points; they
+      differ in how much detail about the change they use.
     options:
       - value: signed_rank
         label: "Signed-rank test (usual choice)"
+        description: "Uses how much each person's rating changed, not just whether it went up or down."
         next: rec_wilcoxon_signed_rank
       - value: sign
         label: "Sign test (simpler, direction only)"
+        description: "Only counts whether each person's rating went up or down, ignoring the size of the change."
         next: rec_sign_test
 
   rec_wilcoxon_signed_rank:
@@ -348,6 +390,9 @@ nodes:
       Without a way to link respondents across time, each time point has to
       be treated as an independent group, even if some of the same people
       answered more than once.
+    hint: >
+      Aggregate means you can't match individual respondents across time
+      points, so each time point is treated as its own group.
     auto:
       field: num_time_points
       rules:
@@ -358,9 +403,11 @@ nodes:
     options:
       - value: two
         label: "Two"
+        description: "For example, comparing this term's average rating to last term's, without linking students."
         next: rec_mann_whitney_aggregate
       - value: three_plus
         label: "Three or more"
+        description: "For example, comparing average ratings across three unlinked terms or cohorts."
         next: rec_kruskal_wallis_aggregate
 
   rec_mann_whitney_aggregate:
@@ -402,18 +449,25 @@ nodes:
       This decides the overall family of test: comparing to a fixed value,
       comparing independent groups, comparing the same people over time, or
       comparing time points you can't link.
+    hint: >
+      This sets the overall type of test: comparing to a fixed number,
+      comparing separate groups, or tracking the same people over time.
     options:
       - value: vs_fixed_value
         label: "Comparing to a known or expected value (e.g. a benchmark score)"
+        description: "For example, checking whether a class's average score differs from a passing threshold of 70."
         next: rec_t_one_sample
       - value: independent_groups
         label: "Independent groups (different people in each group/condition)"
+        description: "For example, comparing average test scores between students taught by two different methods."
         next: q_compare_between_factors
       - value: repeated_linked
         label: "Same respondents, measured more than once (linked)"
+        description: "For example, the same students' scores before and after tutoring, matched by student ID."
         next: q_compare_time_points
       - value: repeated_aggregate
         label: "Comparing time points, but respondents are NOT linked across them"
+        description: "For example, comparing this year's average score to last year's, with no way to match students."
         next: q_compare_aggregate_groups
 
   rec_t_one_sample:
@@ -437,18 +491,25 @@ nodes:
       different test than crossing two grouping variables at once (e.g.
       "condition" and "gender" together), which lets you ask whether they
       interact.
+    hint: >
+      A grouping variable splits people into groups you want to compare,
+      like class section (A vs B) or teaching method (lecture vs
+      workshop).
     options:
       - value: one
         label: "One grouping variable"
+        description: "For example, comparing test scores across three class sections."
         next: q_compare_between_groups_count
       - value: two_plus
         label: "Two grouping variables (a factorial design)"
+        description: "For example, teaching method (lecture vs workshop) and grade level (9th vs 10th) at the same time, so you can see whether the method works differently by grade."
         next: q_compare_multiple_outcomes
 
   q_compare_between_groups_count:
     type: question
     text: "How many groups?"
     why: "Two groups and three-or-more groups use different tests."
+    hint: "A group is one of the categories of your grouping variable, like each class section."
     auto:
       field: num_groups
       rules:
@@ -459,9 +520,11 @@ nodes:
     options:
       - value: two
         label: "Two groups"
+        description: "For example, comparing test scores between two teaching methods."
         next: q_compare_covariate_two
       - value: three_plus
         label: "Three or more groups"
+        description: "For example, comparing test scores across three or more class sections."
         next: q_compare_covariate_three
 
   q_compare_covariate_two:
@@ -471,6 +534,9 @@ nodes:
       Controlling for a covariate - most often a pretest - removes
       differences that already existed before your groups were compared,
       so the comparison reflects the effect of the grouping variable itself.
+    hint: >
+      A covariate is a variable you control for statistically because it
+      could otherwise explain away differences between groups.
     auto:
       field: covariates_present
       rules:
@@ -481,9 +547,11 @@ nodes:
     options:
       - value: "no"
         label: "No"
+        description: "Compare the two groups' averages directly, with nothing else controlled for."
         next: rec_t_independent
       - value: "yes"
         label: "Yes"
+        description: "For example, comparing post-test scores between two teaching methods while controlling for pretest score."
         next: rec_ancova
 
   rec_t_independent:
@@ -509,6 +577,10 @@ nodes:
       Controlling for a covariate removes differences that already existed
       before your groups were compared, isolating the effect of the
       grouping variable.
+    hint: >
+      A covariate is a variable you control for statistically, most often
+      a pretest score, so group differences aren't due to where students
+      started.
     auto:
       field: covariates_present
       rules:
@@ -519,9 +591,11 @@ nodes:
     options:
       - value: "no"
         label: "No"
+        description: "Compare the groups' averages directly, with nothing else controlled for."
         next: q_compare_variance_three
       - value: "yes"
         label: "Yes"
+        description: "For example, comparing post-test scores across three teaching methods while controlling for pretest score."
         next: rec_ancova
 
   rec_ancova:
@@ -547,12 +621,17 @@ nodes:
       about the same amount. When that's not true, Welch's ANOVA is a safer
       default because it doesn't rely on that assumption, similar to how
       Welch's t-test protects an independent-samples comparison.
+    hint: >
+      Spread (variance) is how much scores within each group vary; very
+      different spreads across groups call for a more robust test.
     options:
       - value: similar
         label: "Yes, similar spread (or not sure)"
+        description: "For example, all three class sections' scores cluster about as tightly around their averages."
         next: rec_anova_one_way
       - value: different
         label: "No, quite different spread across groups"
+        description: "For example, one class section's scores are tightly clustered while another's are spread widely."
         next: rec_anova_welch
 
   rec_anova_one_way:
@@ -590,12 +669,18 @@ nodes:
       When several related outcomes are analyzed together instead of one at
       a time, a multivariate test (MANOVA) controls the overall false-positive
       rate better than running separate ANOVAs.
+    hint: >
+      An outcome variable is what you're measuring as a result, like a
+      test score; sometimes you have several related ones you want to
+      analyze together.
     options:
       - value: one_outcome
         label: "No, one outcome"
+        description: "For example, just comparing final exam score across groups."
         next: rec_anova_factorial
       - value: multiple_outcomes
         label: "Yes, several related outcomes together"
+        description: "For example, comparing exam score, engagement rating, and attendance together across teaching methods."
         next: rec_manova
 
   rec_anova_factorial:
@@ -632,6 +717,7 @@ nodes:
     type: question
     text: "How many time points or conditions?"
     why: "Two linked time points is a paired comparison; three or more is a repeated-measures design."
+    hint: "A time point is one occasion the same people were measured, like before and after an intervention."
     auto:
       field: num_time_points
       rules:
@@ -642,9 +728,11 @@ nodes:
     options:
       - value: two
         label: "Two"
+        description: "For example, the same students' scores measured once before and once after a workshop."
         next: rec_t_paired
       - value: three_plus
         label: "Three or more"
+        description: "For example, the same students' scores measured at the start, middle, and end of a semester."
         next: q_compare_between_factor_rm
 
   rec_t_paired:
@@ -669,12 +757,18 @@ nodes:
       Repeated measures on their own (everyone follows the same time
       course) is a different design from a mixed design, where you also
       want to know whether different groups change differently over time.
+    hint: >
+      A between-subjects grouping variable divides people into separate
+      groups (like control vs. intervention), on top of the repeated time
+      points everyone shares.
     options:
       - value: "no"
         label: "No, just repeated measures"
+        description: "For example, tracking one group's scores across three time points, with no comparison groups."
         next: rec_anova_rm
       - value: "yes"
         label: "Yes, groups measured across the same time points"
+        description: "For example, comparing a control group's scores over time to an intervention group's scores over the same time points."
         next: rec_anova_mixed
 
   rec_anova_rm:
@@ -717,6 +811,9 @@ nodes:
       user chose aggregate mode), each time point has to be compared as an
       independent group even if some of the same people answered more than
       once.
+    hint: >
+      Aggregate means you can't match individual respondents across time
+      points, so each time point is compared as its own group.
     auto:
       field: num_time_points
       rules:
@@ -727,9 +824,11 @@ nodes:
     options:
       - value: two
         label: "Two"
+        description: "For example, comparing this year's average score to last year's, without linking students."
         next: rec_t_independent_aggregate
       - value: three_plus
         label: "Three or more"
+        description: "For example, comparing average scores across three unlinked school years."
         next: rec_anova_one_way_aggregate
 
   rec_t_independent_aggregate:
@@ -770,18 +869,25 @@ nodes:
       The right correlation coefficient depends on how both variables are
       measured, and whether you want to remove the influence of a third
       variable.
+    hint: >
+      Correlation measures how two variables move together; the right
+      coefficient depends on how each variable is measured.
     options:
       - value: continuous_continuous
         label: "Both are scores or scale totals (continuous)"
+        description: "For example, hours studied and exam score, both measured as numbers."
         next: rec_pearson
       - value: ordinal_involved
         label: "One or both are ranks or single rating-scale items (ordinal)"
+        description: "For example, a single satisfaction rating (1-5) and exam score."
         next: q_relate_ordinal_detail
       - value: continuous_binary
         label: "One is a score, the other is a two-category variable (e.g. pass/fail)"
+        description: "For example, exam score and whether the student passed or failed."
         next: rec_point_biserial
       - value: control_third_variable
         label: "I want to control for a third variable"
+        description: "For example, relating study hours to exam score while accounting for prior GPA."
         next: rec_partial_correlation
 
   rec_pearson:
@@ -805,6 +911,9 @@ nodes:
       tau-b handles tied ranks more precisely and tends to be more
       reliable in small samples, at the cost of being harder to interpret
       directly against Pearson's r.
+    hint: >
+      A tied rank happens when two or more responses share the exact same
+      rating, which is common with small rating scales.
     auto:
       any:
         - field: n_complete
@@ -823,9 +932,11 @@ nodes:
     options:
       - value: "no"
         label: "No, use the usual choice"
+        description: "Use Spearman's correlation, the standard rank-based choice."
         next: rec_spearman
       - value: "yes"
         label: "Yes"
+        description: "For example, a survey with only 15 respondents, or a 5-point scale where many people picked the same rating."
         next: rec_kendall
 
   rec_spearman:
@@ -901,6 +1012,9 @@ nodes:
     why: >
       Regression comes in different flavors depending on how the outcome
       you're predicting is measured.
+    hint: >
+      Regression predicts one variable from others; which version you
+      need depends on how the outcome you're predicting is measured.
     auto:
       field: outcome_level
       rules:
@@ -913,24 +1027,30 @@ nodes:
     options:
       - value: continuous
         label: "A score or scale total (continuous)"
+        description: "For example, predicting a student's final exam score."
         next: q_predict_predictor_count
       - value: nominal
         label: "A category, like pass/fail"
+        description: "For example, predicting whether a student passes or fails."
         next: q_predict_nominal_categories
       - value: ordinal
         label: "An ordered category (e.g. low/medium/high)"
+        description: "For example, predicting whether a student's performance is low, medium, or high."
         next: rec_regression_ordinal
 
   q_predict_nominal_categories:
     type: question
     text: "How many categories does your outcome have?"
     why: "Binary logistic regression predicts a two-category outcome; more categories need a different model."
+    hint: "A category outcome here is the group you're trying to predict membership in, like pass vs. fail."
     options:
       - value: two
         label: "Two categories (e.g. pass/fail)"
+        description: "For example, predicting whether a student passes or fails."
         next: rec_regression_logistic
       - value: three_plus
         label: "Three or more categories"
+        description: "For example, predicting which of four grade bands (A, B, C, D) a student will land in."
         next: rec_regression_logistic_multi
 
   rec_regression_logistic:
@@ -981,12 +1101,15 @@ nodes:
     type: question
     text: "How many predictor variables do you have?"
     why: "A single predictor is a simple regression; two or more is a multiple regression."
+    hint: "A predictor is a variable used to predict the outcome, like hours studied or attendance rate."
     options:
       - value: one
         label: "One"
+        description: "For example, predicting exam score from hours studied alone."
         next: rec_regression_linear_simple
       - value: two_plus
         label: "Two or more"
+        description: "For example, predicting exam score from hours studied, attendance, and pretest score together."
         next: q_predict_entry_method
 
   rec_regression_linear_simple:
@@ -1011,12 +1134,17 @@ nodes:
       step, which shows how much predictive value each block adds on top of
       the ones before it. If you just want the combined model, a standard
       multiple regression is simpler to report.
+    hint: >
+      Entering predictors in stages (blocks) lets you see how much
+      predictive value each block adds on top of the ones before it.
     options:
       - value: "no"
         label: "No, enter them all at once"
+        description: "For example, entering attendance, pretest score, and study hours together in a single step."
         next: rec_regression_linear_multiple
       - value: "yes"
         label: "Yes, in stages"
+        description: "For example, entering demographics first, then adding pretest score, to see how much the pretest adds."
         next: rec_regression_hierarchical
 
   rec_regression_linear_multiple:
@@ -1056,12 +1184,17 @@ nodes:
     why: >
       Rating-scale items (like a Likert-scale survey) and right/wrong test
       items use different reliability coefficients.
+    hint: >
+      This is about whether your items are internally consistent - do
+      they hang together as one scale?
     options:
       - value: rating_scale
         label: "Rating-scale items (e.g. a Likert-scale survey)"
+        description: "For example, ten survey items rated 1-5 that are meant to measure classroom engagement."
         next: q_reliability_detail
       - value: right_wrong
         label: "Right/wrong test items"
+        description: "For example, twenty exam questions each scored correct (1) or incorrect (0)."
         next: rec_kr20
 
   q_reliability_detail:
@@ -1073,18 +1206,25 @@ nodes:
       construct equally well. Split-half reliability is a quick, simple
       check by splitting the scale in two. Item analysis looks at each item
       individually rather than the scale as a whole.
+    hint: >
+      These are different ways of asking how consistently a set of items
+      measures the same thing.
     options:
       - value: overall_reliability
         label: "Overall internal consistency (the usual choice)"
+        description: "The standard summary number (Cronbach's alpha) for how consistent a scale's items are."
         next: rec_cronbach_alpha
       - value: modern_alternative
         label: "A modern alternative that doesn't assume equal item quality"
+        description: "For example, a scale where some items relate to the construct much more strongly than others."
         next: rec_mcdonald_omega
       - value: split_half
         label: "Split-half reliability"
+        description: "Splits the items into two halves and checks whether the halves agree - a quick, simple check."
         next: rec_split_half
       - value: item_level_detail
         label: "How each individual item is performing"
+        description: "For example, finding out which individual survey items are weak or not pulling their weight."
         next: rec_item_analysis
 
   rec_cronbach_alpha:
@@ -1171,12 +1311,17 @@ nodes:
       items suggest, with no assumptions about the structure going in.
       Confirmatory factor analysis tests a specific, pre-specified structure
       (e.g. from theory or a prior EFA) and reports how well it fits.
+    hint: >
+      Exploratory means you don't yet know the structure; confirmatory
+      means you're testing a specific structure you already expect.
     options:
       - value: exploring
         label: "Exploring for the first time"
+        description: "For example, you have 20 survey items and want to discover how many underlying topics they group into."
         next: rec_efa
       - value: confirming
         label: "Confirming a structure I already expect"
+        description: "For example, you expect four specific factors from theory and want to test whether the data fits that structure."
         next: rec_cfa
 
   rec_efa:

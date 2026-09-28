@@ -63,7 +63,11 @@ def _question_view(node_id: str, node: dict, auto_value: Any | None) -> dict:
         "id": node_id,
         "text": node["text"],
         "why": node["why"],
-        "options": [{"value": o["value"], "label": o["label"]} for o in node["options"]],
+        "hint": node.get("hint"),
+        "options": [
+            {"value": o["value"], "label": o["label"], "description": o.get("description")}
+            for o in node["options"]
+        ],
         "auto_answer": auto_value,
     }
 

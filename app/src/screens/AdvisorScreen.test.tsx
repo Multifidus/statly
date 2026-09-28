@@ -67,6 +67,16 @@ describe("contextSummary", () => {
   });
 });
 
+describe("AdvisorScreen: QuestionForm inline hint and option descriptions", () => {
+  it("shows the question hint and each option's description inline, not only behind Why does this matter?", async () => {
+    render(<AdvisorScreen />);
+    const question = await screen.findByTestId("advisor-question");
+    expect(question).toHaveTextContent("Different questions call for different statistical tests");
+    expect(question).toHaveTextContent("For example, comparing test scores before and after a workshop");
+    expect(question).toHaveTextContent("For example, whether hours studied is related to exam score");
+  });
+});
+
 describe("AdvisorScreen: plan pre-fill hint", () => {
   it("shows 'Filled in from your plan' for answers seeded from a saved study plan", async () => {
     await saveStudyPlan();

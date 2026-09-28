@@ -88,6 +88,11 @@
       "properties": {
         "value": { "type": ["string", "number", "boolean"] },
         "label": { "type": "string", "minLength": 1 },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One plain-language sentence with a concrete example, shown inline under the option's label."
+        },
         "next": { "type": "string" }
       }
     },
@@ -99,6 +104,11 @@
         "type": { "const": "question" },
         "text": { "type": "string", "minLength": 1 },
         "why": { "type": "string", "minLength": 1 },
+        "hint": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One or two plain-language sentences (grade 8-10) shown inline under the question text, defining any term in the question with an example."
+        },
         "auto": { "$ref": "#/$defs/Auto" },
         "options": {
           "type": "array",

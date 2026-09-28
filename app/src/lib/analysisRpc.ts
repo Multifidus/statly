@@ -26,12 +26,16 @@ export type AnswerValue = string | number | boolean;
 export interface AdvisorOption {
   value: AnswerValue;
   label: string;
+  /** One plain-language sentence with a concrete example, shown inline under the label. */
+  description?: string | null;
 }
 
 export interface AdvisorQuestion {
   id: string;
   text: string;
   why: string;
+  /** One or two plain-language sentences shown inline under the question text. */
+  hint?: string | null;
   options: AdvisorOption[];
   auto_answer: AnswerValue | null;
 }

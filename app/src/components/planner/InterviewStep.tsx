@@ -25,9 +25,12 @@ function Question({ q, initial, onAnswer, busy, submitLabel = "Continue" }: { q:
         if (opt) onAnswer(opt.value);
       }}
     >
+      {q.hint && <p className="text-sm text-muted-foreground">{q.hint}</p>}
       <RadioGroup value={value} onValueChange={setValue} aria-labelledby={`pq-${q.id}`}>
         {q.options.map((o, i) => (
-          <RadioCard key={key(o.value)} value={key(o.value)} id={`popt-${q.id}-${i}`} title={o.label} />
+          <RadioCard key={key(o.value)} value={key(o.value)} id={`popt-${q.id}-${i}`} title={o.label}>
+            {o.description}
+          </RadioCard>
         ))}
       </RadioGroup>
       <WhyItMatters>

@@ -161,9 +161,13 @@ declares `auto.field: <name>` for is present and one of its `auto.rules` matches
 - `covariates_present`: boolean
 
 `AdvisorStep` (exactly one of `next_question`/`recommendation` is non-null):
-- `next_question`: `{"id", "text", "why", "options": [{"value", "label"}], "auto_answer"}`
+- `next_question`: `{"id", "text", "why", "hint", "options": [{"value", "label", "description"}], "auto_answer"}`
   or `null`. `auto_answer` is the value `dataset_context` would supply for this question
-  (informational; the caller still answers explicitly via `advisor.answer`).
+  (informational; the caller still answers explicitly via `advisor.answer`). `hint` (a
+  question's plain-language explainer, shown inline under the question text) and each
+  option's `description` (a one-sentence example, shown inline under its label) come
+  straight from `content/decision_tree.yaml` and may be `null` if a node omits them,
+  though every node in the shipped tree sets both (SPEC §7.1's teaching-tool requirement).
 - `recommendation`: `{"id", "primary_test", "nonparametric_alternative", "assumptions"[],
   "effect_size"[], "post_hoc"[], "why_this_test", "likert_note", "caveats"[]}` or `null`.
 - `path`: `[{"question", "value", "source": "user"\|"auto"}]` - every question answered

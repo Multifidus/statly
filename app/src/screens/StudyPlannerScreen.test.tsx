@@ -40,6 +40,18 @@ beforeEach(() => {
   void engine;
 });
 
+describe("StudyPlannerScreen: design step inline hint and option descriptions", () => {
+  it("shows the question hint and each option's description inline", async () => {
+    usePlanner.getState().setTitle("Reading study");
+    usePlanner.getState().setResearchQuestion("Does it help?");
+    await usePlanner.getState().beginInterview();
+    render(<StudyPlannerScreen />);
+    const question = await screen.findByTestId("planner-question");
+    expect(question).toHaveTextContent("Different questions call for different statistical tests");
+    expect(question).toHaveTextContent("For example, comparing test scores before and after a workshop");
+  });
+});
+
 describe("StudyPlannerScreen: empty state", () => {
   it("shows the 'describe your study' onboarding form and a way to start when there's no plan", () => {
     render(<StudyPlannerScreen />);

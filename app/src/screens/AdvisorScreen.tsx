@@ -51,10 +51,17 @@ function QuestionForm({ q, initial, onAnswer, busy, submitLabel = "Continue" }: 
         if (opt) onAnswer(opt.value);
       }}
     >
+      {q.hint && <p className="text-sm text-muted-foreground">{q.hint}</p>}
       <RadioGroup value={value} onValueChange={setValue} aria-labelledby={`q-${q.id}`}>
         {q.options.map((o, i) => (
           <RadioCard key={key(o.value)} value={key(o.value)} id={`opt-${q.id}-${i}`} title={o.label}>
-            {q.auto_answer !== null && key(q.auto_answer) === key(o.value) ? "Suggested from your data" : undefined}
+            {o.description}
+            {q.auto_answer !== null && key(q.auto_answer) === key(o.value) ? (
+              <>
+                {o.description ? " " : ""}
+                <span className="italic">Suggested from your data</span>
+              </>
+            ) : undefined}
           </RadioCard>
         ))}
       </RadioGroup>

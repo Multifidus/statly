@@ -6,7 +6,7 @@
 import type { AdvisorPath, AdvisorQuestion, AdvisorRecommendation, AdvisorStep, AnswerValue, DatasetContext } from "@/lib/analysisRpc";
 
 type Auto = { field: keyof DatasetContext; rules: { when: { equals?: unknown; min?: number }; value: AnswerValue }[] };
-type QNode = { type: "question"; text: string; why: string; auto?: Auto; options: { value: AnswerValue; label: string; next: string }[] };
+type QNode = { type: "question"; text: string; why: string; hint?: string; auto?: Auto; options: { value: AnswerValue; label: string; description?: string; next: string }[] };
 type RNode = { type: "recommendation" } & Omit<AdvisorRecommendation, "id">;
 type Node = QNode | RNode;
 
@@ -30,71 +30,78 @@ const TREE: { root: string; nodes: Record<string, Node> } = {
       type: "question",
       text: "What do you want to know?",
       why: "Statly picks a test by first understanding the shape of your question, then the shape of your data.",
+      hint: "Different questions call for different statistical tests, so start with what you're trying to find out.",
       options: [
-        { value: "compare", label: "Did scores change over time, or differ between groups?", next: "q_compare_outcome_level" },
-        { value: "relate", label: "Are two things related?", next: "rec_pearson" },
-        { value: "reliability", label: "Do my survey questions hang together?", next: "rec_alpha" },
+        { value: "compare", label: "Did scores change over time, or differ between groups?", description: "For example, comparing test scores before and after a workshop.", next: "q_compare_outcome_level" },
+        { value: "relate", label: "Are two things related?", description: "For example, whether hours studied is related to exam score.", next: "rec_pearson" },
+        { value: "reliability", label: "Do my survey questions hang together?", description: "For example, checking whether ten survey items all measure classroom engagement.", next: "rec_alpha" },
       ],
     },
     q_compare_outcome_level: {
       type: "question",
       text: "What is your outcome (the thing you're comparing)?",
       why: "How a variable is measured decides the whole family of tests available for it.",
+      hint: "The outcome is the variable you're comparing across groups or time points; how it's measured decides which test fits.",
       auto: { field: "outcome_level", rules: ["nominal", "ordinal", "continuous"].map((v) => ({ when: { equals: v }, value: v })) },
       options: [
-        { value: "nominal", label: "A category, like pass/fail or yes/no", next: "rec_chi_square" },
-        { value: "ordinal", label: "A single rating question (e.g. one 1-5 Likert item)", next: "rec_mann_whitney" },
-        { value: "continuous", label: "A score, like a test total or a scale average", next: "q_compare_design" },
+        { value: "nominal", label: "A category, like pass/fail or yes/no", description: "For example, whether each student passed or failed the course.", next: "rec_chi_square" },
+        { value: "ordinal", label: "A single rating question (e.g. one 1-5 Likert item)", description: "For example, one question like \"I enjoyed this class\" rated 1 to 5.", next: "rec_mann_whitney" },
+        { value: "continuous", label: "A score, like a test total or a scale average", description: "For example, a 0-100 exam score, or the average of ten survey items.", next: "q_compare_design" },
       ],
     },
     q_compare_design: {
       type: "question",
       text: "What are you comparing?",
       why: "This decides the overall family of test: comparing to a fixed value, independent groups, the same people over time, or time points you can't link.",
+      hint: "This sets the overall type of test: comparing to a fixed number, comparing separate groups, or tracking the same people over time.",
       options: [
-        { value: "vs_fixed_value", label: "Comparing to a known or expected value (e.g. a benchmark score)", next: "rec_t_one_sample" },
-        { value: "independent_groups", label: "Independent groups (different people in each group/condition)", next: "q_compare_between_groups_count" },
-        { value: "repeated_linked", label: "Same respondents, measured more than once (linked)", next: "q_compare_time_points" },
-        { value: "repeated_aggregate", label: "Comparing time points, but respondents are NOT linked across them", next: "q_compare_aggregate_groups" },
+        { value: "vs_fixed_value", label: "Comparing to a known or expected value (e.g. a benchmark score)", description: "For example, checking whether a class's average score differs from a passing threshold of 70.", next: "rec_t_one_sample" },
+        { value: "independent_groups", label: "Independent groups (different people in each group/condition)", description: "For example, comparing average scores between students taught by two different methods.", next: "q_compare_between_groups_count" },
+        { value: "repeated_linked", label: "Same respondents, measured more than once (linked)", description: "For example, the same students' scores before and after tutoring, matched by student ID.", next: "q_compare_time_points" },
+        { value: "repeated_aggregate", label: "Comparing time points, but respondents are NOT linked across them", description: "For example, comparing this year's average score to last year's, with no way to match students.", next: "q_compare_aggregate_groups" },
       ],
     },
     q_compare_between_groups_count: {
       type: "question",
       text: "How many groups?",
       why: "Two groups use a t-test; three or more need an ANOVA so you don't run many t-tests.",
+      hint: "A group is one of the categories of your grouping variable, like each class section.",
       auto: COUNT("num_groups"),
       options: [
-        { value: "two", label: "Two", next: "rec_t_independent" },
-        { value: "three_plus", label: "Three or more", next: "rec_anova_one_way" },
+        { value: "two", label: "Two", description: "For example, comparing test scores between two teaching methods.", next: "rec_t_independent" },
+        { value: "three_plus", label: "Three or more", description: "For example, comparing test scores across three or more class sections.", next: "rec_anova_one_way" },
       ],
     },
     q_compare_time_points: {
       type: "question",
       text: "How many time points or conditions?",
       why: "Two linked time points use a paired test; three or more need a repeated-measures test.",
+      hint: "A time point is one occasion the same people were measured, like before and after an intervention.",
       auto: COUNT("num_time_points"),
       options: [
-        { value: "two", label: "Two", next: "rec_t_paired" },
-        { value: "three_plus", label: "Three or more", next: "q_compare_between_factor_rm" },
+        { value: "two", label: "Two", description: "For example, the same students' scores measured once before and once after a workshop.", next: "rec_t_paired" },
+        { value: "three_plus", label: "Three or more", description: "For example, the same students' scores measured at the start, middle, and end of a semester.", next: "q_compare_between_factor_rm" },
       ],
     },
     q_compare_between_factor_rm: {
       type: "question",
       text: "Do you also have a between-subjects grouping variable (e.g. control vs. intervention)?",
       why: "Repeated measures on their own is a different design from a mixed design, where you also want to know whether different groups change differently over time.",
+      hint: "A between-subjects grouping variable divides people into separate groups (like control vs. intervention), on top of the repeated time points everyone shares.",
       options: [
-        { value: "no", label: "No, just repeated measures", next: "rec_anova_rm" },
-        { value: "yes", label: "Yes, groups measured across the same time points", next: "rec_anova_mixed" },
+        { value: "no", label: "No, just repeated measures", description: "For example, tracking one group's scores across three time points, with no comparison groups.", next: "rec_anova_rm" },
+        { value: "yes", label: "Yes, groups measured across the same time points", description: "For example, comparing a control group's scores over time to an intervention group's.", next: "rec_anova_mixed" },
       ],
     },
     q_compare_aggregate_groups: {
       type: "question",
       text: "How many time points are you comparing?",
       why: "Without linked IDs, each time point is treated as its own group of people.",
+      hint: "Aggregate means you can't match individual respondents across time points, so each time point is compared as its own group.",
       auto: COUNT("num_time_points"),
       options: [
-        { value: "two", label: "Two", next: "rec_t_independent_aggregate" },
-        { value: "three_plus", label: "Three or more", next: "rec_anova_one_way" },
+        { value: "two", label: "Two", description: "For example, comparing this year's average score to last year's, without linking students.", next: "rec_t_independent_aggregate" },
+        { value: "three_plus", label: "Three or more", description: "For example, comparing average scores across three unlinked school years.", next: "rec_anova_one_way" },
       ],
     },
     rec_t_one_sample: rec({ primary_test: "t_test.one_sample", nonparametric_alternative: "wilcoxon_one_sample", assumptions: ["normality"], effect_size: ["cohens_d"], why_this_test: "A one-sample t-test checks whether your group's average differs from a known value." }),
@@ -146,7 +153,7 @@ export function mockAdvisorEvaluate(answers: Record<string, AnswerValue>, ctx: D
       return { next_question: null, recommendation: { id, ...r }, path };
     }
     const auto = autoValue(node.auto, ctx);
-    const question: AdvisorQuestion = { id, text: node.text, why: node.why, options: node.options.map(({ value, label }) => ({ value, label })), auto_answer: auto };
+    const question: AdvisorQuestion = { id, text: node.text, why: node.why, hint: node.hint, options: node.options.map(({ value, label, description }) => ({ value, label, description })), auto_answer: auto };
     let value: AnswerValue;
     let source: "user" | "auto";
     if (id in answers) [value, source] = [answers[id], "user"];
