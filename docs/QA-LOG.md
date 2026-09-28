@@ -41,8 +41,8 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 35 | d_av / d_z shown with literal underscores outside the APA sentence | fixed |
 | 36 | "Because the p value…" is a fragment after "looks reasonable." | fixed |
 | 37 | Comparison-value hint should say where the suggested 3 came from | fixed |
-| 38 | "Start another analysis" keeps the previous advisor answers; should clear them and keep the outcome | open |
-| 39 | Correlation tied-ranks auto-answer only sees the outcome; ask for the second variable first or re-check at setup | open |
+| 38 | "Start another analysis" keeps the previous advisor answers; should clear them and keep the outcome | fixed |
+| 39 | Correlation tied-ranks auto-answer only sees the outcome; ask for the second variable first or re-check at setup | fixed |
 | 40 | Chart builder: pin "Save chart" in a sticky bar; warn before leaving with an unsaved chart | fixed |
 | 41 | Report export never includes Chart Builder charts saved in the project ("Charts" meant per-test charts only) | fixed |
 | 42 | PDF export: subscripts (d_av, d_z) drop into the table rule and the next line | fixed |
@@ -53,7 +53,7 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 47 | Planner sample-size page never states that bigger effects need fewer people; add the sentence under the effect picker | fixed |
 | 48 | Planner plan page: pin Save plan / Export Word / Start analysis project in a sticky bar | fixed |
 | 49 | Exported figures: axis titles/tick labels use the dark-theme muted grey on white paper (nearly invisible in PDF) | fixed |
-| 50 | Import check step: repeated per-column notes (e.g. seven '-99' lines) should be grouped into one | open |
+| 50 | Import check step: repeated per-column notes (e.g. seven '-99' lines) should be grouped into one | fixed |
 | 51 | Chart Builder "Save figure…" saves in the on-screen theme; should use the print palette like report exports | open |
 | 52 | Interview roles: no option for a select-all-that-apply question (Q7); add a multiple-answers role, pre-picked | open |
 
