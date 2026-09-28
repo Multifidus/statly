@@ -63,6 +63,9 @@ export function PowerStep() {
           ))}
         </div>
         <NumberField id="effect-custom" label={`Or type your own ${info.symbol}`} value={s.effect} step={0.01} min={0} onChange={(v) => p.setSettings({ effect: v })} />
+        <p className="text-sm text-muted-foreground" data-testid="effect-size-explainer">
+          The bigger the effect you expect, the fewer people you need to detect it. A big difference is easy to see with a small group; a small difference only stands out once you have many people. Think of a shout versus a whisper: you need to listen much longer to be sure you heard the whisper.
+        </p>
         <Notice tone="warn">
           Small, medium and large are general rules of thumb from psychology (Cohen, 1988). In education research, many real program effects are smaller than "medium" (often around {info.symbol === "d" ? "d = 0.10 to 0.30" : "the small benchmark"}). If you can, base your number on similar studies in your field.
         </Notice>
@@ -168,6 +171,7 @@ export function PowerStep() {
           {benchTable && (
             <div className="grid gap-1 text-sm">
               <p className="font-medium">People needed for other effect sizes</p>
+              <p className="text-xs text-muted-foreground">Notice how the number rises as the effect gets smaller.</p>
               <table className="w-fit text-sm" data-testid="power-benchmarks">
                 <tbody>
                   {benchTable.rows.map((r, i) => (
