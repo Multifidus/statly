@@ -40,5 +40,7 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 34 | Summary stat chip shows d_z while the sentence names d_av | open |
 | 35 | d_av / d_z shown with literal underscores outside the APA sentence | open |
 | 36 | "Because the p value…" is a fragment after "looks reasonable." | open |
+| 37 | Comparison-value hint should say where the suggested 3 came from | open |
+| 38 | "Start another analysis" keeps the previous advisor answers; should clear them and keep the outcome | open |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
