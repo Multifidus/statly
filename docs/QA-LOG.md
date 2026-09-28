@@ -49,7 +49,7 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 43 | Copy table: numeric cells wrap ("-5.86", "< .001") when pasted; mark them no-wrap | fixed |
 | 44 | Responses: tag menu stays open after picking a tag; should close (number keys cover multi-tagging) | fixed |
 | 45 | Data tab: after creating columns (yes/no tags, computed), jump to and highlight the new columns | fixed |
-| 46 | Every advisor/planner question and option needs an inline explanation with an example (learning tool) | open |
-| 47 | Planner sample-size page never states that bigger effects need fewer people; add the sentence under the effect picker | open |
+| 46 | Every advisor/planner question and option needs an inline explanation with an example (learning tool) | fixed |
+| 47 | Planner sample-size page never states that bigger effects need fewer people; add the sentence under the effect picker | fixed |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
