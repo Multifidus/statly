@@ -33,17 +33,17 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 27 | Ties note shown for categorical outcomes | fixed |
 | 28 | Expected-counts check page had placeholder "What it is" | fixed |
 | 29 | Decision step used generic t-test blurbs for every test | fixed |
-| 30 | Descriptives table used raw names while summary used labels | reopened: t-test descriptives still show Q4 |
+| 30 | Descriptives table used raw names while summary used labels | fixed |
 | 31 | Question-text labels unquoted in prose | fixed |
-| 32 | Recommendation card: headings wrap; wants two clean columns | open (styling) |
-| 33 | Chart builder numbers table: "1 rows used" | open |
-| 34 | Summary stat chip shows d_z while the sentence names d_av | open |
-| 35 | d_av / d_z shown with literal underscores outside the APA sentence | open |
-| 36 | "Because the p value…" is a fragment after "looks reasonable." | open |
-| 37 | Comparison-value hint should say where the suggested 3 came from | open |
+| 32 | Recommendation card: headings wrap; wants two clean columns | fixed |
+| 33 | Chart builder numbers table: "1 rows used" | fixed |
+| 34 | Summary stat chip shows d_z while the sentence names d_av | fixed |
+| 35 | d_av / d_z shown with literal underscores outside the APA sentence | fixed |
+| 36 | "Because the p value…" is a fragment after "looks reasonable." | fixed |
+| 37 | Comparison-value hint should say where the suggested 3 came from | fixed |
 | 38 | "Start another analysis" keeps the previous advisor answers; should clear them and keep the outcome | open |
 | 39 | Correlation tied-ranks auto-answer only sees the outcome; ask for the second variable first or re-check at setup | open |
-| 40 | Chart builder: pin "Save chart" in a sticky bar; warn before leaving with an unsaved chart | open |
+| 40 | Chart builder: pin "Save chart" in a sticky bar; warn before leaving with an unsaved chart | fixed |
 | 41 | Report export never includes Chart Builder charts saved in the project ("Charts" meant per-test charts only) | open |
 | 42 | PDF export: subscripts (d_av, d_z) drop into the table rule and the next line | open |
 | 43 | Copy table: numeric cells wrap ("-5.86", "< .001") when pasted; mark them no-wrap | open |
