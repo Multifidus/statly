@@ -7,11 +7,11 @@ import { ChartBuilder } from "@/components/chartbuilder/ChartBuilder";
 import { useChartBuilder } from "@/stores/chartBuilder";
 import { useProjectStore } from "@/stores/project";
 
-// The Preview's Save figure… wiring (getVegaView/getActiveChartView -> SaveFigureButton) is what's
-// under test here; the button's own PNG/SVG/PDF menu behavior is covered by SaveFigureButton.test.tsx.
-let captured: { view: () => unknown; title: string; defaultName: string } | null = null;
+// The Preview's Save figure… wiring (spec/data/builderTheme -> SaveFigureButton) is what's under
+// test here; the button's own PNG/SVG/PDF menu behavior is covered by SaveFigureButton.test.tsx.
+let captured: { spec: unknown; data: unknown; builderTheme: unknown; title: string; defaultName: string } | null = null;
 vi.mock("@/components/export/SaveFigureButton", () => ({
-  SaveFigureButton: (props: { view: () => unknown; title: string; defaultName: string }) => {
+  SaveFigureButton: (props: { spec: unknown; data: unknown; builderTheme: unknown; title: string; defaultName: string }) => {
     captured = props;
     return <button data-testid="mock-save-figure">Save figure…</button>;
   },
@@ -44,10 +44,11 @@ describe("ChartBuilder Preview: Save figure…", () => {
     expect(captured!.title).toMatch(/^Bar chart with error bars:/);
     expect(captured!.defaultName).not.toMatch(/[\\/:*?"<>|]/);
 
-    const view = captured!.view() as { toImageURL?: unknown; toSVG?: unknown } | null;
-    expect(view).not.toBeNull();
-    expect(typeof view?.toImageURL).toBe("function");
-    expect(typeof view?.toSVG).toBe("function");
+    // The compiled spec + its data go to SaveFigureButton directly now, not a live Vega view — so
+    // "Save figure…" can re-render off-screen with the print palette (see saveFigure.ts).
+    expect(captured!.spec).toBe(cb().draft);
+    expect(captured!.data).not.toBeNull();
+    expect(captured!.builderTheme).toBe("light");
   });
 
   it("stays hidden while the chart can't be drawn yet (nothing on the shelves)", () => {

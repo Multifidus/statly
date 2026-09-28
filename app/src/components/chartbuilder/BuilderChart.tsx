@@ -1,32 +1,20 @@
-import { useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } from "react";
-import type { View } from "vega";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChartSpec } from "@/contracts";
 import { compileChart } from "@/lib/chartbuilder/compile";
 import type { ChartsDataResult } from "@/lib/chartbuilder/types";
 import type { ResolvedTheme } from "@/stores/theme";
 
-/** Imperative handle for exports (PNG/SVG/PDF): `view.toImageURL("png", scale)`, `view.toSVG()`. */
-export interface BuilderChartHandle {
-  getVegaView: () => View | null;
-}
-
-let activeView: View | null = null;
-/** The most recently rendered chart-builder view (for export code outside the component tree). */
-export function getActiveChartView(): View | null {
-  return activeView;
-}
-
 /**
  * The chart builder's Vega-Lite chart. Rendered with Vega's AST interpreter so it runs under the
- * strict Tauri CSP (no eval); SVG renderer so exports stay vector.
+ * strict Tauri CSP (no eval); SVG renderer so exports stay vector. "Save figure…" doesn't read
+ * bytes off this mounted view — it re-renders the compiled spec off-screen instead (SaveFigureButton
+ * -> lib/export/saveFigure.ts -> lib/export/figure.ts's `withVlSpec`), so the print palette applies
+ * regardless of this preview's theme; this component is purely the on-screen preview.
  */
-export function BuilderChart({ spec, data, theme, label, ref }: { spec: ChartSpec; data: ChartsDataResult; theme: ResolvedTheme; label: string; ref?: Ref<BuilderChartHandle> }) {
+export function BuilderChart({ spec, data, theme, label }: { spec: ChartSpec; data: ChartsDataResult; theme: ResolvedTheme; label: string }) {
   const host = useRef<HTMLDivElement>(null);
-  const view = useRef<View | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const vl = useMemo(() => compileChart(spec, data, { theme }), [spec, data, theme]);
-
-  useImperativeHandle(ref, () => ({ getVegaView: () => view.current }), []);
 
   useEffect(() => {
     const el = host.current;
@@ -43,11 +31,7 @@ export function BuilderChart({ spec, data, theme, label, ref }: { spec: ChartSpe
           res.finalize();
           return;
         }
-        view.current = res.view;
-        activeView = res.view;
         finalize = () => {
-          if (activeView === res.view) activeView = null;
-          view.current = null;
           res.finalize();
         };
       } catch (e) {

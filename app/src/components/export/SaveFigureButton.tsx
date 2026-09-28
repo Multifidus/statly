@@ -5,22 +5,25 @@
  *  - `{ result, chart }` (Results screen / assumption checks): the AnalysisResult and the ChartRef
  *    it came from (lib/export/chartSelection.availableCharts / pickReportChart pick which); renders
  *    self-contained (lib/export/figure.ts), independent of whatever chart component is mounted.
- *  - `{ view, title }` (Chart Builder): most builder charts are drawn straight from the dataset, with
- *    no AnalysisResult/ChartRef to re-render from, so bytes come off the already-mounted Vega `View`
- *    (BuilderChart's `getVegaView()`/`getActiveChartView()`) instead.
+ *  - `{ spec, data, builderTheme, title }` (Chart Builder): most builder charts are drawn straight from the
+ *    dataset, with no AnalysisResult/ChartRef to re-render from, so this re-renders the compiled
+ *    Vega-Lite spec off-screen with the print palette (lib/export/figure.ts), same as every other
+ *    figure export path — instead of reading bytes off the live on-screen view.
  */
 import { Download } from "lucide-react";
-import type { View } from "vega";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type { AnalysisResult, ChartRef } from "@/contracts";
+import type { AnalysisResult, ChartRef, ChartSpec } from "@/contracts";
+import type { ChartsDataResult } from "@/lib/chartbuilder/types";
 import { dpiFor, type PngScale } from "@/lib/export/figure";
 import { saveBuilderFigurePdf, saveBuilderFigurePng, saveBuilderFigureSvg, saveFigurePdf, saveFigurePng, saveFigureSvg, type SaveFigureResult } from "@/lib/export/saveFigure";
-import { DescribedException, describeError } from "@/lib/errors";
+import { describeError } from "@/lib/errors";
 import { useNotify } from "@/stores/notify";
-import { useThemeStore } from "@/stores/theme";
+import { useThemeStore, type ResolvedTheme } from "@/stores/theme";
 
-type Source = { result: AnalysisResult; chart: ChartRef; view?: undefined; title?: undefined } | { view: () => View | null; title: string; result?: undefined; chart?: undefined };
+type Source =
+  | { result: AnalysisResult; chart: ChartRef; spec?: undefined; data?: undefined; builderTheme?: undefined; title?: undefined }
+  | { spec: ChartSpec; data: ChartsDataResult; builderTheme: ResolvedTheme; title: string; result?: undefined; chart?: undefined };
 
 export function SaveFigureButton(props: Source & { defaultName: string }) {
   const { defaultName } = props;
@@ -40,22 +43,11 @@ export function SaveFigureButton(props: Source & { defaultName: string }) {
   let svg: () => void;
   let pdf: () => void;
 
-  if (props.view) {
-    const { view, title } = props;
-    const liveView = () => {
-      const v = view();
-      if (!v) {
-        throw new DescribedException({
-          title: "Chart not ready",
-          body: "Statly couldn't save that figure — the chart isn't finished loading yet. Wait a moment and try again.",
-          details: "getVegaView() returned null: chart not yet mounted",
-        });
-      }
-      return v;
-    };
-    png = (scale) => () => run(() => saveBuilderFigurePng(liveView(), scale, defaultName));
-    svg = () => void run(() => saveBuilderFigureSvg(liveView(), defaultName));
-    pdf = () => void run(() => saveBuilderFigurePdf(liveView(), title, defaultName));
+  if (props.spec) {
+    const { spec, data, builderTheme, title } = props;
+    png = (scale) => () => run(() => saveBuilderFigurePng(spec, data, builderTheme, scale, defaultName));
+    svg = () => void run(() => saveBuilderFigureSvg(spec, data, builderTheme, defaultName));
+    pdf = () => void run(() => saveBuilderFigurePdf(spec, data, builderTheme, title, defaultName));
   } else {
     const { result, chart } = props;
     const rows = result.chart_data[chart.data_key] ?? [];

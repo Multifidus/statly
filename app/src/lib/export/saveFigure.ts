@@ -7,18 +7,21 @@
  * second, client-side PDF writer.
  *
  * The Chart Builder screen has no AnalysisResult/ChartRef for most chart types (they're built
- * straight from the dataset, not from a logged test), so its "Save figure…" reads bytes off the
- * already-mounted Vega `View` (BuilderChart's `getVegaView()`/`getActiveChartView()`) instead of
- * re-rendering from `chart_data`. The PDF path still goes through `export.report`, with an empty
- * `results` array — the report renderer only needs it for the tables/sentences/assumptions this
- * call turns off.
+ * straight from the dataset, not from a logged test), so its "Save figure…" re-renders the chart's
+ * compiled Vega-Lite spec off-screen (lib/export/figure.ts's `withVlSpec`, same choke point every
+ * other figure export goes through) rather than reading bytes off the live on-screen view — that's
+ * how the print palette (white background, dark ink, grey axes/grid) applies regardless of the
+ * builder's preview theme. The PDF path still goes through `export.report`, with an empty `results`
+ * array — the report renderer only needs it for the tables/sentences/assumptions this call turns off.
  */
-import type { View } from "vega";
-import type { AnalysisResult, ChartRef } from "@/contracts";
+import type { AnalysisResult, ChartRef, ChartSpec } from "@/contracts";
+import { compileChart } from "@/lib/chartbuilder/compile";
+import type { ChartsDataResult } from "@/lib/chartbuilder/types";
 import { pickExportPath } from "@/lib/dialogs";
-import { chartPngDataUrl, chartSvg, dpiFor, pngDataUrlToBytes, type PngScale } from "@/lib/export/figure";
+import { chartPngDataUrl, chartSvg, dpiFor, pngDataUrlToBytes, vlSpecPngDataUrl, vlSpecSvg, type PngScale } from "@/lib/export/figure";
 import { withOverwriteRetry } from "@/lib/export/writeRetry";
 import { rpc } from "@/lib/rpc";
+import type { ResolvedTheme } from "@/stores/theme";
 
 /** A filesystem-safe default filename from a chart title, for the save dialog. */
 export function filenameFor(title: string): string {
@@ -71,13 +74,12 @@ export async function saveFigurePdf(result: AnalysisResult, chart: ChartRef, the
   return { path };
 }
 
-type BuilderView = Pick<View, "toImageURL" | "toSVG">;
-
-/** Chart Builder PNG: bytes straight off the mounted view (no chart_data re-render). */
-export async function saveBuilderFigurePng(view: BuilderView, scale: PngScale, defaultName: string): Promise<SaveFigureResult | null> {
+/** Chart Builder PNG: re-renders the compiled spec off-screen with the print palette (SPEC §10.3),
+ * not the live on-screen view — see the module doc. */
+export async function saveBuilderFigurePng(spec: ChartSpec, data: ChartsDataResult, theme: ResolvedTheme, scale: PngScale, defaultName: string): Promise<SaveFigureResult | null> {
   const path = await pickExportPath(defaultName, "png");
   if (!path) return null;
-  const dataUrl = await view.toImageURL("png", scale);
+  const dataUrl = await vlSpecPngDataUrl(compileChart(spec, data, { theme }), scale);
   if (!MOCK()) {
     const { writeFile } = await import("@tauri-apps/plugin-fs");
     await writeFile(path, pngDataUrlToBytes(dataUrl));
@@ -85,11 +87,11 @@ export async function saveBuilderFigurePng(view: BuilderView, scale: PngScale, d
   return { path, dpi: dpiFor(scale) };
 }
 
-/** Chart Builder SVG: vector markup straight off the mounted view. */
-export async function saveBuilderFigureSvg(view: BuilderView, defaultName: string): Promise<SaveFigureResult | null> {
+/** Chart Builder SVG: same off-screen re-render as the PNG path, so the print palette applies. */
+export async function saveBuilderFigureSvg(spec: ChartSpec, data: ChartsDataResult, theme: ResolvedTheme, defaultName: string): Promise<SaveFigureResult | null> {
   const path = await pickExportPath(defaultName, "svg");
   if (!path) return null;
-  const svg = await view.toSVG();
+  const svg = await vlSpecSvg(compileChart(spec, data, { theme }));
   if (!MOCK()) {
     const { writeTextFile } = await import("@tauri-apps/plugin-fs");
     await writeTextFile(path, svg);
@@ -99,10 +101,10 @@ export async function saveBuilderFigureSvg(view: BuilderView, defaultName: strin
 
 /** Chart Builder PDF: no AnalysisResult exists for a dataset-built chart, so `results` is empty —
  * `export.report` only needs it for the tables/sentences/assumptions this call turns off. */
-export async function saveBuilderFigurePdf(view: BuilderView, title: string, defaultName: string): Promise<SaveFigureResult | null> {
+export async function saveBuilderFigurePdf(spec: ChartSpec, data: ChartsDataResult, theme: ResolvedTheme, title: string, defaultName: string): Promise<SaveFigureResult | null> {
   const path = await pickExportPath(defaultName, "pdf");
   if (!path) return null;
-  const dataUrl = await view.toImageURL("png", 2);
+  const dataUrl = await vlSpecPngDataUrl(compileChart(spec, data, { theme }), 2);
   const b64 = dataUrl.split(",", 2)[1] ?? "";
   await withOverwriteRetry(rpc.exportReport, {
     title,

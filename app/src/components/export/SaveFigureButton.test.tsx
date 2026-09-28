@@ -1,8 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { View } from "vega";
-import type { AnalysisResult, ChartRef } from "@/contracts";
+import type { AnalysisResult, ChartRef, ChartSpec } from "@/contracts";
+import type { ChartsDataResult } from "@/lib/chartbuilder/types";
 import { SaveFigureButton } from "@/components/export/SaveFigureButton";
 import { useNotify } from "@/stores/notify";
 
@@ -51,32 +51,22 @@ describe("SaveFigureButton", () => {
     expect(saveFigurePdf).toHaveBeenCalledWith(result, chart, "light", "Histogram");
   });
 
-  it("view mode (Chart Builder): every menu item reads bytes off the live Vega view", async () => {
-    const view = {} as View;
-    const getView = vi.fn(() => view);
+  it("builder mode (Chart Builder): every menu item re-renders the compiled spec, not the live view", async () => {
+    const spec = { chart_type: "bar" } as unknown as ChartSpec;
+    const data = { rows: [], meta: {} } as unknown as ChartsDataResult;
     const user = userEvent.setup();
-    render(<SaveFigureButton view={getView} title="Bar chart" defaultName="Bar chart" />);
+    render(<SaveFigureButton spec={spec} data={data} builderTheme="dark" title="Bar chart" defaultName="Bar chart" />);
 
     await user.click(screen.getByTestId("save-figure"));
     await user.click(await screen.findByText(/PNG \(600 DPI\)/));
-    expect(saveBuilderFigurePng).toHaveBeenCalledWith(view, 4, "Bar chart");
+    expect(saveBuilderFigurePng).toHaveBeenCalledWith(spec, data, "dark", 4, "Bar chart");
 
     await user.click(screen.getByTestId("save-figure"));
     await user.click(await screen.findByText("SVG (vector)"));
-    expect(saveBuilderFigureSvg).toHaveBeenCalledWith(view, "Bar chart");
+    expect(saveBuilderFigureSvg).toHaveBeenCalledWith(spec, data, "dark", "Bar chart");
 
     await user.click(screen.getByTestId("save-figure"));
     await user.click(await screen.findByText("PDF"));
-    expect(saveBuilderFigurePdf).toHaveBeenCalledWith(view, "Bar chart", "Bar chart");
-  });
-
-  it("view mode: a chart that isn't mounted yet shows an error notice instead of throwing", async () => {
-    const user = userEvent.setup();
-    render(<SaveFigureButton view={() => null} title="Bar chart" defaultName="Bar chart" />);
-    await user.click(screen.getByTestId("save-figure"));
-    await user.click(await screen.findByText("SVG (vector)"));
-    expect(saveBuilderFigureSvg).not.toHaveBeenCalled();
-    await waitFor(() => expect(useNotify.getState().note?.text).toMatch(/couldn't save/i));
-    expect(useNotify.getState().note?.tone).toBe("error");
+    expect(saveBuilderFigurePdf).toHaveBeenCalledWith(spec, data, "dark", "Bar chart", "Bar chart");
   });
 });

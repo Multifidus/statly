@@ -1,11 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { cn } from "cn";
 import type { ChartSpec } from "@/contracts";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/dialog";
 import { Badge, NativeSelect, Notice } from "@/components/ui/form";
-import { BuilderChart, type BuilderChartHandle } from "@/components/chartbuilder/BuilderChart";
+import { BuilderChart } from "@/components/chartbuilder/BuilderChart";
 import { chartName } from "@/components/chartbuilder/ChartsList";
 import { CustomizePanel } from "@/components/chartbuilder/CustomizePanel";
 import { GoalHelper } from "@/components/chartbuilder/GoalHelper";
@@ -65,7 +65,6 @@ function Preview({ spec }: { spec: ChartSpec }) {
   const appTheme = useThemeStore((s) => s.resolved);
   const snapshot = useDatasetStore((s) => s.snapshotId);
   const theme = previewTheme === "app" ? appTheme : previewTheme;
-  const chartRef = useRef<BuilderChartHandle>(null);
   const missing = missingPiece(spec);
   const current = dataFor === `${dataKey(spec)}@${snapshot ?? ""}`;
   const label = `${CHART_INFO[spec.chart_type].label}: ${(spec.customization.title as string | undefined) || autoTitle(spec, data)}`;
@@ -94,7 +93,7 @@ function Preview({ spec }: { spec: ChartSpec }) {
             </button>
           ))}
         </div>
-        {drawn && <SaveFigureButton view={() => chartRef.current?.getVegaView() ?? null} title={label} defaultName={filenameFor(label)} />}
+        {drawn && data && <SaveFigureButton spec={spec} data={data} builderTheme={theme} title={label} defaultName={filenameFor(label)} />}
       </div>
       <div className={cn("min-h-40 overflow-auto rounded-lg border p-4", theme === "dark" ? "bg-[#1f1f1e] text-[#f0efec]" : "bg-white text-[#1a1a19]")} data-theme-preview={theme}>
         {missing ? (
@@ -106,7 +105,7 @@ function Preview({ spec }: { spec: ChartSpec }) {
             {error}
           </Notice>
         ) : data && current ? (
-          <BuilderChart ref={chartRef} spec={spec} data={data} theme={theme} label={label} />
+          <BuilderChart spec={spec} data={data} theme={theme} label={label} />
         ) : (
           <p className="text-sm opacity-80">Drawing…</p>
         )}

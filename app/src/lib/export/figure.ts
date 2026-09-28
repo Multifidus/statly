@@ -76,6 +76,13 @@ export async function vlSpecPngDataUrl(spec: VlSpec, scale: PngScale): Promise<s
   return withVlSpec(spec, (view) => view.toImageURL("png", scale));
 }
 
+/** Same as chartSvg but from an already-compiled Vega-Lite spec, for Chart Builder's "Save figure…"
+ * (SPEC §10.3), which re-renders off-screen from the compiled spec (like the PNG path above) so the
+ * print palette applies regardless of the builder's on-screen preview theme. */
+export async function vlSpecSvg(spec: VlSpec): Promise<string> {
+  return withVlSpec(spec, (view) => view.toSVG());
+}
+
 export function pngDataUrlToBytes(dataUrl: string): Uint8Array {
   const b64 = dataUrl.split(",", 2)[1] ?? "";
   const bin = atob(b64);
