@@ -42,5 +42,7 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 36 | "Because the p value…" is a fragment after "looks reasonable." | open |
 | 37 | Comparison-value hint should say where the suggested 3 came from | open |
 | 38 | "Start another analysis" keeps the previous advisor answers; should clear them and keep the outcome | open |
+| 39 | Correlation tied-ranks auto-answer only sees the outcome; ask for the second variable first or re-check at setup | open |
+| 40 | Chart builder: pin "Save chart" in a sticky bar; warn before leaving with an unsaved chart | open |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
