@@ -51,8 +51,9 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 45 | Data tab: after creating columns (yes/no tags, computed), jump to and highlight the new columns | fixed |
 | 46 | Every advisor/planner question and option needs an inline explanation with an example (learning tool) | fixed |
 | 47 | Planner sample-size page never states that bigger effects need fewer people; add the sentence under the effect picker | fixed |
-| 48 | Planner plan page: pin Save plan / Export Word / Start analysis project in a sticky bar | open |
-| 49 | Exported figures: axis titles/tick labels use the dark-theme muted grey on white paper (nearly invisible in PDF) | open |
+| 48 | Planner plan page: pin Save plan / Export Word / Start analysis project in a sticky bar | fixed |
+| 49 | Exported figures: axis titles/tick labels use the dark-theme muted grey on white paper (nearly invisible in PDF) | fixed |
 | 50 | Import check step: repeated per-column notes (e.g. seven '-99' lines) should be grouped into one | open |
+| 51 | Chart Builder "Save figure…" saves in the on-screen theme; should use the print palette like report exports | open |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
