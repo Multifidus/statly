@@ -543,7 +543,7 @@ function independentT(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows
     { key: "student_t", label: "Student's t", symbol: "t", value: tStudent, df: [n1 + n2 - 2], p: pT(tStudent, n1 + n2 - 2), term: null },
   ];
   out.effect_sizes = [
-    { key: "hedges_g", label: "Hedges' g", symbol: "g", value: g, ci: { level: 0.95, lower: g - 1.96 * seG, upper: g + 1.96 * seG }, term: null, interpretation: magnitude(g, "d") },
+    { key: "hedges_g", label: "Hedges' g", symbol: "g", value: g, ci: { level: 0.95, lower: g - 1.96 * seG, upper: g + 1.96 * seG }, term: null, interpretation: magnitude(g, "d"), headline: true },
     { key: "cohens_d", label: "Cohen's d", symbol: "d", value: d, ci: { level: 0.95, lower: d - 1.96 * seG, upper: d + 1.96 * seG }, term: null, interpretation: magnitude(d, "d") },
     { key: "mean_difference", label: "Mean difference", symbol: "Mdiff", value: m1 - m2, ci: { level: 0.95, lower: m1 - m2 - tq * se, upper: m1 - m2 + tq * se }, term: null, interpretation: null },
   ];
@@ -892,8 +892,8 @@ function pairedT(req: AnalysisRequest, meta: DatasetMeta, cell: Cell, nRows: num
   const tq = qt(0.05, n - 1);
   out.effect_sizes = [
     dav !== null
-      ? { key: "d_av", label: "Cohen's d_av", symbol: "d_av", value: dav, ci: { level: 0.95, lower: dav - 1.96 * seD(dav), upper: dav + 1.96 * seD(dav) }, term: null, interpretation: magnitude(dav, "d") }
-      : { key: "d_av", label: "Cohen's d_av", symbol: "d_av", value: null, ci: null, term: null, interpretation: null },
+      ? { key: "d_av", label: "Cohen's d_av", symbol: "d_av", value: dav, ci: { level: 0.95, lower: dav - 1.96 * seD(dav), upper: dav + 1.96 * seD(dav) }, term: null, interpretation: magnitude(dav, "d"), headline: true }
+      : { key: "d_av", label: "Cohen's d_av", symbol: "d_av", value: null, ci: null, term: null, interpretation: null, headline: true },
     dz !== null
       ? { key: "d_z", label: "Cohen's d_z", symbol: "d_z", value: dz, ci: { level: 0.95, lower: dz - 1.96 * seD(dz), upper: dz + 1.96 * seD(dz) }, term: null, interpretation: magnitude(dz, "d") }
       : { key: "d_z", label: "Cohen's d_z", symbol: "d_z", value: null, ci: null, term: null, interpretation: null },

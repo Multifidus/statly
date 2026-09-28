@@ -286,6 +286,12 @@ Params/results are not yet in `contracts/Rpc.json`; the app mirrors them in
   When present, the app should compose the results subtitle from these reasons (e.g. "15 left out
   because they couldn't be paired (9 with one time point, 2 duplicate IDs)") instead of always
   saying "left out for missing answers"; when absent, the app may keep assuming missing data.
+- `EffectSize.headline` (optional bool): true for the one effect size that
+  `plain_language_summary`/`apa_sentence` actually name (the measure `size_clause()` picked in
+  `core.py`'s `ResultBuilder.effect(...)`), e.g. Cohen's d_av rather than d_z for a paired t test.
+  At most one entry per result. The results screen's headline effect-size chip should pick this
+  entry so it never disagrees with the summary sentence; when no entry is flagged, fall back to
+  the per-family preference order (`app/src/lib/resultSummary.ts` `HEADLINES`).
 
 ## Phase 6 methods (Test Log and multiple comparisons, SPEC §9)
 Engine-side closed pydantic models (not yet in `contracts/Rpc.json`): `rpc_methods/project.py`

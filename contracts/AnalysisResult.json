@@ -92,7 +92,8 @@
         "value": { "type": ["number", "null"] },
         "ci": { "anyOf": [{ "$ref": "#/$defs/ConfidenceInterval" }, { "type": "null" }], "description": "95% CI by default (AnalysisRequest.ci_level); null only where no CI method exists." },
         "term": { "type": ["string", "null"] },
-        "interpretation": { "anyOf": [{ "$ref": "#/$defs/EffectSizeInterpretation" }, { "type": "null" }] }
+        "interpretation": { "anyOf": [{ "$ref": "#/$defs/EffectSizeInterpretation" }, { "type": "null" }] },
+        "headline": { "type": "boolean", "description": "True for the one effect size the plain-language summary names and the results chip should feature (the same measure size_clause() picks). Optional; absent/false for every other entry. Frontend falls back to the first effect size when none is flagged." }
       }
     },
     "GroupDescriptives": {

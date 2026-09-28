@@ -1,6 +1,7 @@
 import type { ChartSpec } from "@/contracts";
 import { formatCell, numbersTable } from "@/lib/chartbuilder/numbers";
 import type { ChartsDataResult } from "@/lib/chartbuilder/types";
+import { pluralize } from "@/lib/plural";
 
 const MAX_ROWS = 400;
 
@@ -16,7 +17,7 @@ export function NumbersTableView({ spec, data }: { spec: ChartSpec; data: Charts
         <table className="border-collapse">
           <caption className="pb-1 text-left text-muted-foreground">
             {t.caption}
-            {data.meta.n_used !== undefined && ` · ${data.meta.n_used} rows used${excluded ? `, ${excluded} left out (missing or filtered)` : ""}`}
+            {data.meta.n_used !== undefined && ` · ${pluralize(data.meta.n_used, "row")} used${excluded ? `, ${pluralize(excluded, "row")} left out (missing or filtered)` : ""}`}
           </caption>
           <thead>
             <tr>

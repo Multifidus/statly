@@ -2,7 +2,6 @@ import { ArrowRight, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import { WhyItMatters } from "@/components/ui/why";
-import { Term } from "@/components/learn/GlossaryTerm";
 import type { AdvisorRecommendation } from "@/lib/analysisRpc";
 import { caveatText, labelFor } from "@/lib/content/labels";
 import { learnPageFor } from "@/lib/content/learn";
@@ -81,12 +80,20 @@ export function RecommendationCard({
           {caveatText(c)}
         </Notice>
       ))}
-      <dl className="grid gap-3 sm:grid-cols-2">
-        <Row title={<>If the assumptions don't hold (<Term k="nonparametric">nonparametric</Term> alternative)</>} ids={rec.nonparametric_alternative ? [rec.nonparametric_alternative] : []} labels={labels} />
-        <Row title="Assumptions to check" ids={rec.assumptions} labels={labels} />
-        <Row title={<>Report this <Term k="effect_size">effect size</Term></>} ids={rec.effect_size} labels={labels} />
-        <Row title="Follow-up (post hoc) tests" ids={rec.post_hoc} labels={labels} />
-      </dl>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <dl className="grid gap-3 content-start">
+          <Row title="Backup test" ids={rec.nonparametric_alternative ? [rec.nonparametric_alternative] : []} labels={labels} />
+          <Row title="Effect sizes to report" ids={rec.effect_size} labels={labels} />
+        </dl>
+        <dl className="grid gap-3 content-start">
+          <Row title="Assumptions to check" ids={rec.assumptions} labels={labels} />
+        </dl>
+      </div>
+      {rec.post_hoc.length > 0 && (
+        <dl className="grid gap-3">
+          <Row title="Follow-up (post hoc) tests" ids={rec.post_hoc} labels={labels} />
+        </dl>
+      )}
       <div>
         <Button onClick={onContinue} disabled={busy} data-testid="rec-continue">
           Set up this analysis <ArrowRight aria-hidden />

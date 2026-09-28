@@ -100,6 +100,10 @@ class EffectSize(BaseModel):
     """
     term: str | None
     interpretation: EffectSizeInterpretation | None
+    headline: bool | None = None
+    """
+    True for the one effect size the plain-language summary names and the results chip should feature (the same measure size_clause() picks). Optional; absent/false for every other entry. Frontend falls back to the first effect size when none is flagged.
+    """
 
 
 class GroupDescriptives(BaseModel):

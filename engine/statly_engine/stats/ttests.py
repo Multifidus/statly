@@ -89,7 +89,7 @@ def one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         raise InvalidParams(f"A one-sample t test needs at least 2 scores; {vl} has {n}.")
 
     b = ResultBuilder(request)
-    desc = cell(name, {}, vl, x_all.to_numpy(), level)
+    desc = cell(vl, {}, vl, x_all.to_numpy(), level)
     b.descriptives([desc])
     constant = np.ptp(x) == 0
     if constant:
@@ -105,7 +105,7 @@ def one_sample(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     d = es.cohens_d_one_sample(x, mu, level, alt)
     g = es.cohens_d_one_sample(x, mu, level, alt, adjust=True)
     b.statistic("t", "One-sample t", "t", t, [n - 1], p)
-    b.effect("cohens_d", "Cohen's d", "d", d, "d")
+    b.effect("cohens_d", "Cohen's d", "d", d, "d", headline=True)
     b.effect("hedges_g", "Hedges' g", "g", g, "d")
     b.effect("mean_difference", "Mean difference", "Mdiff", md)
 
@@ -186,8 +186,8 @@ def independent(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         raise InvalidParams(f"Each group needs at least 2 scores (n = {n1} and {n2}).")
 
     b = ResultBuilder(request)
-    d1 = cell(yname, {gname: levels[0]}, names[0], ya[0], level)
-    d2 = cell(yname, {gname: levels[1]}, names[1], ya[1], level)
+    d1 = cell(vl, {gname: levels[0]}, names[0], ya[0], level)
+    d2 = cell(vl, {gname: levels[1]}, names[1], ya[1], level)
     b.descriptives([d1, d2])
 
     with warnings.catch_warnings(), np.errstate(all="ignore"):
@@ -219,7 +219,7 @@ def independent(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     rr = es.r_from_t(t, dfh, level, alt)
     md = (_estimate_from_ci(np.mean(x1) - np.mean(x2), head.confidence_interval(level), level) if finite(t)
           else es.Estimate(float(np.mean(x1) - np.mean(x2)), None, None, level))
-    b.effect("hedges_g", "Hedges' g", "g", hg, "d")
+    b.effect("hedges_g", "Hedges' g", "g", hg, "d", headline=True)
     b.effect("cohens_d", "Cohen's d", "d", cd, "d")
     b.effect("glass_delta", f"Glass's delta (SD of {ref_name})", "Δ", gd, "d")
     b.effect("r", "r (from t)", "r", rr, "r", what="association")
@@ -382,8 +382,8 @@ def paired(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     dlabel = f"{names[0]} - {names[1]}"
 
     b = ResultBuilder(request)
-    d1 = cell(data["variables"][0], data["groups"][0], names[0], x, level, data["n_missing"][0])
-    d2 = cell(data["variables"][1], data["groups"][1], names[1], y, level, data["n_missing"][1])
+    d1 = cell(prep.label(meta, data["variables"][0]), data["groups"][0], names[0], x, level, data["n_missing"][0])
+    d2 = cell(prep.label(meta, data["variables"][1]), data["groups"][1], names[1], y, level, data["n_missing"][1])
     b.descriptives([d1, d2])
 
     constant = np.ptp(diffs) == 0
@@ -399,7 +399,7 @@ def paired(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     dz = es.d_z(x, y, level, alt)
     b.statistic("t", "Paired t", "t", t, [n - 1], p)
     dav_sym = Rich().i("d").sub("av")
-    b.effect("d_av", "Cohen's d_av", "d_av", dav, "d")
+    b.effect("d_av", "Cohen's d_av", "d_av", dav, "d", headline=True)
     b.effect("d_z", "Cohen's d_z", "d_z", dz, "d")
     b.effect("mean_difference", "Mean difference", "Mdiff", md)
 

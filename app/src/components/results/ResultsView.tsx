@@ -9,7 +9,7 @@ import { VegaChart } from "@/components/charts/VegaChart";
 import { Term } from "@/components/learn/GlossaryTerm";
 import { Button } from "@/components/ui/button";
 import { Badge, Notice } from "@/components/ui/form";
-import { fmtDf, fmtNum, fmtPExpr, isBounded, sentencePayload } from "@/lib/apa";
+import { fmtDf, fmtNum, fmtPExpr, isBounded, parseApaMarkup, sentencePayload } from "@/lib/apa";
 import { isSupportedChart } from "@/lib/chartSpecs";
 import { learnPageFor, sectionOf } from "@/lib/content/learn";
 import { pluralize } from "@/lib/plural";
@@ -46,6 +46,14 @@ function effectText(e: EffectSize): string {
   const b = isBounded(e.key);
   const ci = e.ci && e.ci.lower !== null && e.ci.upper !== null ? `, ${Math.round(e.ci.level * 100)}% CI [${fmtNum(e.ci.lower, 2, b)}, ${fmtNum(e.ci.upper, 2, b)}]` : "";
   return ` = ${fmtNum(e.value, 2, b)}${ci}`;
+}
+
+/** Engine text is plain ("Cohen's d_av", "η²"); run it through the APA markup parser so bare
+ * `_word` subscripts and superscript digits render properly instead of showing literal underscores
+ * (owner bug, QA #35) wherever it's dropped straight into the page: the summary paragraph, the
+ * headline effect-size chip and the effect-size list headings. */
+function Marked({ text }: { text: string }) {
+  return <RichText runs={parseApaMarkup(text)} />;
 }
 
 function WarningNote({ w, onRunFisher }: { w: ResultWarning; onRunFisher?: () => void }) {
@@ -105,7 +113,7 @@ export function ResultsView({
 
       <Section id="result-summary" title="What this means" className="border-primary/30 bg-accent/30">
         <p className="text-base leading-relaxed" data-testid="plain-summary">
-          {result.plain_language_summary}
+          <Marked text={result.plain_language_summary} />
         </p>
         {(stat || effect) && (
           <dl className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
@@ -121,10 +129,10 @@ export function ResultsView({
             {effect && (
               <div>
                 <dt className="text-muted-foreground">
-                  <Term k="effect_size">Effect size</Term>: {effect.label}
+                  <Term k="effect_size">Effect size</Term>: <Marked text={effect.label} />
                 </dt>
                 <dd className="font-serif text-base tabular-nums">
-                  <i>{effect.symbol}</i>
+                  <i><Marked text={effect.symbol} /></i>
                   {effectText(effect)}
                 </dd>
               </div>
@@ -169,10 +177,10 @@ export function ResultsView({
             {result.effect_sizes.map((e) => (
               <li key={`${e.key}-${e.term ?? ""}`} className="grid gap-1">
                 <p className="text-sm">
-                  <span className="font-medium">{e.label}</span>
+                  <span className="font-medium"><Marked text={e.label} /></span>
                   {e.term && <span className="text-muted-foreground"> ({e.term})</span>}:{" "}
                   <span className="font-serif tabular-nums">
-                    <i>{e.symbol}</i>
+                    <i><Marked text={e.symbol} /></i>
                     {effectText(e)}
                   </span>
                   {e.interpretation && <Badge className="ml-2">{e.interpretation.magnitude}</Badge>}
@@ -181,7 +189,7 @@ export function ResultsView({
                 {learnPageFor(e.key) && (
                   <div>
                     <Button variant="link" size="sm" className="h-auto px-0" onClick={() => openLearn(learnPageFor(e.key)!.id)}>
-                      <BookOpen aria-hidden /> About {e.label}
+                      <BookOpen aria-hidden /> About <Marked text={e.label} />
                     </Button>
                   </div>
                 )}

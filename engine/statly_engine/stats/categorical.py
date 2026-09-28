@@ -233,11 +233,11 @@ def expected_counts_check(e: np.ndarray) -> tuple[str, str]:
     smallest = float(e.min())
     if share > 0.2 or smallest < 1:
         return "failed", (f"{share * 100:.0f}% of the cells have an expected count below 5 (smallest "
-                          f"{smallest:.2f}). The chi-square p-value can be inaccurate with counts this small. "
-                          f"Because the smallest expected count ({smallest:.2f}) is below 5, this check fails.")
-    return "passed", (f"Every expected count is at least 5 (smallest {smallest:.2f}). Because every expected "
-                      f"count is at least 5 (smallest: {smallest:.2f}), the chi-square test's p-value should be "
-                      "accurate.")
+                          f"{smallest:.2f}). The chi-square p-value can be inaccurate with counts this small, "
+                          f"because the smallest expected count ({smallest:.2f}) is below 5. This check fails.")
+    return "passed", (f"Every expected count is at least 5 (smallest {smallest:.2f}), because every expected "
+                      f"count is at least 5 (smallest: {smallest:.2f}), so the chi-square test's p-value should "
+                      "be accurate.")
 
 
 def _expected_counts_assumption(e: np.ndarray, sc: dict, fisher_ok: bool = True) -> dict:
@@ -329,7 +329,7 @@ def chi_square_independence(df: pd.DataFrame, request, meta: dict | None = None)
     g2, _, pg = likelihood_ratio(tab)
     b.statistic("likelihood_ratio", "Likelihood-ratio chi-square", "G²", g2, [dfree], pg)
     v = esc.cramers_v(chi, n, *tab.shape, level=level)
-    b.effect("cramers_v", "Cramér's V", "V", v, "r", what="association")
+    b.effect("cramers_v", "Cramér's V", "V", v, "r", what="association", headline=True)
     if is2:
         b.effect("phi", "Phi (unsigned)", "φ", esc.phi(chi, n, level), "r", what="association")
         b.effect("sample_odds_ratio", "Odds ratio (sample)", "OR", esc.odds_ratio_woolf(tab, level))
@@ -379,7 +379,7 @@ def fisher_exact(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         p = float(stats.fisher_exact(tab, alternative=_ALT[alt]).pvalue)
         b.statistic("fisher_p", "Fisher's exact test", "p", None, [], p)
         orc = esc.odds_ratio_conditional(tab, level, alt)
-        b.effect("odds_ratio", "Odds ratio (conditional MLE)", "OR", orc)
+        b.effect("odds_ratio", "Odds ratio (conditional MLE)", "OR", orc, headline=True)
         b.effect("sample_odds_ratio", "Odds ratio (sample)", "OR", esc.odds_ratio_woolf(tab, level))
         b.effect("phi", "Phi (unsigned)", "φ", esc.phi(chi, n, level), "r", what="association")
         head_es = ("OR", orc, False)
@@ -390,7 +390,7 @@ def fisher_exact(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
         p = fisher_rxc_p(tab)
         b.statistic("fisher_p", "Fisher's exact test", "p", None, [], p)
         v = esc.cramers_v(chi, n, *tab.shape, level=level)
-        b.effect("cramers_v", "Cramér's V", "V", v, "r", what="association")
+        b.effect("cramers_v", "Cramér's V", "V", v, "r", what="association", headline=True)
         head_es = ("V", v, True)
 
     note = Rich().t("Fisher's exact test, ").p(p).t(".")

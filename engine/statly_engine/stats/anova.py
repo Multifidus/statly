@@ -97,7 +97,7 @@ def between_data(df: pd.DataFrame, request, meta) -> dict:
 
 
 def between_descriptives(b: ResultBuilder, d: dict, level: float) -> list[dict]:
-    rows = [cell(d["yname"], {d["gname"]: lv}, nm, raw, level)
+    rows = [cell(d["vl"], {d["gname"]: lv}, nm, raw, level)
             for lv, nm, raw in zip(d["levels"], d["names"], d["raw"])]
     b.descriptives(rows)
     return rows
@@ -204,7 +204,7 @@ def _oneway(df: pd.DataFrame, request, meta, variant: str) -> dict:
             else esa.from_f(None, cf["df1"], None, level)
     else:
         effects = esa.from_f(wf, wdf1, wdf2, level)
-    b.effect("eta_sq", "Eta squared", "η²", effects["eta_sq"], "eta_sq", what="effect")
+    b.effect("eta_sq", "Eta squared", "η²", effects["eta_sq"], "eta_sq", what="effect", headline=True)
     b.effect("omega_sq", "Omega squared", "ω²", effects["omega_sq"], "eta_sq", what="effect")
     b.effect("cohens_f", "Cohen's f", "f", effects["cohens_f"], "cohens_f", what="effect")
 
@@ -304,8 +304,9 @@ def _rm_wide(df, request, meta) -> dict:
               "they are missing at least one of the measures"] if dropped else [])
     reasons = [("missing_answer", dropped, "missing at least one of the measures")] if dropped else []
     return dict(y=np.column_stack([x[cc].to_numpy() for x in xs]), names=names, variables=list(cols),
-                groups=[{} for _ in cols], n_missing=[int(x.isna().sum()) for x in xs], n_excluded=dropped,
-                notes=notes, reasons=reasons, outcome_label=", ".join(names), time_label="time point")
+                var_labels=names, groups=[{} for _ in cols], n_missing=[int(x.isna().sum()) for x in xs],
+                n_excluded=dropped, notes=notes, reasons=reasons, outcome_label=", ".join(names),
+                time_label="time point")
 
 
 def _rm_long(df, request, meta) -> dict:
@@ -360,7 +361,8 @@ def _rm_long(df, request, meta) -> dict:
         notes.append(f"{plural(no_id, 'row')} {'has' if no_id == 1 else 'have'} no ID")
         reasons.append(("no_id", no_id, "no ID"))
     return dict(y=wide.loc[cc].to_numpy(float), names=[prep.value_label(meta, tname, lv) for lv in levels],
-                variables=[yname] * k, groups=[{tname: lv} for lv in levels],
+                variables=[yname] * k, var_labels=[prep.label(meta, yname)] * k,
+                groups=[{tname: lv} for lv in levels],
                 n_missing=[int(y[m].isna().sum()) for m in at], n_excluded=int(in_levels.sum() - k * n),
                 notes=notes, reasons=reasons, outcome_label=prep.label(meta, yname), time_label=prep.label(meta, tname))
 
@@ -374,8 +376,8 @@ def rm_data(df: pd.DataFrame, request, meta) -> dict:
 
 
 def rm_descriptives(b: ResultBuilder, d: dict, level: float) -> list[dict]:
-    rows = [cell(v, g, nm, d["y"][:, j], level, d["n_missing"][j])
-            for j, (v, g, nm) in enumerate(zip(d["variables"], d["groups"], d["names"]))]
+    rows = [cell(vlab, g, nm, d["y"][:, j], level, d["n_missing"][j])
+            for j, (vlab, g, nm) in enumerate(zip(d["var_labels"], d["groups"], d["names"]))]
     b.descriptives(rows)
     return rows
 
@@ -459,7 +461,8 @@ def repeated_measures(df: pd.DataFrame, request, meta: dict | None = None) -> di
 
     es = esa.repeated_measures(t["ss_time"], t["ss_subj"], t["ss_err"], df1, df2, n, level) if f is not None \
         else esa.repeated_measures(0.0, 0.0, 0.0, df1, df2, 0, level)
-    b.effect("partial_eta_sq", "Partial eta squared", "η²p", es["partial_eta_sq"], "eta_sq", what="effect")
+    b.effect("partial_eta_sq", "Partial eta squared", "η²p", es["partial_eta_sq"], "eta_sq", what="effect",
+             headline=True)
     b.effect("generalized_eta_sq", "Generalized eta squared", "η²G", es["generalized_eta_sq"], "eta_sq", what="effect")
     b.effect("omega_sq", "Partial omega squared", "ω²p", es["omega_sq"], "eta_sq", what="effect")
     b.effect("cohens_f", "Cohen's f", "f", es["cohens_f"], "cohens_f", what="effect")

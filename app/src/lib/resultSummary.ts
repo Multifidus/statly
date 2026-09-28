@@ -41,6 +41,12 @@ export function primaryStatistic(result: AnalysisResult): Statistic | null {
 }
 
 export function primaryEffect(result: AnalysisResult): EffectSize | null {
+  // The engine flags the effect size its plain-language summary and APA sentence actually name
+  // (size_clause(), core.py ResultBuilder.effect(headline=...)); the chip must match it so the two
+  // never disagree (owner bug: chip showed d_z next to a summary that named d_av). Fall back to the
+  // per-family preference list, then to any effect with an interpretation, then to the first.
+  const flagged = result.effect_sizes.find((e) => e.headline && e.value !== null);
+  if (flagged) return flagged;
   const { effects } = headlineFor(result.analysis_id);
   for (const key of effects) {
     const e = result.effect_sizes.find((x) => x.key === key && x.value !== null);

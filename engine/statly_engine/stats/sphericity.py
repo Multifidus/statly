@@ -125,18 +125,16 @@ def assumption(sph: Sphericity, k: int, n: int, alpha: float, correction: str) -
     stat = {"symbol": "W", "value": float(sph.w), "df": [float(sph.df)]}
     if sph.p >= alpha:
         text = ("Mauchly's test found no clear sign that the differences between time points vary unevenly "
-                f"({ptxt}), so sphericity looks reasonable and the uncorrected F test can be used." + eps +
-                f" Because the p value ({pnum}) is above {atxt}, Mauchly's test found no clear violation of "
-                "sphericity.")
+                f"({ptxt}), so sphericity looks reasonable and the uncorrected F test can be used, because "
+                f"the p value ({pnum}) is above {atxt}." + eps)
         verdict = "passed"
     else:
         used = {"gg": "Greenhouse-Geisser", "hf": "Huynh-Feldt"}.get(correction)
-        text = (f"Mauchly's test suggests the differences between time points vary unevenly ({ptxt}). This "
+        text = (f"Mauchly's test suggests the differences between time points vary unevenly ({ptxt}), "
+                f"because the p value ({pnum}) is below {atxt}. This "
                 "makes the uncorrected F test too likely to find an effect, so the degrees of freedom are "
                 "adjusted" + (f" (the {used} correction is used)." if used else
-                              ". You chose the uncorrected test; the corrected results are also shown.") + eps +
-                f" Because the p value ({pnum}) is below {atxt}, Mauchly's test found sphericity is violated, so "
-                f"the {used or 'Greenhouse-Geisser'} correction is applied.")
+                              ". You chose the uncorrected test; the corrected results are also shown.") + eps)
         verdict = "failed"
     return {**base, "statistic": stat, "p": float(sph.p), "verdict": verdict, "explanation": text}
 

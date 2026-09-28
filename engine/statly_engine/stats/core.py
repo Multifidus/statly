@@ -177,12 +177,16 @@ class ResultBuilder:
         return self
 
     def effect(self, key: str, label: str, symbol: str, est: Estimate, family: str | None = None,
-               term: str | None = None, what: str = "difference"):
+               term: str | None = None, what: str = "difference", headline: bool = False):
+        """`headline=True` marks the one effect size size_clause() names in the plain-language
+        summary (SPEC §8); it must stay in sync with the size_clause()/_size_sentence() call for
+        this analysis so the results chip and the summary never disagree (QA #34)."""
         ci = None
         if est.value is not None and (est.lower is not None or est.upper is not None):
             ci = {"level": est.level, "lower": clean(est.lower), "upper": clean(est.upper)}
         self.effect_sizes.append({"key": key, "label": label, "symbol": symbol, "value": clean(est.value),
-                                  "ci": ci, "term": term, "interpretation": interpret(est.value, family, what)})
+                                  "ci": ci, "term": term, "interpretation": interpret(est.value, family, what),
+                                  "headline": headline})
         return self
 
     def assumption(self, result: dict, charts: dict[str, list[dict]] | None = None):

@@ -114,6 +114,40 @@ def test_variable_label_falls_back_to_question_text_then_name():
     assert "Q6" in "".join(r["text"] for r in res_bare["apa_sentence"])
 
 
+def test_descriptives_rows_use_variable_label_not_raw_name():
+    """Owner bug (QA #30): the raw GroupDescriptives.variable field fed a labelled variable's raw
+    column name ("Q4") straight into the results screen's Descriptive Statistics table, even though
+    the APA table alongside it already showed the label. t-test, ANOVA and correlation descriptives
+    rows must carry the (unquoted) label instead."""
+    meta = {"variables": [
+        {"name": "Q4", "label": "Assessment score (0-100)", "dtype": "float"},
+        {"name": "group", "label": "Cohort", "dtype": "string"},
+    ]}
+
+    df = pd.DataFrame({"Q4": [51.0, 60.0, 72.0, 48.0, 65.0, 70.0], "group": ["A", "A", "A", "B", "B", "B"]})
+    res = registry.run(df, _req("t_test.independent", {"outcome": ["Q4"], "group": ["group"]}), meta=meta)
+    variables = {r["variable"] for r in res["descriptives"]["continuous"]}
+    assert variables == {"Assessment score (0-100)"}
+    assert "Q4" not in variables
+
+    df1 = pd.DataFrame({"Q4": [51.0, 60.0, 72.0, 48.0, 65.0, 70.0]})
+    res1 = registry.run(df1, _req("t_test.one_sample", {"outcome": ["Q4"]}, test_value=50), meta=meta)
+    assert res1["descriptives"]["continuous"][0]["variable"] == "Assessment score (0-100)"
+
+    df2 = pd.DataFrame({"Q4": [51.0, 60.0, 72.0, 48.0, 65.0, 70.0], "group": ["A", "A", "A", "B", "B", "B"]})
+    res2 = registry.run(df2, _req("anova.one_way", {"outcome": ["Q4"], "group": ["group"]}), meta=meta)
+    variables2 = {r["variable"] for r in res2["descriptives"]["continuous"]}
+    assert variables2 == {"Assessment score (0-100)"}
+
+    meta_y = {"variables": [{"name": "Q4", "label": "Assessment score (0-100)", "dtype": "float"},
+                            {"name": "Q5", "label": "Motivation", "dtype": "float"}]}
+    df3 = pd.DataFrame({"Q4": [1.0, 2.0, 3.0, 4.0, 5.0], "Q5": [2.0, 3.0, 1.0, 5.0, 4.0]})
+    res3 = registry.run(df3, _req("correlation.pearson", {"x": ["Q4"], "y": ["Q5"]}), meta=meta_y)
+    variables3 = {r["variable"] for r in res3["descriptives"]["continuous"]}
+    assert variables3 == {"Assessment score (0-100)", "Motivation"}
+    assert not any(v in ("Q4", "Q5") for v in variables3)
+
+
 def test_label_in_prose_quotes_only_question_length_labels():
     """prep.label_in_prose / quote_if_sentence: a short label is unchanged; a label that reads as a
     question or sentence is wrapped in typographic quotes so it's parseable mid-sentence."""

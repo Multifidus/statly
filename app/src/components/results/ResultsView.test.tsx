@@ -133,4 +133,33 @@ describe("ResultsView", () => {
     render(<ResultsView result={result} title="x" />);
     expect(screen.queryByTestId("run-fisher-instead")).toBeNull();
   });
+
+  it("renders bare _subscripts as <sub> instead of literal underscores, in the summary, the chip and the effect-size list (QA #35)", () => {
+    const base = structuredClone(example) as unknown as AnalysisResult;
+    const result: AnalysisResult = {
+      ...base,
+      analysis_id: "t_test.paired",
+      plain_language_summary: "The difference was small (Cohen's d_av = -0.29).",
+      effect_sizes: [
+        { key: "d_av", label: "Cohen's d_av", symbol: "d_av", value: -0.29, ci: null, term: null, interpretation: null, headline: true },
+        { key: "d_z", label: "Cohen's d_z", symbol: "d_z", value: -0.69, ci: null, term: null, interpretation: null },
+      ],
+    };
+    render(<ResultsView result={result} title="Paired-samples t test" />);
+
+    const summary = screen.getByTestId("plain-summary");
+    expect(summary.textContent).toBe("The difference was small (Cohen's dav = -0.29).");
+    expect(summary.querySelector("sub")?.textContent).toBe("av");
+
+    // Headline chip: picks the flagged d_av entry, and renders its heading + symbol with a <sub>.
+    const chip = screen.getByTestId("result-summary");
+    const chipSubs = [...within(chip).getAllByText("av", { selector: "sub" })];
+    expect(chipSubs.length).toBeGreaterThanOrEqual(2); // heading "d_av" + symbol "d_av"
+
+    // Effect-size list: both d_av and d_z headings render with a <sub>, not a literal underscore.
+    const list = screen.getByTestId("result-effects");
+    expect(list.textContent).not.toMatch(/d_av|d_z/);
+    expect(within(list).getAllByText("av", { selector: "sub" }).length).toBeGreaterThan(0);
+    expect(within(list).getAllByText("z", { selector: "sub" }).length).toBeGreaterThan(0);
+  });
 });

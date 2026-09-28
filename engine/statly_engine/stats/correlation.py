@@ -330,8 +330,8 @@ def _bivariate_result(request, meta, method: str, x, y, xl: str, yl: str, xname:
     head_label = head_label or _NAME[method]
     b = ResultBuilder(request)
     n = len(x)
-    b.descriptives(extra_desc or [cell(xname, {}, xl, x, level, n_missing[0]),
-                                  cell(yname, {}, yl, y, level, n_missing[1])])
+    b.descriptives(extra_desc or [cell(xl, {}, xl, x, level, n_missing[0]),
+                                  cell(yl, {}, yl, y, level, n_missing[1])])
     constant = [lab for lab, v in ((xl, x), (yl, y)) if np.ptp(v) == 0]
     if constant:
         res = None
@@ -466,8 +466,8 @@ def point_biserial(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     ok = (in0 | in1) & y.notna().to_numpy()
     x, yy = in1[ok].astype(float), y.to_numpy()[ok]
     _require_n(len(x), 3, "A point-biserial correlation")
-    desc = [cell(yname, {gname: levels[0]}, names[0], y.to_numpy()[in0], request.ci_level),
-            cell(yname, {gname: levels[1]}, names[1], y.to_numpy()[in1], request.ci_level)]
+    desc = [cell(yl, {gname: levels[0]}, names[0], y.to_numpy()[in0], request.ci_level),
+            cell(yl, {gname: levels[1]}, names[1], y.to_numpy()[in1], request.ci_level)]
     xl = f"{gl} ({names[1]} = 1, {names[0]} = 0)"
     return _bivariate_result(request, meta, "pearson", x, yy, xl, yl, gname, yname, int((~ok).sum()),
                              (0, 0), analysis_label=f"Point-Biserial Correlation Between {gl} and {yl}",
@@ -527,7 +527,7 @@ def partial(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     xl, yl = prep.label(meta, a), prep.label(meta, c)
     cl = ", ".join(prep.label(meta, v) for v in covs)
     b = ResultBuilder(request)
-    b.descriptives([cell(v, {}, prep.label(meta, v), cols[v], level) for v in (a, c, *covs)])
+    b.descriptives([cell(prep.label(meta, v), {}, prep.label(meta, v), cols[v], level) for v in (a, c, *covs)])
     b.statistic("r_partial", "Partial correlation", "r", res["r"], [res["df"]], res["p"])
     b.statistic("t", "t test of the partial correlation", "t", res["t"], [res["df"]], res["p"])
     b.statistic("r_zero_order", "Zero-order correlation (no control)", "r", res["zero_order"], [], None)
@@ -605,7 +605,7 @@ def matrix(df: pd.DataFrame, request, meta: dict | None = None) -> dict:
     cols = {v: prep.numeric(df, v, meta).to_numpy() for v in names}
     k = len(names)
     b = ResultBuilder(request)
-    b.descriptives([cell(v, {}, lab, cols[v], level) for v, lab in zip(names, labels)])
+    b.descriptives([cell(lab, {}, lab, cols[v], level) for v, lab in zip(names, labels)])
 
     pairs = []
     for i, j in itertools.combinations(range(k), 2):

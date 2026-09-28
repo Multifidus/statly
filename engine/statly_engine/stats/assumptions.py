@@ -108,8 +108,8 @@ def _normality_verdict(p: float, n: int, alpha: float, test_label: str, sc: dict
     atxt = _atxt(alpha)
     if p >= alpha:
         text = (f"The {test_label} test found no clear sign that {where} are far from a bell-shaped "
-                f"(normal) curve ({ptxt}), so this assumption looks reasonable. "
-                f"Because the p value ({pnum}) is above {atxt}. Below {atxt} would be a warning that the "
+                f"(normal) curve ({ptxt}), so this assumption looks reasonable, because the p value "
+                f"({pnum}) is above {atxt}. Below {atxt} would be a warning that the "
                 f"shape is clearly not bell-shaped. With {n} scores the plots matter as much as the test.")
         if n < SMALL_CHECK_N:
             text += (f" With only {n} scores this test can miss real problems, so also look at the Q-Q "
@@ -117,16 +117,16 @@ def _normality_verdict(p: float, n: int, alpha: float, test_label: str, sc: dict
         return "passed", text
     if n >= LARGE_N:
         return "caution", (
-            f"The {test_label} test says {where} are not perfectly bell-shaped ({ptxt}). But with {n} "
+            f"The {test_label} test says {where} are not perfectly bell-shaped, because the p value "
+            f"({pnum}) is below {atxt} ({ptxt}). But with {n} "
             "scores, these tests flag even tiny, harmless differences. Look at the Q-Q plot: if the dots "
             "stay fairly close to the line, the test is still trustworthy, because with this many scores "
-            f"its results hold up well. Because the p value ({pnum}) is below {atxt}, but with this many "
-            "scores that can flag a tiny, harmless difference rather than a real problem — trust the Q-Q "
-            "plot as much as the test.")
+            "its results hold up well and a small deviation is unlikely to be a real problem — trust the "
+            "Q-Q plot as much as the test.")
     return "failed", (
         f"The {test_label} test suggests {where} are not bell-shaped ({ptxt}). With a sample this size "
         "that can affect the results. Check the histogram and Q-Q plot, and consider the rank-based "
-        f"(nonparametric) alternative. Because the p value ({pnum}) is below {atxt}, which is a warning "
+        f"(nonparametric) alternative, because the p value ({pnum}) is below {atxt}, which is a warning "
         "sign that the shape is clearly not bell-shaped.")
 
 
@@ -228,11 +228,11 @@ def levene_brown_forsythe(groups: dict[str, "np.ndarray"], sc: dict, alpha: floa
     if p >= alpha:
         verdict = "passed"
         text = (f"The groups' scores are spread out by similar amounts ({ptxt}), so this assumption looks "
-                f"reasonable. Because the p value ({pnum}) is above {atxt}, the groups' spreads are similar "
+                f"reasonable, because the p value ({pnum}) is above {atxt}, the groups' spreads are similar "
                 "enough.")
     else:
         verdict = "failed"
-        text = (f"The groups' scores are spread out by different amounts ({ptxt}). Because the p value "
+        text = (f"The groups' scores are spread out by different amounts ({ptxt}), because the p value "
                 f"({pnum}) is below {atxt}, the groups' spreads differ; Statly will use/offer the Welch "
                 "version.")
         if failed_note:
