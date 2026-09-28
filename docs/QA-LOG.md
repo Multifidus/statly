@@ -44,5 +44,6 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 38 | "Start another analysis" keeps the previous advisor answers; should clear them and keep the outcome | open |
 | 39 | Correlation tied-ranks auto-answer only sees the outcome; ask for the second variable first or re-check at setup | open |
 | 40 | Chart builder: pin "Save chart" in a sticky bar; warn before leaving with an unsaved chart | open |
+| 41 | Report export never includes Chart Builder charts saved in the project ("Charts" meant per-test charts only) | open |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
