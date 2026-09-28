@@ -6,7 +6,7 @@
  * Chart Builder project chart rendered for the report's "Figures" section from its saved ChartSpec).
  */
 import type { ChartType } from "@/contracts";
-import { chartSpec, type VlSpec } from "@/lib/chartSpecs";
+import { chartSpec, withPrintPalette, type VlSpec } from "@/lib/chartSpecs";
 
 type Row = Record<string, number | string | boolean | null>;
 type Theme = "light" | "dark";
@@ -21,7 +21,11 @@ export function dpiFor(scale: PngScale): number {
 }
 
 /** Mounts any compiled Vega-Lite spec off-screen and hands back the live view; used by both the
- * chart_type+rows path below and lib/export/projectCharts.ts (full builder ChartSpec + data). */
+ * chart_type+rows path below and lib/export/projectCharts.ts (full builder ChartSpec + data).
+ * Every export goes through here, so the print palette (QA #49: dark-theme muted grey text is
+ * unreadable on white paper) is forced here too, regardless of which theme the spec was compiled
+ * with — this is the one choke point for every figure export path (result charts, assumption
+ * plots, project-chart report figures). */
 async function withVlSpec<T>(
   spec: VlSpec,
   fn: (view: { toImageURL: (t: string, scale?: number) => Promise<string>; toSVG: () => Promise<string> }) => Promise<T>,
@@ -33,7 +37,7 @@ async function withVlSpec<T>(
   document.body.appendChild(host);
   try {
     const [{ default: embed }, { expressionInterpreter }] = await Promise.all([import("vega-embed"), import("vega-interpreter")]);
-    const res = await embed(host, spec as never, { actions: false, renderer: "canvas", ast: true, expr: expressionInterpreter });
+    const res = await embed(host, withPrintPalette(spec) as never, { actions: false, renderer: "canvas", ast: true, expr: expressionInterpreter });
     try {
       return await fn(res.view as never);
     } finally {

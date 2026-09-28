@@ -61,15 +61,7 @@ export function PlanView({ plan }: { plan: StudyPlan }) {
 
   return (
     <div className="grid gap-4" data-testid="plan-view">
-      <div>
-        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Study plan</p>
-        <h2 className="text-xl font-semibold" data-testid="plan-title">
-          {plan.title}
-        </h2>
-        {typeof rq === "string" && rq && <p className="mt-1">Research question: {rq}</p>}
-      </div>
-
-      <div className="flex flex-wrap gap-2">
+      <div className="sticky top-0 z-10 -mx-6 -mt-6 flex flex-wrap gap-2 border-b bg-background px-6 py-3">
         <Button onClick={() => void act(async () => (await p.savePlanToProject()) && notify("Plan saved in your project."))} disabled={p.busy} data-testid="plan-save">
           {p.busy ? <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden /> : <Save aria-hidden />} Save plan in project
         </Button>
@@ -93,6 +85,15 @@ export function PlanView({ plan }: { plan: StudyPlan }) {
           <FolderPlus aria-hidden /> Start analysis project from this plan
         </Button>
       </div>
+
+      <div>
+        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Study plan</p>
+        <h2 className="text-xl font-semibold" data-testid="plan-title">
+          {plan.title}
+        </h2>
+        {typeof rq === "string" && rq && <p className="mt-1">Research question: {rq}</p>}
+      </div>
+
       {exported && (
         <Notice data-testid="plan-exported">
           Saved to <span className="font-mono text-xs break-all">{exported}</span>

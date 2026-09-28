@@ -15,6 +15,40 @@ export const CHART_COLORS: Record<ResolvedTheme, { mark: string; reference: stri
   dark: { mark: "#3A9AD9", reference: "#D17A1F", ink: "#f0efec", muted: "#b5b4ae", grid: "#383835", surface: "transparent" },
 };
 
+/** Print palette (SPEC §10.3 / QA #49): every exported figure (report PDF/DOCX, "Save figure…",
+ * project-chart report figures, assumption plots) forces these colors onto the compiled spec's
+ * `config`, regardless of the app's on-screen theme — dark-theme muted grey text is nearly invisible
+ * on white paper. On-screen rendering (VegaChart, Chart Builder preview) is untouched and keeps
+ * following light/dark as usual; only the config object handed to the off-screen export renderer
+ * (lib/export/figure.ts's withVlSpec) is overridden. Mark/data colors (points, bars, reference lines)
+ * are left alone: they're already colorblind-safe on both light and dark surfaces and read fine on
+ * paper. */
+const PRINT_TEXT = "#111111";
+const PRINT_GRID = "#d9d9d9";
+const PRINT_AXIS_LINE = "#666666";
+
+/** Overrides a compiled Vega-Lite spec's `config` with the print palette. Safe to call on any spec
+ * produced by `chartSpec` (this file) or `compileChart` (lib/chartbuilder/compile.ts) — both put
+ * their theme config under `config.axis` / `config.title` / `config.legend`. */
+export function withPrintPalette(spec: VlSpec): VlSpec {
+  const config = (spec.config as VlSpec | undefined) ?? {};
+  const axis = (config.axis as VlSpec | undefined) ?? {};
+  const title = (config.title as VlSpec | undefined) ?? {};
+  const legend = (config.legend as VlSpec | undefined) ?? {};
+  const header = (config.header as VlSpec | undefined) ?? {};
+  return {
+    ...spec,
+    config: {
+      ...config,
+      background: "#ffffff",
+      axis: { ...axis, labelColor: PRINT_TEXT, titleColor: PRINT_TEXT, domainColor: PRINT_AXIS_LINE, tickColor: PRINT_AXIS_LINE, gridColor: PRINT_GRID },
+      title: { ...title, color: PRINT_TEXT },
+      legend: { ...legend, labelColor: PRINT_TEXT, titleColor: PRINT_TEXT },
+      header: { ...header, labelColor: PRINT_TEXT, titleColor: PRINT_TEXT },
+    },
+  };
+}
+
 export function vegaConfig(theme: ResolvedTheme): VlSpec {
   const c = CHART_COLORS[theme];
   return {
