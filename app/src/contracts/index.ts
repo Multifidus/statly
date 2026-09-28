@@ -82,6 +82,7 @@ export type VariableRole =
   | "likert_item"
   | "scale_score"
   | "demographic"
+  | "multi_select"
   | "open_text"
   | "ignore";
 /**

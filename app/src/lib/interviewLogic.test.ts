@@ -136,13 +136,19 @@ describe("column stats and guesses", () => {
   it.each([
     ["var:Q1", "group"],
     ["scale:scale_Q5", "likert_item"],
-    ["multi:Q7", "demographic"],
+    ["multi:Q7", "multi_select"],
     ["var:Q7_8_TEXT", "open_text"],
     ["group:Q4", "test_item"],
     ["var:SC0", "test_total"],
   ])("guesses %s as %s", (id, role) => {
     const u = unit(id);
     expect(guessRole(u, vars(u), STATS)).toBe(role);
+  });
+
+  it("re-guesses multi_select from the option children's role, not the parent's open_text", () => {
+    const u = unit("multi:Q7");
+    const answered = vars(u).map((x) => (x.name === "Q7" ? { ...x, role: "open_text" as const } : { ...x, role: "multi_select" as const }));
+    expect(guessRole(u, answered, STATS)).toBe("multi_select");
   });
 
   it("guesses IDs from question text and scores from labels", () => {
@@ -157,6 +163,7 @@ describe("column stats and guesses", () => {
     expect(guessLevel("likert_item", [likert("Q5_1")], STATS)).toBe("ordinal");
     expect(guessLevel("test_total", [byName.get("SC0")!], STATS)).toBe("continuous");
     expect(guessLevel("group", [byName.get("Q1")!], STATS)).toBe("nominal");
+    expect(guessLevel("multi_select", [byName.get("Q7")!], STATS)).toBe("nominal");
   });
 
   it("builds shared value labels from observed codes (sorted) or existing labels", () => {
@@ -246,6 +253,21 @@ describe("buildPlan", () => {
     expect(plan.upsertScales).toEqual([]);
     expect(plan.key).toBeNull();
     expect(plan.updates.filter((u) => u.name.startsWith("Q7_")).every((u) => !("reverse_coded" in u))).toBe(true);
+  });
+
+  it("splits a multi_select unit: parent becomes open_text, option children get Yes/No labels", () => {
+    const plan = buildPlan(M, units, draft0, labelsFor);
+    expect(plan.updates.find((u) => u.name === "Q7")).toEqual({ name: "Q7", role: "open_text" });
+    expect(plan.updates.find((u) => u.name === "Q7_Textbook")).toEqual({
+      name: "Q7_Textbook",
+      role: "multi_select",
+      value_labels: [{ value: 0, label: "No" }, { value: 1, label: "Yes" }],
+    });
+    expect(plan.updates.find((u) => u.name === "Q7_Tutor")).toEqual({
+      name: "Q7_Tutor",
+      role: "multi_select",
+      value_labels: [{ value: 0, label: "No" }, { value: 1, label: "Yes" }],
+    });
   });
 
   it("scale helpers", () => {

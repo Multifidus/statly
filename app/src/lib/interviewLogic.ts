@@ -172,6 +172,11 @@ export const ROLE_OPTIONS: { value: VariableRole; title: string; description: st
   { value: "test_total", title: "Test total score", description: "A score that adds up a whole test." },
   { value: "likert_item", title: "Survey (Likert) item", description: "An agree/disagree or rating question, like 1 = Strongly disagree to 5 = Strongly agree." },
   { value: "demographic", title: "Background / demographic", description: "Facts about the person, like grade level, age or which strategies they used." },
+  {
+    value: "multi_select",
+    title: "Multiple answers (select all that apply)",
+    description: "People could tick more than one answer. Statly keeps one yes/no column per option so you can count and compare each one.",
+  },
   { value: "open_text", title: "Open-ended text", description: "Answers people typed in their own words." },
   { value: "ignore", title: "Ignore", description: "Keep the column, but leave it out of analyses." },
 ];
@@ -191,12 +196,16 @@ const ID_TEXT = /\b(id|identifier|code)\b/i;
 /** Best-guess role for a unit (SPEC §6: pre-fill, the user confirms). */
 export function guessRole(unit: Unit, vars: VariableSchema[], stats: Record<string, ColumnStats>): VariableRole {
   const first = vars[0];
+  if (unit.kind === "multiselect") {
+    const children = vars.slice(1);
+    if (children.length && children.every((v) => v.role !== "unassigned")) return children[0].role;
+    return "multi_select";
+  }
   if (vars.every((v) => v.role !== "unassigned")) {
     const r = first.role;
     return r === "scale_score" ? "ignore" : r;
   }
   if (unit.kind === "matrix") return "likert_item";
-  if (unit.kind === "multiselect") return "demographic";
   if (/^SC\d+$/i.test(first.name)) return "test_total";
   if (/_TEXT$/i.test(first.name)) return "open_text";
   const st = stats[first.name];
@@ -232,6 +241,7 @@ export function guessLevel(role: VariableRole, vars: VariableSchema[], stats: Re
     case "identifier":
     case "open_text":
     case "test_item":
+    case "multi_select":
       return "nominal";
     default: {
       if (first.dtype === "string" || first.dtype === "boolean") return "nominal";
@@ -284,7 +294,7 @@ export interface Draft {
 
 export type StepId = string; // "intro" | "role:<unit>" | "level:<unit>" | "knowledge" | "labels:<unit>" | "answer_key" | "scales" | "scoring" | "summary"
 
-const NO_LEVEL_QUESTION: VariableRole[] = ["identifier", "open_text", "ignore", "time", "test_item"];
+const NO_LEVEL_QUESTION: VariableRole[] = ["identifier", "open_text", "ignore", "time", "test_item", "multi_select"];
 const LABEL_ROLES: VariableRole[] = ["group", "likert_item", "demographic", "time"];
 
 export function needsLevel(a: UnitAnswer): boolean {
@@ -600,6 +610,9 @@ export interface InterviewPlan {
 
 const sameLabels = (a: ValueLabel[], b: ValueLabel[]) => JSON.stringify(a) === JSON.stringify(b);
 
+/** Value labels for a select-all-that-apply option column: 0 = No, 1 = Yes. */
+export const MULTISELECT_YES_NO_LABELS: ValueLabel[] = [{ value: 0, label: "No" }, { value: 1, label: "Yes" }];
+
 /** Turn the draft into engine calls, sending only what changed. */
 export function buildPlan(
   meta: DatasetMeta,
@@ -615,13 +628,17 @@ export function buildPlan(
     const a = draft.answers[u.id];
     if (!a) continue;
     const labels = hasLabelsStep(a, a.valueLabels ?? labelsFor(u)) ? (a.valueLabels ?? labelsFor(u)) : null;
+    const parentName = u.kind === "multiselect" && a.role === "multi_select" ? u.names[0] : null;
     for (const name of u.names) {
       const v = byName.get(name);
       if (!v) continue;
+      const isParent = name === parentName;
+      const role = isParent ? "open_text" : a.role;
+      const varLabels = isParent ? labels : a.role === "multi_select" ? MULTISELECT_YES_NO_LABELS : labels;
       const p: VariablePatch = { name };
-      if (v.role !== a.role) p.role = a.role;
+      if (v.role !== role) p.role = role;
       if (v.level !== a.level) p.level = a.level;
-      if (labels && !sameLabels(v.value_labels, labels)) p.value_labels = labels;
+      if (varLabels && !sameLabels(v.value_labels, varLabels)) p.value_labels = varLabels;
       const rev = likert.has(name) ? !!draft.reverse[name] : v.reverse_coded;
       if (rev !== v.reverse_coded) p.reverse_coded = rev;
       if (Object.keys(p).length > 1) updates.push(p);

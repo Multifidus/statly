@@ -30,6 +30,7 @@ class VariableRole(StrEnum):
     likert_item = 'likert_item'
     scale_score = 'scale_score'
     demographic = 'demographic'
+    multi_select = 'multi_select'
     open_text = 'open_text'
     ignore = 'ignore'
 

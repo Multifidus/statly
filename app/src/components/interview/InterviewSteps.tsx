@@ -115,7 +115,9 @@ export function StepRole({ unitId }: { unitId: string }) {
   const answer = useInterview((s) => s.draft?.answers[unitId]);
   const setAnswer = useInterview((s) => s.setAnswer);
   if (!u || !answer) return null;
-  const options = ROLE_OPTIONS.filter((o) => o.value !== "time" || u.vars[0]?.role === "time");
+  const options = ROLE_OPTIONS.filter(
+    (o) => (o.value !== "time" || u.vars[0]?.role === "time") && (o.value !== "multi_select" || u.unit.kind === "multiselect"),
+  );
   return (
     <div className="grid gap-4">
       <UnitCard unit={u.unit} vars={u.vars} />

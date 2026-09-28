@@ -252,6 +252,11 @@ Semantics (see `contracts/README.md` for the table notes):
   Cells are split by matching the known options greedily (longest first, spacing around commas
   ignored), so an option that contains a comma ("Other, please specify") counts as one choice;
   detection merges a lowercase token that always follows the same token into one option.
+- Variable Interview role `multi_select` (select-all-that-apply): guessed for a unit the importer
+  split into indicator variables (the parent multi-select column plus its option indicators). The
+  option indicators get role `multi_select`, level nominal, value labels 0 = No / 1 = Yes; the
+  parent text column gets role `open_text` (kept, excluded from analyses and the advisor's outcome
+  list the same way any other open-text column is).
 - Suggested scales are kept when at least two final variables still carry their `scale_id`.
 - Row filters apply in the given order; `rows_removed` is recomputed per filter.
 - Stacking: `ColumnMatch` columns not referenced by any match are dropped (logged as `user`).

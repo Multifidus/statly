@@ -202,7 +202,9 @@ describe("outcomeCandidates / groupedOutcomeCandidates: categorical outcomes", (
   const likert = makeVariable({ name: "Q5", role: "likert_item", level: "ordinal", display_order: 4 });
   const score = makeVariable({ name: "SC0", role: "scale_score", level: "continuous", display_order: 5 });
   const openEnded = makeVariable({ name: "Q9", role: "open_text", level: "nominal", display_order: 6 });
-  const meta = makeMeta({ variables: [q2, q3, q4, likert, score, openEnded] });
+  const q7Option = makeVariable({ name: "Q7_Tutor", label: "Tutor", role: "multi_select", level: "nominal", display_order: 7 });
+  const q7Parent = makeVariable({ name: "Q7", role: "open_text", level: "nominal", display_order: 8 });
+  const meta = makeMeta({ variables: [q2, q3, q4, likert, score, openEnded, q7Option, q7Parent] });
 
   it("includes categorical (yes/no, nominal) variables as outcome candidates, not just scores/ratings", () => {
     const names = outcomeCandidates(meta).map((v) => v.name);
@@ -216,6 +218,13 @@ describe("outcomeCandidates / groupedOutcomeCandidates: categorical outcomes", (
     expect(names).not.toContain("Q9");
   });
 
+  it("lists a select-all-that-apply option under categories but never its open_text parent column", () => {
+    const names = outcomeCandidates(meta).map((v) => v.name);
+    expect(names).toContain("Q7_Tutor");
+    expect(names).not.toContain("Q7");
+    expect(outcomeGroupOf(q7Option)).toBe("categories");
+  });
+
   it("groups a nominal nominal variable under 'categories', a likert item under 'ratings', and a scale score under 'scores'", () => {
     expect(outcomeGroupOf(q3)).toBe("categories");
     expect(outcomeGroupOf(likert)).toBe("ratings");
@@ -227,6 +236,6 @@ describe("outcomeCandidates / groupedOutcomeCandidates: categorical outcomes", (
     expect(groups.map((g) => g.group)).toEqual(["scores", "ratings", "categories"]);
     const categories = groups.find((g) => g.group === "categories")!;
     expect(categories.label).toBe("Yes/no and categories");
-    expect(categories.variables.map((v) => v.name)).toEqual(["Q3", "Q4"]);
+    expect(categories.variables.map((v) => v.name)).toEqual(["Q3", "Q4", "Q7_Tutor"]);
   });
 });
