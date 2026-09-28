@@ -55,6 +55,6 @@ Findings from the owner's phased testing, started 2026-09-26. Status: fixed = co
 | 49 | Exported figures: axis titles/tick labels use the dark-theme muted grey on white paper (nearly invisible in PDF) | fixed |
 | 50 | Import check step: repeated per-column notes (e.g. seven '-99' lines) should be grouped into one | fixed |
 | 51 | Chart Builder "Save figure…" saves in the on-screen theme; should use the print palette like report exports | fixed |
-| 52 | Interview roles: no option for a select-all-that-apply question (Q7); add a multiple-answers role, pre-picked | open |
+| 52 | Interview roles: no option for a select-all-that-apply question (Q7); add a multiple-answers role, pre-picked | fixed |
 
 Parked for v1.1: guided learning mode (learner must pick the right advisor answers); Word survey import (Qualtrics .docx export was truncated/malformed; QSF is the route).
